@@ -14,6 +14,7 @@ import Masonry from 'react-masonry-css'
 import BottomNavbar from '@/components/BottomNavbar'
 import { Textarea } from "@/components/ui/textarea"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -53,6 +54,8 @@ const ImageGenerator = () => {
   const [aspectRatio, setAspectRatio] = useState("1:1")
   const [useAspectRatio, setUseAspectRatio] = useState(true)
   const [quality, setQuality] = useState("HD")
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false)
+  const [selectedImage, setSelectedImage] = useState(null)
 
   useEffect(() => {
     updateDimensions()
@@ -169,6 +172,11 @@ const ImageGenerator = () => {
     setGeneratedImages(prev => prev.filter(img => img.id !== id))
   }
 
+  const handleDetails = (image) => {
+    setSelectedImage(image)
+    setShowDetailsDialog(true)
+  }
+
   const handleRemix = (image) => {
     setPrompt(image.prompt)
     setSeed(image.seed)
@@ -219,31 +227,31 @@ const ImageGenerator = () => {
                     />
                   )}
                 </CardContent>
-                <div className="p-2 flex items-center justify-between">
-                  <p className="text-sm truncate flex-grow mr-2">{image.prompt}</p>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleDownload(image.imageUrl, image.prompt)}>
-                        Download
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
-                        Discard
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => alert(JSON.stringify(image, null, 2))}>
-                        Details
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleRemix(image)}>
-                        Remix
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
               </Card>
+              <div className="mt-2 flex items-center justify-between">
+                <p className="text-sm truncate flex-grow mr-2">{image.prompt}</p>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleDownload(image.imageUrl, image.prompt)}>
+                      Download
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
+                      Discard
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleDetails(image)}>
+                      Details
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleRemix(image)}>
+                      Remix
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
           ))}
         </Masonry>
@@ -370,6 +378,11 @@ const ImageGenerator = () => {
         </div>
       </div>
       <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <ImageDetailsDialog
+        open={showDetailsDialog}
+        onOpenChange={setShowDetailsDialog}
+        image={selectedImage}
+      />
     </div>
   )
 }
