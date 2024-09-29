@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react"
 import { useQuery } from '@tanstack/react-query'
 import { modelConfigs } from '@/utils/modelConfigs'
 import Masonry from 'react-masonry-css'
+import BottomNavbar from '@/components/BottomNavbar'
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
@@ -21,6 +22,7 @@ const ImageGenerator = () => {
   const [steps, setSteps] = useState(modelConfigs.flux.defaultStep)
   const [model, setModel] = useState('flux')
   const [generatedImages, setGeneratedImages] = useState([])
+  const [activeTab, setActiveTab] = useState('images')
 
   const generateImage = async () => {
     if (!prompt) {
@@ -97,8 +99,8 @@ const ImageGenerator = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
-      <div className="flex-grow p-6 overflow-y-auto pr-[350px]">
+    <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
+      <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px]`}>
         <h1 className="text-3xl font-bold mb-6">AI Image Generator</h1>
         <Masonry
           breakpointCols={breakpointColumnsObj}
@@ -130,7 +132,7 @@ const ImageGenerator = () => {
           ))}
         </Masonry>
       </div>
-      <div className="w-[350px] bg-card text-card-foreground p-6 overflow-y-auto fixed right-0 top-0 bottom-0">
+      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0`}>
         <h2 className="text-2xl font-semibold mb-4">Settings</h2>
         <div className="space-y-4">
           <div className="space-y-2">
@@ -212,6 +214,7 @@ const ImageGenerator = () => {
           </Button>
         </div>
       </div>
+      <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>
   )
 }
