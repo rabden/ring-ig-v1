@@ -238,7 +238,7 @@ const ImageGenerator = () => {
     default: 4,
     1100: 3,
     700: 2,
-    500: 1
+    500: 2
   };
 
   return (
@@ -273,7 +273,7 @@ const ImageGenerator = () => {
                 </CardContent>
               </Card>
               <div className="mt-2 flex items-center justify-between">
-                <p className="text-sm truncate flex-grow mr-2">{image.prompt}</p>
+                <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="h-8 w-8 p-0">
