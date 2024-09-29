@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Loader2 } from "lucide-react"
 import { useQuery } from '@tanstack/react-query'
 import { modelConfigs } from '@/utils/modelConfigs'
@@ -177,17 +178,16 @@ const ImageGenerator = () => {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="stepsSelect">Inference Steps</Label>
-            <Select value={steps} onValueChange={(value) => setSteps(parseInt(value))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select inference steps" />
-              </SelectTrigger>
-              <SelectContent>
+            <Label>Inference Steps</Label>
+            <Tabs value={steps.toString()} onValueChange={(value) => setSteps(parseInt(value))}>
+              <TabsList className="grid grid-cols-5 w-full">
                 {modelConfigs[model].inferenceSteps.map((step) => (
-                  <SelectItem key={step} value={step.toString()}>{step}</SelectItem>
+                  <TabsTrigger key={step} value={step.toString()}>
+                    {step}
+                  </TabsTrigger>
                 ))}
-              </SelectContent>
-            </Select>
+              </TabsList>
+            </Tabs>
           </div>
           <Button onClick={generateImage} className="w-full">
             Generate Image
