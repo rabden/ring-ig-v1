@@ -319,13 +319,16 @@ const ImageGenerator = () => {
                   <span className="ml-2 opacity-50">{modelConfigs[model].category}</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56">
+              <DropdownMenuContent className="w-[calc(100vw-3rem)] max-w-[600px] max-h-[80vh] overflow-y-auto">
                 {Object.entries(groupedModels).map(([category, models]) => (
                   <React.Fragment key={category}>
                     <DropdownMenuLabel>{category}</DropdownMenuLabel>
                     {models.map((modelConfig) => (
                       <DropdownMenuItem key={modelConfig.key} onSelect={() => handleModelChange(modelConfig.key)}>
-                        {modelConfig.name}
+                        <div className="flex justify-between w-full">
+                          <span>{modelConfig.name}</span>
+                          <span className="text-muted-foreground">{modelConfig.category}</span>
+                        </div>
                       </DropdownMenuItem>
                     ))}
                     <DropdownMenuSeparator />
