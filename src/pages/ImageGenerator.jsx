@@ -12,6 +12,7 @@ import { useQuery } from '@tanstack/react-query'
 import { modelConfigs } from '@/utils/modelConfigs'
 import Masonry from 'react-masonry-css'
 import BottomNavbar from '@/components/BottomNavbar'
+import { Textarea } from "@/components/ui/textarea"
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -27,6 +28,8 @@ const aspectRatios = {
   "9:21": { width: 439, height: 1024 },
   "1.91:1": { width: 1024, height: 536 },
   "1:1.91": { width: 536, height: 1024 },
+  "1:2": { width: 512, height: 1024 },
+  "2:1": { width: 1024, height: 512 },
 }
 
 const qualityOptions = {
@@ -144,7 +147,8 @@ const ImageGenerator = () => {
   }
 
   const handlePromptKeyDown = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
       generateImage()
     }
   }
@@ -195,14 +199,18 @@ const ImageGenerator = () => {
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="promptInput">Prompt</Label>
-            <Input
+            <Textarea
               id="promptInput"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={handlePromptKeyDown}
               placeholder="Enter your prompt here"
+              className="min-h-[100px] resize-y"
             />
           </div>
+          <Button onClick={generateImage} className="w-full">
+            Generate Image
+          </Button>
           <div className="space-y-2">
             <Label htmlFor="modelSelect">Model</Label>
             <Select value={model} onValueChange={handleModelChange}>
@@ -305,9 +313,6 @@ const ImageGenerator = () => {
               </TabsList>
             </Tabs>
           </div>
-          <Button onClick={generateImage} className="w-full">
-            Generate Image
-          </Button>
         </div>
       </div>
       <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
