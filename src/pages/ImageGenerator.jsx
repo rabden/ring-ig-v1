@@ -17,31 +17,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
 
-const aspectRatios = {
-  "1:1": { width: 1024, height: 1024 },
-  "4:3": { width: 1024, height: 768 },
-  "3:4": { width: 768, height: 1024 },
-  "16:9": { width: 1024, height: 576 },
-  "9:16": { width: 576, height: 1024 },
-  "3:2": { width: 1024, height: 683 },
-  "2:3": { width: 683, height: 1024 },
-  "5:4": { width: 1024, height: 819 },
-  "4:5": { width: 819, height: 1024 },
-  "21:9": { width: 1024, height: 439 },
-  "9:21": { width: 439, height: 1024 },
-  "1.91:1": { width: 1024, height: 536 },
-  "1:1.91": { width: 536, height: 1024 },
-  "1:2": { width: 512, height: 1024 },
-  "2:1": { width: 1024, height: 512 },
-}
-
-const qualityOptions = {
-  "SD": 512,
-  "HD": 1024,
-  "HD+": 1536,
-  "4K": 2048,
-}
-
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
   const [seed, setSeed] = useState(0)
@@ -109,6 +84,11 @@ const ImageGenerator = () => {
     }
 
     setGeneratedImages(prev => [newImage, ...prev])
+
+    // Navigate to the images tab on mobile when generation starts
+    if (window.innerWidth <= 768) {
+      setActiveTab('images')
+    }
 
     const data = {
       inputs: prompt,
