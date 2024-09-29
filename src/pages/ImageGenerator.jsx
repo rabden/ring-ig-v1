@@ -58,6 +58,7 @@ const ImageGenerator = () => {
   const [showDetailsDialog, setShowDetailsDialog] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
   const [fullScreenViewIndex, setFullScreenViewIndex] = useState(null)
+  const [isGenerating, setIsGenerating] = useState(false)
 
   useEffect(() => {
     updateDimensions()
@@ -90,6 +91,8 @@ const ImageGenerator = () => {
       alert('Please enter a prompt')
       return
     }
+
+    setIsGenerating(true)
 
     const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed
     setSeed(actualSeed)
@@ -146,6 +149,8 @@ const ImageGenerator = () => {
           img.id === newImage.id ? { ...img, loading: false, error: true } : img
         )
       )
+    } finally {
+      setIsGenerating(false)
     }
   }
 
@@ -285,8 +290,8 @@ const ImageGenerator = () => {
               className="min-h-[100px] resize-y"
             />
           </div>
-          <Button onClick={generateImage} className="w-full">
-            Generate Image
+          <Button onClick={generateImage} className="w-full" disabled={isGenerating}>
+            {isGenerating ? 'Generating...' : 'Generate Image'}
           </Button>
           <div className="space-y-2">
             <Label htmlFor="modelSelect">Model</Label>
