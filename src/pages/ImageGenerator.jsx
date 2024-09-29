@@ -112,24 +112,6 @@ const ImageGenerator = () => {
       case 'malaAnimeMix':
         modifiedPrompt += ", Anime, NSFW";
         break;
-      case 'simpleVector':
-        modifiedPrompt += ", vector, v3ct0r";
-        break;
-      case 'latentPop':
-        modifiedPrompt += ", LNTP";
-        break;
-      case 'whiteBackground':
-        modifiedPrompt += ", in the middle ,white background";
-        break;
-      case 'coloringBook':
-        modifiedPrompt += ", c0l0ringb00k";
-        break;
-      case 'ghibskyIllustration':
-        modifiedPrompt += ", GHIBSKY style";
-        break;
-      case 'logoDesign':
-        modifiedPrompt += ", wablogo, logo";
-        break;
       default:
         // No modification for other models
         break;
