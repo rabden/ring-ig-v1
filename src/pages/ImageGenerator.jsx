@@ -15,7 +15,6 @@ import BottomNavbar from '@/components/BottomNavbar'
 import { Textarea } from "@/components/ui/textarea"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
-import FullScreenImageView from '@/components/FullScreenImageView'
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -57,8 +56,6 @@ const ImageGenerator = () => {
   const [quality, setQuality] = useState("HD")
   const [showDetailsDialog, setShowDetailsDialog] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
-  const [fullScreenViewIndex, setFullScreenViewIndex] = useState(null)
-  const [isGenerating, setIsGenerating] = useState(false)
 
   useEffect(() => {
     updateDimensions()
@@ -91,8 +88,6 @@ const ImageGenerator = () => {
       alert('Please enter a prompt')
       return
     }
-
-    setIsGenerating(true)
 
     const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed
     setSeed(actualSeed)
@@ -149,8 +144,6 @@ const ImageGenerator = () => {
           img.id === newImage.id ? { ...img, loading: false, error: true } : img
         )
       )
-    } finally {
-      setIsGenerating(false)
     }
   }
 
@@ -198,18 +191,6 @@ const ImageGenerator = () => {
     setActiveTab('input')
   }
 
-  const handleFullScreenView = (index) => {
-    setFullScreenViewIndex(index)
-  }
-
-  const handleFullScreenNavigate = (direction) => {
-    if (direction === 'prev' && fullScreenViewIndex > 0) {
-      setFullScreenViewIndex(fullScreenViewIndex - 1)
-    } else if (direction === 'next' && fullScreenViewIndex < generatedImages.length - 1) {
-      setFullScreenViewIndex(fullScreenViewIndex + 1)
-    }
-  }
-
   const breakpointColumnsObj = {
     default: 4,
     1100: 3,
@@ -226,7 +207,7 @@ const ImageGenerator = () => {
           className="flex w-auto"
           columnClassName="bg-clip-padding px-2"
         >
-          {generatedImages.map((image, index) => (
+          {generatedImages.map((image) => (
             <div key={image.id} className="mb-4">
               <Card className="overflow-hidden">
                 <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
@@ -242,8 +223,7 @@ const ImageGenerator = () => {
                     <img 
                       src={image.imageUrl} 
                       alt={image.prompt} 
-                      className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                      onClick={() => handleFullScreenView(index)}
+                      className="absolute inset-0 w-full h-full object-cover"
                     />
                   )}
                 </CardContent>
@@ -290,8 +270,8 @@ const ImageGenerator = () => {
               className="min-h-[100px] resize-y"
             />
           </div>
-          <Button onClick={generateImage} className="w-full" disabled={isGenerating}>
-            {isGenerating ? 'Generating...' : 'Generate Image'}
+          <Button onClick={generateImage} className="w-full">
+            Generate Image
           </Button>
           <div className="space-y-2">
             <Label htmlFor="modelSelect">Model</Label>
@@ -402,13 +382,6 @@ const ImageGenerator = () => {
         open={showDetailsDialog}
         onOpenChange={setShowDetailsDialog}
         image={selectedImage}
-      />
-      <FullScreenImageView
-        images={generatedImages}
-        currentIndex={fullScreenViewIndex}
-        isOpen={fullScreenViewIndex !== null}
-        onClose={() => setFullScreenViewIndex(null)}
-        onNavigate={handleFullScreenNavigate}
       />
     </div>
   )
