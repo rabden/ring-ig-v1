@@ -5,8 +5,10 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2 } from "lucide-react"
 import { useQuery } from '@tanstack/react-query'
+import { modelConfigs } from '@/utils/modelConfigs'
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
@@ -14,7 +16,8 @@ const ImageGenerator = () => {
   const [randomizeSeed, setRandomizeSeed] = useState(true)
   const [width, setWidth] = useState(1024)
   const [height, setHeight] = useState(1024)
-  const [steps, setSteps] = useState(4)
+  const [steps, setSteps] = useState(modelConfigs.flux.defaultStep)
+  const [model, setModel] = useState('flux')
   const [generatedImages, setGeneratedImages] = useState([])
 
   const generateImage = async () => {
@@ -33,6 +36,7 @@ const ImageGenerator = () => {
       width,
       height,
       steps,
+      model,
       loading: true,
     }
 
@@ -50,7 +54,7 @@ const ImageGenerator = () => {
 
     try {
       const response = await fetch(
-        "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell",
+        modelConfigs[model].apiUrl,
         {
           headers: {
             Authorization: "Bearer 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",
@@ -76,6 +80,11 @@ const ImageGenerator = () => {
         )
       )
     }
+  }
+
+  const handleModelChange = (value) => {
+    setModel(value)
+    setSteps(modelConfigs[value].defaultStep)
   }
 
   return (
@@ -113,6 +122,19 @@ const ImageGenerator = () => {
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Enter your prompt here"
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="modelSelect">Model</Label>
+            <Select value={model} onValueChange={handleModelChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a model" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(modelConfigs).map(([key, config]) => (
+                  <SelectItem key={key} value={key}>{config.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="seedInput">Seed</Label>
@@ -155,13 +177,17 @@ const ImageGenerator = () => {
             />
           </div>
           <div className="space-y-2">
-            <Label>Inference Steps: {steps}</Label>
-            <Slider
-              min={1}
-              max={50}
-              value={[steps]}
-              onValueChange={(value) => setSteps(value[0])}
-            />
+            <Label htmlFor="stepsSelect">Inference Steps</Label>
+            <Select value={steps} onValueChange={(value) => setSteps(parseInt(value))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select inference steps" />
+              </SelectTrigger>
+              <SelectContent>
+                {modelConfigs[model].inferenceSteps.map((step) => (
+                  <SelectItem key={step} value={step.toString()}>{step}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <Button onClick={generateImage} className="w-full">
             Generate Image
