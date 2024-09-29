@@ -95,9 +95,31 @@ const ImageGenerator = () => {
     const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed
     setSeed(actualSeed)
 
+    let modifiedPrompt = prompt;
+
+    // Add model-specific suffixes
+    switch (model) {
+      case 'canopusAnime':
+      case 'fluxAnime':
+        modifiedPrompt += ", Anime";
+        break;
+      case 'dreamscape':
+        modifiedPrompt += ", in the style of BSstyle004";
+        break;
+      case 'boreal':
+        modifiedPrompt += ", Photo";
+        break;
+      case 'malaAnimeMix':
+        modifiedPrompt += ", Anime, NSFW";
+        break;
+      default:
+        // No modification for other models
+        break;
+    }
+
     const newImage = {
       id: Date.now(),
-      prompt,
+      prompt: modifiedPrompt,
       seed: actualSeed,
       width,
       height,
@@ -116,7 +138,7 @@ const ImageGenerator = () => {
     }
 
     const data = {
-      inputs: prompt,
+      inputs: modifiedPrompt,
       parameters: {
         seed: actualSeed,
         width,
