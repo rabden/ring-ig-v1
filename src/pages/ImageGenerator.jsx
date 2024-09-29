@@ -14,7 +14,6 @@ import BottomNavbar from '@/components/BottomNavbar'
 import { Textarea } from "@/components/ui/textarea"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu"
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
-import FullScreenImageView from '@/components/FullScreenImageView'
 import ModelSidebarMenu from '@/components/ModelSidebarMenu'
 
 const aspectRatios = {
@@ -57,8 +56,6 @@ const ImageGenerator = () => {
   const [quality, setQuality] = useState("HD")
   const [showDetailsDialog, setShowDetailsDialog] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
-  const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false)
-  const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
   const [modelSidebarOpen, setModelSidebarOpen] = useState(false)
 
   useEffect(() => {
@@ -207,19 +204,6 @@ const ImageGenerator = () => {
     setActiveTab('input')
   }
 
-  const handleImageClick = (index) => {
-    setFullScreenImageIndex(index)
-    setFullScreenViewOpen(true)
-  }
-
-  const handleFullScreenNavigate = (direction) => {
-    if (direction === 'prev' && fullScreenImageIndex > 0) {
-      setFullScreenImageIndex(fullScreenImageIndex - 1)
-    } else if (direction === 'next' && fullScreenImageIndex < generatedImages.length - 1) {
-      setFullScreenImageIndex(fullScreenImageIndex + 1)
-    }
-  }
-
   const breakpointColumnsObj = {
     default: 4,
     1100: 3,
@@ -236,7 +220,7 @@ const ImageGenerator = () => {
           className="flex w-auto"
           columnClassName="bg-clip-padding px-2"
         >
-          {generatedImages.map((image, index) => (
+          {generatedImages.map((image) => (
             <div key={image.id} className="mb-4">
               <Card className="overflow-hidden">
                 <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
@@ -252,8 +236,7 @@ const ImageGenerator = () => {
                     <img 
                       src={image.imageUrl} 
                       alt={image.prompt} 
-                      className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                      onClick={() => handleImageClick(index)}
+                      className="absolute inset-0 w-full h-full object-cover"
                     />
                   )}
                 </CardContent>
@@ -410,13 +393,6 @@ const ImageGenerator = () => {
         open={showDetailsDialog}
         onOpenChange={setShowDetailsDialog}
         image={selectedImage}
-      />
-      <FullScreenImageView
-        images={generatedImages}
-        currentIndex={fullScreenImageIndex}
-        isOpen={fullScreenViewOpen}
-        onClose={() => setFullScreenViewOpen(false)}
-        onNavigate={handleFullScreenNavigate}
       />
       <ModelSidebarMenu
         isOpen={modelSidebarOpen}
