@@ -19,6 +19,14 @@ const aspectRatios = {
   "3:4": { width: 768, height: 1024 },
   "16:9": { width: 1024, height: 576 },
   "9:16": { width: 576, height: 1024 },
+  "3:2": { width: 1024, height: 683 },
+  "2:3": { width: 683, height: 1024 },
+  "5:4": { width: 1024, height: 819 },
+  "4:5": { width: 819, height: 1024 },
+  "21:9": { width: 1024, height: 439 },
+  "9:21": { width: 439, height: 1024 },
+  "1.91:1": { width: 1024, height: 536 },
+  "1:1.91": { width: 536, height: 1024 },
 }
 
 const qualityOptions = {
@@ -230,16 +238,13 @@ const ImageGenerator = () => {
           </div>
           <div className="space-y-2">
             <Label>Quality</Label>
-            <Select value={quality} onValueChange={setQuality}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select quality" />
-              </SelectTrigger>
-              <SelectContent>
+            <Tabs value={quality} onValueChange={setQuality}>
+              <TabsList className="grid grid-cols-4 w-full">
                 {Object.keys(qualityOptions).map((q) => (
-                  <SelectItem key={q} value={q}>{q}</SelectItem>
+                  <TabsTrigger key={q} value={q}>{q}</TabsTrigger>
                 ))}
-              </SelectContent>
-            </Select>
+              </TabsList>
+            </Tabs>
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -250,16 +255,15 @@ const ImageGenerator = () => {
               />
             </div>
             {useAspectRatio ? (
-              <Select value={aspectRatio} onValueChange={setAspectRatio}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select aspect ratio" />
-                </SelectTrigger>
-                <SelectContent>
+              <Tabs value={aspectRatio} onValueChange={setAspectRatio}>
+                <TabsList className="grid grid-cols-3 gap-2 w-full">
                   {Object.keys(aspectRatios).map((ratio) => (
-                    <SelectItem key={ratio} value={ratio}>{ratio}</SelectItem>
+                    <TabsTrigger key={ratio} value={ratio} className="px-2 py-1 text-xs">
+                      {ratio}
+                    </TabsTrigger>
                   ))}
-                </SelectContent>
-              </Select>
+                </TabsList>
+              </Tabs>
             ) : (
               <>
                 <div className="space-y-2">
