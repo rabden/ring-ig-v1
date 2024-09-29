@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Loader2, MoreVertical } from "lucide-react"
 import { useQuery } from '@tanstack/react-query'
@@ -13,7 +12,7 @@ import { modelConfigs } from '@/utils/modelConfigs'
 import Masonry from 'react-masonry-css'
 import BottomNavbar from '@/components/BottomNavbar'
 import { Textarea } from "@/components/ui/textarea"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu"
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
 
@@ -167,6 +166,15 @@ const ImageGenerator = () => {
     setSteps(modelConfigs[value].defaultStep)
   }
 
+  // Group models by category
+  const groupedModels = Object.entries(modelConfigs).reduce((acc, [key, config]) => {
+    if (!acc[config.category]) {
+      acc[config.category] = []
+    }
+    acc[config.category].push({ key, ...config })
+    return acc
+  }, {})
+
   const handlePromptKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -304,16 +312,27 @@ const ImageGenerator = () => {
           </Button>
           <div className="space-y-2">
             <Label htmlFor="modelSelect">Model</Label>
-            <Select value={model} onValueChange={handleModelChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a model" />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(modelConfigs).map(([key, config]) => (
-                  <SelectItem key={key} value={key}>{config.name}</SelectItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-full justify-between">
+                  {modelConfigs[model].name}
+                  <span className="ml-2 opacity-50">{modelConfigs[model].category}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                {Object.entries(groupedModels).map(([category, models]) => (
+                  <React.Fragment key={category}>
+                    <DropdownMenuLabel>{category}</DropdownMenuLabel>
+                    {models.map((modelConfig) => (
+                      <DropdownMenuItem key={modelConfig.key} onSelect={() => handleModelChange(modelConfig.key)}>
+                        {modelConfig.name}
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                  </React.Fragment>
                 ))}
-              </SelectContent>
-            </Select>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <div className="space-y-2">
             <Label htmlFor="seedInput">Seed</Label>
