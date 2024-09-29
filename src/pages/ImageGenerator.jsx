@@ -132,7 +132,7 @@ const ImageGenerator = () => {
           ))}
         </Masonry>
       </div>
-      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0`}>
+      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen`}>
         <h2 className="text-2xl font-semibold mb-4">Settings</h2>
         <div className="space-y-4">
           <div className="space-y-2">
