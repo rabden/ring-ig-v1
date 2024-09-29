@@ -17,6 +17,21 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
 
+const qualityOptions = {
+  SD: 512,
+  HD: 768,
+  '2K': 1024,
+  '4K': 2048
+};
+
+const aspectRatios = {
+  '1:1': { width: 1, height: 1 },
+  '4:3': { width: 4, height: 3 },
+  '3:4': { width: 3, height: 4 },
+  '16:9': { width: 16, height: 9 },
+  '9:16': { width: 9, height: 16 }
+};
+
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
   const [seed, setSeed] = useState(0)
