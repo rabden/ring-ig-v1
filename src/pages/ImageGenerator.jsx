@@ -7,12 +7,13 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Loader2 } from "lucide-react"
+import { Loader2, MoreVertical } from "lucide-react"
 import { useQuery } from '@tanstack/react-query'
 import { modelConfigs } from '@/utils/modelConfigs'
 import Masonry from 'react-masonry-css'
 import BottomNavbar from '@/components/BottomNavbar'
 import { Textarea } from "@/components/ui/textarea"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -96,6 +97,8 @@ const ImageGenerator = () => {
       height,
       steps,
       model,
+      quality,
+      aspectRatio: useAspectRatio ? aspectRatio : `${width}:${height}`,
       loading: true,
     }
 
@@ -153,6 +156,33 @@ const ImageGenerator = () => {
     }
   }
 
+  const handleDownload = (imageUrl, prompt) => {
+    const link = document.createElement('a')
+    link.href = imageUrl
+    link.download = `${prompt.slice(0, 20)}.png`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  const handleDiscard = (id) => {
+    setGeneratedImages(prev => prev.filter(img => img.id !== id))
+  }
+
+  const handleRemix = (image) => {
+    setPrompt(image.prompt)
+    setSeed(image.seed)
+    setRandomizeSeed(false)
+    setWidth(image.width)
+    setHeight(image.height)
+    setSteps(image.steps)
+    setModel(image.model)
+    setQuality(image.quality)
+    setAspectRatio(image.aspectRatio)
+    setUseAspectRatio(image.aspectRatio in aspectRatios)
+    setActiveTab('input')
+  }
+
   const breakpointColumnsObj = {
     default: 4,
     1100: 3,
@@ -189,6 +219,30 @@ const ImageGenerator = () => {
                     />
                   )}
                 </CardContent>
+                <div className="p-2 flex items-center justify-between">
+                  <p className="text-sm truncate flex-grow mr-2">{image.prompt}</p>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleDownload(image.imageUrl, image.prompt)}>
+                        Download
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
+                        Discard
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => alert(JSON.stringify(image, null, 2))}>
+                        Details
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleRemix(image)}>
+                        Remix
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </Card>
             </div>
           ))}
