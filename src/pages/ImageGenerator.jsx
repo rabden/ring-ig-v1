@@ -3,15 +3,13 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Loader2 } from "lucide-react"
 import { useQuery } from '@tanstack/react-query'
 import { modelConfigs } from '@/utils/modelConfigs'
 import Masonry from 'react-masonry-css'
 import BottomNavbar from '@/components/BottomNavbar'
+import { Textarea } from "@/components/ui/textarea"
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -27,6 +25,8 @@ const aspectRatios = {
   "9:21": { width: 439, height: 1024 },
   "1.91:1": { width: 1024, height: 536 },
   "1:1.91": { width: 536, height: 1024 },
+  "1:2": { width: 512, height: 1024 },
+  "2:1": { width: 1024, height: 512 },
 }
 
 const qualityOptions = {
@@ -143,12 +143,6 @@ const ImageGenerator = () => {
     setSteps(modelConfigs[value].defaultStep)
   }
 
-  const handlePromptKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      generateImage()
-    }
-  }
-
   const breakpointColumnsObj = {
     default: 4,
     1100: 3,
@@ -195,26 +189,29 @@ const ImageGenerator = () => {
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="promptInput">Prompt</Label>
-            <Input
+            <Textarea
               id="promptInput"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              onKeyDown={handlePromptKeyDown}
               placeholder="Enter your prompt here"
+              className="min-h-[100px] resize-y"
             />
           </div>
+          <Button onClick={generateImage} className="w-full">
+            Generate Image
+          </Button>
           <div className="space-y-2">
             <Label htmlFor="modelSelect">Model</Label>
-            <Select value={model} onValueChange={handleModelChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a model" />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(modelConfigs).map(([key, config]) => (
-                  <SelectItem key={key} value={key}>{config.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <select
+              id="modelSelect"
+              value={model}
+              onChange={(e) => handleModelChange(e.target.value)}
+              className="w-full p-2 border rounded"
+            >
+              {Object.entries(modelConfigs).map(([key, config]) => (
+                <option key={key} value={key}>{config.name}</option>
+              ))}
+            </select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="seedInput">Seed</Label>
@@ -238,13 +235,18 @@ const ImageGenerator = () => {
           </div>
           <div className="space-y-2">
             <Label>Quality</Label>
-            <Tabs value={quality} onValueChange={setQuality}>
-              <TabsList className="grid grid-cols-4 w-full">
-                {Object.keys(qualityOptions).map((q) => (
-                  <TabsTrigger key={q} value={q}>{q}</TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
+            <div className="grid grid-cols-2 gap-2">
+              {Object.keys(qualityOptions).map((q) => (
+                <Button
+                  key={q}
+                  variant={quality === q ? "default" : "outline"}
+                  className="w-full"
+                  onClick={() => setQuality(q)}
+                >
+                  {q}
+                </Button>
+              ))}
+            </div>
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -272,22 +274,24 @@ const ImageGenerator = () => {
               <>
                 <div className="space-y-2">
                   <Label>Width: {width}px</Label>
-                  <Slider
+                  <Input
+                    type="range"
                     min={256}
                     max={qualityOptions[quality]}
                     step={8}
-                    value={[width]}
-                    onValueChange={(value) => setWidth(value[0])}
+                    value={width}
+                    onChange={(e) => setWidth(parseInt(e.target.value))}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Height: {height}px</Label>
-                  <Slider
+                  <Input
+                    type="range"
                     min={256}
                     max={qualityOptions[quality]}
                     step={8}
-                    value={[height]}
-                    onValueChange={(value) => setHeight(value[0])}
+                    value={height}
+                    onChange={(e) => setHeight(parseInt(e.target.value))}
                   />
                 </div>
               </>
@@ -295,19 +299,19 @@ const ImageGenerator = () => {
           </div>
           <div className="space-y-2">
             <Label>Inference Steps</Label>
-            <Tabs value={steps.toString()} onValueChange={(value) => setSteps(parseInt(value))}>
-              <TabsList className="grid grid-cols-5 w-full">
-                {modelConfigs[model].inferenceSteps.map((step) => (
-                  <TabsTrigger key={step} value={step.toString()}>
-                    {step}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
+            <div className="grid grid-cols-3 gap-2">
+              {modelConfigs[model].inferenceSteps.map((step) => (
+                <Button
+                  key={step}
+                  variant={steps === step ? "default" : "outline"}
+                  className="w-full"
+                  onClick={() => setSteps(step)}
+                >
+                  {step}
+                </Button>
+              ))}
+            </div>
           </div>
-          <Button onClick={generateImage} className="w-full">
-            Generate Image
-          </Button>
         </div>
       </div>
       <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
