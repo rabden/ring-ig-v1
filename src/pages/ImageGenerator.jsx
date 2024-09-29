@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -13,6 +13,21 @@ import { modelConfigs } from '@/utils/modelConfigs'
 import Masonry from 'react-masonry-css'
 import BottomNavbar from '@/components/BottomNavbar'
 
+const aspectRatios = {
+  "1:1": { width: 1024, height: 1024 },
+  "4:3": { width: 1024, height: 768 },
+  "3:4": { width: 768, height: 1024 },
+  "16:9": { width: 1024, height: 576 },
+  "9:16": { width: 576, height: 1024 },
+}
+
+const qualityOptions = {
+  "SD": 512,
+  "HD": 1024,
+  "HD+": 1536,
+  "4K": 2048,
+}
+
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
   const [seed, setSeed] = useState(0)
@@ -23,6 +38,35 @@ const ImageGenerator = () => {
   const [model, setModel] = useState('flux')
   const [generatedImages, setGeneratedImages] = useState([])
   const [activeTab, setActiveTab] = useState('images')
+  const [aspectRatio, setAspectRatio] = useState("1:1")
+  const [useAspectRatio, setUseAspectRatio] = useState(true)
+  const [quality, setQuality] = useState("HD")
+
+  useEffect(() => {
+    updateDimensions()
+  }, [aspectRatio, quality, useAspectRatio])
+
+  const updateDimensions = () => {
+    const maxSize = qualityOptions[quality]
+    let newWidth, newHeight
+
+    if (useAspectRatio) {
+      const ratio = aspectRatios[aspectRatio]
+      if (ratio.width > ratio.height) {
+        newWidth = maxSize
+        newHeight = Math.round((maxSize / ratio.width) * ratio.height)
+      } else {
+        newHeight = maxSize
+        newWidth = Math.round((maxSize / ratio.height) * ratio.width)
+      }
+    } else {
+      newWidth = Math.min(width, maxSize)
+      newHeight = Math.min(height, maxSize)
+    }
+
+    setWidth(Math.floor(newWidth / 8) * 8)
+    setHeight(Math.floor(newHeight / 8) * 8)
+  }
 
   const generateImage = async () => {
     if (!prompt) {
@@ -91,6 +135,12 @@ const ImageGenerator = () => {
     setSteps(modelConfigs[value].defaultStep)
   }
 
+  const handlePromptKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      generateImage()
+    }
+  }
+
   const breakpointColumnsObj = {
     default: 4,
     1100: 3,
@@ -141,6 +191,7 @@ const ImageGenerator = () => {
               id="promptInput"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
+              onKeyDown={handlePromptKeyDown}
               placeholder="Enter your prompt here"
             />
           </div>
@@ -178,24 +229,61 @@ const ImageGenerator = () => {
             </div>
           </div>
           <div className="space-y-2">
-            <Label>Width: {width}px</Label>
-            <Slider
-              min={256}
-              max={2048}
-              step={64}
-              value={[width]}
-              onValueChange={(value) => setWidth(value[0])}
-            />
+            <Label>Quality</Label>
+            <Select value={quality} onValueChange={setQuality}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select quality" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.keys(qualityOptions).map((q) => (
+                  <SelectItem key={q} value={q}>{q}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
-            <Label>Height: {height}px</Label>
-            <Slider
-              min={256}
-              max={2048}
-              step={64}
-              value={[height]}
-              onValueChange={(value) => setHeight(value[0])}
-            />
+            <div className="flex items-center justify-between">
+              <Label>Use Aspect Ratio</Label>
+              <Switch
+                checked={useAspectRatio}
+                onCheckedChange={setUseAspectRatio}
+              />
+            </div>
+            {useAspectRatio ? (
+              <Select value={aspectRatio} onValueChange={setAspectRatio}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select aspect ratio" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.keys(aspectRatios).map((ratio) => (
+                    <SelectItem key={ratio} value={ratio}>{ratio}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label>Width: {width}px</Label>
+                  <Slider
+                    min={256}
+                    max={qualityOptions[quality]}
+                    step={8}
+                    value={[width]}
+                    onValueChange={(value) => setWidth(value[0])}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Height: {height}px</Label>
+                  <Slider
+                    min={256}
+                    max={qualityOptions[quality]}
+                    step={8}
+                    value={[height]}
+                    onValueChange={(value) => setHeight(value[0])}
+                  />
+                </div>
+              </>
+            )}
           </div>
           <div className="space-y-2">
             <Label>Inference Steps</Label>
