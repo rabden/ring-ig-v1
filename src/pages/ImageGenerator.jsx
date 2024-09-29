@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu"
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
+import ModelSidebarMenu from '@/components/ModelSidebarMenu'
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -58,6 +59,7 @@ const ImageGenerator = () => {
   const [selectedImage, setSelectedImage] = useState(null)
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false)
   const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
+  const [modelSidebarOpen, setModelSidebarOpen] = useState(false)
 
   useEffect(() => {
     updateDimensions()
@@ -165,15 +167,6 @@ const ImageGenerator = () => {
     setModel(value)
     setSteps(modelConfigs[value].defaultStep)
   }
-
-  // Group models by category
-  const groupedModels = Object.entries(modelConfigs).reduce((acc, [key, config]) => {
-    if (!acc[config.category]) {
-      acc[config.category] = []
-    }
-    acc[config.category].push({ key, ...config })
-    return acc
-  }, {})
 
   const handlePromptKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -312,30 +305,14 @@ const ImageGenerator = () => {
           </Button>
           <div className="space-y-2">
             <Label htmlFor="modelSelect">Model</Label>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-full justify-between">
-                  {modelConfigs[model].name}
-                  <span className="ml-2 opacity-50">{modelConfigs[model].category}</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[calc(100vw-3rem)] max-w-[600px] max-h-[80vh] overflow-y-auto">
-                {Object.entries(groupedModels).map(([category, models]) => (
-                  <React.Fragment key={category}>
-                    <DropdownMenuLabel>{category}</DropdownMenuLabel>
-                    {models.map((modelConfig) => (
-                      <DropdownMenuItem key={modelConfig.key} onSelect={() => handleModelChange(modelConfig.key)}>
-                        <div className="flex justify-between w-full">
-                          <span>{modelConfig.name}</span>
-                          <span className="text-muted-foreground">{modelConfig.category}</span>
-                        </div>
-                      </DropdownMenuItem>
-                    ))}
-                    <DropdownMenuSeparator />
-                  </React.Fragment>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button
+              variant="outline"
+              className="w-full justify-between"
+              onClick={() => setModelSidebarOpen(true)}
+            >
+              {modelConfigs[model].name}
+              <span className="ml-2 opacity-50">{modelConfigs[model].category}</span>
+            </Button>
           </div>
           <div className="space-y-2">
             <Label htmlFor="seedInput">Seed</Label>
@@ -440,6 +417,12 @@ const ImageGenerator = () => {
         isOpen={fullScreenViewOpen}
         onClose={() => setFullScreenViewOpen(false)}
         onNavigate={handleFullScreenNavigate}
+      />
+      <ModelSidebarMenu
+        isOpen={modelSidebarOpen}
+        onClose={() => setModelSidebarOpen(false)}
+        onSelectModel={handleModelChange}
+        currentModel={model}
       />
     </div>
   )
