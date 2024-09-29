@@ -98,23 +98,8 @@ const ImageGenerator = () => {
     let modifiedPrompt = prompt;
 
     // Add model-specific suffixes
-    switch (model) {
-      case 'canopusAnime':
-      case 'fluxAnime':
-        modifiedPrompt += ", Anime";
-        break;
-      case 'dreamscape':
-        modifiedPrompt += ", in the style of BSstyle004";
-        break;
-      case 'boreal':
-        modifiedPrompt += ", Photo";
-        break;
-      case 'malaAnimeMix':
-        modifiedPrompt += ", Anime, NSFW";
-        break;
-      default:
-        // No modification for other models
-        break;
+    if (modelConfigs[model].promptSuffix) {
+      modifiedPrompt += modelConfigs[model].promptSuffix;
     }
 
     const newImage = {
