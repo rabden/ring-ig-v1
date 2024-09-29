@@ -8,13 +8,13 @@ const BottomNavbar = ({ activeTab, setActiveTab }) => {
         onClick={() => setActiveTab('images')}
         className={`p-2 rounded-full ${activeTab === 'images' ? 'bg-primary text-primary-foreground' : 'text-foreground'}`}
       >
-        <Image size={20} /> {/* Decreased size from 24 to 20 */}
+        <Image size={24} />
       </button>
       <button
         onClick={() => setActiveTab('input')}
         className={`p-2 rounded-full ${activeTab === 'input' ? 'bg-primary text-primary-foreground' : 'text-foreground'}`}
       >
-        <Plus size={20} /> {/* Decreased size from 24 to 20 */}
+        <Plus size={24} />
       </button>
     </div>
   );
