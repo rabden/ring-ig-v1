@@ -1,12 +1,11 @@
 import React from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 const FullScreenImageView = ({ images, currentIndex, isOpen, onClose, onNavigate }) => {
-  const currentImage = images[currentIndex];
-
-  if (!isOpen || !currentImage) {
+  if (!isOpen || images.length === 0) {
     return null;
   }
 
@@ -22,29 +21,21 @@ const FullScreenImageView = ({ images, currentIndex, isOpen, onClose, onNavigate
           >
             <X className="h-6 w-6" />
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute left-4 top-1/2 transform -translate-y-1/2"
-            onClick={() => onNavigate('prev')}
-            disabled={currentIndex === 0}
-          >
-            <ChevronLeft className="h-8 w-8" />
-          </Button>
-          <img
-            src={currentImage.imageUrl}
-            alt={currentImage.prompt}
-            className="max-w-full max-h-full object-contain"
-          />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute right-4 top-1/2 transform -translate-y-1/2"
-            onClick={() => onNavigate('next')}
-            disabled={currentIndex === images.length - 1}
-          >
-            <ChevronRight className="h-8 w-8" />
-          </Button>
+          <Carousel className="w-full h-full" defaultIndex={currentIndex}>
+            <CarouselContent>
+              {images.map((image, index) => (
+                <CarouselItem key={image.id} className="flex items-center justify-center">
+                  <img
+                    src={image.imageUrl}
+                    alt={image.prompt}
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious onClick={() => onNavigate('prev')} />
+            <CarouselNext onClick={() => onNavigate('next')} />
+          </Carousel>
         </div>
       </DialogContent>
     </Dialog>
