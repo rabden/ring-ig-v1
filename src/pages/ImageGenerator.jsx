@@ -110,6 +110,11 @@ const ImageGenerator = () => {
 
     setGeneratedImages(prev => [newImage, ...prev])
 
+    // Automatically navigate to the images tab on mobile
+    if (window.innerWidth <= 768) {
+      setActiveTab('images')
+    }
+
     const data = {
       inputs: prompt,
       parameters: {
