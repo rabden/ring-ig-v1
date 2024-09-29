@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 const FullScreenImageView = ({ images, currentIndex, isOpen, onClose, onNavigate }) => {
   const currentImage = images[currentIndex];
 
+  if (!isOpen || !currentImage) {
+    return null;
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-full max-h-full p-0 bg-background/80 backdrop-blur-sm">
