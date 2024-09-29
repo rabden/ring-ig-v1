@@ -18,25 +18,27 @@ const ModelSidebarMenu = ({ isOpen, onClose, onSelectModel, currentModel }) => {
         <h2 className="text-lg font-semibold">Choose Model</h2>
         <Button variant="ghost" size="sm" onClick={onClose}>×</Button>
       </div>
-      <ScrollArea className="h-[calc(100vh-64px)] p-4">
-        {Object.entries(groupedModels).map(([category, models]) => (
-          <div key={category} className="mb-6">
-            <h3 className="text-sm font-semibold mb-2 text-muted-foreground">{category}</h3>
-            {models.map((model) => (
-              <Button
-                key={model.key}
-                variant={currentModel === model.key ? "secondary" : "ghost"}
-                className="w-full justify-start mb-1 text-left"
-                onClick={() => {
-                  onSelectModel(model.key);
-                  onClose();
-                }}
-              >
-                <span className="truncate">{model.name}</span>
-              </Button>
-            ))}
-          </div>
-        ))}
+      <ScrollArea className="h-[calc(100vh-64px)]">
+        <div className="p-4">
+          {Object.entries(groupedModels).map(([category, models]) => (
+            <div key={category} className="mb-6">
+              <h3 className="text-sm font-semibold mb-2 text-muted-foreground">{category}</h3>
+              {models.map((model) => (
+                <Button
+                  key={model.key}
+                  variant={currentModel === model.key ? "secondary" : "ghost"}
+                  className="w-full justify-start mb-1 text-left"
+                  onClick={() => {
+                    onSelectModel(model.key);
+                    onClose();
+                  }}
+                >
+                  <span className="truncate">{model.name}</span>
+                </Button>
+              ))}
+            </div>
+          ))}
+        </div>
       </ScrollArea>
     </div>
   );
