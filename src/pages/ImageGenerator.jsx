@@ -98,7 +98,7 @@ const ImageGenerator = () => {
 
   return (
     <div className="flex min-h-screen bg-background text-foreground">
-      <div className="flex-grow p-6">
+      <div className="flex-grow p-6 overflow-y-auto">
         <h1 className="text-3xl font-bold mb-6">AI Image Generator</h1>
         <Masonry
           breakpointCols={breakpointColumnsObj}
