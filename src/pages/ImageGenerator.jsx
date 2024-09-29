@@ -1,0 +1,175 @@
+import React, { useState } from 'react'
+import { Card, CardContent } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+import { Slider } from "@/components/ui/slider"
+import { Switch } from "@/components/ui/switch"
+import { Loader2 } from "lucide-react"
+import { useQuery } from '@tanstack/react-query'
+
+const ImageGenerator = () => {
+  const [prompt, setPrompt] = useState('')
+  const [seed, setSeed] = useState(0)
+  const [randomizeSeed, setRandomizeSeed] = useState(true)
+  const [width, setWidth] = useState(1024)
+  const [height, setHeight] = useState(1024)
+  const [steps, setSteps] = useState(4)
+  const [generatedImages, setGeneratedImages] = useState([])
+
+  const generateImage = async () => {
+    if (!prompt) {
+      alert('Please enter a prompt')
+      return
+    }
+
+    const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed
+    setSeed(actualSeed)
+
+    const newImage = {
+      id: Date.now(),
+      prompt,
+      seed: actualSeed,
+      width,
+      height,
+      steps,
+      loading: true,
+    }
+
+    setGeneratedImages(prev => [newImage, ...prev])
+
+    const data = {
+      inputs: prompt,
+      parameters: {
+        seed: actualSeed,
+        width,
+        height,
+        num_inference_steps: steps
+      }
+    }
+
+    try {
+      const response = await fetch(
+        "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell",
+        {
+          headers: {
+            Authorization: "Bearer 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",
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      )
+      const result = await response.blob()
+      const imageUrl = URL.createObjectURL(result)
+
+      setGeneratedImages(prev =>
+        prev.map(img =>
+          img.id === newImage.id ? { ...img, loading: false, imageUrl } : img
+        )
+      )
+    } catch (error) {
+      console.error('Error generating image:', error)
+      setGeneratedImages(prev =>
+        prev.map(img =>
+          img.id === newImage.id ? { ...img, loading: false, error: true } : img
+        )
+      )
+    }
+  }
+
+  return (
+    <div className="flex min-h-screen bg-background text-foreground">
+      <div className="flex-grow p-6">
+        <h1 className="text-3xl font-bold mb-6">AI Image Generator</h1>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {generatedImages.map((image) => (
+            <Card key={image.id} className="overflow-hidden">
+              <CardContent className="p-0 aspect-square relative">
+                {image.loading ? (
+                  <div className="flex items-center justify-center h-full">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                  </div>
+                ) : image.error ? (
+                  <div className="flex items-center justify-center h-full text-destructive">
+                    Error generating image
+                  </div>
+                ) : (
+                  <img src={image.imageUrl} alt={image.prompt} className="w-full h-full object-cover" />
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+      <div className="w-[350px] bg-card text-card-foreground p-6 overflow-y-auto fixed right-0 top-0 bottom-0">
+        <h2 className="text-2xl font-semibold mb-4">Settings</h2>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="promptInput">Prompt</Label>
+            <Input
+              id="promptInput"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Enter your prompt here"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="seedInput">Seed</Label>
+            <div className="flex items-center space-x-2">
+              <Input
+                id="seedInput"
+                type="number"
+                value={seed}
+                onChange={(e) => setSeed(parseInt(e.target.value))}
+                disabled={randomizeSeed}
+              />
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="randomizeSeed"
+                  checked={randomizeSeed}
+                  onCheckedChange={setRandomizeSeed}
+                />
+                <Label htmlFor="randomizeSeed">Random</Label>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label>Width: {width}px</Label>
+            <Slider
+              min={256}
+              max={2048}
+              step={64}
+              value={[width]}
+              onValueChange={(value) => setWidth(value[0])}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Height: {height}px</Label>
+            <Slider
+              min={256}
+              max={2048}
+              step={64}
+              value={[height]}
+              onValueChange={(value) => setHeight(value[0])}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Inference Steps: {steps}</Label>
+            <Slider
+              min={1}
+              max={50}
+              value={[steps]}
+              onValueChange={(value) => setSteps(value[0])}
+            />
+          </div>
+          <Button onClick={generateImage} className="w-full">
+            Generate Image
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default ImageGenerator
