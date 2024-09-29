@@ -254,17 +254,21 @@ const ImageGenerator = () => {
                 onCheckedChange={setUseAspectRatio}
               />
             </div>
-            {useAspectRatio ? (
-              <Tabs value={aspectRatio} onValueChange={setAspectRatio}>
-                <TabsList className="grid grid-cols-3 gap-2 w-full">
-                  {Object.keys(aspectRatios).map((ratio) => (
-                    <TabsTrigger key={ratio} value={ratio} className="px-2 py-1 text-xs">
-                      {ratio}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </Tabs>
-            ) : (
+            {useAspectRatio && (
+              <div className="grid grid-cols-3 gap-2">
+                {Object.keys(aspectRatios).map((ratio) => (
+                  <Button
+                    key={ratio}
+                    variant={aspectRatio === ratio ? "default" : "outline"}
+                    className="w-full text-xs py-1 px-2"
+                    onClick={() => setAspectRatio(ratio)}
+                  >
+                    {ratio}
+                  </Button>
+                ))}
+              </div>
+            )}
+            {!useAspectRatio && (
               <>
                 <div className="space-y-2">
                   <Label>Width: {width}px</Label>
