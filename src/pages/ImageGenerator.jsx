@@ -88,18 +88,37 @@ const ImageGenerator = () => {
     setHeight(Math.floor(newHeight / 8) * 8)
   }
 
+  const fetchOrCreateUserCredits = async (userId) => {
+    const { data, error } = await supabase
+      .from('user_credits')
+      .select('credit_count')
+      .eq('user_id', userId)
+      .single()
+
+    if (error && error.code === 'PGRST116') {
+      const { data: newData, error: insertError } = await supabase
+        .from('user_credits')
+        .insert({ user_id: userId, credit_count: 100 })
+        .select('credit_count')
+        .single()
+
+      if (insertError) {
+        console.error('Error creating user credits:', insertError)
+        throw insertError
+      }
+
+      return newData.credit_count
+    } else if (error) {
+      console.error('Error fetching user credits:', error)
+      throw error
+    }
+
+    return data.credit_count
+  }
+
   const { data: userCredits, isLoading: isLoadingCredits, refetch: refetchCredits } = useQuery({
     queryKey: ['userCredits', user?.id],
-    queryFn: async () => {
-      if (!user) return null
-      const { data, error } = await supabase
-        .from('user_credits')
-        .select('credits')
-        .eq('user_id', user.id)
-        .single()
-      if (error) throw error
-      return data.credits
-    },
+    queryFn: () => fetchOrCreateUserCredits(user?.id),
     enabled: !!user,
   })
 
@@ -107,7 +126,7 @@ const ImageGenerator = () => {
     mutationFn: async (newCredits) => {
       const { data, error } = await supabase
         .from('user_credits')
-        .update({ credits: newCredits })
+        .update({ credit_count: newCredits })
         .eq('user_id', user.id)
       if (error) throw error
       return data
@@ -193,7 +212,6 @@ const ImageGenerator = () => {
         )
       )
 
-      // Deduct credits
       await updateUserCredits.mutateAsync(userCredits - requiredCredits)
       toast.success(`Image generated! ${requiredCredits} credits used.`)
     } catch (error) {
@@ -353,7 +371,11 @@ const ImageGenerator = () => {
               className="min-h-[100px] resize-y"
             />
           </div>
-          <Button onClick={generateImage} className="w-full" disabled={!user || isLoadingCredits || userCredits < qualityOptions[quality].cost}>
+          <Button 
+            onClick={generateImage} 
+            className="w-full" 
+            disabled={!user || isLoadingCredits || (userCredits !== undefined && userCredits < qualityOptions[quality].cost)}
+          >
             Generate Image ({qualityOptions[quality].cost} credits)
           </Button>
           {user && !isLoadingCredits && (
