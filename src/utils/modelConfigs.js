@@ -150,3 +150,17 @@ export const modelConfigs = {
     defaultStep: 38
   }
 };
+
+export const aspectRatios = {
+  "1:1": { width: 1, height: 1 },
+  "4:3": { width: 4, height: 3 },
+  "3:2": { width: 3, height: 2 },
+  "16:9": { width: 16, height: 9 },
+  "2:1": { width: 2, height: 1 },
+  "3:4": { width: 3, height: 4 },
+  "2:3": { width: 2, height: 3 },
+  "9:16": { width: 9, height: 16 },
+  "1:2": { width: 1, height: 2 },
+  "5:4": { width: 5, height: 4 },
+  "4:5": { width: 4, height: 5 },
+};

@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MoreVertical } from "lucide-react"
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { modelConfigs } from '@/utils/modelConfigs'
+import { modelConfigs, aspectRatios } from '@/utils/modelConfigs'
 import Masonry from 'react-masonry-css'
 import BottomNavbar from '@/components/BottomNavbar'
 import { Textarea } from "@/components/ui/textarea"
@@ -23,6 +23,7 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import AuthOverlay from '@/components/AuthOverlay'
 import { supabase } from '@/integrations/supabase/supabase'
 import MobileProfileMenu from '@/components/MobileProfileMenu'
+import { deleteImageFromSupabase } from '@/integrations/supabase/imageUtils'
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
@@ -56,20 +57,6 @@ const ImageGenerator = () => {
     '4K': { size: 2048, cost: 4 }
   }
 
-  const aspectRatios = {
-    "1:1": { width: 1, height: 1 },
-    "4:3": { width: 4, height: 3 },
-    "3:2": { width: 3, height: 2 },
-    "16:9": { width: 16, height: 9 },
-    "2:1": { width: 2, height: 1 },
-    "3:4": { width: 3, height: 4 },
-    "2:3": { width: 2, height: 3 },
-    "9:16": { width: 9, height: 16 },
-    "1:2": { width: 1, height: 2 },
-    "5:4": { width: 5, height: 4 },
-    "4:5": { width: 4, height: 5 },
-  }
-
   useEffect(() => {
     updateDimensions()
   }, [aspectRatio, quality, useAspectRatio])
@@ -95,6 +82,21 @@ const ImageGenerator = () => {
     setWidth(Math.floor(newWidth / 8) * 8)
     setHeight(Math.floor(newHeight / 8) * 8)
   }
+
+  const { data: userImages, isLoading: isLoadingImages, error: imagesError } = useQuery({
+    queryKey: ['userImages', user?.id],
+    queryFn: async () => {
+      if (!user) return []
+      const { data, error } = await supabase
+        .from('user_images')
+        .select('*')
+        .order('created_at', { ascending: false })
+      
+      if (error) throw error
+      return data
+    },
+    enabled: !!user
+  })
 
   const { data: userCredits, isLoading: isLoadingCredits, error: creditsError } = useQuery({
     queryKey: ['userCredits', user?.id],
@@ -124,6 +126,43 @@ const ImageGenerator = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['userCredits', user?.id])
+    }
+  })
+
+  const uploadImageMutation = useMutation({
+    mutationFn: async (imageData) => {
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('user-images')
+        .upload(`${user.id}/${Date.now()}.png`, imageData.blob, {
+          contentType: 'image/png'
+        })
+
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('user-images')
+        .getPublicUrl(uploadData.path)
+
+      const { data, error } = await supabase
+        .from('user_images')
+        .insert({
+          user_id: user.id,
+          image_url: publicUrl,
+          prompt: imageData.prompt,
+          model: imageData.model,
+          seed: imageData.seed,
+          width: imageData.width,
+          height: imageData.height,
+          steps: imageData.steps,
+          quality: imageData.quality,
+          aspect_ratio: imageData.aspectRatio
+        })
+
+      if (error) throw error
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['userImages', user?.id])
     }
   })
 
@@ -203,6 +242,13 @@ const ImageGenerator = () => {
         )
       )
 
+      // Upload the generated image to Supabase
+      await uploadImageMutation.mutateAsync({
+        blob: result,
+        ...newImage,
+        imageUrl
+      })
+
       // Update user credits
       updateUserCreditsMutation.mutate(userCredits.credit_count - creditCost)
     } catch (error) {
@@ -236,8 +282,14 @@ const ImageGenerator = () => {
     document.body.removeChild(link)
   }
 
-  const handleDiscard = (id) => {
-    setGeneratedImages(prev => prev.filter(img => img.id !== id))
+  const handleDiscard = async (id, imageUrl) => {
+    try {
+      await deleteImageFromSupabase(id, imageUrl)
+      queryClient.invalidateQueries(['userImages', user?.id])
+    } catch (error) {
+      console.error('Error deleting image:', error)
+      alert('Failed to delete image. Please try again.')
+    }
   }
 
   const handleRemix = (image) => {
@@ -249,8 +301,8 @@ const ImageGenerator = () => {
     setSteps(image.steps)
     setModel(image.model)
     setQuality(image.quality)
-    setAspectRatio(image.aspectRatio)
-    setUseAspectRatio(image.aspectRatio in aspectRatios)
+    setAspectRatio(image.aspect_ratio)
+    setUseAspectRatio(image.aspect_ratio in aspectRatios)
     setActiveTab('input')
   }
 
@@ -267,7 +319,7 @@ const ImageGenerator = () => {
   const handleFullScreenNavigate = (direction) => {
     if (direction === 'prev' && fullScreenImageIndex > 0) {
       setFullScreenImageIndex(fullScreenImageIndex - 1)
-    } else if (direction === 'next' && fullScreenImageIndex < generatedImages.length - 1) {
+    } else if (direction === 'next' && fullScreenImageIndex < userImages.length - 1) {
       setFullScreenImageIndex(fullScreenImageIndex + 1)
     }
   }
@@ -278,7 +330,6 @@ const ImageGenerator = () => {
     700: 2,
     500: 2
   };
-
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
@@ -299,57 +350,47 @@ const ImageGenerator = () => {
           className="flex w-auto"
           columnClassName="bg-clip-padding px-2"
         >
-          {generatedImages.map((image, index) => (
+          {isLoadingImages ? (
+            Array.from({ length: 8 }).map((_, index) => (
+              <div key={index} className="mb-4">
+                <Skeleton className="w-full h-64" />
+              </div>
+            ))
+          ) : userImages?.map((image, index) => (
             <div key={image.id} className="mb-4">
               <Card className="overflow-hidden">
                 <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-                  {image.loading ? (
-                    <Skeleton className="absolute inset-0" />
-                  ) : image.error ? (
-                    <div className="absolute inset-0 flex items-center justify-center text-destructive">
-                      Error generating image
-                    </div>
-                  ) : (
-                    <img 
-                      src={image.imageUrl} 
-                      alt={image.prompt} 
-                      className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                      onClick={() => handleImageClick(index)}
-                    />
-                  )}
+                  <img 
+                    src={image.image_url} 
+                    alt={image.prompt} 
+                    className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+                    onClick={() => handleImageClick(index)}
+                  />
                 </CardContent>
               </Card>
               <div className="mt-2 flex items-center justify-between">
-                {image.loading ? (
-                  <Skeleton className="h-4 w-[70%]" />
-                ) : (
-                  <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
-                )}
-                {image.loading ? (
-                  <Skeleton className="h-8 w-8 rounded-full" />
-                ) : (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleDownload(image.imageUrl, image.prompt)}>
-                        Download
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
-                        Discard
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleRemix(image)}>
-                        Remix
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleViewDetails(image)}>
-                        View Details
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
+                <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleDownload(image.image_url, image.prompt)}>
+                      Download
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleDiscard(image.id, image.image_url)}>
+                      Discard
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleRemix(image)}>
+                      Remix
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleViewDetails(image)}>
+                      View Details
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           ))}
@@ -512,7 +553,7 @@ const ImageGenerator = () => {
         image={selectedImage}
       />
       <FullScreenImageView
-        images={generatedImages}
+        images={userImages || []}
         currentIndex={fullScreenImageIndex}
         isOpen={fullScreenViewOpen}
         onClose={() => setFullScreenViewOpen(false)}
