@@ -17,6 +17,9 @@ import ModelSidebarMenu from '@/components/ModelSidebarMenu'
 import { Skeleton } from "@/components/ui/skeleton"
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
+import SignInDialog from '@/components/SignInDialog'
+import ProfileMenu from '@/components/ProfileMenu'
+import { useSupabaseAuth } from '@/integrations/supabase/auth'
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -226,10 +229,15 @@ const ImageGenerator = () => {
     500: 2
   };
 
+  const { session } = useSupabaseAuth();
+  const user = session?.user;
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
-        <h1 className="text-3xl font-bold mb-6">AI Image Generator</h1>
+        <div className="flex justify-between items-center mb-6">
+          {user ? <ProfileMenu user={user} /> : <SignInDialog />}
+        </div>
         <Masonry
           breakpointCols={breakpointColumnsObj}
           className="flex w-auto"
