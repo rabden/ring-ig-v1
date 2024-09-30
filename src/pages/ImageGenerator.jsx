@@ -26,6 +26,13 @@ import MobileProfileMenu from '@/components/MobileProfileMenu'
 import { deleteImageFromSupabase } from '@/integrations/supabase/imageUtils'
 
 const ImageGenerator = () => {
+  const qualityOptions = {
+    SD: { cost: 1, size: 512 },
+    HD: { cost: 2, size: 768 },
+    UHD: { cost: 3, size: 1024 },
+    EXTREME: { cost: 4, size: 1536 }
+  };
+
   const [prompt, setPrompt] = useState('')
   const [seed, setSeed] = useState(Math.floor(Math.random() * 1000000))
   const [randomizeSeed, setRandomizeSeed] = useState(true)
