@@ -47,52 +47,58 @@ const ImageGenerator = () => {
   const user = session?.user
   const queryClient = useQueryClient()
 
-  const INITIAL_CREDITS = 10
-
-  const aspectRatios = {
-    '1:1': { width: 512, height: 512 },
-    '4:3': { width: 576, height: 432 },
-    '3:4': { width: 432, height: 576 },
-    '16:9': { width: 640, height: 360 },
-    '9:16': { width: 360, height: 640 }
+  const qualityOptions = {
+    SD: { size: 512, cost: 1 },
+    HD: { size: 1024, cost: 2 },
+    '4K': { size: 2048, cost: 3 },
+    '8K': { size: 4096, cost: 4 }
   }
 
-  const fetchOrCreateUserCredits = async (userId) => {
-    try {
-      const { data, error } = await supabase
-        .from('user_credits')
-        .select('credit_count')
-        .eq('user_id', userId)
-        .single()
+  const aspectRatios = {
+    "1:1": { width: 1, height: 1 },
+    "4:3": { width: 4, height: 3 },
+    "3:2": { width: 3, height: 2 },
+    "16:9": { width: 16, height: 9 },
+    "2:1": { width: 2, height: 1 },
+  }
 
-      if (error) {
-        if (error.code === 'PGRST116') {
-          const { data: newData, error: insertError } = await supabase
-            .from('user_credits')
-            .insert({ user_id: userId, credit_count: INITIAL_CREDITS })
-            .select('credit_count')
-            .single()
+  useEffect(() => {
+    updateDimensions()
+  }, [aspectRatio, quality, useAspectRatio])
 
-          if (insertError) throw insertError
-          return newData.credit_count
-        } else {
-          throw error
-        }
+  const updateDimensions = () => {
+    const maxSize = qualityOptions[quality].size
+    let newWidth, newHeight
+
+    if (useAspectRatio) {
+      const ratio = aspectRatios[aspectRatio]
+      if (ratio.width > ratio.height) {
+        newWidth = maxSize
+        newHeight = Math.round((maxSize / ratio.width) * ratio.height)
+      } else {
+        newHeight = maxSize
+        newWidth = Math.round((maxSize / ratio.height) * ratio.width)
       }
-
-      return data.credit_count
-    } catch (error) {
-      console.error('Error fetching or creating user credits:', error)
-      toast.error('Failed to fetch user credits. Please try again.')
-      return null
+    } else {
+      newWidth = Math.min(width, maxSize)
+      newHeight = Math.min(height, maxSize)
     }
+
+    setWidth(Math.floor(newWidth / 8) * 8)
+    setHeight(Math.floor(newHeight / 8) * 8)
   }
 
   const { data: userCredits, isLoading: isLoadingCredits, refetch: refetchCredits } = useQuery({
     queryKey: ['userCredits', user?.id],
     queryFn: async () => {
       if (!user) return null
-      return fetchOrCreateUserCredits(user.id)
+      const { data, error } = await supabase
+        .from('user_credits')
+        .select('credits')
+        .eq('user_id', user.id)
+        .single()
+      if (error) throw error
+      return data.credits
     },
     enabled: !!user,
   })
@@ -101,7 +107,7 @@ const ImageGenerator = () => {
     mutationFn: async (newCredits) => {
       const { data, error } = await supabase
         .from('user_credits')
-        .update({ credit_count: newCredits })
+        .update({ credits: newCredits })
         .eq('user_id', user.id)
       if (error) throw error
       return data
@@ -187,8 +193,8 @@ const ImageGenerator = () => {
         )
       )
 
+      // Deduct credits
       await updateUserCredits.mutateAsync(userCredits - requiredCredits)
-      await refetchCredits()
       toast.success(`Image generated! ${requiredCredits} credits used.`)
     } catch (error) {
       console.error('Error generating image:', error)
