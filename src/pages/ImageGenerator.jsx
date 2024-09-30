@@ -47,58 +47,37 @@ const ImageGenerator = () => {
   const user = session?.user
   const queryClient = useQueryClient()
 
-  const qualityOptions = {
-    SD: { size: 512, cost: 1 },
-    HD: { size: 1024, cost: 2 },
-    '4K': { size: 2048, cost: 3 },
-    '8K': { size: 4096, cost: 4 }
-  }
+  const INITIAL_CREDITS = 10 // Define the initial credit amount for new users
 
-  const aspectRatios = {
-    "1:1": { width: 1, height: 1 },
-    "4:3": { width: 4, height: 3 },
-    "3:2": { width: 3, height: 2 },
-    "16:9": { width: 16, height: 9 },
-    "2:1": { width: 2, height: 1 },
-  }
+  const fetchOrCreateUserCredits = async (userId) => {
+    const { data, error } = await supabase
+      .from('user_credits')
+      .select('credit_count')
+      .eq('user_id', userId)
+      .single()
 
-  useEffect(() => {
-    updateDimensions()
-  }, [aspectRatio, quality, useAspectRatio])
+    if (error && error.code === 'PGRST116') {
+      // No matching row found, create a new one
+      const { data: newData, error: insertError } = await supabase
+        .from('user_credits')
+        .insert({ user_id: userId, credit_count: INITIAL_CREDITS })
+        .select('credit_count')
+        .single()
 
-  const updateDimensions = () => {
-    const maxSize = qualityOptions[quality].size
-    let newWidth, newHeight
-
-    if (useAspectRatio) {
-      const ratio = aspectRatios[aspectRatio]
-      if (ratio.width > ratio.height) {
-        newWidth = maxSize
-        newHeight = Math.round((maxSize / ratio.width) * ratio.height)
-      } else {
-        newHeight = maxSize
-        newWidth = Math.round((maxSize / ratio.height) * ratio.width)
-      }
-    } else {
-      newWidth = Math.min(width, maxSize)
-      newHeight = Math.min(height, maxSize)
+      if (insertError) throw insertError
+      return newData.credit_count
+    } else if (error) {
+      throw error
     }
 
-    setWidth(Math.floor(newWidth / 8) * 8)
-    setHeight(Math.floor(newHeight / 8) * 8)
+    return data.credit_count
   }
 
   const { data: userCredits, isLoading: isLoadingCredits, refetch: refetchCredits } = useQuery({
     queryKey: ['userCredits', user?.id],
     queryFn: async () => {
       if (!user) return null
-      const { data, error } = await supabase
-        .from('user_credits')
-        .select('credit_count') // Changed from 'credits' to 'credit_count'
-        .eq('user_id', user.id)
-        .single()
-      if (error) throw error
-      return data.credit_count // Changed from 'credits' to 'credit_count'
+      return fetchOrCreateUserCredits(user.id)
     },
     enabled: !!user,
   })
@@ -107,7 +86,7 @@ const ImageGenerator = () => {
     mutationFn: async (newCredits) => {
       const { data, error } = await supabase
         .from('user_credits')
-        .update({ credit_count: newCredits }) // Changed from 'credits' to 'credit_count'
+        .update({ credit_count: newCredits })
         .eq('user_id', user.id)
       if (error) throw error
       return data
