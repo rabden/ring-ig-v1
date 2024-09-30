@@ -65,6 +65,9 @@ const ImageGenerator = () => {
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false)
   const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
 
+  const { session } = useSupabaseAuth() || {}  // Add a fallback empty object
+  const user = session?.user
+
   useEffect(() => {
     updateDimensions()
   }, [aspectRatio, quality, useAspectRatio])
@@ -228,9 +231,6 @@ const ImageGenerator = () => {
     700: 2,
     500: 2
   };
-
-  const { session } = useSupabaseAuth();
-  const user = session?.user;
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
