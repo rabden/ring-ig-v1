@@ -22,6 +22,7 @@ import ProfileMenu from '@/components/ProfileMenu'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import AuthOverlay from '@/components/AuthOverlay'
 import { supabase } from '@/integrations/supabase/supabase'
+import MobileProfileMenu from '@/components/MobileProfileMenu'
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
@@ -41,6 +42,8 @@ const ImageGenerator = () => {
   const [selectedImage, setSelectedImage] = useState(null)
   const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false)
+
+  const [mobileProfileMenuOpen, setMobileProfileMenuOpen] = useState(false);
 
   const { session } = useSupabaseAuth() || {}
   const user = session?.user
@@ -276,6 +279,7 @@ const ImageGenerator = () => {
     500: 2
   };
 
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
@@ -483,7 +487,17 @@ const ImageGenerator = () => {
           </div>
         </div>
       </div>
-      <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <BottomNavbar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        openProfileMenu={() => setMobileProfileMenuOpen(true)}
+      />
+      <MobileProfileMenu
+        isOpen={mobileProfileMenuOpen}
+        onClose={() => setMobileProfileMenuOpen(false)}
+        user={user}
+        userCredits={userCredits}
+      />
       <ModelSidebarMenu
         isOpen={modelSidebarOpen}
         onClose={() => setModelSidebarOpen(false)}
