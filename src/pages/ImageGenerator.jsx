@@ -6,15 +6,15 @@ import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Loader2, MoreVertical } from "lucide-react"
+import { MoreVertical } from "lucide-react"
 import { useQuery } from '@tanstack/react-query'
 import { modelConfigs } from '@/utils/modelConfigs'
 import Masonry from 'react-masonry-css'
 import BottomNavbar from '@/components/BottomNavbar'
 import { Textarea } from "@/components/ui/textarea"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu"
-import ImageDetailsDialog from '@/components/ImageDetailsDialog'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ModelSidebarMenu from '@/components/ModelSidebarMenu'
+import SkeletonImage from '@/components/SkeletonImage'
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -54,8 +54,6 @@ const ImageGenerator = () => {
   const [aspectRatio, setAspectRatio] = useState("1:1")
   const [useAspectRatio, setUseAspectRatio] = useState(true)
   const [quality, setQuality] = useState("HD")
-  const [showDetailsDialog, setShowDetailsDialog] = useState(false)
-  const [selectedImage, setSelectedImage] = useState(null)
   const [modelSidebarOpen, setModelSidebarOpen] = useState(false)
 
   useEffect(() => {
@@ -185,11 +183,6 @@ const ImageGenerator = () => {
     setGeneratedImages(prev => prev.filter(img => img.id !== id))
   }
 
-  const handleDetails = (image) => {
-    setSelectedImage(image)
-    setShowDetailsDialog(true)
-  }
-
   const handleRemix = (image) => {
     setPrompt(image.prompt)
     setSeed(image.seed)
@@ -225,9 +218,7 @@ const ImageGenerator = () => {
               <Card className="overflow-hidden">
                 <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
                   {image.loading ? (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Loader2 className="h-8 w-8 animate-spin" />
-                    </div>
+                    <SkeletonImage width={image.width} height={image.height} />
                   ) : image.error ? (
                     <div className="absolute inset-0 flex items-center justify-center text-destructive">
                       Error generating image
@@ -255,9 +246,6 @@ const ImageGenerator = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
                       Discard
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDetails(image)}>
-                      Details
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleRemix(image)}>
                       Remix
@@ -389,11 +377,6 @@ const ImageGenerator = () => {
         </div>
       </div>
       <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
-      <ImageDetailsDialog
-        open={showDetailsDialog}
-        onOpenChange={setShowDetailsDialog}
-        image={selectedImage}
-      />
       <ModelSidebarMenu
         isOpen={modelSidebarOpen}
         onClose={() => setModelSidebarOpen(false)}
