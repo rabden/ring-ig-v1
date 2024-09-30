@@ -284,13 +284,11 @@ const ImageGenerator = () => {
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
         <div className="flex justify-between items-center mb-6">
-          {user ? (
+          {user && window.innerWidth >= 768 ? (
             <div className="flex items-center space-x-4">
               <ProfileMenu user={user} />
             </div>
-          ) : (
-            <SignInDialog />
-          )}
+          ) : null}
         </div>
         <Masonry
           breakpointCols={breakpointColumnsObj}
@@ -497,12 +495,6 @@ const ImageGenerator = () => {
         onClose={() => setMobileProfileMenuOpen(false)}
         user={user}
         userCredits={userCredits}
-      />
-      <ModelSidebarMenu
-        isOpen={modelSidebarOpen}
-        onClose={() => setModelSidebarOpen(false)}
-        onSelectModel={handleModelChange}
-        currentModel={model}
       />
       <ImageDetailsDialog
         open={detailsDialogOpen}
