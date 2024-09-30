@@ -61,9 +61,14 @@ export const useSupabaseAuth = () => {
   return useContext(SupabaseAuthContext);
 };
 
+const generateRandomDisplayName = () => {
+  return `User_${Math.random().toString(36).substring(2, 7)}`;
+};
+
 export const SupabaseAuthUI = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
 
   const handleEmailSignIn = async (e) => {
@@ -79,7 +84,16 @@ export const SupabaseAuthUI = () => {
   const handleEmailSignUp = async (e) => {
     e.preventDefault();
     setError('');
-    const { error } = await supabase.auth.signUp({ email, password });
+    const finalDisplayName = displayName || generateRandomDisplayName();
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          display_name: finalDisplayName,
+        },
+      },
+    });
     if (error) {
       console.error('Error signing up:', error.message);
       setError(error.message);
@@ -156,6 +170,16 @@ export const SupabaseAuthUI = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="signup-display-name">Display Name (Optional)</Label>
+              <Input
+                id="signup-display-name"
+                type="text"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="Enter display name or leave blank for random"
               />
             </div>
             <Button type="submit" className="w-full">Sign Up</Button>
