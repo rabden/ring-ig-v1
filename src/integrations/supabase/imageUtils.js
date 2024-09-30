@@ -3,11 +3,12 @@ import { supabase } from './supabase';
 export const deleteImageFromSupabase = async (imageId, imageUrl) => {
   try {
     // Extract the path from the full URL
-    const path = new URL(imageUrl).pathname.split('/').slice(2).join('/');
+    const bucketName = 'user-images';
+    const path = imageUrl.replace(`${supabase.supabaseUrl}/storage/v1/object/public/${bucketName}/`, '');
 
     // Delete from storage
     const { error: storageError } = await supabase.storage
-      .from('user-images')
+      .from(bucketName)
       .remove([path]);
 
     if (storageError) {
