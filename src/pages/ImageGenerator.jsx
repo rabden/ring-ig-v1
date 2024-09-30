@@ -7,7 +7,7 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MoreVertical } from "lucide-react"
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { modelConfigs } from '@/utils/modelConfigs'
 import Masonry from 'react-masonry-css'
 import BottomNavbar from '@/components/BottomNavbar'
@@ -21,8 +21,6 @@ import SignInDialog from '@/components/SignInDialog'
 import ProfileMenu from '@/components/ProfileMenu'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import AuthOverlay from '@/components/AuthOverlay'
-import { supabase } from '@/integrations/supabase/supabase'
-import { toast } from 'sonner'
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
@@ -33,7 +31,7 @@ const ImageGenerator = () => {
   const [steps, setSteps] = useState(20)
   const [model, setModel] = useState('flux')
   const [quality, setQuality] = useState('SD')
-  const [aspectRatio, setAspectRatio] = useState('1:1')
+  const [aspectRatio, setAspectRatio] = useState('1:1')  // Add this line
   const [useAspectRatio, setUseAspectRatio] = useState(true)
   const [generatedImages, setGeneratedImages] = useState([])
   const [activeTab, setActiveTab] = useState('input')
@@ -45,13 +43,12 @@ const ImageGenerator = () => {
 
   const { session } = useSupabaseAuth() || {}
   const user = session?.user
-  const queryClient = useQueryClient()
 
   const qualityOptions = {
-    SD: { size: 512, cost: 1 },
-    HD: { size: 1024, cost: 2 },
-    '4K': { size: 2048, cost: 3 },
-    '8K': { size: 4096, cost: 4 }
+    SD: 512,
+    HD: 1024,
+    '4K': 2048,
+    '8K': 4096
   }
 
   const aspectRatios = {
@@ -67,7 +64,7 @@ const ImageGenerator = () => {
   }, [aspectRatio, quality, useAspectRatio])
 
   const updateDimensions = () => {
-    const maxSize = qualityOptions[quality].size
+    const maxSize = qualityOptions[quality]
     let newWidth, newHeight
 
     if (useAspectRatio) {
@@ -88,77 +85,14 @@ const ImageGenerator = () => {
     setHeight(Math.floor(newHeight / 8) * 8)
   }
 
-  const fetchOrCreateUserCredits = async (userId) => {
-    try {
-      let { data, error } = await supabase
-        .from('user_credits')
-        .select('credit_count')
-        .eq('user_id', userId)
-        .single()
-
-      if (error) {
-        if (error.code === 'PGRST116') {
-          // No row found, create a new one with full credits
-          const { data: newData, error: insertError } = await supabase
-            .from('user_credits')
-            .insert({ user_id: userId, credit_count: 100 })
-            .select('credit_count')
-            .single()
-
-          if (insertError) {
-            console.error('Error creating user credits:', insertError)
-            throw insertError
-          }
-
-          return newData.credit_count
-        } else {
-          console.error('Error fetching user credits:', error)
-          throw error
-        }
-      }
-
-      return data.credit_count
-    } catch (error) {
-      console.error('Error in fetchOrCreateUserCredits:', error)
-      toast.error('Failed to fetch user credits. Please try again.')
-      return null
-    }
-  }
-
-  const { data: userCredits, isLoading: isLoadingCredits, refetch: refetchCredits } = useQuery({
-    queryKey: ['userCredits', user?.id],
-    queryFn: () => fetchOrCreateUserCredits(user?.id),
-    enabled: !!user,
-  })
-
-  const updateUserCredits = useMutation({
-    mutationFn: async (newCredits) => {
-      const { data, error } = await supabase
-        .from('user_credits')
-        .update({ credit_count: newCredits })
-        .eq('user_id', user.id)
-      if (error) throw error
-      return data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['userCredits', user?.id])
-    },
-  })
-
   const generateImage = async () => {
     if (!user) {
-      toast.error("Please sign in to generate images")
+      console.log("User not signed in")
       return
     }
 
     if (!prompt) {
-      toast.error('Please enter a prompt')
-      return
-    }
-
-    const requiredCredits = qualityOptions[quality].cost
-    if (userCredits < requiredCredits) {
-      toast.error(`Insufficient credits. You need ${requiredCredits} credits for this quality.`)
+      alert('Please enter a prompt')
       return
     }
 
@@ -220,9 +154,6 @@ const ImageGenerator = () => {
           img.id === newImage.id ? { ...img, loading: false, imageUrl } : img
         )
       )
-
-      await updateUserCredits.mutateAsync(userCredits - requiredCredits)
-      toast.success(`Image generated! ${requiredCredits} credits used.`)
     } catch (error) {
       console.error('Error generating image:', error)
       setGeneratedImages(prev =>
@@ -230,7 +161,6 @@ const ImageGenerator = () => {
           img.id === newImage.id ? { ...img, loading: false, error: true } : img
         )
       )
-      toast.error('Error generating image. Please try again.')
     }
   }
 
@@ -302,7 +232,7 @@ const ImageGenerator = () => {
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
         <div className="flex justify-between items-center mb-6">
-          {user ? <ProfileMenu user={user} credits={userCredits} /> : <SignInDialog />}
+          {user ? <ProfileMenu user={user} /> : <SignInDialog />}
         </div>
         <Masonry
           breakpointCols={breakpointColumnsObj}
@@ -380,18 +310,9 @@ const ImageGenerator = () => {
               className="min-h-[100px] resize-y"
             />
           </div>
-          <Button 
-            onClick={generateImage} 
-            className="w-full" 
-            disabled={!user || isLoadingCredits || (userCredits !== undefined && userCredits < qualityOptions[quality].cost)}
-          >
-            Generate Image ({qualityOptions[quality].cost} credits)
+          <Button onClick={generateImage} className="w-full" disabled={!user}>
+            Generate Image
           </Button>
-          {user && !isLoadingCredits && (
-            <p className="text-sm text-muted-foreground">
-              Available credits: {userCredits}
-            </p>
-          )}
           <div className="space-y-2">
             <Label htmlFor="modelSelect">Model</Label>
             <Button
@@ -461,7 +382,7 @@ const ImageGenerator = () => {
                   <Label>Width: {width}px</Label>
                   <Slider
                     min={256}
-                    max={qualityOptions[quality].size}
+                    max={qualityOptions[quality]}
                     step={8}
                     value={[width]}
                     onValueChange={(value) => setWidth(value[0])}
@@ -471,7 +392,7 @@ const ImageGenerator = () => {
                   <Label>Height: {height}px</Label>
                   <Slider
                     min={256}
-                    max={qualityOptions[quality].size}
+                    max={qualityOptions[quality]}
                     step={8}
                     value={[height]}
                     onValueChange={(value) => setHeight(value[0])}
