@@ -89,31 +89,40 @@ const ImageGenerator = () => {
   }
 
   const fetchOrCreateUserCredits = async (userId) => {
-    const { data, error } = await supabase
-      .from('user_credits')
-      .select('credit_count')
-      .eq('user_id', userId)
-      .single()
-
-    if (error && error.code === 'PGRST116') {
-      const { data: newData, error: insertError } = await supabase
+    try {
+      const { data, error } = await supabase
         .from('user_credits')
-        .insert({ user_id: userId, credit_count: 100 })
         .select('credit_count')
+        .eq('user_id', userId)
         .single()
 
-      if (insertError) {
-        console.error('Error creating user credits:', insertError)
-        throw insertError
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // No row found, create a new one with full credits
+          const { data: newData, error: insertError } = await supabase
+            .from('user_credits')
+            .insert({ user_id: userId, credit_count: 100 })
+            .select('credit_count')
+            .single()
+
+          if (insertError) {
+            console.error('Error creating user credits:', insertError)
+            throw insertError
+          }
+
+          return newData.credit_count
+        } else {
+          console.error('Error fetching user credits:', error)
+          throw error
+        }
       }
 
-      return newData.credit_count
-    } else if (error) {
-      console.error('Error fetching user credits:', error)
-      throw error
+      return data.credit_count
+    } catch (error) {
+      console.error('Error in fetchOrCreateUserCredits:', error)
+      toast.error('Failed to fetch user credits. Please try again.')
+      return null
     }
-
-    return data.credit_count
   }
 
   const { data: userCredits, isLoading: isLoadingCredits, refetch: refetchCredits } = useQuery({
