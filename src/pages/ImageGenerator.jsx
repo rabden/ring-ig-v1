@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ModelSidebarMenu from '@/components/ModelSidebarMenu'
 import { Skeleton } from "@/components/ui/skeleton"
+import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -55,6 +56,8 @@ const ImageGenerator = () => {
   const [useAspectRatio, setUseAspectRatio] = useState(true)
   const [quality, setQuality] = useState("HD")
   const [modelSidebarOpen, setModelSidebarOpen] = useState(false)
+  const [selectedImage, setSelectedImage] = useState(null)
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
 
   useEffect(() => {
     updateDimensions()
@@ -195,6 +198,11 @@ const ImageGenerator = () => {
     setActiveTab('input')
   }
 
+  const handleViewDetails = (image) => {
+    setSelectedImage(image)
+    setDetailsDialogOpen(true)
+  }
+
   const breakpointColumnsObj = {
     default: 4,
     1100: 3,
@@ -254,6 +262,9 @@ const ImageGenerator = () => {
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleRemix(image)}>
                         Remix
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleViewDetails(image)}>
+                        View Details
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -388,6 +399,11 @@ const ImageGenerator = () => {
         onClose={() => setModelSidebarOpen(false)}
         onSelectModel={handleModelChange}
         currentModel={model}
+      />
+      <ImageDetailsDialog
+        open={detailsDialogOpen}
+        onOpenChange={setDetailsDialogOpen}
+        image={selectedImage}
       />
     </div>
   )
