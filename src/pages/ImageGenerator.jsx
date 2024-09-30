@@ -24,6 +24,7 @@ import { supabase } from '@/integrations/supabase/supabase'
 import MobileProfileMenu from '@/components/MobileProfileMenu'
 import { deleteImageFromSupabase } from '@/integrations/supabase/imageUtils'
 import SkeletonImageCard from '@/components/SkeletonImageCard'
+import { Skeleton } from "@/components/ui/skeleton"
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
