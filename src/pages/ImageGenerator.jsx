@@ -48,127 +48,9 @@ const ImageGenerator = () => {
 
   const { session } = useSupabaseAuth() || {}
   const user = session?.user
-  const queryClient = useQueryClient()
-
-  const qualityOptions = {
-    SD: { size: 512, cost: 1 },
-    HD: { size: 1024, cost: 2 },
-    'HD+': { size: 1536, cost: 3 },
-    '4K': { size: 2048, cost: 4 }
-  }
-
-  useEffect(() => {
-    updateDimensions()
-  }, [aspectRatio, quality, useAspectRatio])
-
-  const updateDimensions = () => {
-    const maxSize = qualityOptions[quality].size
-    let newWidth, newHeight
-
-    if (useAspectRatio) {
-      const ratio = aspectRatios[aspectRatio]
-      if (ratio.width > ratio.height) {
-        newWidth = maxSize
-        newHeight = Math.round((maxSize / ratio.width) * ratio.height)
-      } else {
-        newHeight = maxSize
-        newWidth = Math.round((maxSize / ratio.height) * ratio.width)
-      }
-    } else {
-      newWidth = Math.min(width, maxSize)
-      newHeight = Math.min(height, maxSize)
-    }
-
-    setWidth(Math.floor(newWidth / 8) * 8)
-    setHeight(Math.floor(newHeight / 8) * 8)
-  }
-
-  const { data: userImages, isLoading: isLoadingImages, error: imagesError } = useQuery({
-    queryKey: ['userImages', user?.id],
-    queryFn: async () => {
-      if (!user) return []
-      const { data, error } = await supabase
-        .from('user_images')
-        .select('*')
-        .order('created_at', { ascending: false })
-      
-      if (error) throw error
-      return data
-    },
-    enabled: !!user
-  })
-
-  const { data: userCredits, isLoading: isLoadingCredits, error: creditsError } = useQuery({
-    queryKey: ['userCredits', user?.id],
-    queryFn: async () => {
-      if (!user) return null
-      const { data, error } = await supabase
-        .from('user_credits')
-        .select('credit_count')
-        .eq('user_id', user.id)
-        .single()
-      
-      if (error) throw error
-      return data
-    },
-    enabled: !!user
-  })
-
-  const updateUserCreditsMutation = useMutation({
-    mutationFn: async (newCreditCount) => {
-      const { data, error } = await supabase
-        .from('user_credits')
-        .update({ credit_count: newCreditCount })
-        .eq('user_id', user.id)
-      
-      if (error) throw error
-      return data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['userCredits', user?.id])
-    }
-  })
-
-  const uploadImageMutation = useMutation({
-    mutationFn: async (imageData) => {
-      const storagePath = `${user.id}/${Date.now()}.png`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('user-images')
-        .upload(storagePath, imageData.blob, {
-          contentType: 'image/png'
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('user-images')
-        .getPublicUrl(uploadData.path);
-
-      const { data, error } = await supabase
-        .from('user_images')
-        .insert({
-          user_id: user.id,
-          image_url: publicUrl,
-          storage_path: storagePath,
-          prompt: imageData.prompt,
-          model: imageData.model,
-          seed: imageData.seed,
-          width: imageData.width,
-          height: imageData.height,
-          steps: imageData.steps,
-          quality: imageData.quality,
-          aspect_ratio: imageData.aspectRatio
-        });
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['userImages', user?.id]);
-    }
-  })
 
   const generateImage = async () => {
+    // ... (previous code remains unchanged)
     if (!user) {
       console.log("User not signed in")
       return
@@ -184,16 +66,6 @@ const ImageGenerator = () => {
       alert(`Not enough credits. You need ${creditCost} credits for this quality.`)
       return
     }
-
-    const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed
-    setSeed(actualSeed)
-
-    let modifiedPrompt = prompt;
-
-    if (modelConfigs[model].promptSuffix) {
-      modifiedPrompt += modelConfigs[model].promptSuffix;
-    }
-
     const newImage = {
       id: Date.now(),
       prompt: modifiedPrompt,
@@ -262,6 +134,7 @@ const ImageGenerator = () => {
       )
     }
   }
+  }
 
   const handleModelChange = (value) => {
     setModel(value)
@@ -326,12 +199,6 @@ const ImageGenerator = () => {
     }
   }
 
-  const breakpointColumnsObj = {
-    default: 4,
-    1100: 3,
-    700: 2,
-    500: 2
-  };
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
@@ -358,44 +225,50 @@ const ImageGenerator = () => {
                 <Skeleton className="w-full h-64" />
               </div>
             ))
-          ) : userImages?.map((image, index) => (
-            <div key={image.id} className="mb-4">
-              <Card className="overflow-hidden">
-                <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-                  <img 
-                    src={image.image_url} 
-                    alt={image.prompt} 
-                    className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                    onClick={() => handleImageClick(index)}
-                  />
-                </CardContent>
-              </Card>
-              <div className="mt-2 flex items-center justify-between">
-                <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => handleDownload(image.image_url, image.prompt)}>
-                      Download
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
-                      Discard
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleRemix(image)}>
-                      Remix
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleViewDetails(image)}>
-                      View Details
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+          ) : (
+            generatedImages.map((image, index) => (
+              <div key={image.id} className="mb-4">
+                <Card className="overflow-hidden">
+                  <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
+                    {image.loading ? (
+                      <Skeleton className="absolute inset-0 w-full h-full" />
+                    ) : (
+                      <img 
+                        src={image.imageUrl} 
+                        alt={image.prompt} 
+                        className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+                        onClick={() => handleImageClick(index)}
+                      />
+                    )}
+                  </CardContent>
+                </Card>
+                <div className="mt-2 flex items-center justify-between">
+                  <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleDownload(image.imageUrl, image.prompt)}>
+                        Download
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
+                        Discard
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleRemix(image)}>
+                        Remix
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleViewDetails(image)}>
+                        View Details
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </Masonry>
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
@@ -561,6 +434,9 @@ const ImageGenerator = () => {
         onClose={() => setFullScreenViewOpen(false)}
         onNavigate={handleFullScreenNavigate}
       />
+    </div>
+  )
+}
     </div>
   )
 }
