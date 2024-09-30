@@ -90,7 +90,7 @@ const ImageGenerator = () => {
 
   const fetchOrCreateUserCredits = async (userId) => {
     try {
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('user_credits')
         .select('credit_count')
         .eq('user_id', userId)
