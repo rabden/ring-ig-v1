@@ -49,8 +49,8 @@ const ImageGenerator = () => {
   const qualityOptions = {
     SD: { size: 512, cost: 1 },
     HD: { size: 1024, cost: 2 },
-    '4K': { size: 2048, cost: 3 },
-    '8K': { size: 4096, cost: 4 }
+    'HD+': { size: 1536, cost: 3 },
+    '4K': { size: 2048, cost: 4 }
   }
 
   const aspectRatios = {
@@ -59,6 +59,12 @@ const ImageGenerator = () => {
     "3:2": { width: 3, height: 2 },
     "16:9": { width: 16, height: 9 },
     "2:1": { width: 2, height: 1 },
+    "3:4": { width: 3, height: 4 },
+    "2:3": { width: 2, height: 3 },
+    "9:16": { width: 9, height: 16 },
+    "1:2": { width: 1, height: 2 },
+    "5:4": { width: 5, height: 4 },
+    "4:5": { width: 4, height: 5 },
   }
 
   useEffect(() => {
