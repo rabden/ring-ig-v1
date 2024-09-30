@@ -7,24 +7,20 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MoreVertical } from "lucide-react"
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { modelConfigs, aspectRatios } from '@/utils/modelConfigs'
+import { useQuery } from '@tanstack/react-query'
+import { modelConfigs } from '@/utils/modelConfigs'
 import Masonry from 'react-masonry-css'
 import BottomNavbar from '@/components/BottomNavbar'
 import { Textarea } from "@/components/ui/textarea"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ModelSidebarMenu from '@/components/ModelSidebarMenu'
+import { Skeleton } from "@/components/ui/skeleton"
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
 import SignInDialog from '@/components/SignInDialog'
 import ProfileMenu from '@/components/ProfileMenu'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import AuthOverlay from '@/components/AuthOverlay'
-import { supabase } from '@/integrations/supabase/supabase'
-import MobileProfileMenu from '@/components/MobileProfileMenu'
-import { deleteImageFromSupabase } from '@/integrations/supabase/imageUtils'
-import SkeletonImageCard from '@/components/SkeletonImageCard'
-import { Skeleton } from "@/components/ui/skeleton"
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
@@ -35,7 +31,7 @@ const ImageGenerator = () => {
   const [steps, setSteps] = useState(20)
   const [model, setModel] = useState('flux')
   const [quality, setQuality] = useState('SD')
-  const [aspectRatio, setAspectRatio] = useState('1:1')
+  const [aspectRatio, setAspectRatio] = useState('1:1')  // Add this line
   const [useAspectRatio, setUseAspectRatio] = useState(true)
   const [generatedImages, setGeneratedImages] = useState([])
   const [activeTab, setActiveTab] = useState('input')
@@ -44,18 +40,23 @@ const ImageGenerator = () => {
   const [selectedImage, setSelectedImage] = useState(null)
   const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false)
-  const [mobileProfileMenuOpen, setMobileProfileMenuOpen] = useState(false);
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   const { session } = useSupabaseAuth() || {}
   const user = session?.user
-  const queryClient = useQueryClient()
 
   const qualityOptions = {
-    SD: { size: 512, cost: 1 },
-    HD: { size: 1024, cost: 2 },
-    'HD+': { size: 1536, cost: 3 },
-    '4K': { size: 2048, cost: 4 }
+    SD: 512,
+    HD: 1024,
+    '4K': 2048,
+    '8K': 4096
+  }
+
+  const aspectRatios = {
+    "1:1": { width: 1, height: 1 },
+    "4:3": { width: 4, height: 3 },
+    "3:2": { width: 3, height: 2 },
+    "16:9": { width: 16, height: 9 },
+    "2:1": { width: 2, height: 1 },
   }
 
   useEffect(() => {
@@ -63,7 +64,7 @@ const ImageGenerator = () => {
   }, [aspectRatio, quality, useAspectRatio])
 
   const updateDimensions = () => {
-    const maxSize = qualityOptions[quality].size
+    const maxSize = qualityOptions[quality]
     let newWidth, newHeight
 
     if (useAspectRatio) {
@@ -84,91 +85,6 @@ const ImageGenerator = () => {
     setHeight(Math.floor(newHeight / 8) * 8)
   }
 
-  const { data: userImages, isLoading: isLoadingImages, error: imagesError } = useQuery({
-    queryKey: ['userImages', user?.id],
-    queryFn: async () => {
-      if (!user) return []
-      const { data, error } = await supabase
-        .from('user_images')
-        .select('*')
-        .order('created_at', { ascending: false })
-      
-      if (error) throw error
-      return data
-    },
-    enabled: !!user
-  })
-
-  const { data: userCredits, isLoading: isLoadingCredits, error: creditsError } = useQuery({
-    queryKey: ['userCredits', user?.id],
-    queryFn: async () => {
-      if (!user) return null
-      const { data, error } = await supabase
-        .from('user_credits')
-        .select('credit_count')
-        .eq('user_id', user.id)
-        .single()
-      
-      if (error) throw error
-      return data
-    },
-    enabled: !!user
-  })
-
-  const updateUserCreditsMutation = useMutation({
-    mutationFn: async (newCreditCount) => {
-      const { data, error } = await supabase
-        .from('user_credits')
-        .update({ credit_count: newCreditCount })
-        .eq('user_id', user.id)
-      
-      if (error) throw error
-      return data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['userCredits', user?.id])
-    }
-  })
-
-  const uploadImageMutation = useMutation({
-    mutationFn: async (imageData) => {
-      const storagePath = `${user.id}/${Date.now()}.png`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('user-images')
-        .upload(storagePath, imageData.blob, {
-          contentType: 'image/png'
-        });
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('user-images')
-        .getPublicUrl(uploadData.path);
-
-      const { data, error } = await supabase
-        .from('user_images')
-        .insert({
-          user_id: user.id,
-          image_url: publicUrl,
-          storage_path: storagePath,
-          prompt: imageData.prompt,
-          model: imageData.model,
-          seed: imageData.seed,
-          width: imageData.width,
-          height: imageData.height,
-          steps: imageData.steps,
-          quality: imageData.quality,
-          aspect_ratio: imageData.aspectRatio
-        });
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['userImages', user?.id]);
-    }
-  })
-
   const generateImage = async () => {
     if (!user) {
       console.log("User not signed in")
@@ -177,12 +93,6 @@ const ImageGenerator = () => {
 
     if (!prompt) {
       alert('Please enter a prompt')
-      return
-    }
-
-    const creditCost = qualityOptions[quality].cost
-    if (userCredits.credit_count < creditCost) {
-      alert(`Not enough credits. You need ${creditCost} credits for this quality.`)
       return
     }
 
@@ -209,7 +119,6 @@ const ImageGenerator = () => {
     }
 
     setGeneratedImages(prev => [newImage, ...prev])
-    setIsGeneratingImage(true);
 
     if (window.innerWidth <= 768) {
       setActiveTab('images')
@@ -245,16 +154,6 @@ const ImageGenerator = () => {
           img.id === newImage.id ? { ...img, loading: false, imageUrl } : img
         )
       )
-
-      // Upload the generated image to Supabase
-      await uploadImageMutation.mutateAsync({
-        blob: result,
-        ...newImage,
-        imageUrl
-      })
-
-      // Update user credits
-      updateUserCreditsMutation.mutate(userCredits.credit_count - creditCost)
     } catch (error) {
       console.error('Error generating image:', error)
       setGeneratedImages(prev =>
@@ -262,8 +161,6 @@ const ImageGenerator = () => {
           img.id === newImage.id ? { ...img, loading: false, error: true } : img
         )
       )
-    } finally {
-      setIsGeneratingImage(false);
     }
   }
 
@@ -288,14 +185,8 @@ const ImageGenerator = () => {
     document.body.removeChild(link)
   }
 
-  const handleDiscard = async (id) => {
-    try {
-      await deleteImageFromSupabase(id);
-      queryClient.invalidateQueries(['userImages', user?.id]);
-    } catch (error) {
-      console.error('Error deleting image:', error)
-      alert('Failed to delete image. Please try again.')
-    }
+  const handleDiscard = (id) => {
+    setGeneratedImages(prev => prev.filter(img => img.id !== id))
   }
 
   const handleRemix = (image) => {
@@ -307,8 +198,8 @@ const ImageGenerator = () => {
     setSteps(image.steps)
     setModel(image.model)
     setQuality(image.quality)
-    setAspectRatio(image.aspect_ratio)
-    setUseAspectRatio(image.aspect_ratio in aspectRatios)
+    setAspectRatio(image.aspectRatio)
+    setUseAspectRatio(image.aspectRatio in aspectRatios)
     setActiveTab('input')
   }
 
@@ -325,7 +216,7 @@ const ImageGenerator = () => {
   const handleFullScreenNavigate = (direction) => {
     if (direction === 'prev' && fullScreenImageIndex > 0) {
       setFullScreenImageIndex(fullScreenImageIndex - 1)
-    } else if (direction === 'next' && fullScreenImageIndex < userImages.length - 1) {
+    } else if (direction === 'next' && fullScreenImageIndex < generatedImages.length - 1) {
       setFullScreenImageIndex(fullScreenImageIndex + 1)
     }
   }
@@ -341,61 +232,64 @@ const ImageGenerator = () => {
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
         <div className="flex justify-between items-center mb-6">
-          {user ? (
-            <div className="hidden md:flex items-center space-x-4">
-              <ProfileMenu user={user} />
-            </div>
-          ) : (
-            <div className="hidden md:block">
-              <SignInDialog />
-            </div>
-          )}
+          {user ? <ProfileMenu user={user} /> : <SignInDialog />}
         </div>
         <Masonry
           breakpointCols={breakpointColumnsObj}
           className="flex w-auto"
           columnClassName="bg-clip-padding px-2"
         >
-          {isGeneratingImage && (
-            <div className="mb-4">
-              <SkeletonImageCard aspectRatio={aspectRatio} />
-            </div>
-          )}
-          {userImages?.map((image, index) => (
+          {generatedImages.map((image, index) => (
             <div key={image.id} className="mb-4">
               <Card className="overflow-hidden">
                 <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-                  <img 
-                    src={image.image_url} 
-                    alt={image.prompt} 
-                    className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                    onClick={() => handleImageClick(index)}
-                  />
+                  {image.loading ? (
+                    <Skeleton className="absolute inset-0" />
+                  ) : image.error ? (
+                    <div className="absolute inset-0 flex items-center justify-center text-destructive">
+                      Error generating image
+                    </div>
+                  ) : (
+                    <img 
+                      src={image.imageUrl} 
+                      alt={image.prompt} 
+                      className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+                      onClick={() => handleImageClick(index)}
+                    />
+                  )}
                 </CardContent>
               </Card>
               <div className="mt-2 flex items-center justify-between">
-                <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => handleDownload(image.image_url, image.prompt)}>
-                      Download
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
-                      Discard
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleRemix(image)}>
-                      Remix
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleViewDetails(image)}>
-                      View Details
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                {image.loading ? (
+                  <Skeleton className="h-4 w-[70%]" />
+                ) : (
+                  <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
+                )}
+                {image.loading ? (
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                ) : (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleDownload(image.imageUrl, image.prompt)}>
+                        Download
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
+                        Discard
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleRemix(image)}>
+                        Remix
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleViewDetails(image)}>
+                        View Details
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
             </div>
           ))}
@@ -403,14 +297,7 @@ const ImageGenerator = () => {
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
         {!user && <AuthOverlay />}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold">Settings</h2>
-          {isLoadingCredits ? (
-            <Skeleton className="h-6 w-20" />
-          ) : (
-            <span className="text-sm font-medium">Credits: {userCredits?.credit_count || 0}</span>
-          )}
-        </div>
+        <h2 className="text-2xl font-semibold mb-4">Settings</h2>
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="promptInput">Prompt</Label>
@@ -423,16 +310,9 @@ const ImageGenerator = () => {
               className="min-h-[100px] resize-y"
             />
           </div>
-          <Button 
-            onClick={generateImage} 
-            className="w-full" 
-            disabled={!user || (userCredits && userCredits.credit_count < qualityOptions[quality].cost)}
-          >
+          <Button onClick={generateImage} className="w-full" disabled={!user}>
             Generate Image
           </Button>
-          {user && userCredits && userCredits.credit_count < qualityOptions[quality].cost && (
-            <p className="text-sm text-destructive">Not enough credits for this quality.</p>
-          )}
           <div className="space-y-2">
             <Label htmlFor="modelSelect">Model</Label>
             <Button
@@ -502,7 +382,7 @@ const ImageGenerator = () => {
                   <Label>Width: {width}px</Label>
                   <Slider
                     min={256}
-                    max={qualityOptions[quality].size}
+                    max={qualityOptions[quality]}
                     step={8}
                     value={[width]}
                     onValueChange={(value) => setWidth(value[0])}
@@ -512,7 +392,7 @@ const ImageGenerator = () => {
                   <Label>Height: {height}px</Label>
                   <Slider
                     min={256}
-                    max={qualityOptions[quality].size}
+                    max={qualityOptions[quality]}
                     step={8}
                     value={[height]}
                     onValueChange={(value) => setHeight(value[0])}
@@ -535,17 +415,7 @@ const ImageGenerator = () => {
           </div>
         </div>
       </div>
-      <BottomNavbar 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        openProfileMenu={() => setMobileProfileMenuOpen(true)}
-      />
-      <MobileProfileMenu
-        isOpen={mobileProfileMenuOpen}
-        onClose={() => setMobileProfileMenuOpen(false)}
-        user={user}
-        userCredits={userCredits}
-      />
+      <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
       <ModelSidebarMenu
         isOpen={modelSidebarOpen}
         onClose={() => setModelSidebarOpen(false)}
@@ -558,7 +428,7 @@ const ImageGenerator = () => {
         image={selectedImage}
       />
       <FullScreenImageView
-        images={userImages || []}
+        images={generatedImages}
         currentIndex={fullScreenImageIndex}
         isOpen={fullScreenViewOpen}
         onClose={() => setFullScreenViewOpen(false)}
