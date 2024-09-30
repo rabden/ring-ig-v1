@@ -35,15 +35,13 @@ const ImageGenerator = () => {
   const [quality, setQuality] = useState('SD')
   const [aspectRatio, setAspectRatio] = useState('1:1')
   const [useAspectRatio, setUseAspectRatio] = useState(true)
-  const [generatedImages, setGeneratedImages] = useState([])
   const [activeTab, setActiveTab] = useState('input')
   const [modelSidebarOpen, setModelSidebarOpen] = useState(false)
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
   const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false)
-
-  const [mobileProfileMenuOpen, setMobileProfileMenuOpen] = useState(false);
+  const [mobileProfileMenuOpen, setMobileProfileMenuOpen] = useState(false)
 
   const { session } = useSupabaseAuth() || {}
   const user = session?.user
@@ -131,6 +129,42 @@ const ImageGenerator = () => {
     }
   })
 
+  const uploadImageMutation = useMutation({
+    mutationFn: async (imageData) => {
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('user-images')
+        .upload(`${user.id}/${Date.now()}.png`, imageData.blob)
+      
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('user-images')
+        .getPublicUrl(uploadData.path)
+
+      const { data: insertData, error: insertError } = await supabase
+        .from('user_images')
+        .insert({
+          user_id: user.id,
+          image_url: publicUrl,
+          prompt: imageData.prompt,
+          model: imageData.model,
+          seed: imageData.seed,
+          width: imageData.width,
+          height: imageData.height,
+          steps: imageData.steps,
+          quality: imageData.quality,
+          aspect_ratio: imageData.aspectRatio
+        })
+      
+      if (insertError) throw insertError
+
+      return insertData
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['userImages', user?.id])
+    }
+  })
+
   const generateImage = async () => {
     if (!user) {
       console.log("User not signed in")
@@ -156,21 +190,6 @@ const ImageGenerator = () => {
     if (modelConfigs[model].promptSuffix) {
       modifiedPrompt += modelConfigs[model].promptSuffix;
     }
-
-    const newImage = {
-      id: Date.now(),
-      prompt: modifiedPrompt,
-      seed: actualSeed,
-      width,
-      height,
-      steps,
-      model,
-      quality,
-      aspectRatio: useAspectRatio ? aspectRatio : `${width}:${height}`,
-      loading: true,
-    }
-
-    setGeneratedImages(prev => [newImage, ...prev])
 
     if (window.innerWidth <= 768) {
       setActiveTab('images')
@@ -199,10 +218,8 @@ const ImageGenerator = () => {
         }
       )
       const result = await response.blob()
-      const imageUrl = URL.createObjectURL(result)
 
       const newImageData = {
-        id: Date.now(),
         prompt: modifiedPrompt,
         seed: actualSeed,
         width,
@@ -211,12 +228,8 @@ const ImageGenerator = () => {
         model,
         quality,
         aspectRatio: useAspectRatio ? aspectRatio : `${width}:${height}`,
-        loading: false,
-        imageUrl,
         blob: result
       }
-
-      setGeneratedImages(prev => [newImageData, ...prev])
 
       // Upload image to Supabase storage and add to database
       await uploadImageMutation.mutateAsync(newImageData)
@@ -225,13 +238,22 @@ const ImageGenerator = () => {
       updateUserCreditsMutation.mutate(userCredits.credit_count - creditCost)
     } catch (error) {
       console.error('Error generating image:', error)
-      setGeneratedImages(prev =>
-        prev.map(img =>
-          img.id === newImage.id ? { ...img, loading: false, error: true } : img
-        )
-      )
     }
   }
+
+  const { data: userImages, isLoading: isLoadingImages } = useQuery({
+    queryKey: ['userImages', user?.id],
+    queryFn: async () => {
+      if (!user) return []
+      const { data, error } = await supabase
+        .from('user_images')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      return data
+    },
+    enabled: !!user
+  })
 
   const handleModelChange = (value) => {
     setModel(value)
@@ -254,8 +276,19 @@ const ImageGenerator = () => {
     document.body.removeChild(link)
   }
 
-  const handleDiscard = (id) => {
-    setGeneratedImages(prev => prev.filter(img => img.id !== id))
+  const handleDiscard = async (id) => {
+    try {
+      const { error } = await supabase
+        .from('user_images')
+        .delete()
+        .eq('id', id)
+      
+      if (error) throw error
+
+      queryClient.invalidateQueries(['userImages', user?.id])
+    } catch (error) {
+      console.error('Error discarding image:', error)
+    }
   }
 
   const handleRemix = (image) => {
@@ -267,8 +300,8 @@ const ImageGenerator = () => {
     setSteps(image.steps)
     setModel(image.model)
     setQuality(image.quality)
-    setAspectRatio(image.aspectRatio)
-    setUseAspectRatio(image.aspectRatio in aspectRatios)
+    setAspectRatio(image.aspect_ratio)
+    setUseAspectRatio(image.aspect_ratio in aspectRatios)
     setActiveTab('input')
   }
 
@@ -285,7 +318,7 @@ const ImageGenerator = () => {
   const handleFullScreenNavigate = (direction) => {
     if (direction === 'prev' && fullScreenImageIndex > 0) {
       setFullScreenImageIndex(fullScreenImageIndex - 1)
-    } else if (direction === 'next' && fullScreenImageIndex < generatedImages.length - 1) {
+    } else if (direction === 'next' && fullScreenImageIndex < userImages.length - 1) {
       setFullScreenImageIndex(fullScreenImageIndex + 1)
     }
   }
@@ -296,57 +329,6 @@ const ImageGenerator = () => {
     700: 2,
     500: 2
   };
-
-  const { data: userImages, isLoading: isLoadingImages } = useQuery({
-    queryKey: ['userImages', user?.id],
-    queryFn: async () => {
-      if (!user) return []
-      const { data, error } = await supabase
-        .from('user_images')
-        .select('*')
-        .order('created_at', { ascending: false })
-      if (error) throw error
-      return data
-    },
-    enabled: !!user
-  })
-
-  const uploadImageMutation = useMutation({
-    mutationFn: async (imageData) => {
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('user-images')
-        .upload(`${user.id}/${Date.now()}.png`, imageData.blob)
-      
-      if (uploadError) throw uploadError
-
-      // Construct the full URL for the uploaded image
-      const { data: { publicUrl } } = supabase.storage
-        .from('user-images')
-        .getPublicUrl(uploadData.path)
-
-      const { data: insertData, error: insertError } = await supabase
-        .from('user_images')
-        .insert({
-          user_id: user.id,
-          image_url: publicUrl, // Use the full public URL here
-          prompt: imageData.prompt,
-          model: imageData.model,
-          seed: imageData.seed,
-          width: imageData.width,
-          height: imageData.height,
-          steps: imageData.steps,
-          quality: imageData.quality,
-          aspect_ratio: imageData.aspectRatio
-        })
-      
-      if (insertError) throw insertError
-
-      return insertData
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['userImages', user?.id])
-    }
-  })
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
@@ -367,35 +349,27 @@ const ImageGenerator = () => {
           className="flex w-auto"
           columnClassName="bg-clip-padding px-2"
         >
-          {(generatedImages.length > 0 ? generatedImages : userImages || []).map((image, index) => (
-            <div key={image.id} className="mb-4">
-              <Card className="overflow-hidden">
-                <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-                  {image.loading ? (
-                    <Skeleton className="absolute inset-0" />
-                  ) : image.error ? (
-                    <div className="absolute inset-0 flex items-center justify-center text-destructive">
-                      Error generating image
-                    </div>
-                  ) : (
+          {isLoadingImages ? (
+            Array.from({ length: 8 }).map((_, index) => (
+              <div key={index} className="mb-4">
+                <Skeleton className="w-full h-64" />
+              </div>
+            ))
+          ) : (
+            userImages?.map((image, index) => (
+              <div key={image.id} className="mb-4">
+                <Card className="overflow-hidden">
+                  <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
                     <img 
-                      src={image.imageUrl} 
+                      src={image.image_url} 
                       alt={image.prompt} 
                       className="absolute inset-0 w-full h-full object-cover cursor-pointer"
                       onClick={() => handleImageClick(index)}
                     />
-                  )}
-                </CardContent>
-              </Card>
-              <div className="mt-2 flex items-center justify-between">
-                {image.loading ? (
-                  <Skeleton className="h-4 w-[70%]" />
-                ) : (
+                  </CardContent>
+                </Card>
+                <div className="mt-2 flex items-center justify-between">
                   <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
-                )}
-                {image.loading ? (
-                  <Skeleton className="h-8 w-8 rounded-full" />
-                ) : (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="h-8 w-8 p-0">
@@ -403,7 +377,7 @@ const ImageGenerator = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleDownload(image.imageUrl, image.prompt)}>
+                      <DropdownMenuItem onClick={() => handleDownload(image.image_url, image.prompt)}>
                         Download
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
@@ -417,10 +391,10 @@ const ImageGenerator = () => {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                )}
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </Masonry>
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
@@ -580,7 +554,7 @@ const ImageGenerator = () => {
         image={selectedImage}
       />
       <FullScreenImageView
-        images={generatedImages}
+        images={userImages || []}
         currentIndex={fullScreenImageIndex}
         isOpen={fullScreenViewOpen}
         onClose={() => setFullScreenViewOpen(false)}
