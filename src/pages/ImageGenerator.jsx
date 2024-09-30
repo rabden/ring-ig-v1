@@ -68,6 +68,10 @@ const ImageGenerator = () => {
     "1:2": { width: 1, height: 2 },
     "5:4": { width: 5, height: 4 },
     "4:5": { width: 4, height: 5 },
+    "21:9": { width: 21, height: 9 },
+    "9:21": { width: 9, height: 21 },
+    "1:3": { width: 1, height: 3 },
+    "3:1": { width: 3, height: 1 },
   }
 
   useEffect(() => {
@@ -197,11 +201,25 @@ const ImageGenerator = () => {
       const result = await response.blob()
       const imageUrl = URL.createObjectURL(result)
 
-      setGeneratedImages(prev =>
-        prev.map(img =>
-          img.id === newImage.id ? { ...img, loading: false, imageUrl } : img
-        )
-      )
+      const newImageData = {
+        id: Date.now(),
+        prompt: modifiedPrompt,
+        seed: actualSeed,
+        width,
+        height,
+        steps,
+        model,
+        quality,
+        aspectRatio: useAspectRatio ? aspectRatio : `${width}:${height}`,
+        loading: false,
+        imageUrl,
+        blob: result
+      }
+
+      setGeneratedImages(prev => [newImageData, ...prev])
+
+      // Upload image to Supabase storage and add to database
+      await uploadImageMutation.mutateAsync(newImageData)
 
       // Update user credits
       updateUserCreditsMutation.mutate(userCredits.credit_count - creditCost)
@@ -279,6 +297,51 @@ const ImageGenerator = () => {
     500: 2
   };
 
+  const { data: userImages, isLoading: isLoadingImages } = useQuery({
+    queryKey: ['userImages', user?.id],
+    queryFn: async () => {
+      if (!user) return []
+      const { data, error } = await supabase
+        .from('user_images')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      return data
+    },
+    enabled: !!user
+  })
+
+  const uploadImageMutation = useMutation({
+    mutationFn: async (imageData) => {
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('user-images')
+        .upload(`${user.id}/${Date.now()}.png`, imageData.blob)
+      
+      if (uploadError) throw uploadError
+
+      const { data: insertData, error: insertError } = await supabase
+        .from('user_images')
+        .insert({
+          user_id: user.id,
+          image_url: uploadData.path,
+          prompt: imageData.prompt,
+          model: imageData.model,
+          seed: imageData.seed,
+          width: imageData.width,
+          height: imageData.height,
+          steps: imageData.steps,
+          quality: imageData.quality,
+          aspect_ratio: imageData.aspectRatio
+        })
+      
+      if (insertError) throw insertError
+
+      return insertData
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['userImages', user?.id])
+    }
+  })
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
@@ -299,7 +362,7 @@ const ImageGenerator = () => {
           className="flex w-auto"
           columnClassName="bg-clip-padding px-2"
         >
-          {generatedImages.map((image, index) => (
+          {(generatedImages.length > 0 ? generatedImages : userImages || []).map((image, index) => (
             <div key={image.id} className="mb-4">
               <Card className="overflow-hidden">
                 <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
