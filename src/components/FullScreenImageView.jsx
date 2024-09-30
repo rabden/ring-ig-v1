@@ -1,10 +1,12 @@
 import React from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
-const FullScreenImageView = ({ image, isOpen, onClose }) => {
-  if (!isOpen || !image) {
+const FullScreenImageView = ({ images, currentIndex, isOpen, onClose, onNavigate }) => {
+  const currentImage = images[currentIndex];
+
+  if (!isOpen || !currentImage) {
     return null;
   }
 
@@ -20,11 +22,29 @@ const FullScreenImageView = ({ image, isOpen, onClose }) => {
           >
             <X className="h-6 w-6" />
           </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute left-4 top-1/2 transform -translate-y-1/2"
+            onClick={() => onNavigate('prev')}
+            disabled={currentIndex === 0}
+          >
+            <ChevronLeft className="h-8 w-8" />
+          </Button>
           <img
-            src={image.imageUrl}
-            alt={image.prompt}
+            src={currentImage.imageUrl}
+            alt={currentImage.prompt}
             className="max-w-full max-h-full object-contain"
           />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2"
+            onClick={() => onNavigate('next')}
+            disabled={currentIndex === images.length - 1}
+          >
+            <ChevronRight className="h-8 w-8" />
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
