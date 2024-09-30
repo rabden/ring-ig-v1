@@ -1,11 +1,10 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 import { supabase } from './supabase.js';
 import { useQueryClient } from '@tanstack/react-query';
-import { Auth } from '@supabase/auth-ui-react';
-import { ThemeSupa } from '@supabase/auth-ui-shared';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const SupabaseAuthContext = createContext();
 
@@ -64,22 +63,36 @@ export const useSupabaseAuth = () => {
 export const SupabaseAuthUI = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
+    setError('');
     const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) console.error('Error signing in:', error.message);
+    if (error) {
+      console.error('Error signing in:', error.message);
+      setError(error.message);
+    }
   };
 
   const handleGoogleSignIn = async () => {
+    setError('');
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
     });
-    if (error) console.error('Error signing in with Google:', error.message);
+    if (error) {
+      console.error('Error signing in with Google:', error.message);
+      setError(error.message);
+    }
   };
 
   return (
     <div className="space-y-4">
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
       <form onSubmit={handleEmailSignIn} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
