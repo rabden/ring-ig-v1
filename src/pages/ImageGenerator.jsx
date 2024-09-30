@@ -20,31 +20,7 @@ import FullScreenImageView from '@/components/FullScreenImageView'
 import SignInDialog from '@/components/SignInDialog'
 import ProfileMenu from '@/components/ProfileMenu'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
-
-const aspectRatios = {
-  "1:1": { width: 1024, height: 1024 },
-  "4:3": { width: 1024, height: 768 },
-  "3:4": { width: 768, height: 1024 },
-  "16:9": { width: 1024, height: 576 },
-  "9:16": { width: 576, height: 1024 },
-  "3:2": { width: 1024, height: 683 },
-  "2:3": { width: 683, height: 1024 },
-  "5:4": { width: 1024, height: 819 },
-  "4:5": { width: 819, height: 1024 },
-  "21:9": { width: 1024, height: 439 },
-  "9:21": { width: 439, height: 1024 },
-  "1.91:1": { width: 1024, height: 536 },
-  "1:1.91": { width: 536, height: 1024 },
-  "1:2": { width: 512, height: 1024 },
-  "2:1": { width: 1024, height: 512 },
-}
-
-const qualityOptions = {
-  "SD": 512,
-  "HD": 1024,
-  "HD+": 1536,
-  "4K": 2048,
-}
+import AuthOverlay from '@/components/AuthOverlay'
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
@@ -65,7 +41,7 @@ const ImageGenerator = () => {
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false)
   const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
 
-  const { session } = useSupabaseAuth() || {}  // Add a fallback empty object
+  const { session } = useSupabaseAuth() || {}
   const user = session?.user
 
   useEffect(() => {
@@ -95,6 +71,11 @@ const ImageGenerator = () => {
   }
 
   const generateImage = async () => {
+    if (!user) {
+      console.log("User not signed in")
+      return
+    }
+
     if (!prompt) {
       alert('Please enter a prompt')
       return
@@ -299,7 +280,8 @@ const ImageGenerator = () => {
           ))}
         </Masonry>
       </div>
-      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen`}>
+      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
+        {!user && <AuthOverlay />}
         <h2 className="text-2xl font-semibold mb-4">Settings</h2>
         <div className="space-y-4">
           <div className="space-y-2">
@@ -313,7 +295,7 @@ const ImageGenerator = () => {
               className="min-h-[100px] resize-y"
             />
           </div>
-          <Button onClick={generateImage} className="w-full">
+          <Button onClick={generateImage} className="w-full" disabled={!user}>
             Generate Image
           </Button>
           <div className="space-y-2">
