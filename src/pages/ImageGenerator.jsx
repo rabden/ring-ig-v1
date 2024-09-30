@@ -131,23 +131,25 @@ const ImageGenerator = () => {
 
   const uploadImageMutation = useMutation({
     mutationFn: async (imageData) => {
+      const storagePath = `${user.id}/${Date.now()}.png`;
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('user-images')
-        .upload(`${user.id}/${Date.now()}.png`, imageData.blob, {
+        .upload(storagePath, imageData.blob, {
           contentType: 'image/png'
-        })
+        });
 
-      if (uploadError) throw uploadError
+      if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
         .from('user-images')
-        .getPublicUrl(uploadData.path)
+        .getPublicUrl(uploadData.path);
 
       const { data, error } = await supabase
         .from('user_images')
         .insert({
           user_id: user.id,
           image_url: publicUrl,
+          storage_path: storagePath,
           prompt: imageData.prompt,
           model: imageData.model,
           seed: imageData.seed,
@@ -156,13 +158,13 @@ const ImageGenerator = () => {
           steps: imageData.steps,
           quality: imageData.quality,
           aspect_ratio: imageData.aspectRatio
-        })
+        });
 
-      if (error) throw error
-      return data
+      if (error) throw error;
+      return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['userImages', user?.id])
+      queryClient.invalidateQueries(['userImages', user?.id]);
     }
   })
 
@@ -282,10 +284,10 @@ const ImageGenerator = () => {
     document.body.removeChild(link)
   }
 
-  const handleDiscard = async (id, imageUrl) => {
+  const handleDiscard = async (id) => {
     try {
-      await deleteImageFromSupabase(id, imageUrl)
-      queryClient.invalidateQueries(['userImages', user?.id])
+      await deleteImageFromSupabase(id);
+      queryClient.invalidateQueries(['userImages', user?.id]);
     } catch (error) {
       console.error('Error deleting image:', error)
       alert('Failed to delete image. Please try again.')
@@ -380,7 +382,7 @@ const ImageGenerator = () => {
                     <DropdownMenuItem onClick={() => handleDownload(image.image_url, image.prompt)}>
                       Download
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDiscard(image.id, image.image_url)}>
+                    <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
                       Discard
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleRemix(image)}>
