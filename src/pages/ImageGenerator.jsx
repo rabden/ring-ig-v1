@@ -47,7 +47,15 @@ const ImageGenerator = () => {
   const user = session?.user
   const queryClient = useQueryClient()
 
-  const INITIAL_CREDITS = 10 // Define the initial credit amount for new users
+  const INITIAL_CREDITS = 10
+
+  // Define qualityOptions
+  const qualityOptions = {
+    SD: { cost: 1, size: 512 },
+    HD: { cost: 2, size: 768 },
+    UHD: { cost: 3, size: 1024 },
+    EXTREME: { cost: 4, size: 1280 }
+  }
 
   const fetchOrCreateUserCredits = async (userId) => {
     const { data, error } = await supabase
@@ -251,6 +259,10 @@ const ImageGenerator = () => {
     500: 2
   };
 
+  // The rest of the component remains the same...
+  // (Include the JSX return statement and other necessary parts of the component)
+
+  return (
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
@@ -463,6 +475,10 @@ const ImageGenerator = () => {
         onNavigate={handleFullScreenNavigate}
       />
     </div>
+  )
+}
+
+export default ImageGenerator
   )
 }
 
