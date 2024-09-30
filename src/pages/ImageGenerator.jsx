@@ -94,11 +94,11 @@ const ImageGenerator = () => {
       if (!user) return null
       const { data, error } = await supabase
         .from('user_credits')
-        .select('credits')
+        .select('credit_count') // Changed from 'credits' to 'credit_count'
         .eq('user_id', user.id)
         .single()
       if (error) throw error
-      return data.credits
+      return data.credit_count // Changed from 'credits' to 'credit_count'
     },
     enabled: !!user,
   })
@@ -107,7 +107,7 @@ const ImageGenerator = () => {
     mutationFn: async (newCredits) => {
       const { data, error } = await supabase
         .from('user_credits')
-        .update({ credits: newCredits })
+        .update({ credit_count: newCredits }) // Changed from 'credits' to 'credit_count'
         .eq('user_id', user.id)
       if (error) throw error
       return data
@@ -195,6 +195,7 @@ const ImageGenerator = () => {
 
       // Deduct credits
       await updateUserCredits.mutateAsync(userCredits - requiredCredits)
+      await refetchCredits() // Refetch the updated credit count
       toast.success(`Image generated! ${requiredCredits} credits used.`)
     } catch (error) {
       console.error('Error generating image:', error)
