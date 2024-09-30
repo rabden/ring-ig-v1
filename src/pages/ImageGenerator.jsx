@@ -26,13 +26,6 @@ import MobileProfileMenu from '@/components/MobileProfileMenu'
 import { deleteImageFromSupabase } from '@/integrations/supabase/imageUtils'
 
 const ImageGenerator = () => {
-  const qualityOptions = {
-    SD: { cost: 1, size: 512 },
-    HD: { cost: 2, size: 768 },
-    UHD: { cost: 3, size: 1024 },
-    EXTREME: { cost: 4, size: 1536 }
-  };
-
   const [prompt, setPrompt] = useState('')
   const [seed, setSeed] = useState(Math.floor(Math.random() * 1000000))
   const [randomizeSeed, setRandomizeSeed] = useState(true)
@@ -50,77 +43,75 @@ const ImageGenerator = () => {
   const [selectedImage, setSelectedImage] = useState(null)
   const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false)
-  const [mobileProfileMenuOpen, setMobileProfileMenuOpen] = useState(false)
-  const [isLoadingImages, setIsLoadingImages] = useState(false)
+
+  const [mobileProfileMenuOpen, setMobileProfileMenuOpen] = useState(false);
 
   const { session } = useSupabaseAuth() || {}
   const user = session?.user
-
   const queryClient = useQueryClient()
 
-  // Define breakpointColumnsObj here
-  const breakpointColumnsObj = {
-    default: 4,
-    1100: 3,
-    700: 2,
-    500: 1
-  };
+  const qualityOptions = {
+    SD: { size: 512, cost: 1 },
+    HD: { size: 1024, cost: 2 },
+    'HD+': { size: 1536, cost: 3 },
+    '4K': { size: 2048, cost: 4 }
+  }
 
-  const { data: userImages, isLoading: isLoadingUserImages } = useQuery({
+  useEffect(() => {
+    updateDimensions()
+  }, [aspectRatio, quality, useAspectRatio])
+
+  const updateDimensions = () => {
+    const maxSize = qualityOptions[quality].size
+    let newWidth, newHeight
+
+    if (useAspectRatio) {
+      const ratio = aspectRatios[aspectRatio]
+      if (ratio.width > ratio.height) {
+        newWidth = maxSize
+        newHeight = Math.round((maxSize / ratio.width) * ratio.height)
+      } else {
+        newHeight = maxSize
+        newWidth = Math.round((maxSize / ratio.height) * ratio.width)
+      }
+    } else {
+      newWidth = Math.min(width, maxSize)
+      newHeight = Math.min(height, maxSize)
+    }
+
+    setWidth(Math.floor(newWidth / 8) * 8)
+    setHeight(Math.floor(newHeight / 8) * 8)
+  }
+
+  const { data: userImages, isLoading: isLoadingImages, error: imagesError } = useQuery({
     queryKey: ['userImages', user?.id],
     queryFn: async () => {
+      if (!user) return []
       const { data, error } = await supabase
         .from('user_images')
         .select('*')
-        .eq('user_id', user?.id)
         .order('created_at', { ascending: false })
+      
       if (error) throw error
       return data
     },
     enabled: !!user
   })
 
-  const { data: userCredits, isLoading: isLoadingCredits } = useQuery({
+  const { data: userCredits, isLoading: isLoadingCredits, error: creditsError } = useQuery({
     queryKey: ['userCredits', user?.id],
     queryFn: async () => {
+      if (!user) return null
       const { data, error } = await supabase
         .from('user_credits')
         .select('credit_count')
-        .eq('user_id', user?.id)
+        .eq('user_id', user.id)
         .single()
+      
       if (error) throw error
       return data
     },
     enabled: !!user
-  })
-
-  const uploadImageMutation = useMutation({
-    mutationFn: async ({ blob, ...imageData }) => {
-      const fileName = `${user.id}/${Date.now()}.png`
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('user-images')
-        .upload(fileName, blob, { contentType: 'image/png' })
-      if (uploadError) throw uploadError
-
-      const { data: publicUrlData } = supabase.storage
-        .from('user-images')
-        .getPublicUrl(fileName)
-
-      const { data, error } = await supabase
-        .from('user_images')
-        .insert({
-          ...imageData,
-          user_id: user.id,
-          image_url: publicUrlData.publicUrl,
-          storage_path: fileName
-        })
-        .select()
-      if (error) throw error
-      return data[0]
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['userImages', user?.id])
-    }
   })
 
   const updateUserCreditsMutation = useMutation({
@@ -129,11 +120,51 @@ const ImageGenerator = () => {
         .from('user_credits')
         .update({ credit_count: newCreditCount })
         .eq('user_id', user.id)
+      
       if (error) throw error
       return data
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['userCredits', user?.id])
+    }
+  })
+
+  const uploadImageMutation = useMutation({
+    mutationFn: async (imageData) => {
+      const storagePath = `${user.id}/${Date.now()}.png`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('user-images')
+        .upload(storagePath, imageData.blob, {
+          contentType: 'image/png'
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('user-images')
+        .getPublicUrl(uploadData.path);
+
+      const { data, error } = await supabase
+        .from('user_images')
+        .insert({
+          user_id: user.id,
+          image_url: publicUrl,
+          storage_path: storagePath,
+          prompt: imageData.prompt,
+          model: imageData.model,
+          seed: imageData.seed,
+          width: imageData.width,
+          height: imageData.height,
+          steps: imageData.steps,
+          quality: imageData.quality,
+          aspect_ratio: imageData.aspectRatio
+        });
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['userImages', user?.id]);
     }
   })
 
@@ -154,12 +185,14 @@ const ImageGenerator = () => {
       return
     }
 
-    setIsLoadingImages(true)
-
     const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed
-    const modifiedPrompt = modelConfigs[model].promptSuffix
-      ? `${prompt} ${modelConfigs[model].promptSuffix}`
-      : prompt
+    setSeed(actualSeed)
+
+    let modifiedPrompt = prompt;
+
+    if (modelConfigs[model].promptSuffix) {
+      modifiedPrompt += modelConfigs[model].promptSuffix;
+    }
 
     const newImage = {
       id: Date.now(),
@@ -227,8 +260,6 @@ const ImageGenerator = () => {
           img.id === newImage.id ? { ...img, loading: false, error: true } : img
         )
       )
-    } finally {
-      setIsLoadingImages(false)
     }
   }
 
@@ -295,6 +326,13 @@ const ImageGenerator = () => {
     }
   }
 
+  const breakpointColumnsObj = {
+    default: 4,
+    1100: 3,
+    700: 2,
+    500: 2
+  };
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
@@ -314,56 +352,50 @@ const ImageGenerator = () => {
           className="flex w-auto"
           columnClassName="bg-clip-padding px-2"
         >
-          {isLoadingImages || isLoadingUserImages ? (
+          {isLoadingImages ? (
             Array.from({ length: 8 }).map((_, index) => (
               <div key={index} className="mb-4">
                 <Skeleton className="w-full h-64" />
               </div>
             ))
-          ) : (
-            (userImages || []).map((image, index) => (
-              <div key={image.id} className="mb-4">
-                <Card className="overflow-hidden">
-                  <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-                    {image.loading ? (
-                      <Skeleton className="absolute inset-0 w-full h-full" />
-                    ) : (
-                      <img 
-                        src={image.image_url} 
-                        alt={image.prompt} 
-                        className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                        onClick={() => handleImageClick(index)}
-                      />
-                    )}
-                  </CardContent>
-                </Card>
-                <div className="mt-2 flex items-center justify-between">
-                  <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleDownload(image.image_url, image.prompt)}>
-                        Download
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
-                        Discard
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleRemix(image)}>
-                        Remix
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleViewDetails(image)}>
-                        View Details
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+          ) : userImages?.map((image, index) => (
+            <div key={image.id} className="mb-4">
+              <Card className="overflow-hidden">
+                <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
+                  <img 
+                    src={image.image_url} 
+                    alt={image.prompt} 
+                    className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+                    onClick={() => handleImageClick(index)}
+                  />
+                </CardContent>
+              </Card>
+              <div className="mt-2 flex items-center justify-between">
+                <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handleDownload(image.image_url, image.prompt)}>
+                      Download
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
+                      Discard
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleRemix(image)}>
+                      Remix
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleViewDetails(image)}>
+                      View Details
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
-            ))
-          )}
+            </div>
+          ))}
         </Masonry>
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
