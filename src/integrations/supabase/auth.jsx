@@ -10,14 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const SupabaseAuthContext = createContext();
 
 export const SupabaseAuthProvider = ({ children }) => {
-  return (
-    <SupabaseAuthProviderInner>
-      {children}
-    </SupabaseAuthProviderInner>
-  );
-}
-
-export const SupabaseAuthProviderInner = ({ children }) => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
@@ -30,16 +22,27 @@ export const SupabaseAuthProviderInner = ({ children }) => {
       setLoading(false);
     };
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       queryClient.invalidateQueries('user');
+      if (event === 'SIGNED_IN') {
+        // Fetch user credits after sign in
+        const { data, error } = await supabase
+          .from('user_credits')
+          .select('credit_count')
+          .eq('user_id', session.user.id)
+          .single();
+        
+        if (!error && data) {
+          queryClient.setQueryData(['userCredits', session.user.id], data);
+        }
+      }
     });
 
     getSession();
 
     return () => {
       authListener.subscription.unsubscribe();
-      setLoading(false);
     };
   }, [queryClient]);
 
@@ -47,7 +50,6 @@ export const SupabaseAuthProviderInner = ({ children }) => {
     await supabase.auth.signOut();
     setSession(null);
     queryClient.invalidateQueries('user');
-    setLoading(false);
   };
 
   return (
@@ -58,39 +60,41 @@ export const SupabaseAuthProviderInner = ({ children }) => {
 };
 
 export const useSupabaseAuth = () => {
-  return useContext(SupabaseAuthContext);
-};
-
-const generateRandomDisplayName = () => {
-  return `User_${Math.random().toString(36).substring(2, 7)}`;
+  const context = useContext(SupabaseAuthContext);
+  if (context === undefined) {
+    throw new Error('useSupabaseAuth must be used within a SupabaseAuthProvider');
+  }
+  return context;
 };
 
 export const SupabaseAuthUI = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       console.error('Error signing in:', error.message);
       setError(error.message);
     }
+    setIsLoading(false);
   };
 
   const handleEmailSignUp = async (e) => {
     e.preventDefault();
     setError('');
-    const finalDisplayName = displayName || generateRandomDisplayName();
+    setIsLoading(true);
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
-          display_name: finalDisplayName,
+          display_name: email.split('@')[0],
         },
       },
     });
@@ -100,10 +104,12 @@ export const SupabaseAuthUI = () => {
     } else {
       setError('Check your email for the confirmation link.');
     }
+    setIsLoading(false);
   };
 
   const handleGoogleSignIn = async () => {
     setError('');
+    setIsLoading(true);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
     });
@@ -111,6 +117,7 @@ export const SupabaseAuthUI = () => {
       console.error('Error signing in with Google:', error.message);
       setError(error.message);
     }
+    setIsLoading(false);
   };
 
   return (
@@ -147,7 +154,9 @@ export const SupabaseAuthUI = () => {
                 required
               />
             </div>
-            <Button type="submit" className="w-full">Sign In</Button>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Signing In...' : 'Sign In'}
+            </Button>
           </form>
         </TabsContent>
         <TabsContent value="signup">
@@ -172,17 +181,9 @@ export const SupabaseAuthUI = () => {
                 required
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="signup-display-name">Display Name (Optional)</Label>
-              <Input
-                id="signup-display-name"
-                type="text"
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="Enter display name or leave blank for random"
-              />
-            </div>
-            <Button type="submit" className="w-full">Sign Up</Button>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Signing Up...' : 'Sign Up'}
+            </Button>
           </form>
         </TabsContent>
       </Tabs>
@@ -194,8 +195,8 @@ export const SupabaseAuthUI = () => {
           <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
         </div>
       </div>
-      <Button onClick={handleGoogleSignIn} variant="outline" className="w-full">
-        Sign In with Google
+      <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" disabled={isLoading}>
+        {isLoading ? 'Signing In...' : 'Sign In with Google'}
       </Button>
     </div>
   );
