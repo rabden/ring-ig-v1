@@ -60,7 +60,6 @@ const ImageGenerator = () => {
   const [selectedImage, setSelectedImage] = useState(null)
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false)
-  const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
 
   useEffect(() => {
     updateDimensions()
@@ -206,17 +205,9 @@ const ImageGenerator = () => {
     setDetailsDialogOpen(true)
   }
 
-  const handleImageClick = (index) => {
-    setFullScreenImageIndex(index)
+  const handleImageClick = (image) => {
+    setSelectedImage(image)
     setFullScreenViewOpen(true)
-  }
-
-  const handleFullScreenNavigate = (direction) => {
-    if (direction === 'prev' && fullScreenImageIndex > 0) {
-      setFullScreenImageIndex(fullScreenImageIndex - 1)
-    } else if (direction === 'next' && fullScreenImageIndex < generatedImages.length - 1) {
-      setFullScreenImageIndex(fullScreenImageIndex + 1)
-    }
   }
 
   const breakpointColumnsObj = {
@@ -235,7 +226,7 @@ const ImageGenerator = () => {
           className="flex w-auto"
           columnClassName="bg-clip-padding px-2"
         >
-          {generatedImages.map((image, index) => (
+          {generatedImages.map((image) => (
             <div key={image.id} className="mb-4">
               <Card className="overflow-hidden">
                 <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
@@ -250,7 +241,7 @@ const ImageGenerator = () => {
                       src={image.imageUrl} 
                       alt={image.prompt} 
                       className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                      onClick={() => handleImageClick(index)}
+                      onClick={() => handleImageClick(image)}
                     />
                   )}
                 </CardContent>
@@ -423,11 +414,9 @@ const ImageGenerator = () => {
         image={selectedImage}
       />
       <FullScreenImageView
-        images={generatedImages}
-        currentIndex={fullScreenImageIndex}
+        image={selectedImage}
         isOpen={fullScreenViewOpen}
         onClose={() => setFullScreenViewOpen(false)}
-        onNavigate={handleFullScreenNavigate}
       />
     </div>
   )
