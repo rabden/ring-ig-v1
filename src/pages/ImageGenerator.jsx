@@ -14,7 +14,7 @@ import BottomNavbar from '@/components/BottomNavbar'
 import { Textarea } from "@/components/ui/textarea"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ModelSidebarMenu from '@/components/ModelSidebarMenu'
-import SkeletonImage from '@/components/SkeletonImage'
+import { Skeleton } from "@/components/ui/skeleton"
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -93,7 +93,6 @@ const ImageGenerator = () => {
 
     let modifiedPrompt = prompt;
 
-    // Add model-specific suffixes
     if (modelConfigs[model].promptSuffix) {
       modifiedPrompt += modelConfigs[model].promptSuffix;
     }
@@ -113,7 +112,6 @@ const ImageGenerator = () => {
 
     setGeneratedImages(prev => [newImage, ...prev])
 
-    // Automatically navigate to the images tab on mobile
     if (window.innerWidth <= 768) {
       setActiveTab('images')
     }
@@ -218,7 +216,7 @@ const ImageGenerator = () => {
               <Card className="overflow-hidden">
                 <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
                   {image.loading ? (
-                    <SkeletonImage width={image.width} height={image.height} />
+                    <Skeleton className="absolute inset-0" />
                   ) : image.error ? (
                     <div className="absolute inset-0 flex items-center justify-center text-destructive">
                       Error generating image
@@ -233,25 +231,33 @@ const ImageGenerator = () => {
                 </CardContent>
               </Card>
               <div className="mt-2 flex items-center justify-between">
-                <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => handleDownload(image.imageUrl, image.prompt)}>
-                      Download
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
-                      Discard
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleRemix(image)}>
-                      Remix
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                {image.loading ? (
+                  <Skeleton className="h-4 w-[70%]" />
+                ) : (
+                  <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
+                )}
+                {image.loading ? (
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                ) : (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleDownload(image.imageUrl, image.prompt)}>
+                        Download
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
+                        Discard
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleRemix(image)}>
+                        Remix
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
             </div>
           ))}
