@@ -14,7 +14,6 @@ import BottomNavbar from '@/components/BottomNavbar'
 import { Textarea } from "@/components/ui/textarea"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ModelSidebarMenu from '@/components/ModelSidebarMenu'
-import { Skeleton } from "@/components/ui/skeleton"
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
 import SignInDialog from '@/components/SignInDialog'
@@ -24,6 +23,7 @@ import AuthOverlay from '@/components/AuthOverlay'
 import { supabase } from '@/integrations/supabase/supabase'
 import MobileProfileMenu from '@/components/MobileProfileMenu'
 import { deleteImageFromSupabase } from '@/integrations/supabase/imageUtils'
+import SkeletonImageCard from '@/components/SkeletonImageCard'
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
@@ -43,8 +43,8 @@ const ImageGenerator = () => {
   const [selectedImage, setSelectedImage] = useState(null)
   const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false)
-
   const [mobileProfileMenuOpen, setMobileProfileMenuOpen] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
 
   const { session } = useSupabaseAuth() || {}
   const user = session?.user
@@ -208,6 +208,7 @@ const ImageGenerator = () => {
     }
 
     setGeneratedImages(prev => [newImage, ...prev])
+    setIsGeneratingImage(true);
 
     if (window.innerWidth <= 768) {
       setActiveTab('images')
@@ -260,6 +261,8 @@ const ImageGenerator = () => {
           img.id === newImage.id ? { ...img, loading: false, error: true } : img
         )
       )
+    } finally {
+      setIsGeneratingImage(false);
     }
   }
 
@@ -352,13 +355,12 @@ const ImageGenerator = () => {
           className="flex w-auto"
           columnClassName="bg-clip-padding px-2"
         >
-          {isLoadingImages ? (
-            Array.from({ length: 8 }).map((_, index) => (
-              <div key={index} className="mb-4">
-                <Skeleton className="w-full h-64" />
-              </div>
-            ))
-          ) : userImages?.map((image, index) => (
+          {isGeneratingImage && (
+            <div className="mb-4">
+              <SkeletonImageCard />
+            </div>
+          )}
+          {userImages?.map((image, index) => (
             <div key={image.id} className="mb-4">
               <Card className="overflow-hidden">
                 <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
