@@ -77,47 +77,55 @@ export const SupabaseAuthUI = () => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+    } catch (error) {
       console.error('Error signing in:', error.message);
       setError(error.message);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleEmailSignUp = async (e) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          display_name: email.split('@')[0],
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            display_name: email.split('@')[0],
+          },
         },
-      },
-    });
-    if (error) {
+      });
+      if (error) throw error;
+      setError('Check your email for the confirmation link.');
+    } catch (error) {
       console.error('Error signing up:', error.message);
       setError(error.message);
-    } else {
-      setError('Check your email for the confirmation link.');
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   const handleGoogleSignIn = async () => {
     setError('');
     setIsLoading(true);
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-    });
-    if (error) {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+      });
+      if (error) throw error;
+    } catch (error) {
       console.error('Error signing in with Google:', error.message);
       setError(error.message);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
