@@ -283,11 +283,6 @@ const ImageGenerator = () => {
           {user ? (
             <div className="flex items-center space-x-4">
               <ProfileMenu user={user} />
-              {isLoadingCredits ? (
-                <Skeleton className="h-6 w-20" />
-              ) : (
-                <span>Credits: {userCredits?.credit_count || 0}</span>
-              )}
             </div>
           ) : (
             <SignInDialog />
@@ -356,7 +351,14 @@ const ImageGenerator = () => {
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
         {!user && <AuthOverlay />}
-        <h2 className="text-2xl font-semibold mb-4">Settings</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-semibold">Settings</h2>
+          {isLoadingCredits ? (
+            <Skeleton className="h-6 w-20" />
+          ) : (
+            <span className="text-sm font-medium">Credits: {userCredits?.credit_count || 0}</span>
+          )}
+        </div>
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="promptInput">Prompt</Label>
