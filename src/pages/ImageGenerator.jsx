@@ -50,7 +50,6 @@ const ImageGenerator = () => {
   const user = session?.user
 
   const generateImage = async () => {
-    // ... (previous code remains unchanged)
     if (!user) {
       console.log("User not signed in")
       return
@@ -134,7 +133,6 @@ const ImageGenerator = () => {
       )
     }
   }
-  }
 
   const handleModelChange = (value) => {
     setModel(value)
@@ -198,7 +196,6 @@ const ImageGenerator = () => {
       setFullScreenImageIndex(fullScreenImageIndex + 1)
     }
   }
-
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
@@ -434,9 +431,6 @@ const ImageGenerator = () => {
         onClose={() => setFullScreenViewOpen(false)}
         onNavigate={handleFullScreenNavigate}
       />
-    </div>
-  )
-}
     </div>
   )
 }
