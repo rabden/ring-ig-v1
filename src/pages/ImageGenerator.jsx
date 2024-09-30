@@ -57,6 +57,15 @@ const ImageGenerator = () => {
     EXTREME: { cost: 4, size: 1280 }
   }
 
+  // Define aspectRatios
+  const aspectRatios = {
+    '1:1': { width: 512, height: 512 },
+    '4:3': { width: 576, height: 432 },
+    '3:4': { width: 432, height: 576 },
+    '16:9': { width: 640, height: 360 },
+    '9:16': { width: 360, height: 640 }
+  }
+
   const fetchOrCreateUserCredits = async (userId) => {
     const { data, error } = await supabase
       .from('user_credits')
@@ -259,6 +268,9 @@ const ImageGenerator = () => {
     500: 2
   };
 
+
+  return (
+    <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
@@ -470,6 +482,7 @@ const ImageGenerator = () => {
         onClose={() => setFullScreenViewOpen(false)}
         onNavigate={handleFullScreenNavigate}
       />
+    </div>
     </div>
   )
 }
