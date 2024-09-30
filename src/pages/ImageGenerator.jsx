@@ -319,11 +319,16 @@ const ImageGenerator = () => {
       
       if (uploadError) throw uploadError
 
+      // Construct the full URL for the uploaded image
+      const { data: { publicUrl } } = supabase.storage
+        .from('user-images')
+        .getPublicUrl(uploadData.path)
+
       const { data: insertData, error: insertError } = await supabase
         .from('user_images')
         .insert({
           user_id: user.id,
-          image_url: uploadData.path,
+          image_url: publicUrl, // Use the full public URL here
           prompt: imageData.prompt,
           model: imageData.model,
           seed: imageData.seed,
