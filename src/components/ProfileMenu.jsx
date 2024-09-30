@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
-const ProfileMenu = ({ user }) => {
+const ProfileMenu = ({ user, credits }) => {
   const { logout } = useSupabaseAuth();
 
   const displayName = user.user_metadata.display_name || user.email.split('@')[0];
@@ -33,6 +33,10 @@ const ProfileMenu = ({ user }) => {
             <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
           </div>
         </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem>
+          Credits: {credits !== undefined ? credits : 'Loading...'}
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={logout}>
           Log out

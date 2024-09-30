@@ -7,7 +7,7 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MoreVertical } from "lucide-react"
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { modelConfigs } from '@/utils/modelConfigs'
 import Masonry from 'react-masonry-css'
 import BottomNavbar from '@/components/BottomNavbar'
@@ -21,6 +21,8 @@ import SignInDialog from '@/components/SignInDialog'
 import ProfileMenu from '@/components/ProfileMenu'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import AuthOverlay from '@/components/AuthOverlay'
+import { supabase } from '@/integrations/supabase/supabase'
+import { toast } from 'sonner'
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
@@ -31,7 +33,7 @@ const ImageGenerator = () => {
   const [steps, setSteps] = useState(20)
   const [model, setModel] = useState('flux')
   const [quality, setQuality] = useState('SD')
-  const [aspectRatio, setAspectRatio] = useState('1:1')  // Add this line
+  const [aspectRatio, setAspectRatio] = useState('1:1')
   const [useAspectRatio, setUseAspectRatio] = useState(true)
   const [generatedImages, setGeneratedImages] = useState([])
   const [activeTab, setActiveTab] = useState('input')
@@ -43,12 +45,13 @@ const ImageGenerator = () => {
 
   const { session } = useSupabaseAuth() || {}
   const user = session?.user
+  const queryClient = useQueryClient()
 
   const qualityOptions = {
-    SD: 512,
-    HD: 1024,
-    '4K': 2048,
-    '8K': 4096
+    SD: { size: 512, cost: 1 },
+    HD: { size: 1024, cost: 2 },
+    '4K': { size: 2048, cost: 3 },
+    '8K': { size: 4096, cost: 4 }
   }
 
   const aspectRatios = {
@@ -64,7 +67,7 @@ const ImageGenerator = () => {
   }, [aspectRatio, quality, useAspectRatio])
 
   const updateDimensions = () => {
-    const maxSize = qualityOptions[quality]
+    const maxSize = qualityOptions[quality].size
     let newWidth, newHeight
 
     if (useAspectRatio) {
@@ -85,14 +88,49 @@ const ImageGenerator = () => {
     setHeight(Math.floor(newHeight / 8) * 8)
   }
 
+  const { data: userCredits, isLoading: isLoadingCredits, refetch: refetchCredits } = useQuery({
+    queryKey: ['userCredits', user?.id],
+    queryFn: async () => {
+      if (!user) return null
+      const { data, error } = await supabase
+        .from('user_credits')
+        .select('credits')
+        .eq('user_id', user.id)
+        .single()
+      if (error) throw error
+      return data.credits
+    },
+    enabled: !!user,
+  })
+
+  const updateUserCredits = useMutation({
+    mutationFn: async (newCredits) => {
+      const { data, error } = await supabase
+        .from('user_credits')
+        .update({ credits: newCredits })
+        .eq('user_id', user.id)
+      if (error) throw error
+      return data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['userCredits', user?.id])
+    },
+  })
+
   const generateImage = async () => {
     if (!user) {
-      console.log("User not signed in")
+      toast.error("Please sign in to generate images")
       return
     }
 
     if (!prompt) {
-      alert('Please enter a prompt')
+      toast.error('Please enter a prompt')
+      return
+    }
+
+    const requiredCredits = qualityOptions[quality].cost
+    if (userCredits < requiredCredits) {
+      toast.error(`Insufficient credits. You need ${requiredCredits} credits for this quality.`)
       return
     }
 
@@ -154,6 +192,10 @@ const ImageGenerator = () => {
           img.id === newImage.id ? { ...img, loading: false, imageUrl } : img
         )
       )
+
+      // Deduct credits
+      await updateUserCredits.mutateAsync(userCredits - requiredCredits)
+      toast.success(`Image generated! ${requiredCredits} credits used.`)
     } catch (error) {
       console.error('Error generating image:', error)
       setGeneratedImages(prev =>
@@ -161,6 +203,7 @@ const ImageGenerator = () => {
           img.id === newImage.id ? { ...img, loading: false, error: true } : img
         )
       )
+      toast.error('Error generating image. Please try again.')
     }
   }
 
@@ -232,7 +275,7 @@ const ImageGenerator = () => {
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
         <div className="flex justify-between items-center mb-6">
-          {user ? <ProfileMenu user={user} /> : <SignInDialog />}
+          {user ? <ProfileMenu user={user} credits={userCredits} /> : <SignInDialog />}
         </div>
         <Masonry
           breakpointCols={breakpointColumnsObj}
@@ -310,9 +353,14 @@ const ImageGenerator = () => {
               className="min-h-[100px] resize-y"
             />
           </div>
-          <Button onClick={generateImage} className="w-full" disabled={!user}>
-            Generate Image
+          <Button onClick={generateImage} className="w-full" disabled={!user || isLoadingCredits || userCredits < qualityOptions[quality].cost}>
+            Generate Image ({qualityOptions[quality].cost} credits)
           </Button>
+          {user && !isLoadingCredits && (
+            <p className="text-sm text-muted-foreground">
+              Available credits: {userCredits}
+            </p>
+          )}
           <div className="space-y-2">
             <Label htmlFor="modelSelect">Model</Label>
             <Button
@@ -382,7 +430,7 @@ const ImageGenerator = () => {
                   <Label>Width: {width}px</Label>
                   <Slider
                     min={256}
-                    max={qualityOptions[quality]}
+                    max={qualityOptions[quality].size}
                     step={8}
                     value={[width]}
                     onValueChange={(value) => setWidth(value[0])}
@@ -392,7 +440,7 @@ const ImageGenerator = () => {
                   <Label>Height: {height}px</Label>
                   <Slider
                     min={256}
-                    max={qualityOptions[quality]}
+                    max={qualityOptions[quality].size}
                     step={8}
                     value={[height]}
                     onValueChange={(value) => setHeight(value[0])}
