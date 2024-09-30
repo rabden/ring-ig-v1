@@ -10,11 +10,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/supabase';
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ProfileMenu = ({ user }) => {
   const { logout } = useSupabaseAuth();
 
   const displayName = user.user_metadata.display_name || user.email.split('@')[0];
+
+  const { data: userCredits, isLoading: isLoadingCredits } = useQuery({
+    queryKey: ['userCredits', user.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_credits')
+        .select('credit_count')
+        .eq('user_id', user.id)
+        .single()
+      
+      if (error) throw error
+      return data
+    }
+  });
 
   return (
     <DropdownMenu>
@@ -34,6 +51,13 @@ const ProfileMenu = ({ user }) => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem>
+          {isLoadingCredits ? (
+            <Skeleton className="h-4 w-full" />
+          ) : (
+            <span>Credits: {userCredits?.credit_count || 0}</span>
+          )}
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={logout}>
           Log out
         </DropdownMenuItem>
