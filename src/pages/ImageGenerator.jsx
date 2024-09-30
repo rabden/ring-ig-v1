@@ -358,7 +358,7 @@ const ImageGenerator = () => {
         >
           {isGeneratingImage && (
             <div className="mb-4">
-              <SkeletonImageCard />
+              <SkeletonImageCard aspectRatio={aspectRatio} />
             </div>
           )}
           {userImages?.map((image, index) => (

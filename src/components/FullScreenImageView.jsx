@@ -24,7 +24,7 @@ const FullScreenImageView = ({ images, currentIndex, isOpen, onClose, onNavigate
             <ChevronLeft className="h-8 w-8" />
           </Button>
           <img
-            src={currentImage.imageUrl}
+            src={currentImage.image_url}
             alt={currentImage.prompt}
             className="max-w-full max-h-full object-contain"
           />

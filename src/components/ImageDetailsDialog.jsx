@@ -46,7 +46,7 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <span className="font-semibold">Aspect Ratio:</span>
-            <span className="col-span-3">{image.aspectRatio}</span>
+            <span className="col-span-3">{image.aspect_ratio}</span>
           </div>
         </div>
       </DialogContent>
