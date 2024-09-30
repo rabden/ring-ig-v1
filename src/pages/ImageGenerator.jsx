@@ -17,47 +17,50 @@ import ModelSidebarMenu from '@/components/ModelSidebarMenu'
 import { Skeleton } from "@/components/ui/skeleton"
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
-import SignInDialog from '@/components/SignInDialog'
-import ProfileMenu from '@/components/ProfileMenu'
-import { useSupabaseAuth } from '@/integrations/supabase/auth'
-import AuthOverlay from '@/components/AuthOverlay'
+
+const aspectRatios = {
+  "1:1": { width: 1024, height: 1024 },
+  "4:3": { width: 1024, height: 768 },
+  "3:4": { width: 768, height: 1024 },
+  "16:9": { width: 1024, height: 576 },
+  "9:16": { width: 576, height: 1024 },
+  "3:2": { width: 1024, height: 683 },
+  "2:3": { width: 683, height: 1024 },
+  "5:4": { width: 1024, height: 819 },
+  "4:5": { width: 819, height: 1024 },
+  "21:9": { width: 1024, height: 439 },
+  "9:21": { width: 439, height: 1024 },
+  "1.91:1": { width: 1024, height: 536 },
+  "1:1.91": { width: 536, height: 1024 },
+  "1:2": { width: 512, height: 1024 },
+  "2:1": { width: 1024, height: 512 },
+}
+
+const qualityOptions = {
+  "SD": 512,
+  "HD": 1024,
+  "HD+": 1536,
+  "4K": 2048,
+}
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
-  const [seed, setSeed] = useState(Math.floor(Math.random() * 1000000))
+  const [seed, setSeed] = useState(0)
   const [randomizeSeed, setRandomizeSeed] = useState(true)
-  const [width, setWidth] = useState(512)
-  const [height, setHeight] = useState(512)
-  const [steps, setSteps] = useState(20)
+  const [width, setWidth] = useState(1024)
+  const [height, setHeight] = useState(1024)
+  const [steps, setSteps] = useState(modelConfigs.flux.defaultStep)
   const [model, setModel] = useState('flux')
-  const [quality, setQuality] = useState('SD')
-  const [aspectRatio, setAspectRatio] = useState('1:1')  // Add this line
-  const [useAspectRatio, setUseAspectRatio] = useState(true)
   const [generatedImages, setGeneratedImages] = useState([])
-  const [activeTab, setActiveTab] = useState('input')
+  const [activeTab, setActiveTab] = useState('images')
+  const [aspectRatio, setAspectRatio] = useState("1:1")
+  const [useAspectRatio, setUseAspectRatio] = useState(true)
+  const [quality, setQuality] = useState("HD")
   const [modelSidebarOpen, setModelSidebarOpen] = useState(false)
-  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
-  const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false)
-
-  const { session } = useSupabaseAuth() || {}
-  const user = session?.user
-
-  const qualityOptions = {
-    SD: 512,
-    HD: 1024,
-    '4K': 2048,
-    '8K': 4096
-  }
-
-  const aspectRatios = {
-    "1:1": { width: 1, height: 1 },
-    "4:3": { width: 4, height: 3 },
-    "3:2": { width: 3, height: 2 },
-    "16:9": { width: 16, height: 9 },
-    "2:1": { width: 2, height: 1 },
-  }
+  const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
 
   useEffect(() => {
     updateDimensions()
@@ -86,11 +89,6 @@ const ImageGenerator = () => {
   }
 
   const generateImage = async () => {
-    if (!user) {
-      console.log("User not signed in")
-      return
-    }
-
     if (!prompt) {
       alert('Please enter a prompt')
       return
@@ -231,9 +229,7 @@ const ImageGenerator = () => {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
-        <div className="flex justify-between items-center mb-6">
-          {user ? <ProfileMenu user={user} /> : <SignInDialog />}
-        </div>
+        <h1 className="text-3xl font-bold mb-6">AI Image Generator</h1>
         <Masonry
           breakpointCols={breakpointColumnsObj}
           className="flex w-auto"
@@ -295,8 +291,7 @@ const ImageGenerator = () => {
           ))}
         </Masonry>
       </div>
-      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
-        {!user && <AuthOverlay />}
+      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen`}>
         <h2 className="text-2xl font-semibold mb-4">Settings</h2>
         <div className="space-y-4">
           <div className="space-y-2">
@@ -310,7 +305,7 @@ const ImageGenerator = () => {
               className="min-h-[100px] resize-y"
             />
           </div>
-          <Button onClick={generateImage} className="w-full" disabled={!user}>
+          <Button onClick={generateImage} className="w-full">
             Generate Image
           </Button>
           <div className="space-y-2">
