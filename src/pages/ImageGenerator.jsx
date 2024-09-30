@@ -23,7 +23,6 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import AuthOverlay from '@/components/AuthOverlay'
 import { supabase } from '@/integrations/supabase/supabase'
 import MobileProfileMenu from '@/components/MobileProfileMenu'
-import { deleteImageFromSupabase } from '@/integrations/supabase/imageUtils'
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
@@ -277,15 +276,20 @@ const ImageGenerator = () => {
     document.body.removeChild(link)
   }
 
-  const handleDiscard = async (id, imageUrl) => {
+  const handleDiscard = async (id) => {
     try {
-      await deleteImageFromSupabase(id, imageUrl);
-      queryClient.invalidateQueries(['userImages', user?.id]);
+      const { error } = await supabase
+        .from('user_images')
+        .delete()
+        .eq('id', id)
+      
+      if (error) throw error
+
+      queryClient.invalidateQueries(['userImages', user?.id])
     } catch (error) {
-      console.error('Error discarding image:', error);
-      // Optionally, show an error message to the user
+      console.error('Error discarding image:', error)
     }
-  };
+  }
 
   const handleRemix = (image) => {
     setPrompt(image.prompt)
@@ -376,7 +380,7 @@ const ImageGenerator = () => {
                       <DropdownMenuItem onClick={() => handleDownload(image.image_url, image.prompt)}>
                         Download
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDiscard(image.id, image.image_url)}>
+                      <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
                         Discard
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleRemix(image)}>
