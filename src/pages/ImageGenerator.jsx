@@ -23,26 +23,27 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import AuthOverlay from '@/components/AuthOverlay'
 
 const ImageGenerator = () => {
-  const [prompt, setPrompt] = useState('')
-  const [seed, setSeed] = useState(0)
-  const [randomizeSeed, setRandomizeSeed] = useState(true)
-  const [width, setWidth] = useState(1024)
-  const [height, setHeight] = useState(1024)
-  const [steps, setSteps] = useState(modelConfigs.flux.defaultStep)
-  const [model, setModel] = useState('flux')
-  const [generatedImages, setGeneratedImages] = useState([])
-  const [activeTab, setActiveTab] = useState('images')
-  const [aspectRatio, setAspectRatio] = useState("1:1")
-  const [useAspectRatio, setUseAspectRatio] = useState(true)
-  const [quality, setQuality] = useState("HD")
-  const [modelSidebarOpen, setModelSidebarOpen] = useState(false)
-  const [selectedImage, setSelectedImage] = useState(null)
-  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
-  const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false)
-  const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
+  // ... state declarations ...
 
   const { session } = useSupabaseAuth() || {}
   const user = session?.user
+
+  // Define qualityOptions
+  const qualityOptions = {
+    SD: 512,
+    HD: 1024,
+    '4K': 2048,
+    '8K': 4096
+  }
+
+  // Define aspectRatios
+  const aspectRatios = {
+    "1:1": { width: 1, height: 1 },
+    "4:3": { width: 4, height: 3 },
+    "3:2": { width: 3, height: 2 },
+    "16:9": { width: 16, height: 9 },
+    "2:1": { width: 2, height: 1 },
+  }
 
   useEffect(() => {
     updateDimensions()
