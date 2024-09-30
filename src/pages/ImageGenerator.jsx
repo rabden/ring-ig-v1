@@ -6,17 +6,15 @@ import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MoreVertical } from "lucide-react"
+import { Loader2, MoreVertical } from "lucide-react"
 import { useQuery } from '@tanstack/react-query'
 import { modelConfigs } from '@/utils/modelConfigs'
 import Masonry from 'react-masonry-css'
 import BottomNavbar from '@/components/BottomNavbar'
 import { Textarea } from "@/components/ui/textarea"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu"
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import ModelSidebarMenu from '@/components/ModelSidebarMenu'
-import SkeletonImage from '@/components/SkeletonImage'
-import { ScrollArea } from "@/components/ui/scroll-area"
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -215,7 +213,7 @@ const ImageGenerator = () => {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
-      <ScrollArea className={`flex-grow p-6 ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
+      <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
         <h1 className="text-3xl font-bold mb-6">AI Image Generator</h1>
         <Masonry
           breakpointCols={breakpointColumnsObj}
@@ -227,7 +225,9 @@ const ImageGenerator = () => {
               <Card className="overflow-hidden">
                 <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
                   {image.loading ? (
-                    <SkeletonImage width={image.width} height={image.height} />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Loader2 className="h-8 w-8 animate-spin" />
+                    </div>
                   ) : image.error ? (
                     <div className="absolute inset-0 flex items-center justify-center text-destructive">
                       Error generating image
@@ -268,8 +268,8 @@ const ImageGenerator = () => {
             </div>
           ))}
         </Masonry>
-      </ScrollArea>
-      <ScrollArea className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen`}>
+      </div>
+      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen`}>
         <h2 className="text-2xl font-semibold mb-4">Settings</h2>
         <div className="space-y-4">
           <div className="space-y-2">
@@ -387,7 +387,7 @@ const ImageGenerator = () => {
             </Tabs>
           </div>
         </div>
-      </ScrollArea>
+      </div>
       <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
       <ImageDetailsDialog
         open={showDetailsDialog}
