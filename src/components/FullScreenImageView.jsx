@@ -4,9 +4,13 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 const FullScreenImageView = ({ images, currentIndex, isOpen, onClose, onNavigate }) => {
+  if (!isOpen || !images || images.length === 0) {
+    return null;
+  }
+
   const currentImage = images[currentIndex];
 
-  if (!isOpen || !currentImage) {
+  if (!currentImage) {
     return null;
   }
 
