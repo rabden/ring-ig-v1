@@ -362,7 +362,11 @@ const ImageGenerator = () => {
         </Masonry>
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
-        {!session && <AuthOverlay />}
+        {!session && (
+          <div className="absolute inset-0 z-10">
+            <AuthOverlay />
+          </div>
+        )}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-semibold">Settings</h2>
           {session && (
