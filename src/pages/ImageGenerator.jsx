@@ -17,6 +17,9 @@ import ModelSidebarMenu from '@/components/ModelSidebarMenu'
 import { Skeleton } from "@/components/ui/skeleton"
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
+import SignInDialog from '@/components/SignInDialog'
+import ProfileMenu from '@/components/ProfileMenu'
+import { useSupabaseAuth } from '@/integrations/supabase'
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -61,6 +64,7 @@ const ImageGenerator = () => {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false)
   const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
+  const { session } = useSupabaseAuth()
 
   useEffect(() => {
     updateDimensions()
@@ -229,7 +233,13 @@ const ImageGenerator = () => {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
-        <h1 className="text-3xl font-bold mb-6">AI Image Generator</h1>
+        <div className="flex justify-between items-center mb-6">
+          {session ? (
+            <ProfileMenu user={session.user} />
+          ) : (
+            <SignInDialog />
+          )}
+        </div>
         <Masonry
           breakpointCols={breakpointColumnsObj}
           className="flex w-auto"
