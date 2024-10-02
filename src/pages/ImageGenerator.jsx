@@ -56,7 +56,7 @@ const breakpointColumnsObj = {
   default: 4,
   1100: 3,
   700: 2,
-  500: 1
+  500: 2  // Changed to 2 columns for mobile screens
 };
 
 const ImageGenerator = () => {
@@ -188,9 +188,6 @@ const ImageGenerator = () => {
     }
 
     try {
-      // Update credits before generating the image
-      await updateCredits(quality)
-
       const response = await fetch(
         modelConfigs[model].apiUrl,
         {
@@ -203,6 +200,9 @@ const ImageGenerator = () => {
         }
       )
       const imageBlob = await response.blob()
+
+      // Update credits after successful image generation
+      await updateCredits(quality)
 
       // Upload the image to Supabase storage and save metadata
       await uploadImageMutation.mutateAsync({ 
