@@ -21,6 +21,8 @@ import SignInDialog from '@/components/SignInDialog'
 import ProfileMenu from '@/components/ProfileMenu'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import AuthOverlay from '@/components/AuthOverlay'
+import { useUserCredits } from '@/hooks/useUserCredits'
+import { toast } from 'sonner'
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -66,6 +68,7 @@ const ImageGenerator = () => {
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false)
   const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
   const { session } = useSupabaseAuth()
+  const { credits, updateCredits } = useUserCredits(session?.user?.id)
 
   useEffect(() => {
     updateDimensions()
@@ -100,7 +103,19 @@ const ImageGenerator = () => {
     }
 
     if (!prompt) {
-      alert('Please enter a prompt')
+      toast.error('Please enter a prompt')
+      return
+    }
+
+    const creditCost = {
+      "SD": 1,
+      "HD": 2,
+      "HD+": 3,
+      "4K": 4
+    }[quality]
+
+    if (credits < creditCost) {
+      toast.error(`Insufficient credits. You need ${creditCost} credits for ${quality} quality.`)
       return
     }
 
@@ -143,6 +158,9 @@ const ImageGenerator = () => {
     }
 
     try {
+      // Update credits before generating the image
+      await updateCredits(quality)
+
       const response = await fetch(
         modelConfigs[model].apiUrl,
         {
@@ -162,6 +180,8 @@ const ImageGenerator = () => {
           img.id === newImage.id ? { ...img, loading: false, imageUrl } : img
         )
       )
+
+      toast.success(`Image generated successfully. ${creditCost} credits used.`)
     } catch (error) {
       console.error('Error generating image:', error)
       setGeneratedImages(prev =>
@@ -169,6 +189,7 @@ const ImageGenerator = () => {
           img.id === newImage.id ? { ...img, loading: false, error: true } : img
         )
       )
+      toast.error('Failed to generate image. Please try again.')
     }
   }
 
@@ -229,19 +250,12 @@ const ImageGenerator = () => {
     }
   }
 
-  const breakpointColumnsObj = {
-    default: 4,
-    1100: 3,
-    700: 2,
-    500: 2
-  };
-
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
         <div className="flex justify-between items-center mb-6">
           {session ? (
-            <ProfileMenu user={session.user} />
+            <ProfileMenu user={session.user} credits={credits} />
           ) : (
             <SignInDialog />
           )}
