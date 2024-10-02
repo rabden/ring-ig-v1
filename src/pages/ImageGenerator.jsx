@@ -19,7 +19,8 @@ import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
 import SignInDialog from '@/components/SignInDialog'
 import ProfileMenu from '@/components/ProfileMenu'
-import { useSupabaseAuth } from '@/integrations/supabase'
+import { useSupabaseAuth } from '@/integrations/supabase/auth'
+import AuthOverlay from '@/components/AuthOverlay'
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -93,6 +94,11 @@ const ImageGenerator = () => {
   }
 
   const generateImage = async () => {
+    if (!session) {
+      console.log('User not authenticated')
+      return
+    }
+
     if (!prompt) {
       alert('Please enter a prompt')
       return
@@ -301,7 +307,8 @@ const ImageGenerator = () => {
           ))}
         </Masonry>
       </div>
-      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen`}>
+      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
+        {!session && <AuthOverlay />}
         <h2 className="text-2xl font-semibold mb-4">Settings</h2>
         <div className="space-y-4">
           <div className="space-y-2">
@@ -315,7 +322,7 @@ const ImageGenerator = () => {
               className="min-h-[100px] resize-y"
             />
           </div>
-          <Button onClick={generateImage} className="w-full">
+          <Button onClick={generateImage} className="w-full" disabled={!session}>
             Generate Image
           </Button>
           <div className="space-y-2">
