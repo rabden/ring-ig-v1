@@ -24,6 +24,7 @@ import { useUserCredits } from '@/hooks/useUserCredits'
 import { toast } from 'sonner'
 import { supabase } from '@/integrations/supabase/supabase'
 import ProfileMenu from '@/components/ProfileMenu'
+import { deleteImageFromStorage, deleteImageRecord, deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -125,24 +126,7 @@ const ImageGenerator = () => {
 
   const deleteImageMutation = useMutation({
     mutationFn: async (imageId) => {
-      const { data: image } = await supabase
-        .from('user_images')
-        .select('storage_path')
-        .eq('id', imageId)
-        .single()
-
-      if (image) {
-        await supabase.storage
-          .from('user-images')
-          .remove([image.storage_path])
-      }
-
-      const { error } = await supabase
-        .from('user_images')
-        .delete()
-        .eq('id', imageId)
-
-      if (error) throw error
+      await deleteImageCompletely(imageId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['userImages', session?.user?.id])

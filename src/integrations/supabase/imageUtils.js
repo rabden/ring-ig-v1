@@ -1,6 +1,41 @@
 import { supabase } from './supabase';
 
-export const deleteImageFromSupabase = async (imageId) => {
+export const deleteImageFromStorage = async (storagePath) => {
+  try {
+    const { error } = await supabase.storage
+      .from('user-images')
+      .remove([storagePath]);
+
+    if (error) {
+      throw new Error(`Failed to delete image from storage: ${error.message}`);
+    }
+
+    console.log('Image deleted successfully from storage');
+  } catch (error) {
+    console.error('Error in deleteImageFromStorage:', error);
+    throw error;
+  }
+};
+
+export const deleteImageRecord = async (imageId) => {
+  try {
+    const { error } = await supabase
+      .from('user_images')
+      .delete()
+      .eq('id', imageId);
+
+    if (error) {
+      throw new Error(`Failed to delete image record from database: ${error.message}`);
+    }
+
+    console.log('Image record deleted successfully from database');
+  } catch (error) {
+    console.error('Error in deleteImageRecord:', error);
+    throw error;
+  }
+};
+
+export const deleteImageCompletely = async (imageId) => {
   try {
     // First, fetch the image record to get the storage_path
     const { data: imageRecord, error: fetchError } = await supabase
@@ -18,28 +53,14 @@ export const deleteImageFromSupabase = async (imageId) => {
     }
 
     // Delete from storage
-    const { error: storageError } = await supabase.storage
-      .from('user-images')
-      .remove([imageRecord.storage_path]);
-
-    if (storageError) {
-      console.error(`Failed to delete image from storage: ${storageError.message}`);
-      // Continue with database deletion even if storage deletion fails
-    }
+    await deleteImageFromStorage(imageRecord.storage_path);
 
     // Delete from database
-    const { error: dbError } = await supabase
-      .from('user_images')
-      .delete()
-      .eq('id', imageId);
-
-    if (dbError) {
-      throw new Error(`Failed to delete image record from database: ${dbError.message}`);
-    }
+    await deleteImageRecord(imageId);
 
     console.log('Image deleted successfully from both storage and database');
   } catch (error) {
-    console.error('Error in deleteImageFromSupabase:', error);
+    console.error('Error in deleteImageCompletely:', error);
     throw error;
   }
 };
