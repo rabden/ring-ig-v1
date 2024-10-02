@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { ThemeProvider } from "@/components/theme-provider"
 import ImageGenerator from "./pages/ImageGenerator"
 import { SupabaseAuthProvider } from '@/integrations/supabase/auth'
+import QueueProcessor from './components/QueueProcessor'
 
 const queryClient = new QueryClient()
 
@@ -19,6 +20,7 @@ const App = () => (
               <Route path="/" element={<ImageGenerator />} />
             </Routes>
           </BrowserRouter>
+          <QueueProcessor />
         </SupabaseAuthProvider>
       </TooltipProvider>
     </ThemeProvider>

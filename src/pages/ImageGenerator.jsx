@@ -103,47 +103,20 @@ const ImageGenerator = () => {
     enabled: !!session?.user?.id,
   })
 
-  const uploadImageMutation = useMutation({
-    mutationFn: async ({ imageBlob, metadata }) => {
-      const filePath = `${session.user.id}/${Date.now()}.png`
-      const { error: uploadError } = await supabase.storage
-        .from('user-images')
-        .upload(filePath, imageBlob)
-      if (uploadError) throw uploadError
-
-      const { data: publicURL } = supabase.storage
-        .from('user-images')
-        .getPublicUrl(filePath)
-
-      const { error: insertError } = await supabase
-        .from('user_images')
-        .insert({
-          user_id: session.user.id,
-          storage_path: filePath,
-          ...metadata,
-        })
-      if (insertError) throw insertError
+  const addToQueueMutation = useMutation({
+    mutationFn: async (requestData) => {
+      const { error } = await supabase
+        .from('image_generation_queue')
+        .insert([requestData])
+      if (error) throw error
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['userImages', session?.user?.id])
+      toast.success('Request added to queue')
     },
     onError: (error) => {
-      console.error('Error uploading image:', error)
-      toast.error('Failed to save image. Please try again.')
-    },
-  })
-
-  const deleteImageMutation = useMutation({
-    mutationFn: async (imageId) => {
-      await deleteImageCompletely(imageId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['userImages', session?.user?.id])
-      toast.success('Image deleted successfully')
-    },
-    onError: (error) => {
-      console.error('Error deleting image:', error)
-      toast.error('Failed to delete image. Please try again.')
+      console.error('Error adding request to queue:', error)
+      toast.error('Failed to add request to queue. Please try again.')
     },
   })
 
@@ -179,58 +152,24 @@ const ImageGenerator = () => {
       modifiedPrompt += modelConfigs[model].promptSuffix;
     }
 
-    setIsGenerating(true)
-
-    if (window.innerWidth <= 768) {
-      setActiveTab('images')
-    }
-
-    const data = {
-      inputs: modifiedPrompt,
-      parameters: {
-        seed: actualSeed,
-        width,
-        height,
-        num_inference_steps: steps
-      }
+    const requestData = {
+      user_id: session.user.id,
+      prompt: modifiedPrompt,
+      seed: actualSeed,
+      width,
+      height,
+      steps,
+      model,
+      quality,
+      aspect_ratio: useAspectRatio ? aspectRatio : `${width}:${height}`,
     }
 
     try {
-      const response = await fetch(
-        modelConfigs[model].apiUrl,
-        {
-          headers: {
-            Authorization: "Bearer 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",
-            "Content-Type": "application/json",
-          },
-          method: "POST",
-          body: JSON.stringify(data),
-        }
-      )
-      const imageBlob = await response.blob()
-
+      await addToQueueMutation.mutateAsync(requestData)
       await updateCredits(quality)
-
-      await uploadImageMutation.mutateAsync({ 
-        imageBlob, 
-        metadata: {
-          prompt: modifiedPrompt,
-          seed: actualSeed,
-          width,
-          height,
-          steps,
-          model,
-          quality,
-          aspect_ratio: useAspectRatio ? aspectRatio : `${width}:${height}`,
-        }
-      })
-
-      toast.success(`Image generated successfully. ${creditCost} credits used.`)
     } catch (error) {
       console.error('Error generating image:', error)
       toast.error('Failed to generate image. Please try again.')
-    } finally {
-      setIsGenerating(false)
     }
   }
 
