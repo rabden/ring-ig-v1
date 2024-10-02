@@ -51,12 +51,11 @@ const qualityOptions = {
   "4K": 2048,
 }
 
-// Define the breakpointColumnsObj
 const breakpointColumnsObj = {
   default: 4,
   1100: 3,
   700: 2,
-  500: 2  // Changed to 2 columns for mobile screens
+  500: 2
 };
 
 const ImageGenerator = () => {
@@ -80,6 +79,15 @@ const ImageGenerator = () => {
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
   const [isGenerating, setIsGenerating] = useState(false)
   const queryClient = useQueryClient()
+
+  useEffect(() => {
+    if (useAspectRatio) {
+      const { width: w, height: h } = aspectRatios[aspectRatio]
+      const scaleFactor = qualityOptions[quality] / Math.max(w, h)
+      setWidth(Math.round(w * scaleFactor))
+      setHeight(Math.round(h * scaleFactor))
+    }
+  }, [aspectRatio, useAspectRatio, quality])
 
   const { data: generatedImages, isLoading: imagesLoading } = useQuery({
     queryKey: ['userImages', session?.user?.id],
@@ -201,10 +209,8 @@ const ImageGenerator = () => {
       )
       const imageBlob = await response.blob()
 
-      // Update credits after successful image generation
       await updateCredits(quality)
 
-      // Upload the image to Supabase storage and save metadata
       await uploadImageMutation.mutateAsync({ 
         imageBlob, 
         metadata: {

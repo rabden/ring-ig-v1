@@ -22,7 +22,7 @@ const FullScreenImageView = ({ images, currentIndex, isOpen, onClose, onNavigate
           <Button
             variant="ghost"
             size="icon"
-            className="absolute left-4 top-1/2 transform -translate-y-1/2"
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10"
             onClick={() => onNavigate('prev')}
             disabled={currentIndex === 0}
           >
@@ -36,7 +36,7 @@ const FullScreenImageView = ({ images, currentIndex, isOpen, onClose, onNavigate
           <Button
             variant="ghost"
             size="icon"
-            className="absolute right-4 top-1/2 transform -translate-y-1/2"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10"
             onClick={() => onNavigate('next')}
             disabled={currentIndex === images.length - 1}
           >
