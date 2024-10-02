@@ -78,7 +78,7 @@ const ImageGenerator = () => {
   const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
   const { session } = useSupabaseAuth()
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
-  const queryClient = useQueryClient()
+  const [isGenerating, setIsGenerating] = useState(false)
 
   const { data: generatedImages, isLoading: imagesLoading } = useQuery({
     queryKey: ['userImages', session?.user?.id],
@@ -138,32 +138,6 @@ const ImageGenerator = () => {
     },
   })
 
-  useEffect(() => {
-    updateDimensions()
-  }, [aspectRatio, quality, useAspectRatio])
-
-  const updateDimensions = () => {
-    const maxSize = qualityOptions[quality]
-    let newWidth, newHeight
-
-    if (useAspectRatio) {
-      const ratio = aspectRatios[aspectRatio]
-      if (ratio.width > ratio.height) {
-        newWidth = maxSize
-        newHeight = Math.round((maxSize / ratio.width) * ratio.height)
-      } else {
-        newHeight = maxSize
-        newWidth = Math.round((maxSize / ratio.height) * ratio.width)
-      }
-    } else {
-      newWidth = Math.min(width, maxSize)
-      newHeight = Math.min(height, maxSize)
-    }
-
-    setWidth(Math.floor(newWidth / 8) * 8)
-    setHeight(Math.floor(newHeight / 8) * 8)
-  }
-
   const generateImage = async () => {
     if (!session) {
       console.log('User not authenticated')
@@ -196,18 +170,7 @@ const ImageGenerator = () => {
       modifiedPrompt += modelConfigs[model].promptSuffix;
     }
 
-    const newImage = {
-      id: Date.now(),
-      prompt: modifiedPrompt,
-      seed: actualSeed,
-      width,
-      height,
-      steps,
-      model,
-      quality,
-      aspectRatio: useAspectRatio ? aspectRatio : `${width}:${height}`,
-      loading: true,
-    }
+    setIsGenerating(true)
 
     if (window.innerWidth <= 768) {
       setActiveTab('images')
@@ -259,6 +222,8 @@ const ImageGenerator = () => {
     } catch (error) {
       console.error('Error generating image:', error)
       toast.error('Failed to generate image. Please try again.')
+    } finally {
+      setIsGenerating(false)
     }
   }
 
@@ -319,6 +284,20 @@ const ImageGenerator = () => {
     }
   }
 
+  const SkeletonImageCard = () => (
+    <div className="mb-4">
+      <Card className="overflow-hidden">
+        <CardContent className="p-0 relative" style={{ paddingTop: `${(height / width) * 100}%` }}>
+          <Skeleton className="absolute inset-0 w-full h-full" />
+        </CardContent>
+      </Card>
+      <div className="mt-2 flex items-center justify-between">
+        <Skeleton className="h-4 w-3/4" />
+        <Skeleton className="h-8 w-8 rounded-full" />
+      </div>
+    </div>
+  )
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
@@ -334,11 +313,10 @@ const ImageGenerator = () => {
           className="flex w-auto"
           columnClassName="bg-clip-padding px-2"
         >
+          {isGenerating && <SkeletonImageCard />}
           {imagesLoading ? (
             Array.from({ length: 8 }).map((_, index) => (
-              <div key={index} className="mb-4">
-                <Skeleton className="w-full h-64" />
-              </div>
+              <SkeletonImageCard key={index} />
             ))
           ) : (
             generatedImages?.map((image, index) => (
@@ -528,6 +506,12 @@ const ImageGenerator = () => {
         onClose={() => setFullScreenViewOpen(false)}
         onNavigate={handleFullScreenNavigate}
       />
+    </div>
+  )
+}
+
+export default ImageGenerator
+
     </div>
   )
 }
