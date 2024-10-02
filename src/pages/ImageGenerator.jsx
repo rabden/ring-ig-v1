@@ -18,13 +18,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
 import SignInDialog from '@/components/SignInDialog'
+import ProfileMenu from '@/components/ProfileMenu'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import AuthOverlay from '@/components/AuthOverlay'
 import { useUserCredits } from '@/hooks/useUserCredits'
 import { toast } from 'sonner'
 import { supabase } from '@/integrations/supabase/supabase'
-import { deleteImageFromSupabase } from '@/integrations/supabase/imageUtils'
-
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -57,7 +56,6 @@ const breakpointColumnsObj = {
   700: 2,
   500: 1
 };
-
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
@@ -153,7 +151,11 @@ const ImageGenerator = () => {
 
   const deleteImageMutation = useMutation({
     mutationFn: async (imageId) => {
-      await deleteImageFromSupabase(imageId)
+      const { error } = await supabase
+        .from('user_images')
+        .delete()
+        .eq('id', imageId)
+      if (error) throw error
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['userImages', session?.user?.id])
@@ -306,16 +308,13 @@ const ImageGenerator = () => {
     }
   }
 
-
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
         <div className="flex justify-between items-center mb-6">
           {session && (
             <div className="hidden md:block">
-              <div className="text-sm font-medium">
-                {session.user.email} - Credits: {credits}
-              </div>
+              <ProfileMenu user={session.user} credits={credits} />
             </div>
           )}
         </div>
@@ -336,7 +335,7 @@ const ImageGenerator = () => {
                 <Card className="overflow-hidden">
                   <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
                     <img 
-                      src={image.storage_path ? supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl : ''}
+                      src={image.image_url} 
                       alt={image.prompt} 
                       className="absolute inset-0 w-full h-full object-cover cursor-pointer"
                       onClick={() => handleImageClick(index)}
@@ -352,7 +351,7 @@ const ImageGenerator = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleDownload(image.storage_path ? supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl : '', image.prompt)}>
+                      <DropdownMenuItem onClick={() => handleDownload(image.image_url, image.prompt)}>
                         Download
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
@@ -510,7 +509,7 @@ const ImageGenerator = () => {
         image={selectedImage}
       />
       <FullScreenImageView
-        images={generatedImages || []}
+        images={generatedImages}
         currentIndex={fullScreenImageIndex}
         isOpen={fullScreenViewOpen}
         onClose={() => setFullScreenViewOpen(false)}
