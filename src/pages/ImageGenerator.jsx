@@ -262,10 +262,8 @@ const ImageGenerator = () => {
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
         <div className="flex justify-between items-center mb-6">
-          {session ? (
+          {session && window.innerWidth >= 768 && (
             <ProfileMenu user={session.user} credits={credits} />
-          ) : (
-            <SignInDialog />
           )}
         </div>
         <Masonry
@@ -331,7 +329,10 @@ const ImageGenerator = () => {
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
         {!session && <AuthOverlay />}
-        <h2 className="text-2xl font-semibold mb-4">Settings</h2>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-semibold">Settings</h2>
+          {session && <ProfileMenu user={session.user} credits={credits} />}
+        </div>
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="promptInput">Prompt</Label>
@@ -449,7 +450,7 @@ const ImageGenerator = () => {
           </div>
         </div>
       </div>
-      <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} session={session} />
       <ModelSidebarMenu
         isOpen={modelSidebarOpen}
         onClose={() => setModelSidebarOpen(false)}
