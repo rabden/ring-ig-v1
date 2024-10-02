@@ -1,7 +1,8 @@
 import React from 'react';
-import { Image, Plus } from 'lucide-react';
+import { Image, Plus, User } from 'lucide-react';
+import MobileProfileMenu from './MobileProfileMenu';
 
-const BottomNavbar = ({ activeTab, setActiveTab }) => {
+const BottomNavbar = ({ activeTab, setActiveTab, session }) => {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-2 flex justify-around items-center md:hidden">
       <button
@@ -16,6 +17,9 @@ const BottomNavbar = ({ activeTab, setActiveTab }) => {
       >
         <Plus size={20} />
       </button>
+      {session && (
+        <MobileProfileMenu user={session.user} credits={session.user?.user_metadata?.credits} />
+      )}
     </div>
   );
 };
