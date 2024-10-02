@@ -7,7 +7,7 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MoreVertical } from "lucide-react"
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { modelConfigs } from '@/utils/modelConfigs'
 import Masonry from 'react-masonry-css'
 import BottomNavbar from '@/components/BottomNavbar'
@@ -23,7 +23,6 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import AuthOverlay from '@/components/AuthOverlay'
 import { useUserCredits } from '@/hooks/useUserCredits'
 import { toast } from 'sonner'
-import { supabase } from '@/integrations/supabase/supabase'
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -50,6 +49,7 @@ const qualityOptions = {
   "4K": 2048,
 }
 
+// Define the breakpointColumnsObj
 const breakpointColumnsObj = {
   default: 4,
   1100: 3,
@@ -65,6 +65,7 @@ const ImageGenerator = () => {
   const [height, setHeight] = useState(1024)
   const [steps, setSteps] = useState(modelConfigs.flux.defaultStep)
   const [model, setModel] = useState('flux')
+  const [generatedImages, setGeneratedImages] = useState([])
   const [activeTab, setActiveTab] = useState('images')
   const [aspectRatio, setAspectRatio] = useState("1:1")
   const [useAspectRatio, setUseAspectRatio] = useState(true)
@@ -76,7 +77,6 @@ const ImageGenerator = () => {
   const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
   const { session } = useSupabaseAuth()
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
-  const queryClient = useQueryClient()
 
   useEffect(() => {
     updateDimensions()
@@ -103,69 +103,6 @@ const ImageGenerator = () => {
     setWidth(Math.floor(newWidth / 8) * 8)
     setHeight(Math.floor(newHeight / 8) * 8)
   }
-
-  const { data: generatedImages, isLoading: imagesLoading } = useQuery({
-    queryKey: ['userImages', session?.user?.id],
-    queryFn: async () => {
-      if (!session?.user?.id) return []
-      const { data, error } = await supabase
-        .from('user_images')
-        .select('*')
-        .order('created_at', { ascending: false })
-      if (error) throw error
-      return data
-    },
-    enabled: !!session?.user?.id,
-  })
-
-  const uploadImageMutation = useMutation({
-    mutationFn: async ({ imageBlob, metadata }) => {
-      const filePath = `${session.user.id}/${Date.now()}.png`
-      const { error: uploadError } = await supabase.storage
-        .from('user-images')
-        .upload(filePath, imageBlob)
-      if (uploadError) throw uploadError
-
-      const { data: publicURL } = supabase.storage
-        .from('user-images')
-        .getPublicUrl(filePath)
-
-      const { error: insertError } = await supabase
-        .from('user_images')
-        .insert({
-          user_id: session.user.id,
-          storage_path: filePath,
-          image_url: publicURL.publicUrl,
-          ...metadata,
-        })
-      if (insertError) throw insertError
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['userImages', session?.user?.id])
-    },
-    onError: (error) => {
-      console.error('Error uploading image:', error)
-      toast.error('Failed to save image. Please try again.')
-    },
-  })
-
-  const deleteImageMutation = useMutation({
-    mutationFn: async (imageId) => {
-      const { error } = await supabase
-        .from('user_images')
-        .delete()
-        .eq('id', imageId)
-      if (error) throw error
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['userImages', session?.user?.id])
-      toast.success('Image deleted successfully')
-    },
-    onError: (error) => {
-      console.error('Error deleting image:', error)
-      toast.error('Failed to delete image. Please try again.')
-    },
-  })
 
   const generateImage = async () => {
     if (!session) {
@@ -199,7 +136,8 @@ const ImageGenerator = () => {
       modifiedPrompt += modelConfigs[model].promptSuffix;
     }
 
-    const metadata = {
+    const newImage = {
+      id: Date.now(),
       prompt: modifiedPrompt,
       seed: actualSeed,
       width,
@@ -207,8 +145,11 @@ const ImageGenerator = () => {
       steps,
       model,
       quality,
-      aspect_ratio: useAspectRatio ? aspectRatio : `${width}:${height}`,
+      aspectRatio: useAspectRatio ? aspectRatio : `${width}:${height}`,
+      loading: true,
     }
+
+    setGeneratedImages(prev => [newImage, ...prev])
 
     if (window.innerWidth <= 768) {
       setActiveTab('images')
@@ -239,14 +180,23 @@ const ImageGenerator = () => {
           body: JSON.stringify(data),
         }
       )
-      const imageBlob = await response.blob()
+      const result = await response.blob()
+      const imageUrl = URL.createObjectURL(result)
 
-      // Upload the image to Supabase storage and save metadata
-      await uploadImageMutation.mutateAsync({ imageBlob, metadata })
+      setGeneratedImages(prev =>
+        prev.map(img =>
+          img.id === newImage.id ? { ...img, loading: false, imageUrl } : img
+        )
+      )
 
       toast.success(`Image generated successfully. ${creditCost} credits used.`)
     } catch (error) {
       console.error('Error generating image:', error)
+      setGeneratedImages(prev =>
+        prev.map(img =>
+          img.id === newImage.id ? { ...img, loading: false, error: true } : img
+        )
+      )
       toast.error('Failed to generate image. Please try again.')
     }
   }
@@ -273,7 +223,7 @@ const ImageGenerator = () => {
   }
 
   const handleDiscard = (id) => {
-    deleteImageMutation.mutate(id)
+    setGeneratedImages(prev => prev.filter(img => img.id !== id))
   }
 
   const handleRemix = (image) => {
@@ -285,8 +235,8 @@ const ImageGenerator = () => {
     setSteps(image.steps)
     setModel(image.model)
     setQuality(image.quality)
-    setAspectRatio(image.aspect_ratio)
-    setUseAspectRatio(image.aspect_ratio in aspectRatios)
+    setAspectRatio(image.aspectRatio)
+    setUseAspectRatio(image.aspectRatio in aspectRatios)
     setActiveTab('input')
   }
 
@@ -323,27 +273,35 @@ const ImageGenerator = () => {
           className="flex w-auto"
           columnClassName="bg-clip-padding px-2"
         >
-          {imagesLoading ? (
-            Array.from({ length: 8 }).map((_, index) => (
-              <div key={index} className="mb-4">
-                <Skeleton className="w-full h-64" />
-              </div>
-            ))
-          ) : (
-            generatedImages?.map((image, index) => (
-              <div key={image.id} className="mb-4">
-                <Card className="overflow-hidden">
-                  <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
+          {generatedImages.map((image, index) => (
+            <div key={image.id} className="mb-4">
+              <Card className="overflow-hidden">
+                <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
+                  {image.loading ? (
+                    <Skeleton className="absolute inset-0" />
+                  ) : image.error ? (
+                    <div className="absolute inset-0 flex items-center justify-center text-destructive">
+                      Error generating image
+                    </div>
+                  ) : (
                     <img 
-                      src={image.image_url} 
+                      src={image.imageUrl} 
                       alt={image.prompt} 
                       className="absolute inset-0 w-full h-full object-cover cursor-pointer"
                       onClick={() => handleImageClick(index)}
                     />
-                  </CardContent>
-                </Card>
-                <div className="mt-2 flex items-center justify-between">
+                  )}
+                </CardContent>
+              </Card>
+              <div className="mt-2 flex items-center justify-between">
+                {image.loading ? (
+                  <Skeleton className="h-4 w-[70%]" />
+                ) : (
                   <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
+                )}
+                {image.loading ? (
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                ) : (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="h-8 w-8 p-0">
@@ -351,7 +309,7 @@ const ImageGenerator = () => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleDownload(image.image_url, image.prompt)}>
+                      <DropdownMenuItem onClick={() => handleDownload(image.imageUrl, image.prompt)}>
                         Download
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
@@ -365,19 +323,21 @@ const ImageGenerator = () => {
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                </div>
+                )}
               </div>
-            ))
-          )}
+            </div>
+          ))}
         </Masonry>
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
         {!session && <AuthOverlay />}
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-semibold">Settings</h2>
-          <div className="text-sm font-medium">
-            Credits: {credits}
-          </div>
+          {session && (
+            <div className="text-sm font-medium">
+              Credits: {credits}
+            </div>
+          )}
         </div>
         <div className="space-y-4">
           <div className="space-y-2">
