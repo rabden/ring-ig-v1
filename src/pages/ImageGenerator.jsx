@@ -334,8 +334,8 @@ const ImageGenerator = () => {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-semibold">Settings</h2>
           {session && (
-            <div className="hidden md:block">
-              <ProfileMenu user={session.user} credits={credits} />
+            <div className="text-sm font-medium">
+              Credits: {credits}
             </div>
           )}
         </div>
