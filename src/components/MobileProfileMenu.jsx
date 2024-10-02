@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import SignInDialog from '@/components/SignInDialog';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { User } from 'lucide-react';
 
 const MobileProfileMenu = ({ user, credits }) => {
   const { logout } = useSupabaseAuth();
@@ -16,15 +17,19 @@ const MobileProfileMenu = ({ user, credits }) => {
     <Sheet>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="rounded-full">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.email} />
-            <AvatarFallback>{user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
-          </Avatar>
+          {user ? (
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.email} />
+              <AvatarFallback>{user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
+            </Avatar>
+          ) : (
+            <User size={20} />
+          )}
         </Button>
       </SheetTrigger>
       <SheetContent side="bottom" className="h-[80vh]">
         <SheetHeader>
-          <SheetTitle>Profile</SheetTitle>
+          <SheetTitle>{user ? 'Profile' : 'Sign In'}</SheetTitle>
         </SheetHeader>
         {user ? (
           <div className="flex flex-col items-center space-y-4 mt-4">

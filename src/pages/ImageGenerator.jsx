@@ -263,7 +263,7 @@ const ImageGenerator = () => {
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
         <div className="flex justify-between items-center mb-6">
           {session && (
-            <div className="md:hidden">
+            <div className="hidden md:block">
               <ProfileMenu user={session.user} credits={credits} />
             </div>
           )}
@@ -456,7 +456,7 @@ const ImageGenerator = () => {
           </div>
         </div>
       </div>
-      <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} session={session} />
+      <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} session={session} credits={credits} />
       <ModelSidebarMenu
         isOpen={modelSidebarOpen}
         onClose={() => setModelSidebarOpen(false)}
