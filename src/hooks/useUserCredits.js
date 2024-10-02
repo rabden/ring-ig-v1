@@ -16,10 +16,18 @@ export const useUserCredits = (userId) => {
   };
 
   const updateCredits = async (quality) => {
-    const { data, error } = await supabase.rpc('update_user_credits', {
-      p_user_id: userId,
-      p_quality: quality
-    });
+    const creditCost = {
+      "SD": 1,
+      "HD": 2,
+      "HD+": 3,
+      "4K": 4
+    }[quality];
+
+    const { data, error } = await supabase
+      .rpc('update_user_credits', {
+        p_user_id: userId,
+        p_credit_cost: creditCost
+      });
 
     if (error) throw error;
     return data;
