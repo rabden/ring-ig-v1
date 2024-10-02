@@ -76,11 +76,12 @@ const QueueProcessor = () => {
         })
       if (insertError) throw insertError
 
-      // Update queue item status to 'completed'
-      await supabase
+      // Delete the processed item from the queue
+      const { error: deleteError } = await supabase
         .from('image_generation_queue')
-        .update({ status: 'completed' })
+        .delete()
         .eq('id', item.id)
+      if (deleteError) throw deleteError
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['imageGenerationQueue'])
