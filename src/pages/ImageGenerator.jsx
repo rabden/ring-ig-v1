@@ -60,7 +60,6 @@ const breakpointColumnsObj = {
 
 
 const ImageGenerator = () => {
-const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
   const [seed, setSeed] = useState(0)
   const [randomizeSeed, setRandomizeSeed] = useState(true)
@@ -106,8 +105,6 @@ const ImageGenerator = () => {
     setWidth(Math.floor(newWidth / 8) * 8)
     setHeight(Math.floor(newHeight / 8) * 8)
   }
-
-  const { data: generatedImages, isLoading: imagesLoading } = useQuery({
 
   const { data: generatedImages, isLoading: imagesLoading } = useQuery({
     queryKey: ['userImages', session?.user?.id],
@@ -519,7 +516,6 @@ const ImageGenerator = () => {
         onClose={() => setFullScreenViewOpen(false)}
         onNavigate={handleFullScreenNavigate}
       />
-    </div>
     </div>
   )
 }
