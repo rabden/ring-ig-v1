@@ -70,24 +70,20 @@ export const SupabaseAuthUI = () => {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       console.error('Error signing in:', error.message);
       setError(error.message);
     }
-    setIsLoading(false);
   };
 
   const handleEmailSignUp = async (e) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
     const finalDisplayName = displayName || generateRandomDisplayName();
     const { error } = await supabase.auth.signUp({
       email,
@@ -104,12 +100,10 @@ export const SupabaseAuthUI = () => {
     } else {
       setError('Check your email for the confirmation link.');
     }
-    setIsLoading(false);
   };
 
   const handleGoogleSignIn = async () => {
     setError('');
-    setIsLoading(true);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
     });
@@ -117,7 +111,6 @@ export const SupabaseAuthUI = () => {
       console.error('Error signing in with Google:', error.message);
       setError(error.message);
     }
-    setIsLoading(false);
   };
 
   return (
@@ -154,9 +147,7 @@ export const SupabaseAuthUI = () => {
                 required
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Signing In...' : 'Sign In'}
-            </Button>
+            <Button type="submit" className="w-full">Sign In</Button>
           </form>
         </TabsContent>
         <TabsContent value="signup">
@@ -191,9 +182,7 @@ export const SupabaseAuthUI = () => {
                 placeholder="Enter display name or leave blank for random"
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Signing Up...' : 'Sign Up'}
-            </Button>
+            <Button type="submit" className="w-full">Sign Up</Button>
           </form>
         </TabsContent>
       </Tabs>
@@ -205,8 +194,8 @@ export const SupabaseAuthUI = () => {
           <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
         </div>
       </div>
-      <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" disabled={isLoading}>
-        {isLoading ? 'Signing In...' : 'Sign In with Google'}
+      <Button onClick={handleGoogleSignIn} variant="outline" className="w-full">
+        Sign In with Google
       </Button>
     </div>
   );
