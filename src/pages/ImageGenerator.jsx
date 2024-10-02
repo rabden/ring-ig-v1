@@ -18,12 +18,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
 import SignInDialog from '@/components/SignInDialog'
-import ProfileMenu from '@/components/ProfileMenu'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import AuthOverlay from '@/components/AuthOverlay'
 import { useUserCredits } from '@/hooks/useUserCredits'
 import { toast } from 'sonner'
 import { supabase } from '@/integrations/supabase/supabase'
+import { deleteImageFromSupabase } from '@/integrations/supabase/imageUtils'
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -151,11 +151,7 @@ const ImageGenerator = () => {
 
   const deleteImageMutation = useMutation({
     mutationFn: async (imageId) => {
-      const { error } = await supabase
-        .from('user_images')
-        .delete()
-        .eq('id', imageId)
-      if (error) throw error
+      await deleteImageFromSupabase(imageId)
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['userImages', session?.user?.id])
@@ -509,7 +505,7 @@ const ImageGenerator = () => {
         image={selectedImage}
       />
       <FullScreenImageView
-        images={generatedImages}
+        images={generatedImages || []}
         currentIndex={fullScreenImageIndex}
         isOpen={fullScreenViewOpen}
         onClose={() => setFullScreenViewOpen(false)}

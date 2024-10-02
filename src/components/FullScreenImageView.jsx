@@ -4,6 +4,11 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 
 const FullScreenImageView = ({ images, currentIndex, isOpen, onClose, onNavigate }) => {
+  // Check if images is undefined or empty
+  if (!images || images.length === 0) {
+    return null;
+  }
+
   const currentImage = images[currentIndex];
 
   if (!isOpen || !currentImage) {
@@ -24,7 +29,7 @@ const FullScreenImageView = ({ images, currentIndex, isOpen, onClose, onNavigate
             <ChevronLeft className="h-8 w-8" />
           </Button>
           <img
-            src={currentImage.imageUrl}
+            src={currentImage.image_url}
             alt={currentImage.prompt}
             className="max-w-full max-h-full object-contain"
           />
