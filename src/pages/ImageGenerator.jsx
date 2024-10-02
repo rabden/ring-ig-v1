@@ -79,6 +79,7 @@ const ImageGenerator = () => {
   const { session } = useSupabaseAuth()
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
   const [isGenerating, setIsGenerating] = useState(false)
+  const queryClient = useQueryClient()
 
   const { data: generatedImages, isLoading: imagesLoading } = useQuery({
     queryKey: ['userImages', session?.user?.id],
@@ -506,12 +507,6 @@ const ImageGenerator = () => {
         onClose={() => setFullScreenViewOpen(false)}
         onNavigate={handleFullScreenNavigate}
       />
-    </div>
-  )
-}
-
-export default ImageGenerator
-
     </div>
   )
 }
