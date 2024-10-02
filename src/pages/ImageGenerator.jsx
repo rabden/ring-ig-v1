@@ -23,6 +23,7 @@ import AuthOverlay from '@/components/AuthOverlay'
 import { useUserCredits } from '@/hooks/useUserCredits'
 import { toast } from 'sonner'
 import { supabase } from '@/integrations/supabase/supabase'
+import ProfileMenu from '@/components/ProfileMenu'
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
