@@ -37,16 +37,16 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
             <span className="col-span-3">{image.width}x{image.height}</span>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
+            <span className="font-semibold">Aspect Ratio:</span>
+            <span className="col-span-3">{image.aspect_ratio}</span>
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
             <span className="font-semibold">Steps:</span>
             <span className="col-span-3">{image.steps}</span>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <span className="font-semibold">Quality:</span>
             <span className="col-span-3">{image.quality}</span>
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <span className="font-semibold">Aspect Ratio:</span>
-            <span className="col-span-3">{image.aspectRatio}</span>
           </div>
         </div>
       </DialogContent>

@@ -2,6 +2,7 @@ import React from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { supabase } from '@/integrations/supabase/supabase';
 
 const FullScreenImageView = ({ images, currentIndex, isOpen, onClose, onNavigate }) => {
   if (!isOpen || !images || images.length === 0) {
@@ -28,7 +29,7 @@ const FullScreenImageView = ({ images, currentIndex, isOpen, onClose, onNavigate
             <ChevronLeft className="h-8 w-8" />
           </Button>
           <img
-            src={currentImage.imageUrl}
+            src={supabase.storage.from('user-images').getPublicUrl(currentImage.storage_path).data.publicUrl}
             alt={currentImage.prompt}
             className="max-w-full max-h-full object-contain"
           />

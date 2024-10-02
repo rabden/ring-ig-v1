@@ -241,13 +241,23 @@ const ImageGenerator = () => {
   }
 
   const handleDownload = (imageUrl, prompt) => {
-    const link = document.createElement('a')
-    link.href = imageUrl
-    link.download = `${prompt.slice(0, 20)}.png`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
+    fetch(imageUrl)
+      .then(response => response.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${prompt.slice(0, 20)}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(error => {
+        console.error('Error downloading image:', error);
+        toast.error('Failed to download image. Please try again.');
+      });
+  };
 
   const handleDiscard = (id) => {
     deleteImageMutation.mutate(id)
@@ -262,8 +272,8 @@ const ImageGenerator = () => {
     setSteps(image.steps)
     setModel(image.model)
     setQuality(image.quality)
-    setAspectRatio(image.aspectRatio)
-    setUseAspectRatio(image.aspectRatio in aspectRatios)
+    setAspectRatio(image.aspect_ratio)
+    setUseAspectRatio(image.aspect_ratio in aspectRatios)
     setActiveTab('input')
   }
 
