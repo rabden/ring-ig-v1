@@ -20,7 +20,6 @@ import FullScreenImageView from '@/components/FullScreenImageView'
 import SignInDialog from '@/components/SignInDialog'
 import ProfileMenu from '@/components/ProfileMenu'
 import { useSupabaseAuth } from '@/integrations/supabase'
-import AuthOverlay from '@/components/AuthOverlay'
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -94,9 +93,9 @@ const ImageGenerator = () => {
   }
 
   const generateImage = async () => {
-    if (!session) {
-      alert('Please sign in to generate images');
-      return;
+    if (!prompt) {
+      alert('Please enter a prompt')
+      return
     }
 
     const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed
@@ -302,8 +301,7 @@ const ImageGenerator = () => {
           ))}
         </Masonry>
       </div>
-      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
-        {!session && <AuthOverlay />}
+      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen`}>
         <h2 className="text-2xl font-semibold mb-4">Settings</h2>
         <div className="space-y-4">
           <div className="space-y-2">
