@@ -79,7 +79,6 @@ const ImageGenerator = () => {
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
   const [isGenerating, setIsGenerating] = useState(false)
   const queryClient = useQueryClient()
-  const [currentView, setCurrentView] = useState('myImages')
 
   useEffect(() => {
     if (useAspectRatio) {
@@ -97,24 +96,7 @@ const ImageGenerator = () => {
       const { data, error } = await supabase
         .from('user_images')
         .select('*')
-        .eq('user_id', session.user.id)
         .order('created_at', { ascending: false })
-      if (error) throw error
-      return data
-    },
-    enabled: !!session?.user?.id,
-  })
-
-  const { data: inspirationImages, isLoading: inspirationLoading } = useQuery({
-    queryKey: ['inspirationImages', session?.user?.id],
-    queryFn: async () => {
-      if (!session?.user?.id) return []
-      const { data, error } = await supabase
-        .from('user_images')
-        .select('*')
-        .neq('user_id', session.user.id)
-        .order('created_at', { ascending: false })
-        .limit(50)  // Limit to 50 images for performance
       if (error) throw error
       return data
     },
@@ -334,129 +316,66 @@ const ImageGenerator = () => {
   )
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground">
-      <div className="flex justify-between items-center p-4 bg-card">
-        <div className="flex items-center space-x-2">
-          <Button
-            variant={currentView === 'myImages' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setCurrentView('myImages')}
-          >
-            My Images
-          </Button>
-          <Button
-            variant={currentView === 'inspiration' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setCurrentView('inspiration')}
-          >
-            Inspiration
-          </Button>
+    <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
+      <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
+        <div className="flex justify-between items-center mb-6">
+          {session && (
+            <div className="hidden md:block">
+              <ProfileMenu user={session.user} credits={credits} />
+            </div>
+          )}
         </div>
-        {session && <ProfileMenu user={session.user} credits={credits} />}
-      </div>
-      <div className="flex-grow p-6 overflow-y-auto">
-        {currentView === 'myImages' && (
-          <Masonry
-            breakpointCols={breakpointColumnsObj}
-            className="flex w-auto"
-            columnClassName="bg-clip-padding px-2"
-          >
-            {isGenerating && <SkeletonImageCard />}
-            {imagesLoading ? (
-              Array.from({ length: 8 }).map((_, index) => (
-                <SkeletonImageCard key={index} />
-              ))
-            ) : (
-              generatedImages?.map((image, index) => (
-                <div key={image.id} className="mb-4">
-                  <Card className="overflow-hidden">
-                    <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-                      <img 
-                        src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                        alt={image.prompt} 
-                        className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                        onClick={() => handleImageClick(index)}
-                      />
-                    </CardContent>
-                  </Card>
-                  <div className="mt-2 flex items-center justify-between">
-                    <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
-                          Download
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
-                          Discard
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleRemix(image)}>
-                          Remix
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleViewDetails(image)}>
-                          View Details
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+        <Masonry
+          breakpointCols={breakpointColumnsObj}
+          className="flex w-auto"
+          columnClassName="bg-clip-padding px-2"
+        >
+          {isGenerating && <SkeletonImageCard />}
+          {imagesLoading ? (
+            Array.from({ length: 8 }).map((_, index) => (
+              <SkeletonImageCard key={index} />
+            ))
+          ) : (
+            generatedImages?.map((image, index) => (
+              <div key={image.id} className="mb-4">
+                <Card className="overflow-hidden">
+                  <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
+                    <img 
+                      src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                      alt={image.prompt} 
+                      className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+                      onClick={() => handleImageClick(index)}
+                    />
+                  </CardContent>
+                </Card>
+                <div className="mt-2 flex items-center justify-between">
+                  <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
+                        Download
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
+                        Discard
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleRemix(image)}>
+                        Remix
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleViewDetails(image)}>
+                        View Details
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-              ))
-            )}
-          </Masonry>
-        )}
-        {currentView === 'inspiration' && (
-          <Masonry
-            breakpointCols={breakpointColumnsObj}
-            className="flex w-auto"
-            columnClassName="bg-clip-padding px-2"
-          >
-            {inspirationLoading ? (
-              Array.from({ length: 8 }).map((_, index) => (
-                <SkeletonImageCard key={index} />
-              ))
-            ) : (
-              inspirationImages?.map((image, index) => (
-                <div key={image.id} className="mb-4">
-                  <Card className="overflow-hidden">
-                    <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-                      <img 
-                        src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                        alt={image.prompt} 
-                        className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                        onClick={() => handleImageClick(index)}
-                      />
-                    </CardContent>
-                  </Card>
-                  <div className="mt-2 flex items-center justify-between">
-                    <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
-                          Download
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleRemix(image)}>
-                          Remix
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleViewDetails(image)}>
-                          View Details
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-              ))
-            )}
-          </Masonry>
-        )}
+              </div>
+            ))
+          )}
+        </Masonry>
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
         {!session && (
