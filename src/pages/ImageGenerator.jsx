@@ -13,8 +13,31 @@ import { supabase } from '@/integrations/supabase/supabase'
 import ProfileMenu from '@/components/ProfileMenu'
 import ImageGallery from '@/components/ImageGallery'
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings'
-import { Button } from '@/components/ui/button'
-import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
+
+const aspectRatios = {
+  "1:1": { width: 1024, height: 1024 },
+  "4:3": { width: 1024, height: 768 },
+  "3:4": { width: 768, height: 1024 },
+  "16:9": { width: 1024, height: 576 },
+  "9:16": { width: 576, height: 1024 },
+  "3:2": { width: 1024, height: 683 },
+  "2:3": { width: 683, height: 1024 },
+  "5:4": { width: 1024, height: 819 },
+  "4:5": { width: 819, height: 1024 },
+  "21:9": { width: 1024, height: 439 },
+  "9:21": { width: 439, height: 1024 },
+  "1.91:1": { width: 1024, height: 536 },
+  "1:1.91": { width: 536, height: 1024 },
+  "1:2": { width: 512, height: 1024 },
+  "2:1": { width: 1024, height: 512 },
+}
+
+const qualityOptions = {
+  "SD": 512,
+  "HD": 1024,
+  "HD+": 1536,
+  "4K": 2048,
+}
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
@@ -220,44 +243,12 @@ const ImageGenerator = () => {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
-        <div className="flex justify-between items-center mb-2 md:mb-6">
+        <div className="flex justify-between items-center mb-6">
           {session && (
-            <div className="hidden md:flex items-center space-x-2">
-              <Button
-                variant={activeTab === 'myImages' ? 'default' : 'outline'}
-                onClick={() => setActiveTab('myImages')}
-                size="sm"
-              >
-                My Images
-              </Button>
-              <Button
-                variant={activeTab === 'inspiration' ? 'default' : 'outline'}
-                onClick={() => setActiveTab('inspiration')}
-                size="sm"
-              >
-                Inspiration
-              </Button>
+            <div className="hidden md:block">
               <ProfileMenu user={session.user} credits={credits} />
             </div>
           )}
-        </div>
-        <div className="flex md:hidden justify-start items-center space-x-2 mb-2">
-          <Button
-            variant={activeTab === 'myImages' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('myImages')}
-            size="sm"
-            className="text-xs py-1 px-2"
-          >
-            My Images
-          </Button>
-          <Button
-            variant={activeTab === 'inspiration' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('inspiration')}
-            size="sm"
-            className="text-xs py-1 px-2"
-          >
-            Inspiration
-          </Button>
         </div>
         <ImageGallery
           userId={session?.user?.id}
