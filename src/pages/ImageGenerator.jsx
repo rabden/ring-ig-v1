@@ -1,19 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Slider } from "@/components/ui/slider"
-import { Switch } from "@/components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { modelConfigs } from '@/utils/modelConfigs'
 import BottomNavbar from '@/components/BottomNavbar'
-import { Textarea } from "@/components/ui/textarea"
 import ModelSidebarMenu from '@/components/ModelSidebarMenu'
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
-import SignInDialog from '@/components/SignInDialog'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import AuthOverlay from '@/components/AuthOverlay'
 import { useUserCredits } from '@/hooks/useUserCredits'
@@ -21,6 +12,7 @@ import { toast } from 'sonner'
 import { supabase } from '@/integrations/supabase/supabase'
 import ProfileMenu from '@/components/ProfileMenu'
 import ImageGallery from '@/components/ImageGallery'
+import ImageGeneratorSettings from '@/components/ImageGeneratorSettings'
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -76,6 +68,14 @@ const ImageGenerator = () => {
   const [isGenerating, setIsGenerating] = useState(false)
   const queryClient = useQueryClient()
 
+  const handleFullScreenNavigate = (direction) => {
+    if (direction === 'prev' && fullScreenImageIndex > 0) {
+      setFullScreenImageIndex(fullScreenImageIndex - 1)
+    } else if (direction === 'next' && fullScreenImageIndex < generatedImages.length - 1) {
+      setFullScreenImageIndex(fullScreenImageIndex + 1)
+    }
+  }
+
   useEffect(() => {
     if (useAspectRatio) {
       const { width: w, height: h } = aspectRatios[aspectRatio]
@@ -126,20 +126,6 @@ const ImageGenerator = () => {
     onError: (error) => {
       console.error('Error uploading image:', error)
       toast.error('Failed to save image. Please try again.')
-    },
-  })
-
-  const deleteImageMutation = useMutation({
-    mutationFn: async (imageId) => {
-      await deleteImageCompletely(imageId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['userImages', session?.user?.id])
-      toast.success('Image deleted successfully')
-    },
-    onError: (error) => {
-      console.error('Error deleting image:', error)
-      toast.error('Failed to delete image. Please try again.')
     },
   })
 
@@ -229,6 +215,7 @@ const ImageGenerator = () => {
       setIsGenerating(false)
     }
   }
+  }
 
   const handleModelChange = (value) => {
     setModel(value)
@@ -283,130 +270,34 @@ const ImageGenerator = () => {
             <AuthOverlay />
           </div>
         )}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold">Settings</h2>
-          {session && (
-            <div className="text-sm font-medium">
-              Credits: {credits}
-            </div>
-          )}
-        </div>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="promptInput">Prompt</Label>
-            <Textarea
-              id="promptInput"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              onKeyDown={handlePromptKeyDown}
-              placeholder="Enter your prompt here"
-              className="min-h-[100px] resize-y"
-            />
-          </div>
-          <Button onClick={generateImage} className="w-full" disabled={!session}>
-            Generate Image
-          </Button>
-          <div className="space-y-2">
-            <Label htmlFor="modelSelect">Model</Label>
-            <Button
-              variant="outline"
-              className="w-full justify-between"
-              onClick={() => setModelSidebarOpen(true)}
-            >
-              {modelConfigs[model].name}
-              <span className="ml-2 opacity-50">{modelConfigs[model].category}</span>
-            </Button>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="seedInput">Seed</Label>
-            <div className="flex items-center space-x-2">
-              <Input
-                id="seedInput"
-                type="number"
-                value={seed}
-                onChange={(e) => setSeed(parseInt(e.target.value))}
-                disabled={randomizeSeed}
-              />
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="randomizeSeed"
-                  checked={randomizeSeed}
-                  onCheckedChange={setRandomizeSeed}
-                />
-                <Label htmlFor="randomizeSeed">Random</Label>
-              </div>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label>Quality</Label>
-            <Tabs value={quality} onValueChange={setQuality}>
-              <TabsList className="grid grid-cols-4 w-full">
-                {Object.keys(qualityOptions).map((q) => (
-                  <TabsTrigger key={q} value={q}>{q}</TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Use Aspect Ratio</Label>
-              <Switch
-                checked={useAspectRatio}
-                onCheckedChange={setUseAspectRatio}
-              />
-            </div>
-            {useAspectRatio && (
-              <div className="grid grid-cols-3 gap-2">
-                {Object.keys(aspectRatios).map((ratio) => (
-                  <Button
-                    key={ratio}
-                    variant={aspectRatio === ratio ? "default" : "outline"}
-                    className="w-full text-xs py-1 px-2"
-                    onClick={() => setAspectRatio(ratio)}
-                  >
-                    {ratio}
-                  </Button>
-                ))}
-              </div>
-            )}
-            {!useAspectRatio && (
-              <>
-                <div className="space-y-2">
-                  <Label>Width: {width}px</Label>
-                  <Slider
-                    min={256}
-                    max={qualityOptions[quality]}
-                    step={8}
-                    value={[width]}
-                    onValueChange={(value) => setWidth(value[0])}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Height: {height}px</Label>
-                  <Slider
-                    min={256}
-                    max={qualityOptions[quality]}
-                    step={8}
-                    value={[height]}
-                    onValueChange={(value) => setHeight(value[0])}
-                  />
-                </div>
-              </>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label>Inference Steps</Label>
-            <Tabs value={steps.toString()} onValueChange={(value) => setSteps(parseInt(value))}>
-              <TabsList className="grid grid-cols-5 w-full">
-                {modelConfigs[model].inferenceSteps.map((step) => (
-                  <TabsTrigger key={step} value={step.toString()}>
-                    {step}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          </div>
-        </div>
+        <ImageGeneratorSettings
+          prompt={prompt}
+          setPrompt={setPrompt}
+          handlePromptKeyDown={handlePromptKeyDown}
+          generateImage={generateImage}
+          model={model}
+          seed={seed}
+          setSeed={setSeed}
+          randomizeSeed={randomizeSeed}
+          setRandomizeSeed={setRandomizeSeed}
+          quality={quality}
+          setQuality={setQuality}
+          useAspectRatio={useAspectRatio}
+          setUseAspectRatio={setUseAspectRatio}
+          aspectRatio={aspectRatio}
+          setAspectRatio={setAspectRatio}
+          width={width}
+          setWidth={setWidth}
+          height={height}
+          setHeight={setHeight}
+          steps={steps}
+          setSteps={setSteps}
+          aspectRatios={aspectRatios}
+          qualityOptions={qualityOptions}
+          modelConfigs={modelConfigs}
+          session={session}
+          credits={credits}
+        />
       </div>
       <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} session={session} credits={credits} />
       <ModelSidebarMenu
