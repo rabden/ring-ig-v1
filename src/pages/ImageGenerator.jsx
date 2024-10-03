@@ -39,13 +39,6 @@ const qualityOptions = {
   "4K": 2048,
 }
 
-const breakpointColumnsObj = {
-  default: 4,
-  1100: 3,
-  700: 2,
-  500: 2
-};
-
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
   const [seed, setSeed] = useState(0)
@@ -214,7 +207,6 @@ const ImageGenerator = () => {
     } finally {
       setIsGenerating(false)
     }
-  }
   }
 
   const handleModelChange = (value) => {

@@ -159,7 +159,6 @@ const ImageGeneratorSettings = ({
           </TabsList>
         </Tabs>
       </div>
-      </div>
     </>
   )
 }
