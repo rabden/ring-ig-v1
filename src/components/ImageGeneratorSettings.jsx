@@ -13,6 +13,7 @@ const ImageGeneratorSettings = ({
   handlePromptKeyDown,
   generateImage,
   model,
+  setModel,  // Add this prop
   seed,
   setSeed,
   randomizeSeed,

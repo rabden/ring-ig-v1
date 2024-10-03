@@ -176,6 +176,7 @@ const ImageGenerator = () => {
           handlePromptKeyDown={handlePromptKeyDown}
           generateImage={generateImage}
           model={model}
+          setModel={setModel}  // Add this prop
           seed={seed}
           setSeed={setSeed}
           randomizeSeed={randomizeSeed}
