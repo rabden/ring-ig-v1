@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/supabase'
 import ProfileMenu from '@/components/ProfileMenu'
 import ImageGallery from '@/components/ImageGallery'
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings'
+import { Button } from '@/components/ui/button'
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -39,6 +40,7 @@ const qualityOptions = {
   "4K": 2048,
 }
 
+const ImageGenerator = () => {
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
   const [seed, setSeed] = useState(0)
@@ -243,12 +245,44 @@ const ImageGenerator = () => {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-2 md:mb-6">
           {session && (
-            <div className="hidden md:block">
+            <div className="hidden md:flex items-center space-x-2">
+              <Button
+                variant={activeTab === 'myImages' ? 'default' : 'outline'}
+                onClick={() => setActiveTab('myImages')}
+                size="sm"
+              >
+                My Images
+              </Button>
+              <Button
+                variant={activeTab === 'inspiration' ? 'default' : 'outline'}
+                onClick={() => setActiveTab('inspiration')}
+                size="sm"
+              >
+                Inspiration
+              </Button>
               <ProfileMenu user={session.user} credits={credits} />
             </div>
           )}
+        </div>
+        <div className="flex md:hidden justify-start items-center space-x-2 mb-2">
+          <Button
+            variant={activeTab === 'myImages' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('myImages')}
+            size="sm"
+            className="text-xs py-1 px-2"
+          >
+            My Images
+          </Button>
+          <Button
+            variant={activeTab === 'inspiration' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('inspiration')}
+            size="sm"
+            className="text-xs py-1 px-2"
+          >
+            Inspiration
+          </Button>
         </div>
         <ImageGallery
           userId={session?.user?.id}
