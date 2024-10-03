@@ -6,15 +6,11 @@ import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MoreVertical } from "lucide-react"
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { modelConfigs } from '@/utils/modelConfigs'
-import Masonry from 'react-masonry-css'
 import BottomNavbar from '@/components/BottomNavbar'
 import { Textarea } from "@/components/ui/textarea"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ModelSidebarMenu from '@/components/ModelSidebarMenu'
-import { Skeleton } from "@/components/ui/skeleton"
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
 import SignInDialog from '@/components/SignInDialog'
@@ -24,7 +20,7 @@ import { useUserCredits } from '@/hooks/useUserCredits'
 import { toast } from 'sonner'
 import { supabase } from '@/integrations/supabase/supabase'
 import ProfileMenu from '@/components/ProfileMenu'
-import { deleteImageFromStorage, deleteImageRecord, deleteImageCompletely } from '@/integrations/supabase/imageUtils'
+import ImageGallery from '@/components/ImageGallery'
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -246,27 +242,9 @@ const ImageGenerator = () => {
     }
   }
 
-  const handleDownload = (imageUrl, prompt) => {
-    fetch(imageUrl)
-      .then(response => response.blob())
-      .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${prompt.slice(0, 20)}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      })
-      .catch(error => {
-        console.error('Error downloading image:', error);
-        toast.error('Failed to download image. Please try again.');
-      });
-  };
-
-  const handleDiscard = (id) => {
-    deleteImageMutation.mutate(id)
+  const handleImageClick = (image) => {
+    setSelectedImage(image)
+    setDetailsDialogOpen(true)
   }
 
   const handleRemix = (image) => {
@@ -283,38 +261,6 @@ const ImageGenerator = () => {
     setActiveTab('input')
   }
 
-  const handleViewDetails = (image) => {
-    setSelectedImage(image)
-    setDetailsDialogOpen(true)
-  }
-
-  const handleImageClick = (index) => {
-    setFullScreenImageIndex(index)
-    setFullScreenViewOpen(true)
-  }
-
-  const handleFullScreenNavigate = (direction) => {
-    if (direction === 'prev' && fullScreenImageIndex > 0) {
-      setFullScreenImageIndex(fullScreenImageIndex - 1)
-    } else if (direction === 'next' && fullScreenImageIndex < generatedImages.length - 1) {
-      setFullScreenImageIndex(fullScreenImageIndex + 1)
-    }
-  }
-
-  const SkeletonImageCard = () => (
-    <div className="mb-4">
-      <Card className="overflow-hidden">
-        <CardContent className="p-0 relative" style={{ paddingTop: `${(height / width) * 100}%` }}>
-          <Skeleton className="absolute inset-0 w-full h-full" />
-        </CardContent>
-      </Card>
-      <div className="mt-2 flex items-center justify-between">
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-8 w-8 rounded-full" />
-      </div>
-    </div>
-  )
-
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
@@ -325,57 +271,11 @@ const ImageGenerator = () => {
             </div>
           )}
         </div>
-        <Masonry
-          breakpointCols={breakpointColumnsObj}
-          className="flex w-auto"
-          columnClassName="bg-clip-padding px-2"
-        >
-          {isGenerating && <SkeletonImageCard />}
-          {imagesLoading ? (
-            Array.from({ length: 8 }).map((_, index) => (
-              <SkeletonImageCard key={index} />
-            ))
-          ) : (
-            generatedImages?.map((image, index) => (
-              <div key={image.id} className="mb-4">
-                <Card className="overflow-hidden">
-                  <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-                    <img 
-                      src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                      alt={image.prompt} 
-                      className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                      onClick={() => handleImageClick(index)}
-                    />
-                  </CardContent>
-                </Card>
-                <div className="mt-2 flex items-center justify-between">
-                  <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
-                        Download
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
-                        Discard
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleRemix(image)}>
-                        Remix
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleViewDetails(image)}>
-                        View Details
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            ))
-          )}
-        </Masonry>
+        <ImageGallery
+          userId={session?.user?.id}
+          onImageClick={handleImageClick}
+          onRemix={handleRemix}
+        />
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
         {!session && (

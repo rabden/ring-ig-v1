@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
 import Masonry from 'react-masonry-css'
@@ -16,9 +16,11 @@ const breakpointColumnsObj = {
   500: 2
 }
 
-const ImageGallery = ({ userId, isMyImages }) => {
+const ImageGallery = ({ userId, onImageClick, onRemix }) => {
+  const [activeTab, setActiveTab] = useState('myImages')
+
   const { data: images, isLoading, refetch } = useQuery({
-    queryKey: ['userImages', userId, isMyImages],
+    queryKey: ['userImages', userId, activeTab],
     queryFn: async () => {
       if (!userId) return []
       let query = supabase
@@ -26,7 +28,7 @@ const ImageGallery = ({ userId, isMyImages }) => {
         .select('*')
         .order('created_at', { ascending: false })
       
-      if (isMyImages) {
+      if (activeTab === 'myImages') {
         query = query.eq('user_id', userId)
       } else {
         query = query.neq('user_id', userId)
@@ -59,7 +61,7 @@ const ImageGallery = ({ userId, isMyImages }) => {
   }
 
   const handleDiscard = async (id) => {
-    if (!isMyImages) return
+    if (activeTab !== 'myImages') return
     try {
       await deleteImageCompletely(id)
       refetch()
@@ -70,57 +72,71 @@ const ImageGallery = ({ userId, isMyImages }) => {
     }
   }
 
-  const handleRemix = (image) => {
-    // Logic for remixing the image
-  }
-
   if (isLoading) {
     return <div>Loading...</div>
   }
 
   return (
-    <Masonry
-      breakpointCols={breakpointColumnsObj}
-      className="flex w-auto"
-      columnClassName="bg-clip-padding px-2"
-    >
-      {images?.map((image) => (
-        <div key={image.id} className="mb-4">
-          <Card className="overflow-hidden">
-            <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-              <img 
-                src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                alt={image.prompt} 
-                className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-              />
-            </CardContent>
-          </Card>
-          <div className="mt-2 flex items-center justify-between">
-            <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
-                  Download
-                </DropdownMenuItem>
-                {isMyImages && (
-                  <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
-                    Discard
+    <div>
+      <div className="flex justify-start mb-4 md:hidden">
+        <Button
+          variant={activeTab === 'myImages' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('myImages')}
+          className="mr-2"
+        >
+          My Images
+        </Button>
+        <Button
+          variant={activeTab === 'inspiration' ? 'default' : 'outline'}
+          onClick={() => setActiveTab('inspiration')}
+        >
+          Inspiration
+        </Button>
+      </div>
+      <Masonry
+        breakpointCols={breakpointColumnsObj}
+        className="flex w-auto"
+        columnClassName="bg-clip-padding px-2"
+      >
+        {images?.map((image) => (
+          <div key={image.id} className="mb-4">
+            <Card className="overflow-hidden">
+              <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
+                <img 
+                  src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                  alt={image.prompt} 
+                  className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+                  onClick={() => onImageClick(image)}
+                />
+              </CardContent>
+            </Card>
+            <div className="mt-2 flex items-center justify-between">
+              <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
+                    Download
                   </DropdownMenuItem>
-                )}
-                <DropdownMenuItem onClick={() => handleRemix(image)}>
-                  Remix
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  {activeTab === 'myImages' && (
+                    <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
+                      Discard
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={() => onRemix(image)}>
+                    Remix
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
-        </div>
-      ))}
-    </Masonry>
+        ))}
+      </Masonry>
+    </div>
   )
 }
 
