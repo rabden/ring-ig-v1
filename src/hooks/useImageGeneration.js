@@ -78,7 +78,7 @@ export const useImageGeneration = ({
 
     let modifiedPrompt = prompt;
 
-    if (modelConfigs[model].promptSuffix) {
+    if (modelConfigs[model]?.promptSuffix) {
       modifiedPrompt += modelConfigs[model].promptSuffix;
     }
 
@@ -96,7 +96,7 @@ export const useImageGeneration = ({
 
     try {
       const response = await fetch(
-        modelConfigs[model].apiUrl,
+        modelConfigs[model]?.apiUrl,
         {
           headers: {
             Authorization: "Bearer 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",

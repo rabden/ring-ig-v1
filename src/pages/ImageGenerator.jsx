@@ -233,7 +233,7 @@ const ImageGenerator = () => {
           handlePromptKeyDown={handlePromptKeyDown}
           generateImage={generateImage}
           model={model}
-          setModel={setModel}
+          setModel={handleModelChange}
           seed={seed}
           setSeed={setSeed}
           randomizeSeed={randomizeSeed}

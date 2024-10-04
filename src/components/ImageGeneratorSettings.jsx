@@ -13,7 +13,7 @@ const ImageGeneratorSettings = ({
   handlePromptKeyDown,
   generateImage,
   model,
-  setModel,  // Add this prop
+  setModel,
   seed,
   setSeed,
   randomizeSeed,
@@ -67,8 +67,8 @@ const ImageGeneratorSettings = ({
           className="w-full justify-between"
           onClick={() => setModel(model === 'flux' ? 'otherModel' : 'flux')}
         >
-          {modelConfigs[model].name}
-          <span className="ml-2 opacity-50">{modelConfigs[model].category}</span>
+          {modelConfigs[model]?.name || 'Select a model'}
+          <span className="ml-2 opacity-50">{modelConfigs[model]?.category || ''}</span>
         </Button>
       </div>
       <div className="space-y-2">
