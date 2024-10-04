@@ -27,6 +27,7 @@ import ProfileMenu from '@/components/ProfileMenu'
 import { deleteImageFromStorage, deleteImageRecord, deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import MyImages from '@/components/MyImages'
 import Inspiration from '@/components/Inspiration'
+import ActionButtons from '@/components/ActionButtons'
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -81,7 +82,7 @@ const ImageGenerator = () => {
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
   const [isGenerating, setIsGenerating] = useState(false)
   const queryClient = useQueryClient()
-  const [activeView, setActiveView] = useState('generator')
+  const [activeView, setActiveView] = useState('myImages')
 
   useEffect(() => {
     if (useAspectRatio) {
@@ -291,7 +292,8 @@ const ImageGenerator = () => {
     setDetailsDialogOpen(true)
   }
 
-  const handleImageClick = (index) => {
+  const handleImageClick = (image, index) => {
+    setSelectedImage(image)
     setFullScreenImageIndex(index)
     setFullScreenViewOpen(true)
   }
@@ -332,78 +334,12 @@ const ImageGenerator = () => {
           {session && (
             <div className="hidden md:flex items-center space-x-2">
               <ProfileMenu user={session.user} credits={credits} />
-              <Button
-                variant={activeView === 'myImages' ? 'default' : 'outline'}
-                onClick={() => handleViewChange('myImages')}
-                className="text-sm"
-              >
-                My Images
-              </Button>
-              <Button
-                variant={activeView === 'inspiration' ? 'default' : 'outline'}
-                onClick={() => handleViewChange('inspiration')}
-                className="text-sm"
-              >
-                Inspiration
-              </Button>
+              <ActionButtons activeView={activeView} setActiveView={handleViewChange} />
             </div>
           )}
         </div>
-        {activeView === 'generator' && (
-          <Masonry
-            breakpointCols={breakpointColumnsObj}
-            className="flex w-auto"
-            columnClassName="bg-clip-padding px-2"
-          >
-            {isGenerating && <SkeletonImageCard />}
-            {imagesLoading ? (
-              Array.from({ length: 8 }).map((_, index) => (
-                <SkeletonImageCard key={index} />
-              ))
-            ) : (
-              generatedImages?.map((image, index) => (
-                <div key={image.id} className="mb-4">
-                  <Card className="overflow-hidden">
-                    <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-                      <img 
-                        src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                        alt={image.prompt} 
-                        className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                        onClick={() => handleImageClick(index)}
-                      />
-                    </CardContent>
-                  </Card>
-                  <div className="mt-2 flex items-center justify-between">
-                    <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
-                          Download
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
-                          Discard
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleRemix(image)}>
-                          Remix
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleViewDetails(image)}>
-                          View Details
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-              ))
-            )}
-          </Masonry>
-        )}
-        {activeView === 'myImages' && <MyImages userId={session?.user?.id} />}
-        {activeView === 'inspiration' && <Inspiration userId={session?.user?.id} />}
+        {activeView === 'myImages' && <MyImages userId={session?.user?.id} onImageClick={handleImageClick} />}
+        {activeView === 'inspiration' && <Inspiration userId={session?.user?.id} onImageClick={handleImageClick} />}
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
         {!session && (
@@ -528,7 +464,14 @@ const ImageGenerator = () => {
           </div>
         </div>
       </div>
-      <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} session={session} credits={credits} />
+      <BottomNavbar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        session={session}
+        credits={credits}
+        activeView={activeView}
+        setActiveView={handleViewChange}
+      />
       <ModelSidebarMenu
         isOpen={modelSidebarOpen}
         onClose={() => setModelSidebarOpen(false)}
@@ -541,7 +484,7 @@ const ImageGenerator = () => {
         image={selectedImage}
       />
       <FullScreenImageView
-        images={generatedImages}
+        images={activeView === 'myImages' ? generatedImages : []}
         currentIndex={fullScreenImageIndex}
         isOpen={fullScreenViewOpen}
         onClose={() => setFullScreenViewOpen(false)}
