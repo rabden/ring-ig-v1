@@ -1,9 +1,8 @@
 import React from 'react';
 import { Image, Plus, User } from 'lucide-react';
 import MobileProfileMenu from './MobileProfileMenu';
-import ActionButtons from './ActionButtons';
 
-const BottomNavbar = ({ activeTab, setActiveTab, session, credits, activeView, setActiveView }) => {
+const BottomNavbar = ({ activeTab, setActiveTab, session, credits }) => {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-2 flex justify-around items-center md:hidden">
       <button
@@ -19,11 +18,6 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, activeView, s
         <Plus size={20} />
       </button>
       <MobileProfileMenu user={session?.user} credits={credits} />
-      {activeTab === 'images' && (
-        <div className="absolute top-0 right-0 p-2">
-          <ActionButtons activeView={activeView} setActiveView={setActiveView} />
-        </div>
-      )}
     </div>
   );
 };

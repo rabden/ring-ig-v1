@@ -191,9 +191,11 @@ const ImageGenerator = () => {
           {session && (
             <div className="hidden md:flex items-center space-x-2">
               <ProfileMenu user={session.user} credits={credits} />
-              <ActionButtons activeView={activeView} setActiveView={setActiveView} />
             </div>
           )}
+          <div className="md:hidden">
+            <ActionButtons activeView={activeView} setActiveView={setActiveView} />
+          </div>
         </div>
         {activeView === 'myImages' && (
           <MyImages
@@ -262,8 +264,6 @@ const ImageGenerator = () => {
         setActiveTab={setActiveTab}
         session={session}
         credits={credits}
-        activeView={activeView}
-        setActiveView={setActiveView}
       />
       <ModelSidebarMenu
         isOpen={modelSidebarOpen}
