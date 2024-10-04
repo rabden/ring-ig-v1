@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { modelConfigs } from '@/utils/modelConfigs'
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
-import Masonry from 'react-masonry-css'
 import BottomNavbar from '@/components/BottomNavbar'
 import ModelSidebarMenu from '@/components/ModelSidebarMenu'
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
@@ -18,6 +17,7 @@ import MyImages from '@/components/MyImages'
 import Inspiration from '@/components/Inspiration'
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings'
 import ActionButtons from '@/components/ActionButtons'
+import { useImageGeneration } from '@/hooks/useImageGeneration'
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
@@ -38,7 +38,6 @@ const ImageGenerator = () => {
   const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
   const { session } = useSupabaseAuth()
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
-  const [isGenerating, setIsGenerating] = useState(false)
   const queryClient = useQueryClient()
   const [activeView, setActiveView] = useState('myImages')
 
@@ -65,34 +64,36 @@ const ImageGenerator = () => {
     enabled: !!session?.user?.id,
   })
 
-  const uploadImageMutation = useMutation({
-    mutationFn: async ({ imageBlob, metadata }) => {
-      const filePath = `${session.user.id}/${Date.now()}.png`
-      const { error: uploadError } = await supabase.storage
-        .from('user-images')
-        .upload(filePath, imageBlob)
-      if (uploadError) throw uploadError
-
-      const { data: publicURL } = supabase.storage
-        .from('user-images')
-        .getPublicUrl(filePath)
-
-      const { error: insertError } = await supabase
+  const { data: inspirationImages, isLoading: inspirationLoading } = useQuery({
+    queryKey: ['inspirationImages', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return []
+      const { data, error } = await supabase
         .from('user_images')
-        .insert({
-          user_id: session.user.id,
-          storage_path: filePath,
-          ...metadata,
-        })
-      if (insertError) throw insertError
+        .select('*')
+        .neq('user_id', session.user.id)
+        .order('created_at', { ascending: false })
+        .limit(50)
+      if (error) throw error
+      return data
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['userImages', session?.user?.id])
-    },
-    onError: (error) => {
-      console.error('Error uploading image:', error)
-      toast.error('Failed to save image. Please try again.')
-    },
+    enabled: !!session?.user?.id,
+  })
+
+  const { generateImage, isGenerating } = useImageGeneration({
+    session,
+    prompt,
+    seed,
+    randomizeSeed,
+    width,
+    height,
+    steps,
+    model,
+    quality,
+    useAspectRatio,
+    aspectRatio,
+    updateCredits,
+    queryClient,
   })
 
   const deleteImageMutation = useMutation({
@@ -108,93 +109,6 @@ const ImageGenerator = () => {
       toast.error('Failed to delete image. Please try again.')
     },
   })
-
-  const generateImage = async () => {
-    if (!session) {
-      console.log('User not authenticated')
-      return
-    }
-
-    if (!prompt) {
-      toast.error('Please enter a prompt')
-      return
-    }
-
-    const creditCost = {
-      "SD": 1,
-      "HD": 2,
-      "HD+": 3,
-      "4K": 4
-    }[quality]
-
-    if (credits < creditCost) {
-      toast.error(`Insufficient credits. You need ${creditCost} credits for ${quality} quality.`)
-      return
-    }
-
-    const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed
-    setSeed(actualSeed)
-
-    let modifiedPrompt = prompt;
-
-    if (modelConfigs[model].promptSuffix) {
-      modifiedPrompt += modelConfigs[model].promptSuffix;
-    }
-
-    setIsGenerating(true)
-
-    if (window.innerWidth <= 768) {
-      setActiveTab('images')
-    }
-
-    const data = {
-      inputs: modifiedPrompt,
-      parameters: {
-        seed: actualSeed,
-        width,
-        height,
-        num_inference_steps: steps
-      }
-    }
-
-    try {
-      const response = await fetch(
-        modelConfigs[model].apiUrl,
-        {
-          headers: {
-            Authorization: "Bearer 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",
-            "Content-Type": "application/json",
-          },
-          method: "POST",
-          body: JSON.stringify(data),
-        }
-      )
-      const imageBlob = await response.blob()
-
-      await updateCredits(quality)
-
-      await uploadImageMutation.mutateAsync({ 
-        imageBlob, 
-        metadata: {
-          prompt: modifiedPrompt,
-          seed: actualSeed,
-          width,
-          height,
-          steps,
-          model,
-          quality,
-          aspect_ratio: useAspectRatio ? aspectRatio : `${width}:${height}`,
-        }
-      })
-
-      toast.success(`Image generated successfully. ${creditCost} credits used.`)
-    } catch (error) {
-      console.error('Error generating image:', error)
-      toast.error('Failed to generate image. Please try again.')
-    } finally {
-      setIsGenerating(false)
-    }
-  }
 
   const handleModelChange = (value) => {
     setModel(value)
@@ -263,27 +177,12 @@ const ImageGenerator = () => {
     }
   }
 
-  const SkeletonImageCard = () => (
-    <div className="mb-4">
-      <Card className="overflow-hidden">
-        <CardContent className="p-0 relative" style={{ paddingTop: `${(height / width) * 100}%` }}>
-          <Skeleton className="absolute inset-0 w-full h-full" />
-        </CardContent>
-      </Card>
-      <div className="mt-2 flex items-center justify-between">
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-8 w-8 rounded-full" />
-      </div>
-    </div>
-  )
-
   const handleViewChange = (view) => {
     setActiveView(view)
     if (window.innerWidth <= 768) {
       setActiveTab('images')
     }
   }
-
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
