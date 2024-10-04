@@ -1,64 +1,22 @@
 import React, { useState, useEffect } from 'react'
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Slider } from "@/components/ui/slider"
-import { Switch } from "@/components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { MoreVertical } from "lucide-react"
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { modelConfigs } from '@/utils/modelConfigs'
 import Masonry from 'react-masonry-css'
 import BottomNavbar from '@/components/BottomNavbar'
-import { Textarea } from "@/components/ui/textarea"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ModelSidebarMenu from '@/components/ModelSidebarMenu'
-import { Skeleton } from "@/components/ui/skeleton"
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
-import SignInDialog from '@/components/SignInDialog'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import AuthOverlay from '@/components/AuthOverlay'
 import { useUserCredits } from '@/hooks/useUserCredits'
 import { toast } from 'sonner'
 import { supabase } from '@/integrations/supabase/supabase'
 import ProfileMenu from '@/components/ProfileMenu'
-import { deleteImageFromStorage, deleteImageRecord, deleteImageCompletely } from '@/integrations/supabase/imageUtils'
+import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import MyImages from '@/components/MyImages'
 import Inspiration from '@/components/Inspiration'
-
-const aspectRatios = {
-  "1:1": { width: 1024, height: 1024 },
-  "4:3": { width: 1024, height: 768 },
-  "3:4": { width: 768, height: 1024 },
-  "16:9": { width: 1024, height: 576 },
-  "9:16": { width: 576, height: 1024 },
-  "3:2": { width: 1024, height: 683 },
-  "2:3": { width: 683, height: 1024 },
-  "5:4": { width: 1024, height: 819 },
-  "4:5": { width: 819, height: 1024 },
-  "21:9": { width: 1024, height: 439 },
-  "9:21": { width: 439, height: 1024 },
-  "1.91:1": { width: 1024, height: 536 },
-  "1:1.91": { width: 536, height: 1024 },
-  "1:2": { width: 512, height: 1024 },
-  "2:1": { width: 1024, height: 512 },
-}
-
-const qualityOptions = {
-  "SD": 512,
-  "HD": 1024,
-  "HD+": 1536,
-  "4K": 2048,
-}
-
-const breakpointColumnsObj = {
-  default: 4,
-  1100: 3,
-  700: 2,
-  500: 2
-};
+import ImageGeneratorSettings from '@/components/ImageGeneratorSettings'
+import ActionButtons from '@/components/ActionButtons'
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
@@ -81,7 +39,7 @@ const ImageGenerator = () => {
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
   const [isGenerating, setIsGenerating] = useState(false)
   const queryClient = useQueryClient()
-  const [activeView, setActiveView] = useState('generator')
+  const [activeView, setActiveView] = useState('myImages')
 
   useEffect(() => {
     if (useAspectRatio) {
@@ -325,6 +283,7 @@ const ImageGenerator = () => {
     }
   }
 
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
@@ -332,78 +291,35 @@ const ImageGenerator = () => {
           {session && (
             <div className="hidden md:flex items-center space-x-2">
               <ProfileMenu user={session.user} credits={credits} />
-              <Button
-                variant={activeView === 'myImages' ? 'default' : 'outline'}
-                onClick={() => handleViewChange('myImages')}
-                className="text-sm"
-              >
-                My Images
-              </Button>
-              <Button
-                variant={activeView === 'inspiration' ? 'default' : 'outline'}
-                onClick={() => handleViewChange('inspiration')}
-                className="text-sm"
-              >
-                Inspiration
-              </Button>
+              <ActionButtons activeView={activeView} setActiveView={setActiveView} />
             </div>
           )}
         </div>
-        {activeView === 'generator' && (
-          <Masonry
-            breakpointCols={breakpointColumnsObj}
-            className="flex w-auto"
-            columnClassName="bg-clip-padding px-2"
-          >
-            {isGenerating && <SkeletonImageCard />}
-            {imagesLoading ? (
-              Array.from({ length: 8 }).map((_, index) => (
-                <SkeletonImageCard key={index} />
-              ))
-            ) : (
-              generatedImages?.map((image, index) => (
-                <div key={image.id} className="mb-4">
-                  <Card className="overflow-hidden">
-                    <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-                      <img 
-                        src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                        alt={image.prompt} 
-                        className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                        onClick={() => handleImageClick(index)}
-                      />
-                    </CardContent>
-                  </Card>
-                  <div className="mt-2 flex items-center justify-between">
-                    <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
-                          Download
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
-                          Discard
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleRemix(image)}>
-                          Remix
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleViewDetails(image)}>
-                          View Details
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-              ))
-            )}
-          </Masonry>
+        {activeView === 'myImages' && (
+          <MyImages
+            userId={session?.user?.id}
+            onImageClick={(index) => {
+              setFullScreenImageIndex(index)
+              setFullScreenViewOpen(true)
+            }}
+            onDownload={handleDownload}
+            onDiscard={handleDiscard}
+            onRemix={handleRemix}
+            onViewDetails={handleViewDetails}
+          />
         )}
-        {activeView === 'myImages' && <MyImages userId={session?.user?.id} />}
-        {activeView === 'inspiration' && <Inspiration userId={session?.user?.id} />}
+        {activeView === 'inspiration' && (
+          <Inspiration
+            userId={session?.user?.id}
+            onImageClick={(index) => {
+              setFullScreenImageIndex(index)
+              setFullScreenViewOpen(true)
+            }}
+            onDownload={handleDownload}
+            onRemix={handleRemix}
+            onViewDetails={handleViewDetails}
+          />
+        )}
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
         {!session && (
@@ -411,124 +327,44 @@ const ImageGenerator = () => {
             <AuthOverlay />
           </div>
         )}
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="promptInput">Prompt</Label>
-            <Textarea
-              id="promptInput"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              onKeyDown={handlePromptKeyDown}
-              placeholder="Enter your prompt here"
-              className="min-h-[100px] resize-y"
-            />
-          </div>
-          <Button onClick={generateImage} className="w-full" disabled={!session}>
-            Generate Image
-          </Button>
-          <div className="space-y-2">
-            <Label htmlFor="modelSelect">Model</Label>
-            <Button
-              variant="outline"
-              className="w-full justify-between"
-              onClick={() => setModelSidebarOpen(true)}
-            >
-              {modelConfigs[model].name}
-              <span className="ml-2 opacity-50">{modelConfigs[model].category}</span>
-            </Button>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="seedInput">Seed</Label>
-            <div className="flex items-center space-x-2">
-              <Input
-                id="seedInput"
-                type="number"
-                value={seed}
-                onChange={(e) => setSeed(parseInt(e.target.value))}
-                disabled={randomizeSeed}
-              />
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="randomizeSeed"
-                  checked={randomizeSeed}
-                  onCheckedChange={setRandomizeSeed}
-                />
-                <Label htmlFor="randomizeSeed">Random</Label>
-              </div>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <Label>Quality</Label>
-            <Tabs value={quality} onValueChange={setQuality}>
-              <TabsList className="grid grid-cols-4 w-full">
-                {Object.keys(qualityOptions).map((q) => (
-                  <TabsTrigger key={q} value={q}>{q}</TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Use Aspect Ratio</Label>
-              <Switch
-                checked={useAspectRatio}
-                onCheckedChange={setUseAspectRatio}
-              />
-            </div>
-            {useAspectRatio && (
-              <div className="grid grid-cols-3 gap-2">
-                {Object.keys(aspectRatios).map((ratio) => (
-                  <Button
-                    key={ratio}
-                    variant={aspectRatio === ratio ? "default" : "outline"}
-                    className="w-full text-xs py-1 px-2"
-                    onClick={() => setAspectRatio(ratio)}
-                  >
-                    {ratio}
-                  </Button>
-                ))}
-              </div>
-            )}
-            {!useAspectRatio && (
-              <>
-                <div className="space-y-2">
-                  <Label>Width: {width}px</Label>
-                  <Slider
-                    min={256}
-                    max={qualityOptions[quality]}
-                    step={8}
-                    value={[width]}
-                    onValueChange={(value) => setWidth(value[0])}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Height: {height}px</Label>
-                  <Slider
-                    min={256}
-                    max={qualityOptions[quality]}
-                    step={8}
-                    value={[height]}
-                    onValueChange={(value) => setHeight(value[0])}
-                  />
-                </div>
-              </>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label>Inference Steps</Label>
-            <Tabs value={steps.toString()} onValueChange={(value) => setSteps(parseInt(value))}>
-              <TabsList className="grid grid-cols-5 w-full">
-                {modelConfigs[model].inferenceSteps.map((step) => (
-                  <TabsTrigger key={step} value={step.toString()}>
-                    {step}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          </div>
-        </div>
+        <ImageGeneratorSettings
+          prompt={prompt}
+          setPrompt={setPrompt}
+          handlePromptKeyDown={handlePromptKeyDown}
+          generateImage={generateImage}
+          model={model}
+          setModel={setModel}
+          seed={seed}
+          setSeed={setSeed}
+          randomizeSeed={randomizeSeed}
+          setRandomizeSeed={setRandomizeSeed}
+          quality={quality}
+          setQuality={setQuality}
+          useAspectRatio={useAspectRatio}
+          setUseAspectRatio={setUseAspectRatio}
+          aspectRatio={aspectRatio}
+          setAspectRatio={setAspectRatio}
+          width={width}
+          setWidth={setWidth}
+          height={height}
+          setHeight={setHeight}
+          steps={steps}
+          setSteps={setSteps}
+          aspectRatios={aspectRatios}
+          qualityOptions={qualityOptions}
+          modelConfigs={modelConfigs}
+          session={session}
+          credits={credits}
+        />
       </div>
-      <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} session={session} credits={credits} />
+      <BottomNavbar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        session={session}
+        credits={credits}
+        activeView={activeView}
+        setActiveView={setActiveView}
+      />
       <ModelSidebarMenu
         isOpen={modelSidebarOpen}
         onClose={() => setModelSidebarOpen(false)}
@@ -541,11 +377,15 @@ const ImageGenerator = () => {
         image={selectedImage}
       />
       <FullScreenImageView
-        images={generatedImages}
+        images={activeView === 'myImages' ? generatedImages : inspirationImages}
         currentIndex={fullScreenImageIndex}
         isOpen={fullScreenViewOpen}
         onClose={() => setFullScreenViewOpen(false)}
         onNavigate={handleFullScreenNavigate}
+        onDownload={handleDownload}
+        onDiscard={activeView === 'myImages' ? handleDiscard : undefined}
+        onRemix={handleRemix}
+        onViewDetails={handleViewDetails}
       />
     </div>
   )
