@@ -13,7 +13,7 @@ const ImageGeneratorSettings = ({
   handlePromptKeyDown,
   generateImage,
   model,
-  setModel,
+  setModel,  // Add this prop
   seed,
   setSeed,
   randomizeSeed,
@@ -67,10 +67,8 @@ const ImageGeneratorSettings = ({
           className="w-full justify-between"
           onClick={() => setModel(model === 'flux' ? 'otherModel' : 'flux')}
         >
-          {modelConfigs && modelConfigs[model] ? modelConfigs[model].name : 'Select Model'}
-          <span className="ml-2 opacity-50">
-            {modelConfigs && modelConfigs[model] ? modelConfigs[model].category : ''}
-          </span>
+          {modelConfigs[model].name}
+          <span className="ml-2 opacity-50">{modelConfigs[model].category}</span>
         </Button>
       </div>
       <div className="space-y-2">
@@ -152,17 +150,15 @@ const ImageGeneratorSettings = ({
       </div>
       <div className="space-y-2">
         <Label>Inference Steps</Label>
-        {modelConfigs && modelConfigs[model] && (
-          <Tabs value={steps.toString()} onValueChange={(value) => setSteps(parseInt(value))}>
-            <TabsList className="grid grid-cols-5 w-full">
-              {modelConfigs[model].inferenceSteps.map((step) => (
-                <TabsTrigger key={step} value={step.toString()}>
-                  {step}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        )}
+        <Tabs value={steps.toString()} onValueChange={(value) => setSteps(parseInt(value))}>
+          <TabsList className="grid grid-cols-5 w-full">
+            {modelConfigs[model].inferenceSteps.map((step) => (
+              <TabsTrigger key={step} value={step.toString()}>
+                {step}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
       </div>
     </>
   )
