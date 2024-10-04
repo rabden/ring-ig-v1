@@ -25,7 +25,7 @@ const ImageGenerator = () => {
   const [randomizeSeed, setRandomizeSeed] = useState(true)
   const [width, setWidth] = useState(1024)
   const [height, setHeight] = useState(1024)
-  const [steps, setSteps] = useState(modelConfigs.flux.defaultStep)
+  const [steps, setSteps] = useState(modelConfigs.flux?.defaultStep || 8)
   const [model, setModel] = useState('flux')
   const [activeTab, setActiveTab] = useState('images')
   const [aspectRatio, setAspectRatio] = useState("1:1")
@@ -112,7 +112,7 @@ const ImageGenerator = () => {
 
   const handleModelChange = (value) => {
     setModel(value)
-    setSteps(modelConfigs[value].defaultStep)
+    setSteps(modelConfigs[value]?.defaultStep || 8)
   }
 
   const handlePromptKeyDown = (e) => {

@@ -152,11 +152,11 @@ const ImageGeneratorSettings = ({
         <Label>Inference Steps</Label>
         <Tabs value={steps.toString()} onValueChange={(value) => setSteps(parseInt(value))}>
           <TabsList className="grid grid-cols-5 w-full">
-            {modelConfigs[model].inferenceSteps.map((step) => (
+            {modelConfigs[model]?.inferenceSteps?.map((step) => (
               <TabsTrigger key={step} value={step.toString()}>
                 {step}
               </TabsTrigger>
-            ))}
+            )) || []}
           </TabsList>
         </Tabs>
       </div>
