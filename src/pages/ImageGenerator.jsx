@@ -25,6 +25,8 @@ import { toast } from 'sonner'
 import { supabase } from '@/integrations/supabase/supabase'
 import ProfileMenu from '@/components/ProfileMenu'
 import { deleteImageFromStorage, deleteImageRecord, deleteImageCompletely } from '@/integrations/supabase/imageUtils'
+import MyImages from '@/components/MyImages'
+import Inspiration from '@/components/Inspiration'
 
 const aspectRatios = {
   "1:1": { width: 1024, height: 1024 },
@@ -79,6 +81,7 @@ const ImageGenerator = () => {
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
   const [isGenerating, setIsGenerating] = useState(false)
   const queryClient = useQueryClient()
+  const [activeView, setActiveView] = useState('generator')
 
   useEffect(() => {
     if (useAspectRatio) {
@@ -315,67 +318,92 @@ const ImageGenerator = () => {
     </div>
   )
 
+  const handleViewChange = (view) => {
+    setActiveView(view)
+    if (window.innerWidth <= 768) {
+      setActiveTab('images')
+    }
+  }
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
         <div className="flex justify-between items-center mb-6">
           {session && (
-            <div className="hidden md:block">
+            <div className="hidden md:flex items-center space-x-2">
               <ProfileMenu user={session.user} credits={credits} />
+              <Button
+                variant={activeView === 'myImages' ? 'default' : 'outline'}
+                onClick={() => handleViewChange('myImages')}
+                className="text-sm"
+              >
+                My Images
+              </Button>
+              <Button
+                variant={activeView === 'inspiration' ? 'default' : 'outline'}
+                onClick={() => handleViewChange('inspiration')}
+                className="text-sm"
+              >
+                Inspiration
+              </Button>
             </div>
           )}
         </div>
-        <Masonry
-          breakpointCols={breakpointColumnsObj}
-          className="flex w-auto"
-          columnClassName="bg-clip-padding px-2"
-        >
-          {isGenerating && <SkeletonImageCard />}
-          {imagesLoading ? (
-            Array.from({ length: 8 }).map((_, index) => (
-              <SkeletonImageCard key={index} />
-            ))
-          ) : (
-            generatedImages?.map((image, index) => (
-              <div key={image.id} className="mb-4">
-                <Card className="overflow-hidden">
-                  <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-                    <img 
-                      src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                      alt={image.prompt} 
-                      className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                      onClick={() => handleImageClick(index)}
-                    />
-                  </CardContent>
-                </Card>
-                <div className="mt-2 flex items-center justify-between">
-                  <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
-                        Download
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
-                        Discard
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleRemix(image)}>
-                        Remix
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleViewDetails(image)}>
-                        View Details
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+        {activeView === 'generator' && (
+          <Masonry
+            breakpointCols={breakpointColumnsObj}
+            className="flex w-auto"
+            columnClassName="bg-clip-padding px-2"
+          >
+            {isGenerating && <SkeletonImageCard />}
+            {imagesLoading ? (
+              Array.from({ length: 8 }).map((_, index) => (
+                <SkeletonImageCard key={index} />
+              ))
+            ) : (
+              generatedImages?.map((image, index) => (
+                <div key={image.id} className="mb-4">
+                  <Card className="overflow-hidden">
+                    <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
+                      <img 
+                        src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                        alt={image.prompt} 
+                        className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+                        onClick={() => handleImageClick(index)}
+                      />
+                    </CardContent>
+                  </Card>
+                  <div className="mt-2 flex items-center justify-between">
+                    <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
+                          Download
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
+                          Discard
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleRemix(image)}>
+                          Remix
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleViewDetails(image)}>
+                          View Details
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
-              </div>
-            ))
-          )}
-        </Masonry>
+              ))
+            )}
+          </Masonry>
+        )}
+        {activeView === 'myImages' && <MyImages userId={session?.user?.id} />}
+        {activeView === 'inspiration' && <Inspiration userId={session?.user?.id} />}
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
         {!session && (
@@ -383,14 +411,6 @@ const ImageGenerator = () => {
             <AuthOverlay />
           </div>
         )}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold">Settings</h2>
-          {session && (
-            <div className="text-sm font-medium">
-              Credits: {credits}
-            </div>
-          )}
-        </div>
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="promptInput">Prompt</Label>
