@@ -193,9 +193,7 @@ const ImageGenerator = () => {
               <ProfileMenu user={session.user} credits={credits} />
             </div>
           )}
-          <div className="md:hidden">
-            <ActionButtons activeView={activeView} setActiveView={setActiveView} />
-          </div>
+          <ActionButtons activeView={activeView} setActiveView={setActiveView} />
         </div>
         {activeView === 'myImages' && (
           <MyImages
