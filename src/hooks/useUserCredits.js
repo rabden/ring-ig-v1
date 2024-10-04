@@ -7,12 +7,12 @@ export const useUserCredits = (userId) => {
   const fetchCredits = async () => {
     const { data, error } = await supabase
       .from('user_credits')
-      .select('credit_count')
+      .select('credit_count, last_refill_time')
       .eq('user_id', userId)
       .single();
 
     if (error) throw error;
-    return data.credit_count;
+    return data;
   };
 
   const updateCredits = async (quality) => {
@@ -37,17 +37,19 @@ export const useUserCredits = (userId) => {
     queryKey: ['userCredits', userId],
     queryFn: fetchCredits,
     enabled: !!userId,
+    refetchInterval: 60000, // Refetch every minute to check for updates
   });
 
   const updateCreditsMutation = useMutation({
     mutationFn: updateCredits,
-    onSuccess: (newCredits) => {
-      queryClient.setQueryData(['userCredits', userId], newCredits);
+    onSuccess: () => {
+      queryClient.invalidateQueries(['userCredits', userId]);
     },
   });
 
   return {
-    credits: creditsQuery.data,
+    credits: creditsQuery.data?.credit_count,
+    lastRefillTime: creditsQuery.data?.last_refill_time,
     isLoading: creditsQuery.isLoading,
     error: creditsQuery.error,
     updateCredits: updateCreditsMutation.mutate,
