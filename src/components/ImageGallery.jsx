@@ -24,7 +24,9 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
         .select('*')
         .order('created_at', { ascending: false })
       if (error) throw error
-      return activeView === 'myImages' ? data.filter(img => img.user_id === userId) : data
+      return activeView === 'myImages' 
+        ? data.filter(img => img.user_id === userId)
+        : data.filter(img => img.user_id !== userId)
     },
     enabled: !!userId,
   })
@@ -64,7 +66,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
                   Download
                 </DropdownMenuItem>
                 {activeView === 'myImages' && onDiscard && (
-                  <DropdownMenuItem onClick={() => onDiscard(image.id)}>
+                  <DropdownMenuItem onClick={() => onDiscard(image)}>
                     Discard
                   </DropdownMenuItem>
                 )}

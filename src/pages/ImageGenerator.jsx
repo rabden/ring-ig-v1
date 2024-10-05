@@ -4,6 +4,7 @@ import { useUserCredits } from '@/hooks/useUserCredits'
 import { useImageGeneration } from '@/hooks/useImageGeneration'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
+import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import AuthOverlay from '@/components/AuthOverlay'
 import BottomNavbar from '@/components/BottomNavbar'
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings'
@@ -50,7 +51,7 @@ const ImageGenerator = () => {
         .select('*')
         .order('created_at', { ascending: false })
       if (error) throw error
-      return activeView === 'myImages' ? data.filter(img => img.user_id === session.user.id) : data
+      return activeView === 'myImages' ? data.filter(img => img.user_id === session.user.id) : data.filter(img => img.user_id !== session.user.id)
     },
     enabled: !!session?.user?.id,
   })
@@ -128,13 +129,9 @@ const ImageGenerator = () => {
     document.body.removeChild(link)
   }
 
-  const handleDiscard = async (imageId) => {
+  const handleDiscard = async (image) => {
     try {
-      const { error } = await supabase
-        .from('user_images')
-        .delete()
-        .eq('id', imageId)
-      if (error) throw error
+      await deleteImageCompletely(image.id)
       queryClient.invalidateQueries(['images', session?.user?.id, activeView])
       toast.success('Image discarded successfully')
     } catch (error) {
