@@ -25,21 +25,33 @@ export const SupabaseAuthProviderInner = ({ children }) => {
   useEffect(() => {
     const getSession = async () => {
       setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      setSession(session);
-      setLoading(false);
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        setSession(session);
+      } catch (error) {
+        console.error('Error getting session:', error);
+        // If there's an error (including invalid refresh token), clear the session
+        setSession(null);
+        await supabase.auth.signOut();
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       queryClient.invalidateQueries('user');
+      if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') {
+        // Refresh the session when token is refreshed or user signs in
+        await getSession();
+      }
     });
 
     getSession();
 
     return () => {
       authListener.subscription.unsubscribe();
-      setLoading(false);
     };
   }, [queryClient]);
 
@@ -47,7 +59,6 @@ export const SupabaseAuthProviderInner = ({ children }) => {
     await supabase.auth.signOut();
     setSession(null);
     queryClient.invalidateQueries('user');
-    setLoading(false);
   };
 
   return (
