@@ -31,7 +31,7 @@ const ImageGallery = ({ userId, onImageClick, onRemix }) => {
       if (activeTab === 'myImages') {
         query = query.eq('user_id', userId)
       } else {
-        query = query.neq('user_id', userId)
+        query = query.eq('is_inspiration', true)
       }
       
       const { data, error } = await query
