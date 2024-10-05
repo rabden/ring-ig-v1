@@ -2,7 +2,6 @@ import { toast } from 'sonner'
 import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 
 export const useImageHandlers = ({
-  setIsGeneratingImage,
   setActiveTab,
   generateImage,
   images,
@@ -29,11 +28,9 @@ export const useImageHandlers = ({
   setActiveView,
 }) => {
   const handleGenerateImage = async () => {
-    setIsGeneratingImage(true)
     setActiveTab('images')
     setActiveView('myImages')
     await generateImage()
-    setIsGeneratingImage(false)
   }
 
   const handleImageClick = (image, index) => {
