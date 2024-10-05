@@ -5,11 +5,9 @@ import { MoreVertical } from "lucide-react"
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { modelConfigs } from '@/utils/modelConfigs'
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
-import Masonry from 'react-masonry-css'
 import BottomNavbar from '@/components/BottomNavbar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ModelSidebarMenu from '@/components/ModelSidebarMenu'
-import { Skeleton } from "@/components/ui/skeleton"
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
@@ -21,6 +19,7 @@ import ProfileMenu from '@/components/ProfileMenu'
 import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings'
 import { useImageGeneration } from '@/hooks/useImageGeneration'
+import ImageGallery from '@/components/ImageGallery'
 
 const breakpointColumnsObj = {
   default: 4,
@@ -157,8 +156,8 @@ const ImageGenerator = () => {
     setDetailsDialogOpen(true)
   }
 
-  const handleImageClick = (index) => {
-    setFullScreenImageIndex(index)
+  const handleImageClick = (image) => {
+    setSelectedImage(image)
     setFullScreenViewOpen(true)
   }
 
@@ -194,57 +193,11 @@ const ImageGenerator = () => {
             </div>
           )}
         </div>
-        <Masonry
-          breakpointCols={breakpointColumnsObj}
-          className="flex w-auto"
-          columnClassName="bg-clip-padding px-2"
-        >
-          {isGenerating && <SkeletonImageCard />}
-          {imagesLoading ? (
-            Array.from({ length: 8 }).map((_, index) => (
-              <SkeletonImageCard key={index} />
-            ))
-          ) : (
-            generatedImages?.map((image, index) => (
-              <div key={image.id} className="mb-4">
-                <Card className="overflow-hidden">
-                  <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-                    <img 
-                      src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                      alt={image.prompt} 
-                      className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                      onClick={() => handleImageClick(index)}
-                    />
-                  </CardContent>
-                </Card>
-                <div className="mt-2 flex items-center justify-between">
-                  <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="h-8 w-8 p-0">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
-                        Download
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDiscard(image.id)}>
-                        Discard
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleRemix(image)}>
-                        Remix
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleViewDetails(image)}>
-                        View Details
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            ))
-          )}
-        </Masonry>
+        <ImageGallery
+          userId={session?.user?.id}
+          onImageClick={handleImageClick}
+          onRemix={handleRemix}
+        />
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
         {!session && (
