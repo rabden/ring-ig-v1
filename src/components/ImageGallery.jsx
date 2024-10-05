@@ -15,7 +15,7 @@ const breakpointColumnsObj = {
   500: 2
 }
 
-const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails, activeView }) => {
+const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails, activeView, generatingImageSize }) => {
   const { data: images, isLoading } = useQuery({
     queryKey: ['images', userId, activeView],
     queryFn: async () => {
@@ -38,51 +38,52 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
       className="flex w-auto"
       columnClassName="bg-clip-padding px-2"
     >
-      {isLoading
-        ? Array.from({ length: 8 }).map((_, index) => (
-            <SkeletonImageCard key={index} />
-          ))
-        : images?.map((image, index) => (
-            <div key={image.id} className="mb-4">
-              <Card className="overflow-hidden">
-                <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-                  <img 
-                    src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                    alt={image.prompt} 
-                    className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                    onClick={() => onImageClick(image, index)}
-                  />
-                </CardContent>
-              </Card>
-              <div className="mt-2 flex items-center justify-between">
-                <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
-                      Download
+      {isLoading ? (
+        Array.from({ length: 8 }).map((_, index) => (
+          <SkeletonImageCard key={index} width={generatingImageSize.width} height={generatingImageSize.height} />
+        ))
+      ) : (
+        images?.map((image, index) => (
+          <div key={image.id} className="mb-4">
+            <Card className="overflow-hidden">
+              <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
+                <img 
+                  src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                  alt={image.prompt} 
+                  className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+                  onClick={() => onImageClick(image, index)}
+                />
+              </CardContent>
+            </Card>
+            <div className="mt-2 flex items-center justify-between">
+              <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
+                    Download
+                  </DropdownMenuItem>
+                  {activeView === 'myImages' && onDiscard && (
+                    <DropdownMenuItem onClick={() => onDiscard(image)}>
+                      Discard
                     </DropdownMenuItem>
-                    {activeView === 'myImages' && onDiscard && (
-                      <DropdownMenuItem onClick={() => onDiscard(image)}>
-                        Discard
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem onClick={() => onRemix(image)}>
-                      Remix
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onViewDetails(image)}>
-                      View Details
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+                  )}
+                  <DropdownMenuItem onClick={() => onRemix(image)}>
+                    Remix
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onViewDetails(image)}>
+                    View Details
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-          ))
-      }
+          </div>
+        ))
+      )}
     </Masonry>
   )
 }

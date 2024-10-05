@@ -13,7 +13,6 @@ import ModelSidebarMenu from '@/components/ModelSidebarMenu'
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
 import ProfileMenu from '@/components/ProfileMenu'
-import SkeletonImageCard from '@/components/SkeletonImageCard'
 import ActionButtons from '@/components/ActionButtons'
 import { modelConfigs, aspectRatios, qualityOptions } from '@/utils/imageConfigs'
 import { toast } from 'sonner'
@@ -41,36 +40,6 @@ const ImageGenerator = () => {
   const { session } = useSupabaseAuth()
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
   const queryClient = useQueryClient()
-
-  const { data: images } = useQuery({
-    queryKey: ['images', session?.user?.id, activeView],
-    queryFn: async () => {
-      if (!session?.user?.id) return []
-      const { data, error } = await supabase
-        .from('user_images')
-        .select('*')
-        .order('created_at', { ascending: false })
-      if (error) throw error
-      return activeView === 'myImages' ? data.filter(img => img.user_id === session.user.id) : data.filter(img => img.user_id !== session.user.id)
-    },
-    enabled: !!session?.user?.id,
-  })
-
-  const { generateImage, isGenerating } = useImageGeneration({
-    session,
-    prompt,
-    seed,
-    randomizeSeed,
-    width,
-    height,
-    steps,
-    model,
-    quality,
-    useAspectRatio,
-    aspectRatio,
-    updateCredits,
-    queryClient,
-  })
 
   const getGeneratingImageSize = () => {
     if (useAspectRatio) {
@@ -169,11 +138,6 @@ const ImageGenerator = () => {
             </>
           )}
         </div>
-        {isGeneratingImage && (
-          <div className="mb-4">
-            <SkeletonImageCard {...getGeneratingImageSize()} />
-          </div>
-        )}
         <ImageGallery
           userId={session?.user?.id}
           onImageClick={handleImageClick}
@@ -182,6 +146,7 @@ const ImageGenerator = () => {
           onRemix={handleRemix}
           onViewDetails={handleViewDetails}
           activeView={activeView}
+          generatingImageSize={getGeneratingImageSize()}
         />
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
