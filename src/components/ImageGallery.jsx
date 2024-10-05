@@ -63,7 +63,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
                 <DropdownMenuItem onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
                   Download
                 </DropdownMenuItem>
-                {activeView === 'myImages' && (
+                {activeView === 'myImages' && onDiscard && (
                   <DropdownMenuItem onClick={() => onDiscard(image.id)}>
                     Discard
                   </DropdownMenuItem>
