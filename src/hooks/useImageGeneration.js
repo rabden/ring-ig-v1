@@ -122,6 +122,9 @@ export const useImageGeneration = ({
         throw new Error('No active API key available')
       }
 
+      console.log('Sending request to:', modelConfigs[model]?.apiUrl);
+      console.log('Request data:', JSON.stringify(data, null, 2));
+
       const response = await fetch(
         modelConfigs[model]?.apiUrl,
         {
@@ -136,12 +139,14 @@ export const useImageGeneration = ({
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(`API error: ${errorData.error || 'Unknown error'}`);
+        console.error('API response error:', errorData);
+        throw new Error(`API error: ${errorData.error || response.statusText}`);
       }
 
       const imageBlob = await response.blob()
 
       if (!imageBlob || imageBlob.size === 0) {
+        console.error('Generated image is empty or invalid');
         throw new Error('Generated image is empty or invalid');
       }
 
