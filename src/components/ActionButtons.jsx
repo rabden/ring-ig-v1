@@ -7,14 +7,14 @@ const ActionButtons = ({ activeView, setActiveView }) => {
       <Button
         variant={activeView === 'myImages' ? 'default' : 'outline'}
         onClick={() => setActiveView('myImages')}
-        className="text-sm"
+        className="text-xs py-1 px-2 h-auto"
       >
         My Images
       </Button>
       <Button
         variant={activeView === 'inspiration' ? 'default' : 'outline'}
         onClick={() => setActiveView('inspiration')}
-        className="text-sm"
+        className="text-xs py-1 px-2 h-auto"
       >
         Inspiration
       </Button>
