@@ -14,19 +14,14 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth';
 const ProfileMenu = ({ user, credits }) => {
   const { logout } = useSupabaseAuth();
 
-  // Check if user is defined before accessing properties
-  if (!user) {
-    return null; // Or return a placeholder component
-  }
-
-  const displayName = user.user_metadata?.display_name || user.email?.split('@')[0] || 'User';
+  const displayName = user.user_metadata.display_name || user.email.split('@')[0];
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={user.user_metadata?.avatar_url} alt={displayName} />
+            <AvatarImage src={user.user_metadata.avatar_url} alt={displayName} />
             <AvatarFallback>{displayName.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
         </Button>
@@ -35,7 +30,7 @@ const ProfileMenu = ({ user, credits }) => {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{displayName}</p>
-            <p className="text-xs leading-none text-muted-foreground">{user.email || 'No email'}</p>
+            <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

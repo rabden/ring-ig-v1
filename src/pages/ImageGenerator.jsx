@@ -20,7 +20,13 @@ import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings'
 import { useImageGeneration } from '@/hooks/useImageGeneration'
 import ImageGallery from '@/components/ImageGallery'
-import ActionButtons from '@/components/ActionButtons'
+
+const breakpointColumnsObj = {
+  default: 4,
+  1100: 3,
+  700: 2,
+  500: 2
+};
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
@@ -181,16 +187,16 @@ const ImageGenerator = () => {
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
         <div className="flex justify-between items-center mb-6">
-          <div className="hidden md:flex items-center space-x-4">
-            {session?.user && <ProfileMenu user={session.user} credits={credits} />}
-            <ActionButtons activeView={activeTab} setActiveView={setActiveTab} />
-          </div>
+          {session && (
+            <div className="hidden md:block">
+              <ProfileMenu user={session.user} credits={credits} />
+            </div>
+          )}
         </div>
         <ImageGallery
           userId={session?.user?.id}
           onImageClick={handleImageClick}
           onRemix={handleRemix}
-          activeTab={activeTab}
         />
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
