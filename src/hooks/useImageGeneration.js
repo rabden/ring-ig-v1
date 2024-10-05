@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
 import { toast } from 'sonner'
 import { modelConfigs } from '@/utils/modelConfigs'
+import { aspectRatios } from '@/utils/imageConfigs'
 
 const API_KEY = "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";
 
@@ -86,12 +87,22 @@ export const useImageGeneration = ({
 
     setIsGenerating(true)
 
+    // Calculate dimensions based on aspect ratio if useAspectRatio is true
+    let finalWidth = width;
+    let finalHeight = height;
+    if (useAspectRatio && aspectRatios[aspectRatio]) {
+      const { width: ratioWidth, height: ratioHeight } = aspectRatios[aspectRatio];
+      const maxDimension = Math.max(width, height);
+      finalWidth = Math.round((ratioWidth / Math.max(ratioWidth, ratioHeight)) * maxDimension);
+      finalHeight = Math.round((ratioHeight / Math.max(ratioWidth, ratioHeight)) * maxDimension);
+    }
+
     const data = {
       inputs: modifiedPrompt,
       parameters: {
         seed: actualSeed,
-        width,
-        height,
+        width: finalWidth,
+        height: finalHeight,
         num_inference_steps: steps
       }
     }
@@ -127,12 +138,12 @@ export const useImageGeneration = ({
         metadata: {
           prompt: modifiedPrompt,
           seed: actualSeed,
-          width,
-          height,
+          width: finalWidth,
+          height: finalHeight,
           steps,
           model,
           quality,
-          aspect_ratio: useAspectRatio ? aspectRatio : `${width}:${height}`,
+          aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
         }
       })
 
