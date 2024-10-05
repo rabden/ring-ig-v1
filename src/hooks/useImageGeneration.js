@@ -6,6 +6,9 @@ import { aspectRatios } from '@/utils/imageConfigs'
 
 const API_KEY = "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";
 
+// Helper function to ensure dimensions are divisible by 8
+const makeDivisibleBy8 = (num) => Math.floor(num / 8) * 8;
+
 export const useImageGeneration = ({
   session,
   prompt,
@@ -92,6 +95,10 @@ export const useImageGeneration = ({
       finalWidth = Math.round((ratioWidth / Math.max(ratioWidth, ratioHeight)) * maxDimension);
       finalHeight = Math.round((ratioHeight / Math.max(ratioWidth, ratioHeight)) * maxDimension);
     }
+
+    // Ensure dimensions are divisible by 8
+    finalWidth = makeDivisibleBy8(finalWidth);
+    finalHeight = makeDivisibleBy8(finalHeight);
 
     setGeneratingImages(prev => [...prev, { width: finalWidth, height: finalHeight }])
 
