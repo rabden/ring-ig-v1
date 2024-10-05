@@ -43,7 +43,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
   const renderContent = () => {
     const content = []
 
-    if (isGeneratingImage) {
+    if (isGeneratingImage && activeView === 'myImages') {
       content.push(
         <SkeletonImageCard key="generating" width={skeletonDimensions.width} height={skeletonDimensions.height} />
       )

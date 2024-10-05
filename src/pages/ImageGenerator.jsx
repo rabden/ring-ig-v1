@@ -82,7 +82,7 @@ const ImageGenerator = () => {
     images,
     setSelectedImage,
     setFullScreenImageIndex,
-    fullScreenImageIndex,  // Add this line
+    fullScreenImageIndex,
     setFullScreenViewOpen,
     modelConfigs,
     setModel,
@@ -99,7 +99,8 @@ const ImageGenerator = () => {
     session,
     queryClient,
     activeView,
-    setDetailsDialogOpen,  // Add this line
+    setDetailsDialogOpen,
+    setActiveView,
   })
 
   const getGeneratingImageSize = () => {

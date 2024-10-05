@@ -26,10 +26,12 @@ export const useImageHandlers = ({
   queryClient,
   activeView,
   setDetailsDialogOpen,
+  setActiveView,
 }) => {
   const handleGenerateImage = async () => {
     setIsGeneratingImage(true)
     setActiveTab('images')
+    setActiveView('myImages')
     await generateImage()
     setIsGeneratingImage(false)
   }
