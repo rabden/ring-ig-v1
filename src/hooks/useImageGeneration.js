@@ -4,6 +4,8 @@ import { supabase } from '@/integrations/supabase/supabase'
 import { toast } from 'sonner'
 import { modelConfigs } from '@/utils/modelConfigs'
 
+const API_KEY = "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";
+
 export const useImageGeneration = ({
   session,
   prompt,
@@ -99,14 +101,24 @@ export const useImageGeneration = ({
         modelConfigs[model]?.apiUrl,
         {
           headers: {
-            Authorization: "Bearer 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",
+            Authorization: `Bearer ${API_KEY}`,
             "Content-Type": "application/json",
           },
           method: "POST",
           body: JSON.stringify(data),
         }
       )
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`API error: ${errorData.error || 'Unknown error'}`);
+      }
+
       const imageBlob = await response.blob()
+
+      if (!imageBlob || imageBlob.size === 0) {
+        throw new Error('Generated image is empty or invalid');
+      }
 
       await updateCredits(quality)
 
@@ -127,7 +139,7 @@ export const useImageGeneration = ({
       toast.success(`Image generated successfully. ${creditCost} credits used.`)
     } catch (error) {
       console.error('Error generating image:', error)
-      toast.error('Failed to generate image. Please try again.')
+      toast.error(`Failed to generate image: ${error.message}`)
     } finally {
       setIsGenerating(false)
     }
