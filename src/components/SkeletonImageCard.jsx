@@ -2,13 +2,11 @@ import React from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
-const SkeletonImageCard = ({ width, height }) => {
-  const aspectRatio = (height / width) * 100
-
+const SkeletonImageCard = () => {
   return (
     <div className="mb-4">
       <Card className="overflow-hidden">
-        <CardContent className="p-0 relative" style={{ paddingTop: `${aspectRatio}%` }}>
+        <CardContent className="p-0 relative" style={{ paddingTop: '100%' }}>
           <Skeleton className="absolute inset-0 w-full h-full" />
         </CardContent>
       </Card>
