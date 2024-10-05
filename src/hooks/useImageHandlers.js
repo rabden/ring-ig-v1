@@ -7,8 +7,6 @@ export const useImageHandlers = ({
   generateImage,
   images,
   setSelectedImage,
-  setFullScreenImageIndex,
-  fullScreenImageIndex,
   setFullScreenViewOpen,
   setModel,
   setSteps,
@@ -33,19 +31,9 @@ export const useImageHandlers = ({
     await generateImage()
   }
 
-  const handleImageClick = (image, index) => {
+  const handleImageClick = (image) => {
     setSelectedImage(image)
-    setFullScreenImageIndex(index)
     setFullScreenViewOpen(true)
-  }
-
-  const handleFullScreenNavigate = (direction) => {
-    if (!images) return
-    const newIndex = direction === 'next' 
-      ? Math.min(fullScreenImageIndex + 1, images.length - 1) 
-      : Math.max(fullScreenImageIndex - 1, 0)
-    setFullScreenImageIndex(newIndex)
-    setSelectedImage(images[newIndex])
   }
 
   const handleModelChange = (value) => {
@@ -54,7 +42,6 @@ export const useImageHandlers = ({
       setSteps(modelConfigs[value].defaultStep)
     } else {
       console.warn(`Default step not found for model: ${value}`)
-      // Set a fallback default step if needed
       setSteps(30)
     }
   }
@@ -119,7 +106,6 @@ export const useImageHandlers = ({
   return {
     handleGenerateImage,
     handleImageClick,
-    handleFullScreenNavigate,
     handleModelChange,
     handlePromptKeyDown,
     handleRemix,

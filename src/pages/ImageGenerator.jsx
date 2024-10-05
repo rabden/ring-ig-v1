@@ -68,7 +68,6 @@ const ImageGenerator = () => {
   const {
     handleGenerateImage,
     handleImageClick,
-    handleFullScreenNavigate,
     handleModelChange,
     handlePromptKeyDown,
     handleRemix,
@@ -80,8 +79,6 @@ const ImageGenerator = () => {
     generateImage,
     images,
     setSelectedImage,
-    setFullScreenImageIndex,
-    fullScreenImageIndex,
     setFullScreenViewOpen,
     setModel,
     setSteps,
@@ -174,11 +171,9 @@ const ImageGenerator = () => {
         image={selectedImage}
       />
       <FullScreenImageView
-        images={images || []}
-        currentIndex={fullScreenImageIndex}
+        image={selectedImage}
         isOpen={fullScreenViewOpen}
         onClose={() => setFullScreenViewOpen(false)}
-        onNavigate={handleFullScreenNavigate}
       />
     </div>
   )
