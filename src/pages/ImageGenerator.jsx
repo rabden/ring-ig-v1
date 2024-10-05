@@ -2,7 +2,7 @@ import React from 'react'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import { useUserCredits } from '@/hooks/useUserCredits'
 import { useImageGeneration } from '@/hooks/useImageGeneration'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
 import AuthOverlay from '@/components/AuthOverlay'
 import BottomNavbar from '@/components/BottomNavbar'
@@ -13,7 +13,6 @@ import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
 import ProfileMenu from '@/components/ProfileMenu'
 import ActionButtons from '@/components/ActionButtons'
-import { modelConfigs, aspectRatios, qualityOptions } from '@/utils/imageConfigs'
 import { useImageGeneratorState } from '@/hooks/useImageGeneratorState'
 import { useImageHandlers } from '@/hooks/useImageHandlers'
 
@@ -25,14 +24,12 @@ const ImageGenerator = () => {
     useAspectRatio, setUseAspectRatio, quality, setQuality,
     modelSidebarOpen, setModelSidebarOpen, selectedImage, setSelectedImage,
     detailsDialogOpen, setDetailsDialogOpen, fullScreenViewOpen, setFullScreenViewOpen,
-    fullScreenImageIndex, setFullScreenImageIndex, isGeneratingImage, setIsGeneratingImage,
+    fullScreenImageIndex, setFullScreenImageIndex, generatingImages, setGeneratingImages,
     activeView, setActiveView
   } = useImageGeneratorState()
 
   const { session } = useSupabaseAuth()
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
-  const queryClient = useQueryClient()
-
   const { data: images, isLoading } = useQuery({
     queryKey: ['images', session?.user?.id, activeView],
     queryFn: async () => {
@@ -62,7 +59,7 @@ const ImageGenerator = () => {
     useAspectRatio,
     aspectRatio,
     updateCredits,
-    queryClient,
+    setGeneratingImages,
   })
 
   const {
@@ -76,7 +73,6 @@ const ImageGenerator = () => {
     handleDiscard,
     handleViewDetails,
   } = useImageHandlers({
-    setIsGeneratingImage,
     setActiveTab,
     generateImage,
     images,
@@ -84,7 +80,6 @@ const ImageGenerator = () => {
     setFullScreenImageIndex,
     fullScreenImageIndex,
     setFullScreenViewOpen,
-    modelConfigs,
     setModel,
     setSteps,
     setPrompt,
@@ -95,24 +90,11 @@ const ImageGenerator = () => {
     setQuality,
     setAspectRatio,
     setUseAspectRatio,
-    aspectRatios,
     session,
-    queryClient,
     activeView,
     setDetailsDialogOpen,
     setActiveView,
   })
-
-  const getGeneratingImageSize = () => {
-    if (useAspectRatio) {
-      const [w, h] = aspectRatio.split(':').map(Number)
-      const maxDimension = qualityOptions[quality]
-      return w > h
-        ? { width: maxDimension, height: Math.round(maxDimension * (h / w)) }
-        : { width: Math.round(maxDimension * (w / h)), height: maxDimension }
-    }
-    return { width, height }
-  }
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
@@ -135,8 +117,7 @@ const ImageGenerator = () => {
           onRemix={handleRemix}
           onViewDetails={handleViewDetails}
           activeView={activeView}
-          isGeneratingImage={isGeneratingImage}
-          generatingImageSize={getGeneratingImageSize()}
+          generatingImages={generatingImages}
           images={images}
           isLoading={isLoading}
         />

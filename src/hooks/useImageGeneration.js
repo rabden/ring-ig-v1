@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
 import { toast } from 'sonner'
@@ -20,10 +19,8 @@ export const useImageGeneration = ({
   useAspectRatio,
   aspectRatio,
   updateCredits,
-  queryClient,
+  setGeneratingImages,
 }) => {
-  const [isGenerating, setIsGenerating] = useState(false)
-
   const uploadImageMutation = useMutation({
     mutationFn: async ({ imageBlob, metadata }) => {
       const filePath = `${session.user.id}/${Date.now()}.png`
@@ -46,11 +43,12 @@ export const useImageGeneration = ({
       if (insertError) throw insertError
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['userImages', session?.user?.id])
+      setGeneratingImages(prev => prev.slice(1))
     },
     onError: (error) => {
       console.error('Error uploading image:', error)
       toast.error('Failed to save image. Please try again.')
+      setGeneratingImages(prev => prev.slice(1))
     },
   })
 
@@ -85,8 +83,6 @@ export const useImageGeneration = ({
       modifiedPrompt += modelConfigs[model].promptSuffix;
     }
 
-    setIsGenerating(true)
-
     // Calculate dimensions based on aspect ratio if useAspectRatio is true
     let finalWidth = width;
     let finalHeight = height;
@@ -96,6 +92,8 @@ export const useImageGeneration = ({
       finalWidth = Math.round((ratioWidth / Math.max(ratioWidth, ratioHeight)) * maxDimension);
       finalHeight = Math.round((ratioHeight / Math.max(ratioWidth, ratioHeight)) * maxDimension);
     }
+
+    setGeneratingImages(prev => [...prev, { width: finalWidth, height: finalHeight }])
 
     const data = {
       inputs: modifiedPrompt,
@@ -151,10 +149,9 @@ export const useImageGeneration = ({
     } catch (error) {
       console.error('Error generating image:', error)
       toast.error(`Failed to generate image: ${error.message}`)
-    } finally {
-      setIsGenerating(false)
+      setGeneratingImages(prev => prev.slice(1))
     }
   }
 
-  return { generateImage, isGenerating }
+  return { generateImage }
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
 import Masonry from 'react-masonry-css'
@@ -15,43 +15,19 @@ const breakpointColumnsObj = {
   500: 2
 }
 
-const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails, activeView, isGeneratingImage, generatingImageSize }) => {
-  const [skeletonDimensions, setSkeletonDimensions] = useState({ width: 512, height: 512 })
-
-  useEffect(() => {
-    if (isGeneratingImage) {
-      setSkeletonDimensions(generatingImageSize)
-    }
-  }, [isGeneratingImage])
-
-  const { data: images, isLoading } = useQuery({
-    queryKey: ['images', userId, activeView],
-    queryFn: async () => {
-      if (!userId) return []
-      const { data, error } = await supabase
-        .from('user_images')
-        .select('*')
-        .order('created_at', { ascending: false })
-      if (error) throw error
-      return activeView === 'myImages' 
-        ? data.filter(img => img.user_id === userId)
-        : data.filter(img => img.user_id !== userId)
-    },
-    enabled: !!userId,
-  })
-
+const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails, activeView, generatingImages, images, isLoading }) => {
   const renderContent = () => {
     const content = []
 
-    if (isGeneratingImage && activeView === 'myImages') {
-      content.push(
-        <SkeletonImageCard key="generating" width={skeletonDimensions.width} height={skeletonDimensions.height} />
-      )
+    if (activeView === 'myImages' && generatingImages.length > 0) {
+      content.push(...generatingImages.map((img, index) => (
+        <SkeletonImageCard key={`generating-${index}`} width={img.width} height={img.height} />
+      )))
     }
 
     if (isLoading) {
       content.push(...Array.from({ length: 8 }).map((_, index) => (
-        <SkeletonImageCard key={`loading-${index}`} width={skeletonDimensions.width} height={skeletonDimensions.height} />
+        <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
       )))
     } else {
       content.push(...(images?.map((image, index) => (

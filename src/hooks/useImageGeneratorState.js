@@ -18,7 +18,7 @@ export const useImageGeneratorState = () => {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false)
   const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false)
+  const [generatingImages, setGeneratingImages] = useState([])
   const [activeView, setActiveView] = useState('myImages')
 
   return {
@@ -38,7 +38,7 @@ export const useImageGeneratorState = () => {
     detailsDialogOpen, setDetailsDialogOpen,
     fullScreenViewOpen, setFullScreenViewOpen,
     fullScreenImageIndex, setFullScreenImageIndex,
-    isGeneratingImage, setIsGeneratingImage,
+    generatingImages, setGeneratingImages,
     activeView, setActiveView
   }
 }
