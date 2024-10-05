@@ -193,6 +193,7 @@ const ImageGenerator = () => {
         onNavigate={handleFullScreenNavigate}
       />
     </div>
+  )
 }
 
 export default ImageGenerator
