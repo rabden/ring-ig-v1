@@ -31,7 +31,7 @@ const ImageGallery = ({ userId, onImageClick, onRemix }) => {
       if (activeTab === 'myImages') {
         query = query.eq('user_id', userId)
       } else {
-        query = query.eq('is_inspiration', true)
+        query = query.neq('user_id', userId)
       }
       
       const { data, error } = await query
@@ -78,7 +78,7 @@ const ImageGallery = ({ userId, onImageClick, onRemix }) => {
 
   return (
     <div>
-      <div className="flex justify-start mb-4">
+      <div className="flex justify-start mb-4 md:hidden">
         <Button
           variant={activeTab === 'myImages' ? 'default' : 'outline'}
           onClick={() => setActiveTab('myImages')}
