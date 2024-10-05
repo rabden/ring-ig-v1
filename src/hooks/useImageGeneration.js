@@ -7,6 +7,9 @@ import { aspectRatios } from '@/utils/imageConfigs'
 // Helper function to ensure dimensions are divisible by 8
 const makeDivisibleBy8 = (num) => Math.floor(num / 8) * 8;
 
+const MAX_RETRIES = 10;
+const RETRY_INTERVAL = 120000; // 2 minutes in milliseconds
+
 export const useImageGeneration = ({
   session,
   prompt,
@@ -53,7 +56,7 @@ export const useImageGeneration = ({
     },
   })
 
-  const generateImage = async () => {
+  const generateImage = async (retryCount = 0) => {
     if (!session) {
       console.log('User not authenticated')
       return
@@ -98,7 +101,9 @@ export const useImageGeneration = ({
     finalWidth = makeDivisibleBy8(finalWidth);
     finalHeight = makeDivisibleBy8(finalHeight);
 
-    setGeneratingImages(prev => [...prev, { width: finalWidth, height: finalHeight }])
+    if (retryCount === 0) {
+      setGeneratingImages(prev => [...prev, { width: finalWidth, height: finalHeight }])
+    }
 
     const data = {
       inputs: modifiedPrompt,
@@ -140,6 +145,17 @@ export const useImageGeneration = ({
       if (!response.ok) {
         const errorData = await response.json();
         console.error('API response error:', errorData);
+
+        if (response.status === 503 && errorData.error && errorData.error.includes("is currently loading")) {
+          if (retryCount < MAX_RETRIES) {
+            console.log(`Retrying image generation in 2 minutes. Attempt ${retryCount + 1} of ${MAX_RETRIES}`);
+            setTimeout(() => generateImage(retryCount + 1), RETRY_INTERVAL);
+            return;
+          } else {
+            throw new Error('Max retries reached. The model is still loading.');
+          }
+        }
+
         throw new Error(`API error: ${errorData.error || response.statusText}`);
       }
 
@@ -169,7 +185,9 @@ export const useImageGeneration = ({
       toast.success(`Image generated successfully. ${creditCost} credits used.`)
     } catch (error) {
       console.error('Error generating image:', error)
-      toast.error(`Failed to generate image: ${error.message}`)
+      if (retryCount === 0) {
+        toast.error(`Failed to generate image: ${error.message}`)
+      }
       setGeneratingImages(prev => prev.slice(1))
     }
   }
