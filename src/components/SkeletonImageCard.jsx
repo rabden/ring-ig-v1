@@ -7,7 +7,7 @@ const SkeletonImageCard = ({ width, height }) => {
 
   return (
     <Card className="overflow-hidden">
-      <CardContent className="p-0 relative" style={{ paddingTop: `${aspectRatio}%` }}>
+      <CardContent className="p-0 relative" style={{ paddingTop: `${aspectRatio}%`, width: `${width}px`, maxWidth: '100%' }}>
         <Skeleton className="absolute inset-0 w-full h-full" />
       </CardContent>
       <div className="mt-2 flex items-center justify-between">
