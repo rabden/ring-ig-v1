@@ -1,10 +1,9 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import { useUserCredits } from '@/hooks/useUserCredits'
 import { useImageGeneration } from '@/hooks/useImageGeneration'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
-import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import AuthOverlay from '@/components/AuthOverlay'
 import BottomNavbar from '@/components/BottomNavbar'
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings'
@@ -15,7 +14,6 @@ import FullScreenImageView from '@/components/FullScreenImageView'
 import ProfileMenu from '@/components/ProfileMenu'
 import ActionButtons from '@/components/ActionButtons'
 import { modelConfigs, aspectRatios, qualityOptions } from '@/utils/imageConfigs'
-import { toast } from 'sonner'
 import { useImageGeneratorState } from '@/hooks/useImageGeneratorState'
 import { useImageHandlers } from '@/hooks/useImageHandlers'
 
@@ -84,6 +82,7 @@ const ImageGenerator = () => {
     images,
     setSelectedImage,
     setFullScreenImageIndex,
+    fullScreenImageIndex,  // Add this line
     setFullScreenViewOpen,
     modelConfigs,
     setModel,
@@ -100,6 +99,7 @@ const ImageGenerator = () => {
     session,
     queryClient,
     activeView,
+    setDetailsDialogOpen,  // Add this line
   })
 
   const getGeneratingImageSize = () => {
@@ -193,7 +193,6 @@ const ImageGenerator = () => {
         onNavigate={handleFullScreenNavigate}
       />
     </div>
-  )
 }
 
 export default ImageGenerator

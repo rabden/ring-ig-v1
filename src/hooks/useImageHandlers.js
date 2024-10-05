@@ -8,6 +8,7 @@ export const useImageHandlers = ({
   images,
   setSelectedImage,
   setFullScreenImageIndex,
+  fullScreenImageIndex,  // Add this line
   setFullScreenViewOpen,
   modelConfigs,
   setModel,
@@ -24,6 +25,7 @@ export const useImageHandlers = ({
   session,
   queryClient,
   activeView,
+  setDetailsDialogOpen,  // Add this line
 }) => {
   const handleGenerateImage = async () => {
     setIsGeneratingImage(true)
