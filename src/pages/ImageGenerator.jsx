@@ -1,26 +1,18 @@
-import React, { useState, useEffect } from 'react'
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { MoreVertical } from "lucide-react"
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { modelConfigs } from '@/utils/imageConfigs'
-import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
+import React, { useState } from 'react'
+import { useSupabaseAuth } from '@/integrations/supabase/auth'
+import { useUserCredits } from '@/hooks/useUserCredits'
+import { useImageGeneration } from '@/hooks/useImageGeneration'
+import { useQueryClient } from '@tanstack/react-query'
+import AuthOverlay from '@/components/AuthOverlay'
 import BottomNavbar from '@/components/BottomNavbar'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import ImageGeneratorSettings from '@/components/ImageGeneratorSettings'
+import ImageGallery from '@/components/ImageGallery'
 import ModelSidebarMenu from '@/components/ModelSidebarMenu'
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
-import { useSupabaseAuth } from '@/integrations/supabase/auth'
-import AuthOverlay from '@/components/AuthOverlay'
-import { useUserCredits } from '@/hooks/useUserCredits'
-import { toast } from 'sonner'
-import { supabase } from '@/integrations/supabase/supabase'
 import ProfileMenu from '@/components/ProfileMenu'
-import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
-import ImageGeneratorSettings from '@/components/ImageGeneratorSettings'
-import { useImageGeneration } from '@/hooks/useImageGeneration'
-import ImageGallery from '@/components/ImageGallery'
 import SkeletonImageCard from '@/components/SkeletonImageCard'
+import { modelConfigs, aspectRatios } from '@/utils/imageConfigs'
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
@@ -39,11 +31,11 @@ const ImageGenerator = () => {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false)
   const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false)
+
   const { session } = useSupabaseAuth()
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
   const queryClient = useQueryClient()
-
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false)
 
   const { generateImage, isGenerating } = useImageGeneration({
     session,
@@ -82,31 +74,8 @@ const ImageGenerator = () => {
   const handlePromptKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      generateImage()
+      handleGenerateImage()
     }
-  }
-
-  const handleDownload = (imageUrl, prompt) => {
-    fetch(imageUrl)
-      .then(response => response.blob())
-      .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${prompt.slice(0, 20)}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-      })
-      .catch(error => {
-        console.error('Error downloading image:', error);
-        toast.error('Failed to download image. Please try again.');
-      });
-  };
-
-  const handleDiscard = (id) => {
-    deleteImageMutation.mutate(id)
   }
 
   const handleRemix = (image) => {
@@ -121,11 +90,6 @@ const ImageGenerator = () => {
     setAspectRatio(image.aspect_ratio)
     setUseAspectRatio(image.aspect_ratio in aspectRatios)
     setActiveTab('input')
-  }
-
-  const handleViewDetails = (image) => {
-    setSelectedImage(image)
-    setDetailsDialogOpen(true)
   }
 
   return (
@@ -196,11 +160,11 @@ const ImageGenerator = () => {
         image={selectedImage}
       />
       <FullScreenImageView
-        images={generatedImages}
+        images={[]}  // Pass an empty array or fetch images from a query
         currentIndex={fullScreenImageIndex}
         isOpen={fullScreenViewOpen}
         onClose={() => setFullScreenViewOpen(false)}
-        onNavigate={handleFullScreenNavigate}
+        onNavigate={() => {}}  // Implement navigation logic if needed
       />
     </div>
   )
