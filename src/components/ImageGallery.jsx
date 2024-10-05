@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
 import Masonry from 'react-masonry-css'
@@ -16,6 +16,14 @@ const breakpointColumnsObj = {
 }
 
 const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails, activeView, isGeneratingImage, generatingImageSize }) => {
+  const [skeletonDimensions, setSkeletonDimensions] = useState({ width: 512, height: 512 })
+
+  useEffect(() => {
+    if (isGeneratingImage) {
+      setSkeletonDimensions(generatingImageSize)
+    }
+  }, [isGeneratingImage])
+
   const { data: images, isLoading } = useQuery({
     queryKey: ['images', userId, activeView],
     queryFn: async () => {
@@ -37,13 +45,13 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
 
     if (isGeneratingImage) {
       content.push(
-        <SkeletonImageCard key="generating" width={generatingImageSize.width} height={generatingImageSize.height} />
+        <SkeletonImageCard key="generating" width={skeletonDimensions.width} height={skeletonDimensions.height} />
       )
     }
 
     if (isLoading) {
       content.push(...Array.from({ length: 8 }).map((_, index) => (
-        <SkeletonImageCard key={`loading-${index}`} />
+        <SkeletonImageCard key={`loading-${index}`} width={skeletonDimensions.width} height={skeletonDimensions.height} />
       )))
     } else {
       content.push(...(images?.map((image, index) => (
