@@ -149,4 +149,4 @@ export const modelConfigs = {
     inferenceSteps: [28, 33, 38, 43, 48],
     defaultStep: 38
   }
-};
+}

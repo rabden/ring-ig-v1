@@ -6,7 +6,8 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import { aspectRatios, qualityOptions, modelConfigs } from '@/utils/imageConfigs'
+import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
+import { modelConfigs } from '@/utils/modelConfigs'
 
 const ImageGeneratorSettings = ({
   prompt,
@@ -163,6 +164,5 @@ const ImageGeneratorSettings = ({
       </div>
     </>
   )
-}
 
 export default ImageGeneratorSettings
