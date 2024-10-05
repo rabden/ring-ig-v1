@@ -1,26 +1,11 @@
 import React, { useEffect } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
 import { toast } from 'sonner'
 import { modelConfigs } from '@/utils/modelConfigs'
 
 const QueueProcessor = () => {
   const queryClient = useQueryClient()
-
-  const { data: queueItems, isLoading, error } = useQuery({
-    queryKey: ['imageGenerationQueue'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('image_generation_queue')
-        .select('*')
-        .eq('status', 'pending')
-        .order('created_at', { ascending: true })
-        .limit(1)
-      if (error) throw error
-      return data
-    },
-    refetchInterval: 5000, // Refetch every 5 seconds
-  })
 
   const processQueueItemMutation = useMutation({
     mutationFn: async (item) => {
@@ -95,10 +80,19 @@ const QueueProcessor = () => {
   })
 
   useEffect(() => {
-    if (queueItems && queueItems.length > 0) {
-      processQueueItemMutation.mutate(queueItems[0])
+    const subscription = supabase
+      .channel('image_generation_queue_changes')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'image_generation_queue' }, (payload) => {
+        if (payload.new.status === 'pending') {
+          processQueueItemMutation.mutate(payload.new)
+        }
+      })
+      .subscribe()
+
+    return () => {
+      subscription.unsubscribe()
     }
-  }, [queueItems])
+  }, [])
 
   return null // This component doesn't render anything
 }

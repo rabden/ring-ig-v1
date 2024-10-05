@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
 import Masonry from 'react-masonry-css'
@@ -15,7 +15,50 @@ const breakpointColumnsObj = {
   500: 2
 }
 
-const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails, activeView, generatingImages = [], images, isLoading }) => {
+const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails, activeView, generatingImages = [] }) => {
+  const [images, setImages] = useState([])
+
+  const { isLoading } = useQuery({
+    queryKey: ['images', userId, activeView],
+    queryFn: async () => {
+      if (!userId) return []
+      const { data, error } = await supabase
+        .from('user_images')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      setImages(activeView === 'myImages' 
+        ? data.filter(img => img.user_id === userId)
+        : data.filter(img => img.user_id !== userId))
+      return data
+    },
+    enabled: !!userId,
+  })
+
+  useEffect(() => {
+    const subscription = supabase
+      .channel('user_images_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_images' }, (payload) => {
+        if (payload.eventType === 'INSERT') {
+          setImages((prevImages) => {
+            if (activeView === 'myImages' && payload.new.user_id === userId) {
+              return [payload.new, ...prevImages]
+            } else if (activeView === 'inspiration' && payload.new.user_id !== userId) {
+              return [payload.new, ...prevImages]
+            }
+            return prevImages
+          })
+        } else if (payload.eventType === 'DELETE') {
+          setImages((prevImages) => prevImages.filter(img => img.id !== payload.old.id))
+        }
+      })
+      .subscribe()
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [userId, activeView])
+
   const renderContent = () => {
     const content = []
 
