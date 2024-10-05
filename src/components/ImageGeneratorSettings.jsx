@@ -164,5 +164,6 @@ const ImageGeneratorSettings = ({
       </div>
     </>
   )
+}
 
 export default ImageGeneratorSettings
