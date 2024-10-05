@@ -78,7 +78,7 @@ const ImageGallery = ({ userId, onImageClick, onRemix }) => {
 
   return (
     <div>
-      <div className="flex justify-start mb-4 md:hidden">
+      <div className="flex justify-start mb-4">
         <Button
           variant={activeTab === 'myImages' ? 'default' : 'outline'}
           onClick={() => setActiveTab('myImages')}
