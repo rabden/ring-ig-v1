@@ -15,11 +15,11 @@ const breakpointColumnsObj = {
   500: 2
 }
 
-const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails, activeView, generatingImages, images, isLoading }) => {
+const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails, activeView, generatingImages = [], images, isLoading }) => {
   const renderContent = () => {
     const content = []
 
-    if (activeView === 'myImages' && generatingImages.length > 0) {
+    if (activeView === 'myImages' && generatingImages && generatingImages.length > 0) {
       content.push(...generatingImages.map((img, index) => (
         <SkeletonImageCard key={`generating-${index}`} width={img.width} height={img.height} />
       )))
@@ -29,8 +29,8 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
       content.push(...Array.from({ length: 8 }).map((_, index) => (
         <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
       )))
-    } else {
-      content.push(...(images?.map((image, index) => (
+    } else if (images && images.length > 0) {
+      content.push(...images.map((image, index) => (
         <div key={image.id} className="mb-4">
           <Card className="overflow-hidden">
             <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
@@ -69,7 +69,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
             </DropdownMenu>
           </div>
         </div>
-      )) || []))
+      )))
     }
 
     return content
