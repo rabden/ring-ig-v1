@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MoreVertical } from "lucide-react"
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { modelConfigs } from '@/utils/modelConfigs'
+import { modelConfigs } from '@/utils/imageConfigs'
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
 import BottomNavbar from '@/components/BottomNavbar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -20,13 +20,7 @@ import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings'
 import { useImageGeneration } from '@/hooks/useImageGeneration'
 import ImageGallery from '@/components/ImageGallery'
-
-const breakpointColumnsObj = {
-  default: 4,
-  1100: 3,
-  700: 2,
-  500: 2
-};
+import SkeletonImageCard from '@/components/SkeletonImageCard'
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
@@ -49,42 +43,7 @@ const ImageGenerator = () => {
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
   const queryClient = useQueryClient()
 
-  useEffect(() => {
-    if (useAspectRatio) {
-      const { width: w, height: h } = aspectRatios[aspectRatio]
-      const scaleFactor = qualityOptions[quality] / Math.max(w, h)
-      setWidth(Math.round(w * scaleFactor))
-      setHeight(Math.round(h * scaleFactor))
-    }
-  }, [aspectRatio, useAspectRatio, quality])
-
-  const { data: generatedImages, isLoading: imagesLoading } = useQuery({
-    queryKey: ['userImages', session?.user?.id],
-    queryFn: async () => {
-      if (!session?.user?.id) return []
-      const { data, error } = await supabase
-        .from('user_images')
-        .select('*')
-        .order('created_at', { ascending: false })
-      if (error) throw error
-      return data
-    },
-    enabled: !!session?.user?.id,
-  })
-
-  const deleteImageMutation = useMutation({
-    mutationFn: async (imageId) => {
-      await deleteImageCompletely(imageId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['userImages', session?.user?.id])
-      toast.success('Image deleted successfully')
-    },
-    onError: (error) => {
-      console.error('Error deleting image:', error)
-      toast.error('Failed to delete image. Please try again.')
-    },
-  })
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false)
 
   const { generateImage, isGenerating } = useImageGeneration({
     session,
@@ -101,6 +60,19 @@ const ImageGenerator = () => {
     updateCredits,
     queryClient,
   })
+
+  const handleGenerateImage = async () => {
+    setIsGeneratingImage(true)
+    setActiveTab('images')
+    await generateImage()
+    setIsGeneratingImage(false)
+  }
+
+  const handleImageClick = (image, index) => {
+    setSelectedImage(image)
+    setFullScreenImageIndex(index)
+    setFullScreenViewOpen(true)
+  }
 
   const handleModelChange = (value) => {
     setModel(value)
@@ -156,33 +128,6 @@ const ImageGenerator = () => {
     setDetailsDialogOpen(true)
   }
 
-  const handleImageClick = (image) => {
-    setSelectedImage(image)
-    setFullScreenViewOpen(true)
-  }
-
-  const handleFullScreenNavigate = (direction) => {
-    if (direction === 'prev' && fullScreenImageIndex > 0) {
-      setFullScreenImageIndex(fullScreenImageIndex - 1)
-    } else if (direction === 'next' && fullScreenImageIndex < generatedImages.length - 1) {
-      setFullScreenImageIndex(fullScreenImageIndex + 1)
-    }
-  }
-
-  const SkeletonImageCard = () => (
-    <div className="mb-4">
-      <Card className="overflow-hidden">
-        <CardContent className="p-0 relative" style={{ paddingTop: `${(height / width) * 100}%` }}>
-          <Skeleton className="absolute inset-0 w-full h-full" />
-        </CardContent>
-      </Card>
-      <div className="mt-2 flex items-center justify-between">
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-8 w-8 rounded-full" />
-      </div>
-    </div>
-  )
-
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
@@ -193,6 +138,11 @@ const ImageGenerator = () => {
             </div>
           )}
         </div>
+        {isGeneratingImage && (
+          <div className="mb-4">
+            <SkeletonImageCard width={width} height={height} />
+          </div>
+        )}
         <ImageGallery
           userId={session?.user?.id}
           onImageClick={handleImageClick}
@@ -209,7 +159,7 @@ const ImageGenerator = () => {
           prompt={prompt}
           setPrompt={setPrompt}
           handlePromptKeyDown={handlePromptKeyDown}
-          generateImage={generateImage}
+          generateImage={handleGenerateImage}
           model={model}
           setModel={handleModelChange}
           seed={seed}
