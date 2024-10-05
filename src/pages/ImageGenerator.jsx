@@ -16,6 +16,8 @@ import AuthOverlay from '@/components/AuthOverlay'
 import ProfileMenu from '@/components/ProfileMenu'
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
 import { modelConfigs } from '@/utils/modelConfigs'
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Button } from "@/components/ui/button"
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
@@ -152,7 +154,7 @@ const ImageGenerator = () => {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
-      <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
+      <div className="flex-grow p-6 overflow-y-auto md:pr-[350px] pb-20 md:pb-6">
         <div className="flex justify-between items-center mb-6">
           {session && (
             <div className="hidden md:block">
@@ -171,7 +173,7 @@ const ImageGenerator = () => {
           onViewDetails={handleViewDetails}
         />
       </div>
-      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
+      <div className="hidden md:block w-[350px] bg-card text-card-foreground p-6 overflow-y-auto md:fixed md:right-0 md:top-0 md:bottom-0 max-h-screen">
         {!session && (
           <div className="absolute inset-0 z-10">
             <AuthOverlay />
@@ -207,6 +209,44 @@ const ImageGenerator = () => {
           credits={credits}
         />
       </div>
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button className="fixed bottom-16 right-4 md:hidden" size="icon">
+            Settings
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="bottom" className="h-[80vh] rounded-t-[10px]">
+          <ImageGeneratorSettings
+            prompt={prompt}
+            setPrompt={setPrompt}
+            handlePromptKeyDown={handlePromptKeyDown}
+            generateImage={generateImage}
+            model={model}
+            setModel={setModel}
+            seed={seed}
+            setSeed={setSeed}
+            randomizeSeed={randomizeSeed}
+            setRandomizeSeed={setRandomizeSeed}
+            quality={quality}
+            setQuality={setQuality}
+            useAspectRatio={useAspectRatio}
+            setUseAspectRatio={setUseAspectRatio}
+            aspectRatio={aspectRatio}
+            setAspectRatio={setAspectRatio}
+            width={width}
+            setWidth={setWidth}
+            height={height}
+            setHeight={setHeight}
+            steps={steps}
+            setSteps={setSteps}
+            aspectRatios={aspectRatios}
+            qualityOptions={qualityOptions}
+            modelConfigs={modelConfigs}
+            session={session}
+            credits={credits}
+          />
+        </SheetContent>
+      </Sheet>
       <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} session={session} credits={credits} />
       <ModelSidebarMenu
         isOpen={modelSidebarOpen}
