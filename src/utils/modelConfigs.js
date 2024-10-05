@@ -34,13 +34,7 @@ export const modelConfigs = {
     inferenceSteps: [26, 30, 36, 44, 50],
     defaultStep: 30
   },
-  fluxAnime: {
-    name: "FLUX Anime",
-    category: "Anime",
-    apiUrl: "https://api-inference.huggingface.co/models/dataautogpt3/FLUX-anime2",
-    inferenceSteps: [25, 30, 35, 40, 45],
-    defaultStep: 30
-  },
+  // Removed fluxAnime model as it's no longer available
   malaAnimeMix: {
     name: "Mala Anime Mix (NSFW)",
     category: "NSFW",
