@@ -4,8 +4,6 @@ import { toast } from 'sonner'
 import { modelConfigs } from '@/utils/modelConfigs'
 import { aspectRatios } from '@/utils/imageConfigs'
 
-const API_KEY = "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";
-
 // Helper function to ensure dimensions are divisible by 8
 const makeDivisibleBy8 = (num) => Math.floor(num / 8) * 8;
 
@@ -113,11 +111,22 @@ export const useImageGeneration = ({
     }
 
     try {
+      // Get a random API key from the database
+      const { data: apiKeyData, error: apiKeyError } = await supabase.rpc('get_random_huggingface_api_key')
+      
+      if (apiKeyError) {
+        throw new Error(`Failed to get API key: ${apiKeyError.message}`)
+      }
+
+      if (!apiKeyData) {
+        throw new Error('No active API key available')
+      }
+
       const response = await fetch(
         modelConfigs[model]?.apiUrl,
         {
           headers: {
-            Authorization: `Bearer ${API_KEY}`,
+            Authorization: `Bearer ${apiKeyData}`,
             "Content-Type": "application/json",
           },
           method: "POST",
