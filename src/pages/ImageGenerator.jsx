@@ -2,8 +2,7 @@ import React from 'react'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import { useUserCredits } from '@/hooks/useUserCredits'
 import { useImageGeneration } from '@/hooks/useImageGeneration'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '@/integrations/supabase/supabase'
+import { useQueryClient } from '@tanstack/react-query'
 import AuthOverlay from '@/components/AuthOverlay'
 import BottomNavbar from '@/components/BottomNavbar'
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings'
@@ -33,22 +32,6 @@ const ImageGenerator = () => {
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
   const queryClient = useQueryClient()
 
-  const { data: images, isLoading } = useQuery({
-    queryKey: ['images', session?.user?.id, activeView],
-    queryFn: async () => {
-      if (!session?.user?.id) return []
-      const { data, error } = await supabase
-        .from('user_images')
-        .select('*')
-        .order('created_at', { ascending: false })
-      if (error) throw error
-      return activeView === 'myImages' 
-        ? data.filter(img => img.user_id === session.user.id)
-        : data.filter(img => img.user_id !== session.user.id)
-    },
-    enabled: !!session?.user?.id,
-  })
-
   const { generateImage } = useImageGeneration({
     session,
     prompt,
@@ -77,7 +60,6 @@ const ImageGenerator = () => {
   } = useImageHandlers({
     setActiveTab,
     generateImage,
-    images,
     setSelectedImage,
     setFullScreenViewOpen,
     setModel,
@@ -120,8 +102,6 @@ const ImageGenerator = () => {
           onViewDetails={handleViewDetails}
           activeView={activeView}
           generatingImages={generatingImages}
-          images={images}
-          isLoading={isLoading}
         />
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>

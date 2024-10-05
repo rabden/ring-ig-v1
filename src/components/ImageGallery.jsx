@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
 import Masonry from 'react-masonry-css'
 import { Card, CardContent } from "@/components/ui/card"
@@ -15,25 +15,76 @@ const breakpointColumnsObj = {
   500: 2
 }
 
+const IMAGES_PER_PAGE = 10
+
 const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails, activeView, generatingImages = [] }) => {
   const [images, setImages] = useState([])
+  const observerTarget = useRef(null)
 
-  const { isLoading } = useQuery({
-    queryKey: ['images', userId, activeView],
-    queryFn: async () => {
-      if (!userId) return []
-      const { data, error } = await supabase
-        .from('user_images')
-        .select('*')
-        .order('created_at', { ascending: false })
-      if (error) throw error
-      setImages(activeView === 'myImages' 
+  const fetchImages = async ({ pageParam = 0 }) => {
+    const from = pageParam * IMAGES_PER_PAGE
+    const to = from + IMAGES_PER_PAGE - 1
+
+    const { data, error } = await supabase
+      .from('user_images')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .range(from, to)
+
+    if (error) throw error
+
+    return {
+      data: activeView === 'myImages' 
         ? data.filter(img => img.user_id === userId)
-        : data.filter(img => img.user_id !== userId))
-      return data
-    },
+        : data.filter(img => img.user_id !== userId),
+      nextPage: data.length === IMAGES_PER_PAGE ? pageParam + 1 : undefined,
+    }
+  }
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteQuery({
+    queryKey: ['images', userId, activeView],
+    queryFn: fetchImages,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
     enabled: !!userId,
   })
+
+  useEffect(() => {
+    if (data) {
+      const newImages = data.pages.flatMap(page => page.data)
+      setImages(newImages)
+    }
+  }, [data])
+
+  const handleObserver = useCallback((entries) => {
+    const [target] = entries
+    if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
+    }
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(handleObserver, {
+      root: null,
+      rootMargin: "20px",
+      threshold: 1.0
+    })
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current)
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current)
+      }
+    }
+  }, [handleObserver])
 
   useEffect(() => {
     const subscription = supabase
@@ -68,11 +119,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
       )))
     }
 
-    if (isLoading) {
-      content.push(...Array.from({ length: 8 }).map((_, index) => (
-        <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
-      )))
-    } else if (images && images.length > 0) {
+    if (images && images.length > 0) {
       content.push(...images.map((image, index) => (
         <div key={image.id} className="mb-4">
           <Card className="overflow-hidden">
@@ -119,13 +166,26 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
   }
 
   return (
-    <Masonry
-      breakpointCols={breakpointColumnsObj}
-      className="flex w-auto"
-      columnClassName="bg-clip-padding px-2"
-    >
-      {renderContent()}
-    </Masonry>
+    <>
+      <Masonry
+        breakpointCols={breakpointColumnsObj}
+        className="flex w-auto"
+        columnClassName="bg-clip-padding px-2"
+      >
+        {renderContent()}
+      </Masonry>
+      {isLoading && (
+        <div className="flex justify-center items-center mt-4">
+          <p>Loading images...</p>
+        </div>
+      )}
+      {isFetchingNextPage && (
+        <div className="flex justify-center items-center mt-4">
+          <p>Loading more images...</p>
+        </div>
+      )}
+      <div ref={observerTarget} style={{ height: '20px' }} />
+    </>
   )
 }
 
