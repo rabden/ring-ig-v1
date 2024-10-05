@@ -4,28 +4,28 @@ export const modelConfigs = {
     category: "General",
     apiUrl: "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell",
     inferenceSteps: [4, 8, 12, 16, 20],
-    defaultStep: 12
+    defaultStep: 8
   },
   fluxDev: {
     name: "FLUX Dev",
     category: "General",
     apiUrl: "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev",
-    inferenceSteps: [25, 30, 35, 40, 45, 50],
-    defaultStep: 35
+    inferenceSteps: [25, 30, 35, 40, 45],
+    defaultStep: 30
   },
   fluxAnime: {
     name: "FLUX Anime",
     category: "Anime",
     apiUrl: "https://api-inference.huggingface.co/models/brushpenbob/flux-midjourney-anime",
-    inferenceSteps: [25, 30, 35, 40, 45, 50],
-    defaultStep: 35
+    inferenceSteps: [25, 30, 35, 40, 45],
+    defaultStep: 30
   },
   animeNsfw: {
     name: "Anime NSFW",
     category: "NSFW",
     apiUrl: "https://api-inference.huggingface.co/models/John6666/rdxl-anime-sdxlpony7-sdxl",
-    inferenceSteps: [25, 30, 35, 40, 45, 50],
-    defaultStep: 35
+    inferenceSteps: [25, 30, 35, 40, 45],
+    defaultStep: 30
   },
   canopusAnime: {
     name: "Canopus Anime",
@@ -45,10 +45,9 @@ export const modelConfigs = {
     name: "Boreal",
     category: "Artistic",
     apiUrl: "https://api-inference.huggingface.co/models/kudzueye/boreal-flux-dev-v2",
-    inferenceSteps: [26, 30, 36, 44, 50],
-    defaultStep: 30
+    inferenceSteps: [26, 32, 38, 44, 50],
+    defaultStep: 32
   },
-  // Removed fluxAnime model as it's no longer available
   malaAnimeMix: {
     name: "Mala Anime Mix (NSFW)",
     category: "NSFW",
@@ -61,7 +60,7 @@ export const modelConfigs = {
     category: "Vector",
     apiUrl: "https://api-inference.huggingface.co/models/renderartist/simplevectorflux",
     inferenceSteps: [25, 30, 35, 40, 45],
-    defaultStep: 35,
+    defaultStep: 30,
     promptSuffix: ", vector, v3ct0r"
   },
   realismLora: {
@@ -69,21 +68,21 @@ export const modelConfigs = {
     category: "Realistic",
     apiUrl: "https://api-inference.huggingface.co/models/XLabs-AI/flux-RealismLora",
     inferenceSteps: [30, 35, 40, 45, 50],
-    defaultStep: 40
+    defaultStep: 35
   },
   ninetyAnimeArt: {
     name: "90s Anime Art",
     category: "Anime",
     apiUrl: "https://api-inference.huggingface.co/models/glif/90s-anime-art",
     inferenceSteps: [25, 30, 35, 40, 45],
-    defaultStep: 35
+    defaultStep: 30
   },
   latentPop: {
     name: "Latent Pop",
     category: "Artistic",
     apiUrl: "https://api-inference.huggingface.co/models/jakedahn/flux-latentpop",
     inferenceSteps: [28, 33, 38, 43, 48],
-    defaultStep: 38,
+    defaultStep: 33,
     promptSuffix: ", LNTP"
   },
   whiteBackground: {
@@ -91,7 +90,7 @@ export const modelConfigs = {
     category: "Background",
     apiUrl: "https://api-inference.huggingface.co/models/gokaygokay/Flux-White-Background-LoRA",
     inferenceSteps: [27, 32, 37, 42, 47],
-    defaultStep: 37,
+    defaultStep: 32,
     promptSuffix: ", in the middle, white background"
   },
   coloringBook: {
@@ -99,7 +98,7 @@ export const modelConfigs = {
     category: "Artistic",
     apiUrl: "https://api-inference.huggingface.co/models/renderartist/coloringbookflux",
     inferenceSteps: [26, 31, 36, 41, 46],
-    defaultStep: 36,
+    defaultStep: 31,
     promptSuffix: ", c0l0ringb00k"
   },
   ghibskyIllustration: {
@@ -107,7 +106,7 @@ export const modelConfigs = {
     category: "Artistic",
     apiUrl: "https://api-inference.huggingface.co/models/aleksa-codes/flux-ghibsky-illustration",
     inferenceSteps: [29, 34, 39, 44, 49],
-    defaultStep: 39,
+    defaultStep: 34,
     promptSuffix: ", GHIBSKY style"
   },
   logoDesign: {
@@ -115,7 +114,7 @@ export const modelConfigs = {
     category: "Logo",
     apiUrl: "https://api-inference.huggingface.co/models/Shakker-Labs/FLUX.1-dev-LoRA-Logo-Design",
     inferenceSteps: [25, 30, 35, 40, 45],
-    defaultStep: 35,
+    defaultStep: 30,
     promptSuffix: ", wablogo, logo"
   },
   cute3D: {
@@ -123,7 +122,7 @@ export const modelConfigs = {
     category: "3D",
     apiUrl: "https://api-inference.huggingface.co/models/SebastianBodza/flux_cute3D",
     inferenceSteps: [28, 33, 38, 43, 48],
-    defaultStep: 38,
+    defaultStep: 33,
     promptSuffix: ", NEOCUTE3D"
   },
   plushyWorld: {
@@ -131,7 +130,7 @@ export const modelConfigs = {
     category: "3D",
     apiUrl: "https://api-inference.huggingface.co/models/alvdansen/plushy-world-flux",
     inferenceSteps: [27, 32, 37, 42, 47],
-    defaultStep: 37,
+    defaultStep: 32,
     promptSuffix: ", 3dcndylnd style"
   },
   hauntedLinework: {
@@ -139,7 +138,7 @@ export const modelConfigs = {
     category: "Artistic",
     apiUrl: "https://api-inference.huggingface.co/models/alvdansen/haunted_linework_flux",
     inferenceSteps: [26, 31, 36, 41, 46],
-    defaultStep: 36,
+    defaultStep: 31,
     promptSuffix: ", hntdlnwrk style"
   },
   aquarelWatercolor: {
@@ -147,7 +146,7 @@ export const modelConfigs = {
     category: "Artistic",
     apiUrl: "https://api-inference.huggingface.co/models/SebastianBodza/flux_lora_aquarel_watercolor",
     inferenceSteps: [29, 34, 39, 44, 49],
-    defaultStep: 39,
+    defaultStep: 34,
     promptSuffix: ", AQUACOLTOK"
   },
   nsfwMaster: {
@@ -155,13 +154,13 @@ export const modelConfigs = {
     category: "NSFW",
     apiUrl: "https://api-inference.huggingface.co/models/pimpilikipilapi1/NSFW_master",
     inferenceSteps: [30, 35, 40, 45, 50],
-    defaultStep: 40
+    defaultStep: 35
   },
   blendedRealisticIllustration: {
     name: "Blended Realistic Illustration",
     category: "Realistic",
     apiUrl: "https://api-inference.huggingface.co/models/youknownothing/FLUX.1-dev-LoRA-blended-realistic-illustration",
     inferenceSteps: [28, 33, 38, 43, 48],
-    defaultStep: 38
+    defaultStep: 33
   }
 };
