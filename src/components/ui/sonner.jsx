@@ -1,5 +1,7 @@
 import { useTheme } from "next-themes"
 import { Toaster as Sonner } from "sonner"
+import { X } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 const Toaster = ({
   ...props
@@ -7,7 +9,7 @@ const Toaster = ({
   const { theme = "system" } = useTheme()
 
   return (
-    (<Sonner
+    <Sonner
       theme={theme}
       className="toaster group"
       toastOptions={{
@@ -21,8 +23,21 @@ const Toaster = ({
             "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
         },
       }}
-      {...props} />)
-  );
+      closeButton={(id) => (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => {
+            // This function is provided by sonner to close a specific toast
+            props.dismiss?.(id)
+          }}
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      )}
+      {...props}
+    />
+  )
 }
 
 export { Toaster }
