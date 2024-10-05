@@ -20,6 +20,7 @@ import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings'
 import { useImageGeneration } from '@/hooks/useImageGeneration'
 import ImageGallery from '@/components/ImageGallery'
+import ActionButtons from '@/components/ActionButtons'
 
 const breakpointColumnsObj = {
   default: 4,
@@ -185,11 +186,12 @@ const ImageGenerator = () => {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
-      <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
-        <div className="flex justify-between items-center mb-6">
+      <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-16 md:pb-6`}>
+        <div className="flex justify-between items-center mb-4 md:mb-6">
           {session && (
-            <div className="hidden md:block">
+            <div className="hidden md:flex items-center space-x-4">
               <ProfileMenu user={session.user} credits={credits} />
+              <ActionButtons activeView={activeTab} setActiveView={setActiveTab} />
             </div>
           )}
         </div>
