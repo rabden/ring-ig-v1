@@ -4,51 +4,45 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
 
 const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
   if (!image) return null
 
+  const detailItems = [
+    { label: "Model", value: image.model },
+    { label: "Seed", value: image.seed },
+    { label: "Size", value: `${image.width}x${image.height}` },
+    { label: "Aspect Ratio", value: image.aspect_ratio },
+    { label: "Steps", value: image.steps },
+    { label: "Quality", value: image.quality },
+  ]
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] max-h-[70vh] bg-card text-card-foreground flex flex-col">
+      <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-hidden">
         <DialogHeader>
-          <DialogTitle>Image Details</DialogTitle>
-          <DialogDescription>
-            Details of the generated image
-          </DialogDescription>
+          <DialogTitle className="text-2xl font-bold">Image Details</DialogTitle>
         </DialogHeader>
-        <ScrollArea className="flex-grow">
-          <div className="grid gap-4 py-4 px-6">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <span className="font-semibold">Prompt:</span>
-              <span className="col-span-3">{image.prompt}</span>
+        <ScrollArea className="mt-4 max-h-[calc(80vh-100px)]">
+          <div className="space-y-6 p-4">
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Prompt</h3>
+              <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md">{image.prompt}</p>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <span className="font-semibold">Model:</span>
-              <span className="col-span-3">{image.model}</span>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <span className="font-semibold">Seed:</span>
-              <span className="col-span-3">{image.seed}</span>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <span className="font-semibold">Size:</span>
-              <span className="col-span-3">{image.width}x{image.height}</span>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <span className="font-semibold">Aspect Ratio:</span>
-              <span className="col-span-3">{image.aspect_ratio}</span>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <span className="font-semibold">Steps:</span>
-              <span className="col-span-3">{image.steps}</span>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <span className="font-semibold">Quality:</span>
-              <span className="col-span-3">{image.quality}</span>
+            <Separator />
+            <div className="grid grid-cols-2 gap-4">
+              {detailItems.map((item, index) => (
+                <div key={index} className="space-y-1">
+                  <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
+                  <Badge variant="outline" className="text-sm font-normal">
+                    {item.value}
+                  </Badge>
+                </div>
+              ))}
             </div>
           </div>
         </ScrollArea>
