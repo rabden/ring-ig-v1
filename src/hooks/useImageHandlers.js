@@ -1,5 +1,6 @@
 import { toast } from 'sonner'
 import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
+import { modelConfigs } from '@/utils/modelConfigs'
 
 export const useImageHandlers = ({
   setActiveTab,
@@ -9,7 +10,6 @@ export const useImageHandlers = ({
   setFullScreenImageIndex,
   fullScreenImageIndex,
   setFullScreenViewOpen,
-  modelConfigs,
   setModel,
   setSteps,
   setPrompt,
@@ -50,7 +50,13 @@ export const useImageHandlers = ({
 
   const handleModelChange = (value) => {
     setModel(value)
-    setSteps(modelConfigs[value].defaultStep)
+    if (modelConfigs[value] && modelConfigs[value].defaultStep) {
+      setSteps(modelConfigs[value].defaultStep)
+    } else {
+      console.warn(`Default step not found for model: ${value}`)
+      // Set a fallback default step if needed
+      setSteps(30)
+    }
   }
 
   const handlePromptKeyDown = (e) => {

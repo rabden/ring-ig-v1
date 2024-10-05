@@ -2,7 +2,7 @@ import React from 'react'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import { useUserCredits } from '@/hooks/useUserCredits'
 import { useImageGeneration } from '@/hooks/useImageGeneration'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
 import AuthOverlay from '@/components/AuthOverlay'
 import BottomNavbar from '@/components/BottomNavbar'
@@ -15,6 +15,7 @@ import ProfileMenu from '@/components/ProfileMenu'
 import ActionButtons from '@/components/ActionButtons'
 import { useImageGeneratorState } from '@/hooks/useImageGeneratorState'
 import { useImageHandlers } from '@/hooks/useImageHandlers'
+import { aspectRatios } from '@/utils/imageConfigs'
 
 const ImageGenerator = () => {
   const {
@@ -30,6 +31,8 @@ const ImageGenerator = () => {
 
   const { session } = useSupabaseAuth()
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
+  const queryClient = useQueryClient()
+
   const { data: images, isLoading } = useQuery({
     queryKey: ['images', session?.user?.id, activeView],
     queryFn: async () => {
@@ -90,7 +93,9 @@ const ImageGenerator = () => {
     setQuality,
     setAspectRatio,
     setUseAspectRatio,
+    aspectRatios,
     session,
+    queryClient,
     activeView,
     setDetailsDialogOpen,
     setActiveView,
