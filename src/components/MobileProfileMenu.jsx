@@ -27,7 +27,7 @@ const MobileProfileMenu = ({ user, credits }) => {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent side="bottom" className="h-[80vh] rounded-t-[10px]">
+      <SheetContent side="bottom" className="h-[80vh]">
         <SheetHeader>
           <SheetTitle>{user ? 'Profile' : 'Sign In'}</SheetTitle>
         </SheetHeader>
