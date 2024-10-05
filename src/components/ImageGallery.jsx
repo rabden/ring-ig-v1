@@ -33,11 +33,13 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
 
     if (error) throw error
 
+    const filteredData = activeView === 'myImages' 
+      ? data.filter(img => img.user_id === userId)
+      : data.filter(img => img.user_id !== userId)
+
     return {
-      data: activeView === 'myImages' 
-        ? data.filter(img => img.user_id === userId)
-        : data.filter(img => img.user_id !== userId),
-      nextPage: data.length === IMAGES_PER_PAGE ? pageParam + 1 : undefined,
+      data: filteredData,
+      nextPage: filteredData.length === IMAGES_PER_PAGE ? pageParam + 1 : undefined,
     }
   }
 
@@ -50,7 +52,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
   } = useInfiniteQuery({
     queryKey: ['images', userId, activeView],
     queryFn: fetchImages,
-    getNextPageParam: (lastPage) => lastPage.nextPage,
+    getNextPageParam: (lastPage) => lastPage?.nextPage,
     enabled: !!userId,
   })
 
