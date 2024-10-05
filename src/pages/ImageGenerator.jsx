@@ -15,6 +15,7 @@ import ProfileMenu from '@/components/ProfileMenu'
 import SkeletonImageCard from '@/components/SkeletonImageCard'
 import ActionButtons from '@/components/ActionButtons'
 import { modelConfigs, aspectRatios } from '@/utils/imageConfigs'
+import { toast } from 'sonner'
 
 const ImageGenerator = () => {
   const [prompt, setPrompt] = useState('')
@@ -118,6 +119,35 @@ const ImageGenerator = () => {
     setActiveTab('input')
   }
 
+  const handleDownload = (imageUrl, prompt) => {
+    const link = document.createElement('a')
+    link.href = imageUrl
+    link.download = `${prompt.slice(0, 20)}.png`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
+  const handleDiscard = async (imageId) => {
+    try {
+      const { error } = await supabase
+        .from('user_images')
+        .delete()
+        .eq('id', imageId)
+      if (error) throw error
+      queryClient.invalidateQueries(['images', session?.user?.id, activeView])
+      toast.success('Image discarded successfully')
+    } catch (error) {
+      console.error('Error discarding image:', error)
+      toast.error('Failed to discard image')
+    }
+  }
+
+  const handleViewDetails = (image) => {
+    setSelectedImage(image)
+    setDetailsDialogOpen(true)
+  }
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
@@ -139,7 +169,10 @@ const ImageGenerator = () => {
         <ImageGallery
           userId={session?.user?.id}
           onImageClick={handleImageClick}
+          onDownload={handleDownload}
+          onDiscard={handleDiscard}
           onRemix={handleRemix}
+          onViewDetails={handleViewDetails}
           activeView={activeView}
         />
       </div>
