@@ -182,7 +182,7 @@ const ImageGenerator = () => {
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
         <div className="flex justify-between items-center mb-6">
           <div className="hidden md:flex items-center space-x-4">
-            <ProfileMenu user={session?.user} credits={credits} />
+            {session?.user && <ProfileMenu user={session.user} credits={credits} />}
             <ActionButtons activeView={activeTab} setActiveView={setActiveTab} />
           </div>
         </div>
