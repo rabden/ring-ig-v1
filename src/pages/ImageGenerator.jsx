@@ -2,7 +2,8 @@ import React, { useState } from 'react'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import { useUserCredits } from '@/hooks/useUserCredits'
 import { useImageGeneration } from '@/hooks/useImageGeneration'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { supabase } from '@/integrations/supabase/supabase'
 import AuthOverlay from '@/components/AuthOverlay'
 import BottomNavbar from '@/components/BottomNavbar'
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings'
@@ -39,6 +40,20 @@ const ImageGenerator = () => {
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
   const queryClient = useQueryClient()
 
+  const { data: images } = useQuery({
+    queryKey: ['images', session?.user?.id, activeView],
+    queryFn: async () => {
+      if (!session?.user?.id) return []
+      const { data, error } = await supabase
+        .from('user_images')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      return activeView === 'myImages' ? data.filter(img => img.user_id === session.user.id) : data
+    },
+    enabled: !!session?.user?.id,
+  })
+
   const { generateImage, isGenerating } = useImageGeneration({
     session,
     prompt,
@@ -69,11 +84,12 @@ const ImageGenerator = () => {
   }
 
   const handleFullScreenNavigate = (direction) => {
+    if (!images) return
     const newIndex = direction === 'next' 
-      ? Math.min(fullScreenImageIndex + 1, userImages.length - 1) 
+      ? Math.min(fullScreenImageIndex + 1, images.length - 1) 
       : Math.max(fullScreenImageIndex - 1, 0)
     setFullScreenImageIndex(newIndex)
-    setSelectedImage(userImages[newIndex])
+    setSelectedImage(images[newIndex])
   }
 
   const handleModelChange = (value) => {
@@ -174,7 +190,7 @@ const ImageGenerator = () => {
         image={selectedImage}
       />
       <FullScreenImageView
-        images={userImages}
+        images={images || []}
         currentIndex={fullScreenImageIndex}
         isOpen={fullScreenViewOpen}
         onClose={() => setFullScreenViewOpen(false)}
