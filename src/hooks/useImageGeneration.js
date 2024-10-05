@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
 import { toast } from 'sonner'
 import { modelConfigs } from '@/utils/modelConfigs'
-import { aspectRatios } from '@/utils/imageConfigs'
+import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
 
 // Helper function to ensure dimensions are divisible by 8
 const makeDivisibleBy8 = (num) => Math.floor(num / 8) * 8;
@@ -87,14 +87,24 @@ export const useImageGeneration = ({
       modifiedPrompt += modelConfigs[model].promptSuffix;
     }
 
-    // Calculate dimensions based on aspect ratio if useAspectRatio is true
-    let finalWidth = width;
-    let finalHeight = height;
+    // Calculate dimensions based on aspect ratio and quality limits
+    const maxDimension = qualityOptions[quality];
+    let finalWidth, finalHeight;
+
     if (useAspectRatio && aspectRatios[aspectRatio]) {
       const { width: ratioWidth, height: ratioHeight } = aspectRatios[aspectRatio];
-      const maxDimension = Math.max(width, height);
-      finalWidth = Math.round((ratioWidth / Math.max(ratioWidth, ratioHeight)) * maxDimension);
-      finalHeight = Math.round((ratioHeight / Math.max(ratioWidth, ratioHeight)) * maxDimension);
+      const aspectRatioValue = ratioWidth / ratioHeight;
+
+      if (aspectRatioValue > 1) {
+        finalWidth = Math.min(maxDimension, width);
+        finalHeight = Math.round(finalWidth / aspectRatioValue);
+      } else {
+        finalHeight = Math.min(maxDimension, height);
+        finalWidth = Math.round(finalHeight * aspectRatioValue);
+      }
+    } else {
+      finalWidth = Math.min(maxDimension, width);
+      finalHeight = Math.min(maxDimension, height);
     }
 
     // Ensure dimensions are divisible by 8
@@ -190,6 +200,7 @@ export const useImageGeneration = ({
       }
       setGeneratingImages(prev => prev.slice(1))
     }
+
   }
 
   return { generateImage }
