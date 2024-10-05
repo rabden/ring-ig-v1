@@ -8,7 +8,7 @@ export const useImageHandlers = ({
   images,
   setSelectedImage,
   setFullScreenImageIndex,
-  fullScreenImageIndex,  // Add this line
+  fullScreenImageIndex,
   setFullScreenViewOpen,
   modelConfigs,
   setModel,
@@ -25,7 +25,7 @@ export const useImageHandlers = ({
   session,
   queryClient,
   activeView,
-  setDetailsDialogOpen,  // Add this line
+  setDetailsDialogOpen,
 }) => {
   const handleGenerateImage = async () => {
     setIsGeneratingImage(true)
@@ -75,13 +75,24 @@ export const useImageHandlers = ({
     setActiveTab('input')
   }
 
-  const handleDownload = (imageUrl, prompt) => {
-    const link = document.createElement('a')
-    link.href = imageUrl
-    link.download = `${prompt.slice(0, 20)}.png`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+  const handleDownload = async (imageUrl, prompt) => {
+    try {
+      const response = await fetch(imageUrl)
+      if (!response.ok) throw new Error('Network response was not ok')
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `${prompt.slice(0, 20)}.png`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+      toast.success('Image downloaded successfully')
+    } catch (error) {
+      console.error('Error downloading image:', error)
+      toast.error('Failed to download image')
+    }
   }
 
   const handleDiscard = async (image) => {
