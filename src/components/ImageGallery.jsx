@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/supabase'
 import Masonry from 'react-masonry-css'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { MoreVertical } from "lucide-react"
+import { MoreVertical, Loader2 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import SkeletonImageCard from './SkeletonImageCard'
 
@@ -57,25 +57,14 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
   })
 
   useEffect(() => {
-    if (data) {
-      const newImages = data.pages.flatMap(page => page.data)
-      setImages(newImages)
-    }
-  }, [data])
-
-  const handleObserver = useCallback((entries) => {
-    const [target] = entries
-    if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage()
-    }
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage])
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(handleObserver, {
-      root: null,
-      rootMargin: "20px",
-      threshold: 1.0
-    })
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage()
+        }
+      },
+      { threshold: 1.0 }
+    )
 
     if (observerTarget.current) {
       observer.observe(observerTarget.current)
@@ -86,7 +75,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
         observer.unobserve(observerTarget.current)
       }
     }
-  }, [handleObserver])
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage])
 
   useEffect(() => {
     const subscription = supabase
@@ -178,12 +167,14 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
       </Masonry>
       {isLoading && (
         <div className="flex justify-center items-center mt-4">
-          <p>Loading images...</p>
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <p className="ml-2">Loading images...</p>
         </div>
       )}
       {isFetchingNextPage && (
         <div className="flex justify-center items-center mt-4">
-          <p>Loading more images...</p>
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <p className="ml-2">Loading more images...</p>
         </div>
       )}
       <div ref={observerTarget} style={{ height: '20px' }} />
