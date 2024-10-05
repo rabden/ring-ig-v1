@@ -15,7 +15,7 @@ import FullScreenImageView from '@/components/FullScreenImageView'
 import ProfileMenu from '@/components/ProfileMenu'
 import SkeletonImageCard from '@/components/SkeletonImageCard'
 import ActionButtons from '@/components/ActionButtons'
-import { modelConfigs, aspectRatios } from '@/utils/imageConfigs'
+import { modelConfigs, aspectRatios, qualityOptions } from '@/utils/imageConfigs'
 import { toast } from 'sonner'
 
 const ImageGenerator = () => {
@@ -71,6 +71,17 @@ const ImageGenerator = () => {
     updateCredits,
     queryClient,
   })
+
+  const getGeneratingImageSize = () => {
+    if (useAspectRatio) {
+      const [w, h] = aspectRatio.split(':').map(Number)
+      const maxDimension = qualityOptions[quality]
+      return w > h
+        ? { width: maxDimension, height: Math.round(maxDimension * (h / w)) }
+        : { width: Math.round(maxDimension * (w / h)), height: maxDimension }
+    }
+    return { width, height }
+  }
 
   const handleGenerateImage = async () => {
     setIsGeneratingImage(true)
@@ -160,7 +171,7 @@ const ImageGenerator = () => {
         </div>
         {isGeneratingImage && (
           <div className="mb-4">
-            <SkeletonImageCard width={width} height={height} />
+            <SkeletonImageCard {...getGeneratingImageSize()} />
           </div>
         )}
         <ImageGallery
