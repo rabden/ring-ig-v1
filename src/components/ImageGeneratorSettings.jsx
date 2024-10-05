@@ -36,6 +36,9 @@ const ImageGeneratorSettings = ({
   session,
   credits,
 }) => {
+  // Check if model is defined and exists in modelConfigs
+  const currentModel = model && modelConfigs[model] ? modelConfigs[model] : null;
+
   return (
     <>
       <div className="flex justify-between items-center mb-4">
@@ -68,8 +71,8 @@ const ImageGeneratorSettings = ({
             className="w-full justify-between"
             onClick={() => setModelSidebarOpen(true)}
           >
-            {modelConfigs[model].name}
-            <span className="ml-2 opacity-50">{modelConfigs[model].category}</span>
+            {currentModel ? currentModel.name : 'Select a model'}
+            {currentModel && <span className="ml-2 opacity-50">{currentModel.category}</span>}
           </Button>
         </div>
         <div className="space-y-2">
@@ -149,18 +152,20 @@ const ImageGeneratorSettings = ({
             </>
           )}
         </div>
-        <div className="space-y-2">
-          <Label>Inference Steps</Label>
-          <Tabs value={steps.toString()} onValueChange={(value) => setSteps(parseInt(value))}>
-            <TabsList className="grid grid-cols-5 w-full">
-              {modelConfigs[model].inferenceSteps.map((step) => (
-                <TabsTrigger key={step} value={step.toString()}>
-                  {step}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        </div>
+        {currentModel && (
+          <div className="space-y-2">
+            <Label>Inference Steps</Label>
+            <Tabs value={steps.toString()} onValueChange={(value) => setSteps(parseInt(value))}>
+              <TabsList className="grid grid-cols-5 w-full">
+                {currentModel.inferenceSteps.map((step) => (
+                  <TabsTrigger key={step} value={step.toString()}>
+                    {step}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          </div>
+        )}
       </div>
     </>
   )
