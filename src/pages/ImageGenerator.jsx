@@ -134,6 +134,7 @@ const ImageGenerator = () => {
           onRemix={handleRemix}
           onViewDetails={handleViewDetails}
           activeView={activeView}
+          isGeneratingImage={isGeneratingImage}
           generatingImageSize={getGeneratingImageSize()}
           images={images}
           isLoading={isLoading}
