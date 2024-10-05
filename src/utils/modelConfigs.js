@@ -77,7 +77,7 @@ export const modelConfigs = {
     apiUrl: "https://api-inference.huggingface.co/models/gokaygokay/Flux-White-Background-LoRA",
     inferenceSteps: [27, 32, 37, 42, 47],
     defaultStep: 37,
-    promptSuffix: ", in the middle ,white background"
+    promptSuffix: ", in the middle, white background"
   },
   coloringBook: {
     name: "Coloring Book",
@@ -149,6 +149,4 @@ export const modelConfigs = {
     inferenceSteps: [28, 33, 38, 43, 48],
     defaultStep: 38
   }
-
-  // Ensure all models have a valid apiUrl
-}
+};
