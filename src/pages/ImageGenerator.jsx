@@ -12,6 +12,7 @@ import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
 import ProfileMenu from '@/components/ProfileMenu'
 import SkeletonImageCard from '@/components/SkeletonImageCard'
+import ActionButtons from '@/components/ActionButtons'
 import { modelConfigs, aspectRatios } from '@/utils/imageConfigs'
 
 const ImageGenerator = () => {
@@ -32,6 +33,7 @@ const ImageGenerator = () => {
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false)
   const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
   const [isGeneratingImage, setIsGeneratingImage] = useState(false)
+  const [activeView, setActiveView] = useState('myImages')
 
   const { session } = useSupabaseAuth()
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
@@ -66,6 +68,14 @@ const ImageGenerator = () => {
     setFullScreenViewOpen(true)
   }
 
+  const handleFullScreenNavigate = (direction) => {
+    const newIndex = direction === 'next' 
+      ? Math.min(fullScreenImageIndex + 1, userImages.length - 1) 
+      : Math.max(fullScreenImageIndex - 1, 0)
+    setFullScreenImageIndex(newIndex)
+    setSelectedImage(userImages[newIndex])
+  }
+
   const handleModelChange = (value) => {
     setModel(value)
     setSteps(modelConfigs[value].defaultStep)
@@ -97,9 +107,12 @@ const ImageGenerator = () => {
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
         <div className="flex justify-between items-center mb-6">
           {session && (
-            <div className="hidden md:block">
-              <ProfileMenu user={session.user} credits={credits} />
-            </div>
+            <>
+              <div className="hidden md:block">
+                <ProfileMenu user={session.user} credits={credits} />
+              </div>
+              <ActionButtons activeView={activeView} setActiveView={setActiveView} />
+            </>
           )}
         </div>
         {isGeneratingImage && (
@@ -111,6 +124,7 @@ const ImageGenerator = () => {
           userId={session?.user?.id}
           onImageClick={handleImageClick}
           onRemix={handleRemix}
+          activeView={activeView}
         />
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
@@ -160,11 +174,11 @@ const ImageGenerator = () => {
         image={selectedImage}
       />
       <FullScreenImageView
-        images={[]}  // Pass an empty array or fetch images from a query
+        images={userImages}
         currentIndex={fullScreenImageIndex}
         isOpen={fullScreenViewOpen}
         onClose={() => setFullScreenViewOpen(false)}
-        onNavigate={() => {}}  // Implement navigation logic if needed
+        onNavigate={handleFullScreenNavigate}
       />
     </div>
   )

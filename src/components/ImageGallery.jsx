@@ -14,18 +14,17 @@ const breakpointColumnsObj = {
   500: 2
 }
 
-const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails }) => {
-  const { data: userImages, isLoading } = useQuery({
-    queryKey: ['userImages', userId],
+const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails, activeView }) => {
+  const { data: images, isLoading } = useQuery({
+    queryKey: ['images', userId, activeView],
     queryFn: async () => {
       if (!userId) return []
       const { data, error } = await supabase
         .from('user_images')
         .select('*')
-        .eq('user_id', userId)
         .order('created_at', { ascending: false })
       if (error) throw error
-      return data
+      return activeView === 'myImages' ? data.filter(img => img.user_id === userId) : data
     },
     enabled: !!userId,
   })
@@ -40,7 +39,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
       className="flex w-auto"
       columnClassName="bg-clip-padding px-2"
     >
-      {userImages?.map((image, index) => (
+      {images?.map((image, index) => (
         <div key={image.id} className="mb-4">
           <Card className="overflow-hidden">
             <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
@@ -64,9 +63,11 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
                 <DropdownMenuItem onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
                   Download
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onDiscard(image.id)}>
-                  Discard
-                </DropdownMenuItem>
+                {activeView === 'myImages' && (
+                  <DropdownMenuItem onClick={() => onDiscard(image.id)}>
+                    Discard
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={() => onRemix(image)}>
                   Remix
                 </DropdownMenuItem>
