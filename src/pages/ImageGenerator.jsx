@@ -26,7 +26,7 @@ const ImageGenerator = () => {
     modelSidebarOpen, setModelSidebarOpen, selectedImage, setSelectedImage,
     detailsDialogOpen, setDetailsDialogOpen, fullScreenViewOpen, setFullScreenViewOpen,
     fullScreenImageIndex, setFullScreenImageIndex, generatingImages, setGeneratingImages,
-    activeView, setActiveView
+    activeView, setActiveView, nsfwEnabled, setNsfwEnabled
   } = useImageGeneratorState()
 
   const { session } = useSupabaseAuth()
@@ -34,7 +34,7 @@ const ImageGenerator = () => {
   const queryClient = useQueryClient()
 
   const { data: images, isLoading } = useQuery({
-    queryKey: ['images', session?.user?.id, activeView],
+    queryKey: ['images', session?.user?.id, activeView, nsfwEnabled],
     queryFn: async () => {
       if (!session?.user?.id) return []
       const { data, error } = await supabase
@@ -42,9 +42,12 @@ const ImageGenerator = () => {
         .select('*')
         .order('created_at', { ascending: false })
       if (error) throw error
-      return activeView === 'myImages' 
-        ? data.filter(img => img.user_id === session.user.id)
-        : data.filter(img => img.user_id !== session.user.id)
+      const filteredData = data.filter(img => {
+        const isNsfw = modelConfigs[img.model]?.category === "NSFW";
+        return (activeView === 'myImages' && img.user_id === session.user.id && (nsfwEnabled || !isNsfw)) ||
+               (activeView === 'inspiration' && img.user_id !== session.user.id && (nsfwEnabled || !isNsfw));
+      });
+      return filteredData;
     },
     enabled: !!session?.user?.id,
   })
@@ -122,6 +125,7 @@ const ImageGenerator = () => {
           generatingImages={generatingImages}
           images={images}
           isLoading={isLoading}
+          nsfwEnabled={nsfwEnabled}
         />
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
@@ -156,6 +160,8 @@ const ImageGenerator = () => {
           setModelSidebarOpen={setModelSidebarOpen}
           session={session}
           credits={credits}
+          nsfwEnabled={nsfwEnabled}
+          setNsfwEnabled={setNsfwEnabled}
         />
       </div>
       <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} session={session} credits={credits} />
@@ -164,6 +170,7 @@ const ImageGenerator = () => {
         onClose={() => setModelSidebarOpen(false)}
         onSelectModel={handleModelChange}
         currentModel={model}
+        nsfwEnabled={nsfwEnabled}
       />
       <ImageDetailsDialog
         open={detailsDialogOpen}

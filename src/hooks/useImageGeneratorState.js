@@ -20,6 +20,7 @@ export const useImageGeneratorState = () => {
   const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
   const [generatingImages, setGeneratingImages] = useState([])
   const [activeView, setActiveView] = useState('myImages')
+  const [nsfwEnabled, setNsfwEnabled] = useState(false)
 
   return {
     prompt, setPrompt,
@@ -39,6 +40,7 @@ export const useImageGeneratorState = () => {
     fullScreenViewOpen, setFullScreenViewOpen,
     fullScreenImageIndex, setFullScreenImageIndex,
     generatingImages, setGeneratingImages,
-    activeView, setActiveView
+    activeView, setActiveView,
+    nsfwEnabled, setNsfwEnabled
   }
 }

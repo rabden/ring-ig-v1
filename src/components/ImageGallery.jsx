@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { MoreVertical } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import SkeletonImageCard from './SkeletonImageCard'
+import { modelConfigs } from '@/utils/modelConfigs'
 
 const breakpointColumnsObj = {
   default: 4,
@@ -15,11 +16,11 @@ const breakpointColumnsObj = {
   500: 2
 }
 
-const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails, activeView, generatingImages = [] }) => {
+const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails, activeView, generatingImages = [], nsfwEnabled }) => {
   const [images, setImages] = useState([])
 
   const { isLoading } = useQuery({
-    queryKey: ['images', userId, activeView],
+    queryKey: ['images', userId, activeView, nsfwEnabled],
     queryFn: async () => {
       if (!userId) return []
       const { data, error } = await supabase
@@ -27,10 +28,13 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
         .select('*')
         .order('created_at', { ascending: false })
       if (error) throw error
-      setImages(activeView === 'myImages' 
-        ? data.filter(img => img.user_id === userId)
-        : data.filter(img => img.user_id !== userId))
-      return data
+      const filteredData = data.filter(img => {
+        const isNsfw = modelConfigs[img.model]?.category === "NSFW";
+        return (activeView === 'myImages' && img.user_id === userId && (nsfwEnabled || !isNsfw)) ||
+               (activeView === 'inspiration' && img.user_id !== userId && (nsfwEnabled || !isNsfw));
+      });
+      setImages(filteredData);
+      return filteredData;
     },
     enabled: !!userId,
   })
@@ -41,9 +45,10 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
       .on('postgres_changes', { event: '*', schema: 'public', table: 'user_images' }, (payload) => {
         if (payload.eventType === 'INSERT') {
           setImages((prevImages) => {
-            if (activeView === 'myImages' && payload.new.user_id === userId) {
+            const isNsfw = modelConfigs[payload.new.model]?.category === "NSFW";
+            if (activeView === 'myImages' && payload.new.user_id === userId && (nsfwEnabled || !isNsfw)) {
               return [payload.new, ...prevImages]
-            } else if (activeView === 'inspiration' && payload.new.user_id !== userId) {
+            } else if (activeView === 'inspiration' && payload.new.user_id !== userId && (nsfwEnabled || !isNsfw)) {
               return [payload.new, ...prevImages]
             }
             return prevImages
@@ -57,7 +62,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
     return () => {
       subscription.unsubscribe()
     }
-  }, [userId, activeView])
+  }, [userId, activeView, nsfwEnabled])
 
   const renderContent = () => {
     const content = []

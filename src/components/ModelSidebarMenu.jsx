@@ -3,8 +3,12 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { modelConfigs } from '@/utils/modelConfigs';
 
-const ModelSidebarMenu = ({ isOpen, onClose, onSelectModel, currentModel }) => {
-  const groupedModels = Object.entries(modelConfigs).reduce((acc, [key, config]) => {
+const ModelSidebarMenu = ({ isOpen, onClose, onSelectModel, currentModel, nsfwEnabled }) => {
+  const filteredModels = Object.entries(modelConfigs).filter(([_, config]) => 
+    nsfwEnabled || config.category !== "NSFW"
+  );
+
+  const groupedModels = filteredModels.reduce((acc, [key, config]) => {
     if (!acc[config.category]) {
       acc[config.category] = [];
     }

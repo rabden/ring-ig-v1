@@ -35,6 +35,8 @@ const ImageGeneratorSettings = ({
   setModelSidebarOpen,
   session,
   credits,
+  nsfwEnabled,
+  setNsfwEnabled,
 }) => {
   // Check if model is defined and exists in modelConfigs
   const currentModel = model && modelConfigs[model] ? modelConfigs[model] : null;
@@ -166,6 +168,14 @@ const ImageGeneratorSettings = ({
             </Tabs>
           </div>
         )}
+        <div className="flex items-center justify-between">
+          <Label htmlFor="nsfwToggle">Enable NSFW Content</Label>
+          <Switch
+            id="nsfwToggle"
+            checked={nsfwEnabled}
+            onCheckedChange={setNsfwEnabled}
+          />
+        </div>
       </div>
     </>
   )
