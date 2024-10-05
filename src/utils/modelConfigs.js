@@ -34,7 +34,6 @@ export const modelConfigs = {
     inferenceSteps: [26, 30, 36, 44, 50],
     defaultStep: 30
   },
-  // Removed fluxAnime model as it's no longer available
   malaAnimeMix: {
     name: "Mala Anime Mix (NSFW)",
     category: "NSFW",
@@ -149,5 +148,12 @@ export const modelConfigs = {
     apiUrl: "https://api-inference.huggingface.co/models/youknownothing/FLUX.1-dev-LoRA-blended-realistic-illustration",
     inferenceSteps: [28, 33, 38, 43, 48],
     defaultStep: 38
+  },
+  rdxlAnime: {
+    name: "RDXL Anime",
+    category: "Anime",
+    apiUrl: "https://api-inference.huggingface.co/models/John6666/rdxl-anime-sdxlpony7-sdxl",
+    inferenceSteps: [25, 30, 35, 40, 45],
+    defaultStep: 30
   }
 };
