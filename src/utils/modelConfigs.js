@@ -2,14 +2,28 @@ export const modelConfigs = {
   flux: {
     name: "FLUX",
     category: "General",
-    apiUrl: "https://api-inference.huggingface.co/models/brushpenbob/flux-midjourney-anime",
-    inferenceSteps: [25, 30, 35, 40, 45],
-    defaultStep: 30
+    apiUrl: "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell",
+    inferenceSteps: [4, 8, 12, 16, 20],
+    defaultStep: 12
   },
   fluxDev: {
     name: "FLUX Dev",
     category: "General",
     apiUrl: "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev",
+    inferenceSteps: [25, 30, 35, 40, 45, 50],
+    defaultStep: 35
+  },
+  fluxAnime: {
+    name: "FLUX Anime",
+    category: "Anime",
+    apiUrl: "https://api-inference.huggingface.co/models/brushpenbob/flux-midjourney-anime",
+    inferenceSteps: [25, 30, 35, 40, 45, 50],
+    defaultStep: 35
+  },
+  animeNsfw: {
+    name: "Anime NSFW",
+    category: "NSFW",
+    apiUrl: "https://api-inference.huggingface.co/models/John6666/rdxl-anime-sdxlpony7-sdxl",
     inferenceSteps: [25, 30, 35, 40, 45, 50],
     defaultStep: 35
   },
