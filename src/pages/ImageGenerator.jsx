@@ -16,30 +16,91 @@ import ProfileMenu from '@/components/ProfileMenu'
 import ActionButtons from '@/components/ActionButtons'
 import { modelConfigs, aspectRatios, qualityOptions } from '@/utils/imageConfigs'
 import { toast } from 'sonner'
+import { useImageGeneratorState } from '@/hooks/useImageGeneratorState'
+import { useImageHandlers } from '@/hooks/useImageHandlers'
 
 const ImageGenerator = () => {
-  const [prompt, setPrompt] = useState('')
-  const [seed, setSeed] = useState(0)
-  const [randomizeSeed, setRandomizeSeed] = useState(true)
-  const [width, setWidth] = useState(1024)
-  const [height, setHeight] = useState(1024)
-  const [steps, setSteps] = useState(modelConfigs.flux.defaultStep)
-  const [model, setModel] = useState('flux')
-  const [activeTab, setActiveTab] = useState('images')
-  const [aspectRatio, setAspectRatio] = useState("1:1")
-  const [useAspectRatio, setUseAspectRatio] = useState(true)
-  const [quality, setQuality] = useState("HD")
-  const [modelSidebarOpen, setModelSidebarOpen] = useState(false)
-  const [selectedImage, setSelectedImage] = useState(null)
-  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
-  const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false)
-  const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false)
-  const [activeView, setActiveView] = useState('myImages')
+  const {
+    prompt, setPrompt, seed, setSeed, randomizeSeed, setRandomizeSeed,
+    width, setWidth, height, setHeight, steps, setSteps,
+    model, setModel, activeTab, setActiveTab, aspectRatio, setAspectRatio,
+    useAspectRatio, setUseAspectRatio, quality, setQuality,
+    modelSidebarOpen, setModelSidebarOpen, selectedImage, setSelectedImage,
+    detailsDialogOpen, setDetailsDialogOpen, fullScreenViewOpen, setFullScreenViewOpen,
+    fullScreenImageIndex, setFullScreenImageIndex, isGeneratingImage, setIsGeneratingImage,
+    activeView, setActiveView
+  } = useImageGeneratorState()
 
   const { session } = useSupabaseAuth()
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
   const queryClient = useQueryClient()
+
+  const { data: images, isLoading } = useQuery({
+    queryKey: ['images', session?.user?.id, activeView],
+    queryFn: async () => {
+      if (!session?.user?.id) return []
+      const { data, error } = await supabase
+        .from('user_images')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      return activeView === 'myImages' 
+        ? data.filter(img => img.user_id === session.user.id)
+        : data.filter(img => img.user_id !== session.user.id)
+    },
+    enabled: !!session?.user?.id,
+  })
+
+  const { generateImage } = useImageGeneration({
+    session,
+    prompt,
+    seed,
+    randomizeSeed,
+    width,
+    height,
+    steps,
+    model,
+    quality,
+    useAspectRatio,
+    aspectRatio,
+    updateCredits,
+    queryClient,
+  })
+
+  const {
+    handleGenerateImage,
+    handleImageClick,
+    handleFullScreenNavigate,
+    handleModelChange,
+    handlePromptKeyDown,
+    handleRemix,
+    handleDownload,
+    handleDiscard,
+    handleViewDetails,
+  } = useImageHandlers({
+    setIsGeneratingImage,
+    setActiveTab,
+    generateImage,
+    images,
+    setSelectedImage,
+    setFullScreenImageIndex,
+    setFullScreenViewOpen,
+    modelConfigs,
+    setModel,
+    setSteps,
+    setPrompt,
+    setSeed,
+    setRandomizeSeed,
+    setWidth,
+    setHeight,
+    setQuality,
+    setAspectRatio,
+    setUseAspectRatio,
+    aspectRatios,
+    session,
+    queryClient,
+    activeView,
+  })
 
   const getGeneratingImageSize = () => {
     if (useAspectRatio) {
@@ -50,79 +111,6 @@ const ImageGenerator = () => {
         : { width: Math.round(maxDimension * (w / h)), height: maxDimension }
     }
     return { width, height }
-  }
-
-  const handleGenerateImage = async () => {
-    setIsGeneratingImage(true)
-    setActiveTab('images')
-    await generateImage()
-    setIsGeneratingImage(false)
-  }
-
-  const handleImageClick = (image, index) => {
-    setSelectedImage(image)
-    setFullScreenImageIndex(index)
-    setFullScreenViewOpen(true)
-  }
-
-  const handleFullScreenNavigate = (direction) => {
-    if (!images) return
-    const newIndex = direction === 'next' 
-      ? Math.min(fullScreenImageIndex + 1, images.length - 1) 
-      : Math.max(fullScreenImageIndex - 1, 0)
-    setFullScreenImageIndex(newIndex)
-    setSelectedImage(images[newIndex])
-  }
-
-  const handleModelChange = (value) => {
-    setModel(value)
-    setSteps(modelConfigs[value].defaultStep)
-  }
-
-  const handlePromptKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleGenerateImage()
-    }
-  }
-
-  const handleRemix = (image) => {
-    setPrompt(image.prompt)
-    setSeed(image.seed)
-    setRandomizeSeed(false)
-    setWidth(image.width)
-    setHeight(image.height)
-    setSteps(image.steps)
-    setModel(image.model)
-    setQuality(image.quality)
-    setAspectRatio(image.aspect_ratio)
-    setUseAspectRatio(image.aspect_ratio in aspectRatios)
-    setActiveTab('input')
-  }
-
-  const handleDownload = (imageUrl, prompt) => {
-    const link = document.createElement('a')
-    link.href = imageUrl
-    link.download = `${prompt.slice(0, 20)}.png`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
-
-  const handleDiscard = async (image) => {
-    try {
-      await deleteImageCompletely(image.id)
-      queryClient.invalidateQueries(['images', session?.user?.id, activeView])
-      toast.success('Image discarded successfully')
-    } catch (error) {
-      console.error('Error discarding image:', error)
-      toast.error('Failed to discard image')
-    }
-  }
-
-  const handleViewDetails = (image) => {
-    setSelectedImage(image)
-    setDetailsDialogOpen(true)
   }
 
   return (
@@ -147,6 +135,8 @@ const ImageGenerator = () => {
           onViewDetails={handleViewDetails}
           activeView={activeView}
           generatingImageSize={getGeneratingImageSize()}
+          images={images}
+          isLoading={isLoading}
         />
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
