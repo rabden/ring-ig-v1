@@ -8,6 +8,10 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
+import { Copy } from "lucide-react"
+import { CopyToClipboard } from 'react-copy-to-clipboard'
+import { toast } from 'sonner'
 
 const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
   if (!image) return null
@@ -21,6 +25,10 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
     { label: "Quality", value: image.quality },
   ]
 
+  const handleCopy = () => {
+    toast.success('Prompt copied to clipboard')
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-hidden">
@@ -30,7 +38,14 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
         <ScrollArea className="mt-4 max-h-[calc(80vh-100px)]">
           <div className="space-y-6 p-4">
             <div>
-              <h3 className="text-lg font-semibold mb-2">Prompt</h3>
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-lg font-semibold">Prompt</h3>
+                <CopyToClipboard text={image.prompt} onCopy={handleCopy}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </CopyToClipboard>
+              </div>
               <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md">{image.prompt}</p>
             </div>
             <Separator />
