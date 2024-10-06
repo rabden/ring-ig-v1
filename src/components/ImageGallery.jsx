@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react'
-import { useInfiniteQuery } from '@tanstack/react-query'
+import React, { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
 import Masonry from 'react-masonry-css'
 import { Card, CardContent } from "@/components/ui/card"
@@ -8,9 +8,6 @@ import { MoreVertical } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import SkeletonImageCard from './SkeletonImageCard'
 import { modelConfigs } from '@/utils/modelConfigs'
-import { useInView } from 'react-intersection-observer'
-
-const IMAGES_PER_PAGE = 20
 
 const breakpointColumnsObj = {
   default: 4,
@@ -21,54 +18,26 @@ const breakpointColumnsObj = {
 
 const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails, activeView, generatingImages = [], nsfwEnabled }) => {
   const [images, setImages] = useState([])
-  const { ref, inView } = useInView()
 
-  const fetchImages = async ({ pageParam = 0 }) => {
-    const from = pageParam * IMAGES_PER_PAGE
-    const to = from + IMAGES_PER_PAGE - 1
-
-    const { data, error } = await supabase
-      .from('user_images')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .range(from, to)
-
-    if (error) throw error
-
-    const filteredData = data.filter(img => {
-      const isNsfw = modelConfigs[img.model]?.category === "NSFW";
-      return (activeView === 'myImages' && img.user_id === userId && (nsfwEnabled || !isNsfw)) ||
-             (activeView === 'inspiration' && img.user_id !== userId && (nsfwEnabled || !isNsfw));
-    });
-
-    return { data: filteredData, nextPage: filteredData.length === IMAGES_PER_PAGE ? pageParam + 1 : undefined }
-  }
-
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    status,
-  } = useInfiniteQuery({
+  const { isLoading } = useQuery({
     queryKey: ['images', userId, activeView, nsfwEnabled],
-    queryFn: fetchImages,
-    getNextPageParam: (lastPage) => lastPage.nextPage,
+    queryFn: async () => {
+      if (!userId) return []
+      const { data, error } = await supabase
+        .from('user_images')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      const filteredData = data.filter(img => {
+        const isNsfw = modelConfigs[img.model]?.category === "NSFW";
+        return (activeView === 'myImages' && img.user_id === userId && (nsfwEnabled || !isNsfw)) ||
+               (activeView === 'inspiration' && img.user_id !== userId && (nsfwEnabled || !isNsfw));
+      });
+      setImages(filteredData);
+      return filteredData;
+    },
     enabled: !!userId,
   })
-
-  useEffect(() => {
-    if (inView && hasNextPage) {
-      fetchNextPage()
-    }
-  }, [inView, fetchNextPage, hasNextPage])
-
-  useEffect(() => {
-    if (data) {
-      const allImages = data.pages.flatMap(page => page.data)
-      setImages(allImages)
-    }
-  }, [data])
 
   useEffect(() => {
     const subscription = supabase
@@ -104,8 +73,8 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
       )))
     }
 
-    if (status === 'loading') {
-      content.push(...Array.from({ length: IMAGES_PER_PAGE }).map((_, index) => (
+    if (isLoading) {
+      content.push(...Array.from({ length: 8 }).map((_, index) => (
         <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
       )))
     } else if (images && images.length > 0) {
@@ -155,21 +124,13 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
   }
 
   return (
-    <>
-      <Masonry
-        breakpointCols={breakpointColumnsObj}
-        className="flex w-auto"
-        columnClassName="bg-clip-padding px-2"
-      >
-        {renderContent()}
-      </Masonry>
-      {isFetchingNextPage && (
-        <div className="flex justify-center mt-4">
-          <SkeletonImageCard width={512} height={512} />
-        </div>
-      )}
-      <div ref={ref} style={{ height: '20px' }} />
-    </>
+    <Masonry
+      breakpointCols={breakpointColumnsObj}
+      className="flex w-auto"
+      columnClassName="bg-clip-padding px-2"
+    >
+      {renderContent()}
+    </Masonry>
   )
 }
 
