@@ -30,18 +30,24 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
         .order('created_at', { ascending: false })
       if (error) throw error
       
-      // Fetch profile information separately
-      const userIds = [...new Set(data.map(img => img.user_id))]
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, avatar_url')
-        .in('id', userIds)
-      if (profilesError) throw profilesError
+      // Fetch profile information separately, but handle the case where the table doesn't exist
+      let profiles = []
+      try {
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, avatar_url')
+          .in('id', [...new Set(data.map(img => img.user_id))])
+        if (!profilesError) {
+          profiles = profilesData
+        }
+      } catch (error) {
+        console.warn('Failed to fetch profiles:', error)
+      }
 
       // Combine image data with profile information
       const imagesWithProfiles = data.map(img => ({
         ...img,
-        profile: profiles.find(p => p.id === img.user_id)
+        profile: profiles.find(p => p?.id === img.user_id) || null
       }))
 
       const filteredData = imagesWithProfiles.filter(img => {
