@@ -28,7 +28,6 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
         .select('*')
         .order('created_at', { ascending: false })
       if (error) throw error
-      
       const filteredData = data.filter(img => {
         const isNsfw = modelConfigs[img.model]?.category === "NSFW";
         return (activeView === 'myImages' && img.user_id === userId && (nsfwEnabled || !isNsfw)) ||
