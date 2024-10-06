@@ -74,13 +74,3 @@
     @apply bg-background text-foreground;
   }
 }
-
-/* Custom styles for mobile toast icon */
-@media (max-width: 768px) {
-  .mobile-toast-icon {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    z-index: 50;
-  }
-}
