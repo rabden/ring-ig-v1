@@ -6,8 +6,24 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
+import { HelpCircle } from "lucide-react"
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
 import { modelConfigs } from '@/utils/modelConfigs'
+
+// Helper component for the tooltip
+const SettingTooltip = ({ content }) => (
+  <Popover>
+    <PopoverTrigger asChild>
+      <Button variant="ghost" className="h-4 w-4 p-0 text-muted-foreground hover:text-foreground">
+        <HelpCircle className="h-4 w-4" />
+      </Button>
+    </PopoverTrigger>
+    <PopoverContent className="w-80 text-sm" align="start">
+      {content}
+    </PopoverContent>
+  </Popover>
+)
 
 const ImageGeneratorSettings = ({
   prompt,
@@ -52,7 +68,10 @@ const ImageGeneratorSettings = ({
       </div>
       <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="promptInput">Prompt</Label>
+          <div className="flex items-center space-x-2">
+            <Label htmlFor="promptInput">Prompt</Label>
+            <SettingTooltip content="Enter a description of the image you want to generate. Be as specific as possible for best results." />
+          </div>
           <Textarea
             id="promptInput"
             value={prompt}
@@ -66,7 +85,10 @@ const ImageGeneratorSettings = ({
           Generate Image
         </Button>
         <div className="space-y-2">
-          <Label htmlFor="modelSelect">Model</Label>
+          <div className="flex items-center space-x-2">
+            <Label htmlFor="modelSelect">Model</Label>
+            <SettingTooltip content="Choose the AI model to use for image generation. Different models may produce different styles or qualities of images." />
+          </div>
           <Button
             variant="outline"
             className="w-full justify-between"
@@ -77,7 +99,10 @@ const ImageGeneratorSettings = ({
           </Button>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="seedInput">Seed</Label>
+          <div className="flex items-center space-x-2">
+            <Label htmlFor="seedInput">Seed</Label>
+            <SettingTooltip content="A seed is a number that initializes the random generation process. Using the same seed with the same settings will produce the same image." />
+          </div>
           <div className="flex items-center space-x-2">
             <Input
               id="seedInput"
@@ -97,7 +122,10 @@ const ImageGeneratorSettings = ({
           </div>
         </div>
         <div className="space-y-2">
-          <Label>Quality</Label>
+          <div className="flex items-center space-x-2">
+            <Label>Quality</Label>
+            <SettingTooltip content="Higher quality settings produce more detailed images but require more processing time and credits." />
+          </div>
           <Tabs value={quality} onValueChange={setQuality}>
             <TabsList className="grid grid-cols-3 w-full">
               {Object.keys(qualityOptions).map((q) => (
@@ -108,7 +136,10 @@ const ImageGeneratorSettings = ({
         </div>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label>Use Aspect Ratio</Label>
+            <div className="flex items-center space-x-2">
+              <Label>Use Aspect Ratio</Label>
+              <SettingTooltip content="Choose a predefined aspect ratio for your image, or set custom dimensions below." />
+            </div>
             <Switch
               checked={useAspectRatio}
               onCheckedChange={setUseAspectRatio}
@@ -131,7 +162,10 @@ const ImageGeneratorSettings = ({
           {!useAspectRatio && (
             <>
               <div className="space-y-2">
-                <Label>Width: {width}px</Label>
+                <div className="flex items-center space-x-2">
+                  <Label>Width: {width}px</Label>
+                  <SettingTooltip content="Set the width of the generated image in pixels." />
+                </div>
                 <Slider
                   min={256}
                   max={qualityOptions[quality]}
@@ -141,7 +175,10 @@ const ImageGeneratorSettings = ({
                 />
               </div>
               <div className="space-y-2">
-                <Label>Height: {height}px</Label>
+                <div className="flex items-center space-x-2">
+                  <Label>Height: {height}px</Label>
+                  <SettingTooltip content="Set the height of the generated image in pixels." />
+                </div>
                 <Slider
                   min={256}
                   max={qualityOptions[quality]}
@@ -155,7 +192,10 @@ const ImageGeneratorSettings = ({
         </div>
         {currentModel && (
           <div className="space-y-2">
-            <Label>Inference Steps</Label>
+            <div className="flex items-center space-x-2">
+              <Label>Inference Steps</Label>
+              <SettingTooltip content="The number of denoising steps. More steps can result in higher quality images but take longer to generate." />
+            </div>
             <Tabs value={steps.toString()} onValueChange={(value) => setSteps(parseInt(value))}>
               <TabsList className="grid grid-cols-5 w-full">
                 {currentModel.inferenceSteps.map((step) => (
@@ -168,7 +208,10 @@ const ImageGeneratorSettings = ({
           </div>
         )}
         <div className="flex items-center justify-between">
-          <Label htmlFor="nsfwToggle">Enable NSFW Content</Label>
+          <div className="flex items-center space-x-2">
+            <Label htmlFor="nsfwToggle">Enable NSFW Content</Label>
+            <SettingTooltip content="Toggle to allow or disallow the generation of Not Safe For Work (NSFW) content." />
+          </div>
           <Switch
             id="nsfwToggle"
             checked={nsfwEnabled}
