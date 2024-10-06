@@ -41,7 +41,7 @@ const ImageGeneratorSettings = ({
   const currentModel = model && modelConfigs[model] ? modelConfigs[model] : null;
 
   return (
-    <div className="space-y-4 pb-20 md:pb-0"> {/* Added padding-bottom for mobile */}
+    <div className="space-y-4 pb-20 md:pb-0">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Settings</h2>
         {session && (
@@ -99,7 +99,7 @@ const ImageGeneratorSettings = ({
         <div className="space-y-2">
           <Label>Quality</Label>
           <Tabs value={quality} onValueChange={setQuality}>
-            <TabsList className="grid grid-cols-4 w-full">
+            <TabsList className="grid grid-cols-3 w-full">
               {Object.keys(qualityOptions).map((q) => (
                 <TabsTrigger key={q} value={q}>{q}</TabsTrigger>
               ))}

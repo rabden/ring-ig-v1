@@ -20,7 +20,6 @@ export const qualityOptions = {
   "SD": 512,
   "HD": 1024,
   "HD+": 1536,
-  "4K": 2048,
 }
 
 // Import modelConfigs from the correct location

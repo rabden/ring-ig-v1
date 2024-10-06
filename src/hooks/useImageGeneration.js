@@ -104,7 +104,7 @@ export const useImageGeneration = ({
       return;
     }
 
-    const creditCost = { "SD": 1, "HD": 2, "HD+": 3, "4K": 4 }[quality];
+    const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
     if (session.credits < creditCost) {
       toast.error(`Insufficient credits. You need ${creditCost} credits for ${quality} quality.`);
       return;
