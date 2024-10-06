@@ -38,11 +38,10 @@ const ImageGeneratorSettings = ({
   nsfwEnabled,
   setNsfwEnabled,
 }) => {
-  // Check if model is defined and exists in modelConfigs
   const currentModel = model && modelConfigs[model] ? modelConfigs[model] : null;
 
   return (
-    <>
+    <div className="space-y-4 pb-20 md:pb-0"> {/* Added padding-bottom for mobile */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Settings</h2>
         {session && (
@@ -168,16 +167,15 @@ const ImageGeneratorSettings = ({
             </Tabs>
           </div>
         )}
-        <div className="flex items-center justify-between">
-          <Label htmlFor="nsfwToggle">Enable NSFW Content</Label>
-          <Switch
-            id="nsfwToggle"
-            checked={nsfwEnabled}
-            onCheckedChange={setNsfwEnabled}
-          />
-        </div>
+      <div className="flex items-center justify-between">
+        <Label htmlFor="nsfwToggle">Enable NSFW Content</Label>
+        <Switch
+          id="nsfwToggle"
+          checked={nsfwEnabled}
+          onCheckedChange={setNsfwEnabled}
+        />
       </div>
-    </>
+    </div>
   )
 }
 
