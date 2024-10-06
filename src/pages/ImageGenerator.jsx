@@ -2,8 +2,7 @@ import React from 'react'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import { useUserCredits } from '@/hooks/useUserCredits'
 import { useImageGeneration } from '@/hooks/useImageGeneration'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '@/integrations/supabase/supabase'
+import { useQueryClient } from '@tanstack/react-query'
 import AuthOverlay from '@/components/AuthOverlay'
 import BottomNavbar from '@/components/BottomNavbar'
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings'
@@ -33,25 +32,6 @@ const ImageGenerator = () => {
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
   const queryClient = useQueryClient()
 
-  const { data: images, isLoading } = useQuery({
-    queryKey: ['images', session?.user?.id, activeView, nsfwEnabled],
-    queryFn: async () => {
-      if (!session?.user?.id) return []
-      const { data, error } = await supabase
-        .from('user_images')
-        .select('*')
-        .order('created_at', { ascending: false })
-      if (error) throw error
-      const filteredData = data.filter(img => {
-        const isNsfw = modelConfigs[img.model]?.category === "NSFW";
-        return (activeView === 'myImages' && img.user_id === session.user.id && (nsfwEnabled || !isNsfw)) ||
-               (activeView === 'inspiration' && img.user_id !== session.user.id && (nsfwEnabled || !isNsfw));
-      });
-      return filteredData;
-    },
-    enabled: !!session?.user?.id,
-  })
-
   const { generateImage } = useImageGeneration({
     session,
     prompt,
@@ -80,7 +60,6 @@ const ImageGenerator = () => {
   } = useImageHandlers({
     setActiveTab,
     generateImage,
-    images,
     setSelectedImage,
     setFullScreenViewOpen,
     setModel,
@@ -123,8 +102,6 @@ const ImageGenerator = () => {
           onViewDetails={handleViewDetails}
           activeView={activeView}
           generatingImages={generatingImages}
-          images={images}
-          isLoading={isLoading}
           nsfwEnabled={nsfwEnabled}
         />
       </div>

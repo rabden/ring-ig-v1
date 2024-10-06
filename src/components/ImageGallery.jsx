@@ -8,6 +8,7 @@ import { MoreVertical } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import SkeletonImageCard from './SkeletonImageCard'
 import { modelConfigs } from '@/utils/modelConfigs'
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 
 const breakpointColumnsObj = {
   default: 4,
@@ -16,40 +17,56 @@ const breakpointColumnsObj = {
   500: 2
 }
 
+const IMAGES_PER_PAGE = 50
+
 const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails, activeView, generatingImages = [], nsfwEnabled }) => {
   const [images, setImages] = useState([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
 
   const { isLoading } = useQuery({
-    queryKey: ['images', userId, activeView, nsfwEnabled],
+    queryKey: ['images', userId, activeView, nsfwEnabled, currentPage],
     queryFn: async () => {
       if (!userId) return []
-      const { data, error } = await supabase
+      const from = (currentPage - 1) * IMAGES_PER_PAGE
+      const to = from + IMAGES_PER_PAGE - 1
+
+      const { data, error, count } = await supabase
         .from('user_images')
-        .select('*')
+        .select('*', { count: 'exact' })
         .order('created_at', { ascending: false })
+        .range(from, to)
+
       if (error) throw error
+
       const filteredData = data.filter(img => {
         const isNsfw = modelConfigs[img.model]?.category === "NSFW";
         return (activeView === 'myImages' && img.user_id === userId && (nsfwEnabled || !isNsfw)) ||
                (activeView === 'inspiration' && img.user_id !== userId && (nsfwEnabled || !isNsfw));
       });
+
       setImages(filteredData);
+      setTotalPages(Math.ceil(count / IMAGES_PER_PAGE));
       return filteredData;
     },
     enabled: !!userId,
   })
 
   useEffect(() => {
+    setCurrentPage(1) // Reset to first page when activeView or nsfwEnabled changes
+  }, [activeView, nsfwEnabled])
+
+  useEffect(() => {
     const subscription = supabase
       .channel('user_images_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'user_images' }, (payload) => {
-        if (payload.eventType === 'INSERT') {
+        if (payload.eventType === 'INSERT' && currentPage === 1) {
           setImages((prevImages) => {
             const isNsfw = modelConfigs[payload.new.model]?.category === "NSFW";
             if (activeView === 'myImages' && payload.new.user_id === userId && (nsfwEnabled || !isNsfw)) {
-              return [payload.new, ...prevImages]
+              return [payload.new, ...prevImages.slice(0, IMAGES_PER_PAGE - 1)]
             } else if (activeView === 'inspiration' && payload.new.user_id !== userId && (nsfwEnabled || !isNsfw)) {
-              return [payload.new, ...prevImages]
+              return [payload.new, ...prevImages.slice(0, IMAGES_PER_PAGE - 1)]
             }
             return prevImages
           })
@@ -62,7 +79,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
     return () => {
       subscription.unsubscribe()
     }
-  }, [userId, activeView, nsfwEnabled])
+  }, [userId, activeView, nsfwEnabled, currentPage])
 
   const renderContent = () => {
     const content = []
@@ -124,13 +141,43 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
   }
 
   return (
-    <Masonry
-      breakpointCols={breakpointColumnsObj}
-      className="flex w-auto"
-      columnClassName="bg-clip-padding px-2"
-    >
-      {renderContent()}
-    </Masonry>
+    <>
+      <Masonry
+        breakpointCols={breakpointColumnsObj}
+        className="flex w-auto"
+        columnClassName="bg-clip-padding px-2"
+      >
+        {renderContent()}
+      </Masonry>
+      {totalPages > 1 && (
+        <Pagination className="mt-8">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious 
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+              />
+            </PaginationItem>
+            {[...Array(totalPages)].map((_, index) => (
+              <PaginationItem key={index}>
+                <PaginationLink
+                  onClick={() => setCurrentPage(index + 1)}
+                  isActive={currentPage === index + 1}
+                >
+                  {index + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext 
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
+    </>
   )
 }
 
