@@ -1,5 +1,11 @@
 import React from 'react'
-import { Input, Label, Button, Slider, Switch, Tabs, TabsContent, TabsList, TabsTrigger, Textarea } from "@/components/ui/index"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
+import { Slider } from "@/components/ui/slider"
+import { Switch } from "@/components/ui/switch"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { HelpCircle } from "lucide-react"
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
@@ -30,11 +36,33 @@ const SettingSection = ({ label, tooltip, children }) => (
 )
 
 const ImageGeneratorSettings = ({
-  prompt, setPrompt, handlePromptKeyDown, generateImage, model, setModel,
-  seed, setSeed, randomizeSeed, setRandomizeSeed, quality, setQuality,
-  useAspectRatio, setUseAspectRatio, aspectRatio, setAspectRatio,
-  width, setWidth, height, setHeight, steps, setSteps,
-  setModelSidebarOpen, session, credits, nsfwEnabled, setNsfwEnabled,
+  prompt,
+  setPrompt,
+  handlePromptKeyDown,
+  generateImage,
+  model,
+  setModel,
+  seed,
+  setSeed,
+  randomizeSeed,
+  setRandomizeSeed,
+  quality,
+  setQuality,
+  useAspectRatio,
+  setUseAspectRatio,
+  aspectRatio,
+  setAspectRatio,
+  width,
+  setWidth,
+  height,
+  setHeight,
+  steps,
+  setSteps,
+  setModelSidebarOpen,
+  session,
+  credits,
+  nsfwEnabled,
+  setNsfwEnabled
 }) => {
   const currentModel = model && modelConfigs[model] ? modelConfigs[model] : null;
 
