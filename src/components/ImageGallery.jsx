@@ -8,7 +8,6 @@ import { MoreVertical } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import SkeletonImageCard from './SkeletonImageCard'
 import { modelConfigs } from '@/utils/modelConfigs'
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 const breakpointColumnsObj = {
   default: 4,
@@ -30,27 +29,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
         .order('created_at', { ascending: false })
       if (error) throw error
       
-      // Fetch profile information separately, but handle the case where the table doesn't exist
-      let profiles = []
-      try {
-        const { data: profilesData, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, avatar_url')
-          .in('id', [...new Set(data.map(img => img.user_id))])
-        if (!profilesError) {
-          profiles = profilesData
-        }
-      } catch (error) {
-        console.warn('Failed to fetch profiles:', error)
-      }
-
-      // Combine image data with profile information
-      const imagesWithProfiles = data.map(img => ({
-        ...img,
-        profile: profiles.find(p => p?.id === img.user_id) || null
-      }))
-
-      const filteredData = imagesWithProfiles.filter(img => {
+      const filteredData = data.filter(img => {
         const isNsfw = modelConfigs[img.model]?.category === "NSFW";
         return (activeView === 'myImages' && img.user_id === userId && (nsfwEnabled || !isNsfw)) ||
                (activeView === 'inspiration' && img.user_id !== userId && (nsfwEnabled || !isNsfw));
@@ -113,13 +92,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
             </CardContent>
           </Card>
           <div className="mt-2 flex items-center justify-between">
-            {activeView === 'inspiration' && (
-              <Avatar className="h-6 w-6 mr-2">
-                <AvatarImage src={image.profile?.avatar_url} />
-                <AvatarFallback>{image.user_id.slice(0, 2).toUpperCase()}</AvatarFallback>
-              </Avatar>
-            )}
-            <p className={`text-sm truncate ${activeView === 'inspiration' ? 'w-[50%]' : 'w-[70%]'} mr-2`}>{image.prompt}</p>
+            <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="h-8 w-8 p-0">
