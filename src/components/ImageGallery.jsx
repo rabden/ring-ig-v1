@@ -26,7 +26,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
       if (!userId) return []
       const { data, error } = await supabase
         .from('user_images')
-        .select('*, profiles:user_id(avatar_url, display_name)')
+        .select('*')
         .order('created_at', { ascending: false })
       if (error) throw error
       const filteredData = data.filter(img => {
@@ -94,8 +94,8 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
           <div className="mt-2 flex items-center justify-between">
             {activeView === 'inspiration' && (
               <Avatar className="h-6 w-6 mr-2">
-                <AvatarImage src={image.profiles?.avatar_url} alt={image.profiles?.display_name} />
-                <AvatarFallback>{image.profiles?.display_name?.charAt(0) || '?'}</AvatarFallback>
+                <AvatarImage src={`https://api.dicebear.com/6.x/initials/svg?seed=${image.user_id}`} alt="User Avatar" />
+                <AvatarFallback>?</AvatarFallback>
               </Avatar>
             )}
             <p className={`text-sm truncate ${activeView === 'inspiration' ? 'w-[50%]' : 'w-[70%]'} mr-2`}>{image.prompt}</p>
