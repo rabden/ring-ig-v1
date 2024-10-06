@@ -83,15 +83,17 @@ const ImageGenerator = () => {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
-        <div className="flex justify-between items-center mb-6">
-          {session && (
-            <>
-              <div className="hidden md:block">
-                <ProfileMenu user={session.user} credits={credits} />
-              </div>
-              <ActionButtons activeView={activeView} setActiveView={setActiveView} />
-            </>
-          )}
+        <div className="sticky top-0 z-10 bg-background pb-4">
+          <div className="flex justify-between items-center mb-6">
+            {session && (
+              <>
+                <div className="hidden md:block">
+                  <ProfileMenu user={session.user} credits={credits} />
+                </div>
+                <ActionButtons activeView={activeView} setActiveView={setActiveView} />
+              </>
+            )}
+          </div>
         </div>
         <ImageGallery
           userId={session?.user?.id}
