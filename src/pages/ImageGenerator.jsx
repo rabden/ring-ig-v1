@@ -90,7 +90,9 @@ const ImageGenerator = () => {
                 <div className="hidden md:block">
                   <ProfileMenu user={session.user} credits={credits} />
                 </div>
-                <ActionButtons activeView={activeView} setActiveView={setActiveView} />
+                <div className="fixed top-0 left-0 right-0 md:static bg-background p-4 md:p-0 z-20">
+                  <ActionButtons activeView={activeView} setActiveView={setActiveView} />
+                </div>
               </>
             )}
           </div>
