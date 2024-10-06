@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
 import Masonry from 'react-masonry-css'
@@ -168,7 +168,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
           <SkeletonImageCard width={512} height={512} />
         </div>
       )}
-      <div ref={ref} style={{ height: '20px', visibility: 'hidden' }} />
+      <div ref={ref} style={{ height: '20px' }} />
     </>
   )
 }
