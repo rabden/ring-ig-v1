@@ -1,4 +1,4 @@
--- Create profiles table
+-- Create profiles table if it doesn't exist
 CREATE TABLE IF NOT EXISTS public.profiles (
   id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
   display_name TEXT,
@@ -32,3 +32,10 @@ CREATE POLICY read_all_profiles ON public.profiles
 -- Create policy to allow users to update their own profile
 CREATE POLICY update_own_profile ON public.profiles
   FOR UPDATE USING (auth.uid() = id);
+
+-- Insert profiles for existing users if they don't have one
+INSERT INTO public.profiles (id, display_name, avatar_url, updated_at)
+SELECT id, raw_user_meta_data->>'display_name', raw_user_meta_data->>'avatar_url', NOW()
+FROM auth.users
+WHERE id NOT IN (SELECT id FROM public.profiles)
+ON CONFLICT (id) DO NOTHING;
