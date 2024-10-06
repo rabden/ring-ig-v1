@@ -17,7 +17,7 @@ const breakpointColumnsObj = {
   500: 2
 }
 
-const IMAGES_PER_PAGE = 50
+const IMAGES_PER_PAGE = 100 // Updated to 100 images per page
 
 const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails, activeView, generatingImages = [], nsfwEnabled }) => {
   const [images, setImages] = useState([])
