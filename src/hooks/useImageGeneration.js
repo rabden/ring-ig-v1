@@ -5,7 +5,7 @@ import { modelConfigs } from '@/utils/modelConfigs'
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
 
 const MAX_RETRIES = 10;
-const RETRY_INTERVAL = 120000; // 2 minutes in milliseconds
+const RETRY_INTERVAL = 10000; // 10 seconds in milliseconds
 
 const makeDivisibleBy8 = (num) => Math.floor(num / 8) * 8;
 
@@ -39,13 +39,13 @@ const handleApiResponse = async (response, retryCount, generateImage) => {
     const errorData = await response.json();
     console.error('API response error:', errorData);
 
-    if (response.status === 503 && errorData.error && errorData.error.includes("is currently loading")) {
+    if (response.status === 500 && errorData.error && errorData.error.includes("Model too busy")) {
       if (retryCount < MAX_RETRIES) {
-        console.log(`Retrying image generation in 2 minutes. Attempt ${retryCount + 1} of ${MAX_RETRIES}`);
+        console.log(`Retrying image generation in 10 seconds. Attempt ${retryCount + 1} of ${MAX_RETRIES}`);
         setTimeout(() => generateImage(retryCount + 1), RETRY_INTERVAL);
         return null;
       } else {
-        throw new Error('Max retries reached. The model is still loading.');
+        throw new Error('Max retries reached. The model is still busy.');
       }
     }
 
