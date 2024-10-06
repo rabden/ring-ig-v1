@@ -24,7 +24,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
 
-  const { isLoading } = useQuery({
+  const { isLoading, refetch } = useQuery({
     queryKey: ['images', userId, activeView, nsfwEnabled, currentPage],
     queryFn: async () => {
       if (!userId) return []
@@ -54,7 +54,8 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
 
   useEffect(() => {
     setCurrentPage(1) // Reset to first page when activeView or nsfwEnabled changes
-  }, [activeView, nsfwEnabled])
+    refetch() // Refetch images when activeView or nsfwEnabled changes
+  }, [activeView, nsfwEnabled, refetch])
 
   useEffect(() => {
     const subscription = supabase
@@ -104,6 +105,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
                 alt={image.prompt} 
                 className="absolute inset-0 w-full h-full object-cover cursor-pointer"
                 onClick={() => onImageClick(image, index)}
+                loading="lazy" // Add lazy loading
               />
             </CardContent>
           </Card>
@@ -140,6 +142,12 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
     return content
   }
 
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage)
+    setImages([]) // Clear current images
+    window.scrollTo(0, 0) // Scroll to top when changing pages
+  }
+
   return (
     <>
       <Masonry
@@ -154,14 +162,14 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious 
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
                 disabled={currentPage === 1}
               />
             </PaginationItem>
             {[...Array(totalPages)].map((_, index) => (
               <PaginationItem key={index}>
                 <PaginationLink
-                  onClick={() => setCurrentPage(index + 1)}
+                  onClick={() => handlePageChange(index + 1)}
                   isActive={currentPage === index + 1}
                 >
                   {index + 1}
@@ -170,7 +178,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
             ))}
             <PaginationItem>
               <PaginationNext 
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
                 disabled={currentPage === totalPages}
               />
             </PaginationItem>
