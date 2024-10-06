@@ -8,7 +8,6 @@ import { MoreVertical } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import SkeletonImageCard from './SkeletonImageCard'
 import { modelConfigs } from '@/utils/modelConfigs'
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 const breakpointColumnsObj = {
   default: 4,
@@ -92,13 +91,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
             </CardContent>
           </Card>
           <div className="mt-2 flex items-center justify-between">
-            {activeView === 'inspiration' && (
-              <Avatar className="h-6 w-6 mr-2">
-                <AvatarImage src={`https://api.dicebear.com/6.x/initials/svg?seed=${image.user_id}`} alt="User Avatar" />
-                <AvatarFallback>?</AvatarFallback>
-              </Avatar>
-            )}
-            <p className={`text-sm truncate ${activeView === 'inspiration' ? 'w-[50%]' : 'w-[70%]'} mr-2`}>{image.prompt}</p>
+            <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="h-8 w-8 p-0">
