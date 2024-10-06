@@ -16,7 +16,7 @@ export const modelConfigs = {
   fluxAnime: {
     name: "FLUX Anime",
     category: "Anime",
-    apiUrl: "https://api-inference.huggingface.co/models/brushpenbob/flux-midjourney-anime",
+    apiUrl: "https://api-inference.huggingface.co/models/imduckman/xlabs-model-lora-anime-flux",
     inferenceSteps: [25, 30, 35, 40, 45],
     defaultStep: 30
   },
