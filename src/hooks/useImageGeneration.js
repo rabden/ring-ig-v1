@@ -49,15 +49,6 @@ const handleApiResponse = async (response, retryCount, generateImage) => {
       }
     }
 
-    if (response.status === 429) {
-      if (retryCount < MAX_RETRIES) {
-        console.log(`Rate limit reached. Retrying with a different API key. Attempt ${retryCount + 1} of ${MAX_RETRIES}`);
-        return generateImage(retryCount + 1);
-      } else {
-        throw new Error('Max retries reached. Unable to generate image due to rate limiting.');
-      }
-    }
-
     throw new Error(`API error: ${errorData.error || response.statusText}`);
   }
 
