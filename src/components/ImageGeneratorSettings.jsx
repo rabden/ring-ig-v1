@@ -167,13 +167,14 @@ const ImageGeneratorSettings = ({
             </Tabs>
           </div>
         )}
-      <div className="flex items-center justify-between">
-        <Label htmlFor="nsfwToggle">Enable NSFW Content</Label>
-        <Switch
-          id="nsfwToggle"
-          checked={nsfwEnabled}
-          onCheckedChange={setNsfwEnabled}
-        />
+        <div className="flex items-center justify-between">
+          <Label htmlFor="nsfwToggle">Enable NSFW Content</Label>
+          <Switch
+            id="nsfwToggle"
+            checked={nsfwEnabled}
+            onCheckedChange={setNsfwEnabled}
+          />
+        </div>
       </div>
     </div>
   )
