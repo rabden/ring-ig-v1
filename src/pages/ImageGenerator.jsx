@@ -82,20 +82,16 @@ const ImageGenerator = () => {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
-      <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
-        <div className="sticky top-0 z-10 bg-background pb-4">
-          <div className="flex justify-between items-center mb-6">
-            {session && (
-              <>
-                <div className="hidden md:block">
-                  <ProfileMenu user={session.user} credits={credits} />
-                </div>
-                <div className="fixed top-0 left-0 right-0 md:static bg-background p-4 md:p-0 z-20">
-                  <ActionButtons activeView={activeView} setActiveView={setActiveView} />
-                </div>
-              </>
-            )}
-          </div>
+      <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6 pt-16`}>
+        <div className="fixed top-0 left-0 right-0 bg-background z-20 p-4 md:p-6 flex justify-between items-center">
+          {session && (
+            <>
+              <div className="hidden md:block">
+                <ProfileMenu user={session.user} credits={credits} />
+              </div>
+              <ActionButtons activeView={activeView} setActiveView={setActiveView} />
+            </>
+          )}
         </div>
         <ImageGallery
           userId={session?.user?.id}
