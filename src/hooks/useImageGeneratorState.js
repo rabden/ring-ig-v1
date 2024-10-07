@@ -21,6 +21,8 @@ export const useImageGeneratorState = () => {
   const [activeView, setActiveView] = useState('myImages')
   const [nsfwEnabled, setNsfwEnabled] = useState(false)
 
+  const [selectedStyle, setSelectedStyle] = useState(null)
+
   return {
     prompt, setPrompt,
     seed, setSeed,
@@ -40,5 +42,6 @@ export const useImageGeneratorState = () => {
     generatingImages, setGeneratingImages,
     activeView, setActiveView,
     nsfwEnabled, setNsfwEnabled
+    selectedStyle, setSelectedStyle
   }
 }
