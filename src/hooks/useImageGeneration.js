@@ -4,8 +4,8 @@ import { toast } from 'sonner'
 import { modelConfigs } from '@/utils/modelConfigs'
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
 
-const MAX_RETRIES = 10;
-const RETRY_INTERVAL = 10000; // 10 seconds in milliseconds
+const MAX_RETRIES = 5;
+const RETRY_INTERVAL = 5000; // 5 seconds in milliseconds
 
 const makeDivisibleBy8 = (num) => Math.floor(num / 8) * 8;
 
@@ -39,22 +39,14 @@ const handleApiResponse = async (response, retryCount, generateImage) => {
     const errorData = await response.json();
     console.error('API response error:', errorData);
 
-    if (response.status === 500 && errorData.error && errorData.error.includes("Model too busy")) {
+    const retryableErrors = [500, 503, 429];
+    if (retryableErrors.includes(response.status)) {
       if (retryCount < MAX_RETRIES) {
-        console.log(`Retrying image generation in 10 seconds. Attempt ${retryCount + 1} of ${MAX_RETRIES}`);
-        setTimeout(() => generateImage(retryCount + 1), RETRY_INTERVAL);
-        return null;
-      } else {
-        throw new Error('Max retries reached. The model is still busy.');
-      }
-    }
-
-    if (response.status === 429) {
-      if (retryCount < MAX_RETRIES) {
-        console.log(`Rate limit reached. Retrying with a different API key. Attempt ${retryCount + 1} of ${MAX_RETRIES}`);
+        console.log(`Retrying image generation in ${RETRY_INTERVAL / 1000} seconds. Attempt ${retryCount + 1} of ${MAX_RETRIES}`);
+        await new Promise(resolve => setTimeout(resolve, RETRY_INTERVAL));
         return generateImage(retryCount + 1);
       } else {
-        throw new Error('Max retries reached. Unable to generate image due to rate limiting.');
+        throw new Error(`Max retries reached. Unable to generate image. Last error: ${errorData.error || response.statusText}`);
       }
     }
 
@@ -171,10 +163,12 @@ export const useImageGeneration = ({
       toast.success(`Image generated successfully. ${creditCost} credits used.`);
     } catch (error) {
       console.error('Error generating image:', error);
-      if (retryCount === 0) {
-        toast.error(`Failed to generate image: ${error.message}`);
+      if (retryCount === MAX_RETRIES) {
+        toast.error(`Failed to generate image after ${MAX_RETRIES} attempts: ${error.message}`);
+        setGeneratingImages(prev => prev.slice(1));
+      } else if (retryCount === 0) {
+        toast.error(`Encountered an error. Retrying...`);
       }
-      setGeneratingImages(prev => prev.slice(1));
     }
   };
 
