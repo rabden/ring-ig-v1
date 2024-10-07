@@ -1,73 +1,44 @@
 import React from 'react'
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Slider } from "@/components/ui/slider"
-import { Switch } from "@/components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Textarea } from "@/components/ui/textarea"
+import { Input, Label, Button, Slider, Switch, Tabs, TabsContent, TabsList, TabsTrigger, Textarea } from "@/components/ui"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { HelpCircle } from "lucide-react"
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
 import { modelConfigs } from '@/utils/modelConfigs'
+import { SettingTooltip, SettingSection } from './ImageGeneratorSettingsHelpers'
 
-// Helper component for the tooltip
-const SettingTooltip = ({ content }) => (
-  <Popover>
-    <PopoverTrigger asChild>
-      <Button variant="ghost" className="h-3 w-3 p-0 text-muted-foreground hover:text-foreground opacity-70">
-        <HelpCircle className="h-3 w-3" />
-      </Button>
-    </PopoverTrigger>
-    <PopoverContent className="w-80 text-sm" align="start">
-      {content}
-    </PopoverContent>
-  </Popover>
-)
+const styleOptions = [
+  { value: 'anime', label: 'Anime' },
+  { value: '3D', label: '3D' },
+  { value: 'realistic', label: 'Realistic' },
+  { value: 'illustration', label: 'Illustration' },
+  { value: 'logo', label: 'Logo' },
+  { value: 'graphics', label: 'Graphics' },
+]
 
-const SettingSection = ({ label, tooltip, children }) => (
-  <div className="space-y-2">
-    <div className="flex items-center space-x-2">
-      <Label>{label}</Label>
-      <SettingTooltip content={tooltip} />
-    </div>
-    {children}
-  </div>
-)
+const styleSuffixes = {
+  anime: 'in a highly detailed anime art style, with vibrant colors, dynamic lighting, clean lines, expressive facial features, large eyes, and a stylized background. The characters should have smooth, cel-shaded textures and distinct, exaggerated emotions, similar to traditional Japanese animation. The atmosphere should be lively, with intricate attention to details in the scenery and character clothing.',
+  // ... Add suffixes for other styles here
+}
 
 const ImageGeneratorSettings = ({
-  prompt,
-  setPrompt,
-  handlePromptKeyDown,
-  generateImage,
-  model,
-  setModel,
-  seed,
-  setSeed,
-  randomizeSeed,
-  setRandomizeSeed,
-  quality,
-  setQuality,
-  useAspectRatio,
-  setUseAspectRatio,
-  aspectRatio,
-  setAspectRatio,
-  width,
-  setWidth,
-  height,
-  setHeight,
-  steps,
-  setSteps,
-  session,
-  credits,
-  nsfwEnabled,
-  setNsfwEnabled
+  prompt, setPrompt, handlePromptKeyDown, generateImage, model, setModel,
+  seed, setSeed, randomizeSeed, setRandomizeSeed, quality, setQuality,
+  useAspectRatio, setUseAspectRatio, aspectRatio, setAspectRatio,
+  width, setWidth, height, setHeight, steps, setSteps,
+  session, credits, nsfwEnabled, setNsfwEnabled,
+  selectedStyle, setSelectedStyle // Add these new props
 }) => {
   const currentModel = model && modelConfigs[model] ? modelConfigs[model] : null;
 
   const handleModelSelection = (selectedModel) => {
     setModel(selectedModel);
     setSteps(modelConfigs[selectedModel].defaultStep);
+  };
+
+  const handleStyleSelection = (style) => {
+    setSelectedStyle(style);
+    // Optionally, you can update the prompt here to include the style suffix
+    // setPrompt((prevPrompt) => `${prevPrompt} ${styleSuffixes[style]}`);
   };
 
   return (
@@ -93,39 +64,29 @@ const ImageGeneratorSettings = ({
           <div className="flex space-x-2">
             {nsfwEnabled ? (
               <>
-                <Button
-                  variant={model === 'nsfwMaster' ? 'default' : 'outline'}
-                  className="flex-1"
-                  onClick={() => handleModelSelection('nsfwMaster')}
-                >
-                  Reality
-                </Button>
-                <Button
-                  variant={model === 'animeNsfw' ? 'default' : 'outline'}
-                  className="flex-1"
-                  onClick={() => handleModelSelection('animeNsfw')}
-                >
-                  Anime
-                </Button>
+                <Button variant={model === 'nsfwMaster' ? 'default' : 'outline'} className="flex-1" onClick={() => handleModelSelection('nsfwMaster')}>Reality</Button>
+                <Button variant={model === 'animeNsfw' ? 'default' : 'outline'} className="flex-1" onClick={() => handleModelSelection('animeNsfw')}>Anime</Button>
               </>
             ) : (
               <>
-                <Button
-                  variant={model === 'flux' ? 'default' : 'outline'}
-                  className="flex-1"
-                  onClick={() => handleModelSelection('flux')}
-                >
-                  Fast
-                </Button>
-                <Button
-                  variant={model === 'fluxDev' ? 'default' : 'outline'}
-                  className="flex-1"
-                  onClick={() => handleModelSelection('fluxDev')}
-                >
-                  Quality
-                </Button>
+                <Button variant={model === 'flux' ? 'default' : 'outline'} className="flex-1" onClick={() => handleModelSelection('flux')}>Fast</Button>
+                <Button variant={model === 'fluxDev' ? 'default' : 'outline'} className="flex-1" onClick={() => handleModelSelection('fluxDev')}>Quality</Button>
               </>
             )}
+          </div>
+        </SettingSection>
+        <SettingSection label="Style" tooltip="Choose a style for your generated image.">
+          <div className="grid grid-cols-3 gap-2">
+            {styleOptions.map((style) => (
+              <Button
+                key={style.value}
+                variant={selectedStyle === style.value ? "default" : "outline"}
+                className="w-full text-xs py-1 px-2"
+                onClick={() => handleStyleSelection(style.value)}
+              >
+                {style.label}
+              </Button>
+            ))}
           </div>
         </SettingSection>
         <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more processing time and credits.">
