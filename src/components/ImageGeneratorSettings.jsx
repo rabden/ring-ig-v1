@@ -11,16 +11,29 @@ import { HelpCircle } from "lucide-react"
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
 import { modelConfigs } from '@/utils/modelConfigs'
 
-// Helper components (SettingTooltip and SettingSection) remain unchanged
+// Helper component for the tooltip
+const SettingTooltip = ({ content }) => (
+  <Popover>
+    <PopoverTrigger asChild>
+      <Button variant="ghost" className="h-3 w-3 p-0 text-muted-foreground hover:text-foreground opacity-70">
+        <HelpCircle className="h-3 w-3" />
+      </Button>
+    </PopoverTrigger>
+    <PopoverContent className="w-80 text-sm" align="start">
+      {content}
+    </PopoverContent>
+  </Popover>
+)
 
-const styleOptions = [
-  { name: 'Anime', suffix: ', anime style' },
-  { name: '3D', suffix: ', 3D render' },
-  { name: 'Realistic', suffix: ', photorealistic' },
-  { name: 'Illustration', suffix: ', digital illustration' },
-  { name: 'Logo', suffix: ', logo design' },
-  { name: 'Graphics', suffix: ', graphic design' },
-]
+const SettingSection = ({ label, tooltip, children }) => (
+  <div className="space-y-2">
+    <div className="flex items-center space-x-2">
+      <Label>{label}</Label>
+      <SettingTooltip content={tooltip} />
+    </div>
+    {children}
+  </div>
+)
 
 const ImageGeneratorSettings = ({
   prompt,
@@ -48,9 +61,7 @@ const ImageGeneratorSettings = ({
   session,
   credits,
   nsfwEnabled,
-  setNsfwEnabled,
-  selectedStyle,
-  setSelectedStyle
+  setNsfwEnabled
 }) => {
   const currentModel = model && modelConfigs[model] ? modelConfigs[model] : null;
 
@@ -59,17 +70,12 @@ const ImageGeneratorSettings = ({
     setSteps(modelConfigs[selectedModel].defaultStep);
   };
 
-  const handleStyleSelection = (style) => {
-    if (selectedStyle === style) {
-      setSelectedStyle(null);
-    } else {
-      setSelectedStyle(style);
-    }
-  };
-
   return (
     <div className="space-y-4 pb-20 md:pb-0">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-semibold">Settings</h2>
         {session && <div className="text-sm font-medium">Credits: {credits}</div>}
+      </div>
       <div className="space-y-4">
         <SettingSection label="Prompt" tooltip="Enter a description of the image you want to generate. Be as specific as possible for best results.">
           <Textarea
@@ -80,7 +86,7 @@ const ImageGeneratorSettings = ({
             className="min-h-[100px] resize-y"
           />
         </SettingSection>
-        <Button onClick={() => generateImage(selectedStyle)} className="w-full" disabled={!session}>
+        <Button onClick={generateImage} className="w-full" disabled={!session}>
           Generate Image
         </Button>
         <SettingSection label="Model" tooltip="Choose the AI model to use for image generation.">
@@ -120,20 +126,6 @@ const ImageGeneratorSettings = ({
                 </Button>
               </>
             )}
-          </div>
-        </SettingSection>
-        <SettingSection label="Style" tooltip="Choose a style for your generated image.">
-          <div className="grid grid-cols-3 gap-2">
-            {styleOptions.map((style) => (
-              <Button
-                key={style.name}
-                variant={selectedStyle === style ? 'default' : 'outline'}
-                className="text-xs py-1 px-2"
-                onClick={() => handleStyleSelection(style)}
-              >
-                {style.name}
-              </Button>
-            ))}
           </div>
         </SettingSection>
         <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more processing time and credits.">

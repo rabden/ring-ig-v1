@@ -24,7 +24,6 @@ export const useImageHandlers = ({
   activeView,
   setDetailsDialogOpen,
   setActiveView,
-  setSelectedStyle,
 }) => {
   const handleGenerateImage = async () => {
     setActiveTab('images')
