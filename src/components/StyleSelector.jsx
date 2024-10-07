@@ -10,12 +10,6 @@ const styleOptions = [
   { value: 'illustration', label: 'Illustration' },
   { value: 'logo', label: 'Logo' },
   { value: 'graphics', label: 'Graphics' },
-  { value: 'watercolor', label: 'Watercolor' },
-  { value: 'oilPainting', label: 'Oil Painting' },
-  { value: 'sketch', label: 'Sketch' },
-  { value: 'pixelArt', label: 'Pixel Art' },
-  { value: 'lowPoly', label: 'Low Poly' },
-  { value: 'conceptArt', label: 'Concept Art' },
 ]
 
 export const StyleSelector = ({ selectedStyle, setSelectedStyle }) => (

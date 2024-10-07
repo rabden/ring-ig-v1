@@ -6,34 +6,10 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
-import { HelpCircle } from "lucide-react"
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
 import { modelConfigs } from '@/utils/modelConfigs'
-
-// Helper component for the tooltip
-const SettingTooltip = ({ content }) => (
-  <Popover>
-    <PopoverTrigger asChild>
-      <Button variant="ghost" className="h-3 w-3 p-0 text-muted-foreground hover:text-foreground opacity-70">
-        <HelpCircle className="h-3 w-3" />
-      </Button>
-    </PopoverTrigger>
-    <PopoverContent className="w-80 text-sm" align="start">
-      {content}
-    </PopoverContent>
-  </Popover>
-)
-
-const SettingSection = ({ label, tooltip, children }) => (
-  <div className="space-y-2">
-    <div className="flex items-center space-x-2">
-      <Label>{label}</Label>
-      <SettingTooltip content={tooltip} />
-    </div>
-    {children}
-  </div>
-)
+import { SettingSection, SettingTooltip } from './ImageGeneratorSettingsHelpers'
+import { StyleSelector } from './StyleSelector'
 
 const ImageGeneratorSettings = ({
   prompt,
@@ -61,7 +37,9 @@ const ImageGeneratorSettings = ({
   session,
   credits,
   nsfwEnabled,
-  setNsfwEnabled
+  setNsfwEnabled,
+  selectedStyle,
+  setSelectedStyle
 }) => {
   const currentModel = model && modelConfigs[model] ? modelConfigs[model] : null;
 
@@ -128,6 +106,7 @@ const ImageGeneratorSettings = ({
             )}
           </div>
         </SettingSection>
+        <StyleSelector selectedStyle={selectedStyle} setSelectedStyle={setSelectedStyle} />
         <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more processing time and credits.">
           <Tabs value={quality} onValueChange={setQuality}>
             <TabsList className="grid grid-cols-3 w-full">
