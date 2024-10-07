@@ -1,3 +1,5 @@
+import { aspectRatios } from '@/utils/imageConfigs';
+
 const MAX_RETRIES = 5;
 
 const getRetryInterval = (statusCode) => {
