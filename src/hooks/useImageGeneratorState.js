@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { modelConfigs } from '@/utils/imageConfigs'
+import { modelConfigs } from '@/utils/modelConfigs'
 
 export const useImageGeneratorState = () => {
   const [prompt, setPrompt] = useState('')
@@ -13,7 +13,6 @@ export const useImageGeneratorState = () => {
   const [aspectRatio, setAspectRatio] = useState("1:1")
   const [useAspectRatio, setUseAspectRatio] = useState(true)
   const [quality, setQuality] = useState("HD")
-  const [modelSidebarOpen, setModelSidebarOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState(null)
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false)
@@ -34,7 +33,6 @@ export const useImageGeneratorState = () => {
     aspectRatio, setAspectRatio,
     useAspectRatio, setUseAspectRatio,
     quality, setQuality,
-    modelSidebarOpen, setModelSidebarOpen,
     selectedImage, setSelectedImage,
     detailsDialogOpen, setDetailsDialogOpen,
     fullScreenViewOpen, setFullScreenViewOpen,
