@@ -1,48 +1,13 @@
 import React from 'react'
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { Slider } from "@/components/ui/slider"
-import { Switch } from "@/components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
-import { HelpCircle } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
+import { Slider } from "@/components/ui/slider"
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
 import { modelConfigs } from '@/utils/modelConfigs'
 import { SettingTooltip, SettingSection } from './ImageGeneratorSettingsHelpers'
-
-const styleOptions = [
-  { value: 'general', label: 'General' },
-  { value: 'anime', label: 'Anime' },
-  { value: 'threeD', label: '3D' },
-  { value: 'realistic', label: 'Realistic' },
-  { value: 'illustration', label: 'Illustration' },
-  { value: 'logo', label: 'Logo' },
-  { value: 'graphics', label: 'Graphics' },
-  { value: 'watercolor', label: 'Watercolor' },
-  { value: 'oilPainting', label: 'Oil Painting' },
-  { value: 'sketch', label: 'Sketch' },
-  { value: 'pixelArt', label: 'Pixel Art' },
-  { value: 'lowPoly', label: 'Low Poly' },
-  { value: 'conceptArt', label: 'Concept Art' },
-]
-
-const styleSuffixes = {
-  general: 'ultra-detailed, hyper-realistic, cinematic lighting, dynamic composition, intricate textures, volumetric lighting, soft shadows, vivid colors, highly polished, 8K resolution, photorealistic rendering, depth of field, with sharp details and perfect symmetry',
-  anime: 'in a highly detailed anime art style, with vibrant colors, dynamic lighting, clean lines, expressive facial features, large eyes, and a stylized background. The characters should have smooth, cel-shaded textures and distinct, exaggerated emotions, similar to traditional Japanese animation. The atmosphere should be lively, with intricate attention to details in the scenery and character clothing.',
-  threeD: 'in a photorealistic 3D rendered style, with high-quality textures, accurate lighting and shadows, and detailed surface materials. The image should have depth and dimensionality, as if created using advanced 3D modeling and rendering software.',
-  realistic: 'in a hyper-realistic style, with extreme attention to detail, accurate lighting, and true-to-life textures. The image should look as close to a high-resolution photograph as possible, capturing subtle nuances and imperfections found in reality.',
-  illustration: 'in a professional illustration style, with clean lines, bold colors, and a balance of detail and simplicity. The image should have a polished, commercial quality suitable for book covers, magazines, or digital media.',
-  logo: 'as a minimalist, memorable logo design. The image should be simple yet distinctive, using basic shapes, clever negative space, and a limited color palette. It should be scalable and recognizable even at small sizes.',
-  graphics: 'as a modern graphic design, with bold geometric shapes, vibrant colors, and a strong sense of composition. The style should be clean and contemporary, suitable for posters, album covers, or digital media.',
-  watercolor: 'in a soft, ethereal watercolor style, with gentle color washes, subtle blending, and delicate details. The image should have a light, airy quality with visible brush strokes and paper texture, capturing the translucent nature of watercolor paints.',
-  oilPainting: 'in the style of a classical oil painting, with rich, textured brush strokes, deep colors, and a sense of depth achieved through layering. The image should have the look of canvas texture and the characteristic glossiness of oil paints.',
-  sketch: 'as a hand-drawn sketch, with loose, expressive lines and a sense of spontaneity. The image should have a raw, unfinished quality, using hatching and cross-hatching for shading, and varying line weights to create depth and focus.',
-  pixelArt: 'in a retro pixel art style, with a limited color palette and visible square pixels. The image should have a nostalgic, 8-bit or 16-bit video game aesthetic, with careful attention to detail despite the low resolution.',
-  lowPoly: 'in a low poly 3D style, with simplified geometric shapes and flat or gradient color fills. The image should have a modern, stylized look with visible polygonal structures, creating a balance between abstraction and recognition.',
-  conceptArt: 'as a piece of concept art, with a focus on mood, atmosphere, and world-building. The image should be detailed and imaginative, suitable for visualizing environments, characters, or scenes for films, video games, or other media productions.',
-}
+import { StyleSelector } from './StyleSelector'
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt, handlePromptKeyDown, generateImage, model, setModel,
@@ -58,18 +23,6 @@ const ImageGeneratorSettings = ({
     setModel(selectedModel);
     setSteps(modelConfigs[selectedModel].defaultStep);
   };
-
-  const handleStyleSelection = (style) => {
-    setSelectedStyle(style);
-    setPrompt((prevPrompt) => `${prevPrompt} ${styleSuffixes[style]}`);
-  };
-
-  React.useEffect(() => {
-    if (!selectedStyle) {
-      setSelectedStyle('general');
-      setPrompt((prevPrompt) => `${prevPrompt} ${styleSuffixes['general']}`);
-    }
-  }, []);
 
   return (
     <div className="space-y-4 pb-20 md:pb-0">
@@ -105,20 +58,7 @@ const ImageGeneratorSettings = ({
             )}
           </div>
         </SettingSection>
-        <SettingSection label="Style" tooltip="Choose a style for your generated image.">
-          <div className="grid grid-cols-3 gap-2">
-            {styleOptions.map((style) => (
-              <Button
-                key={style.value}
-                variant={selectedStyle === style.value ? "default" : "outline"}
-                className="w-full text-xs py-1 px-2"
-                onClick={() => handleStyleSelection(style.value)}
-              >
-                {style.label}
-              </Button>
-            ))}
-          </div>
-        </SettingSection>
+        <StyleSelector selectedStyle={selectedStyle} setSelectedStyle={setSelectedStyle} />
         <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more processing time and credits.">
           <Tabs value={quality} onValueChange={setQuality}>
             <TabsList className="grid grid-cols-3 w-full">
