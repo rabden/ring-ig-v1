@@ -5,7 +5,15 @@ import { modelConfigs } from '@/utils/modelConfigs'
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
 
 const MAX_RETRIES = 5;
-const RETRY_INTERVAL = 5000; // 5 seconds in milliseconds
+
+const getRetryInterval = (statusCode) => {
+  switch (statusCode) {
+    case 503: return 120000; // 2 minutes
+    case 500: return 10000;  // 10 seconds
+    case 429: return 2000;   // 2 seconds
+    default: return 5000;    // 5 seconds for other cases
+  }
+};
 
 const makeDivisibleBy8 = (num) => Math.floor(num / 8) * 8;
 
@@ -42,8 +50,9 @@ const handleApiResponse = async (response, retryCount, generateImage) => {
     const retryableErrors = [500, 503, 429];
     if (retryableErrors.includes(response.status)) {
       if (retryCount < MAX_RETRIES) {
-        console.log(`Retrying image generation in ${RETRY_INTERVAL / 1000} seconds. Attempt ${retryCount + 1} of ${MAX_RETRIES}`);
-        await new Promise(resolve => setTimeout(resolve, RETRY_INTERVAL));
+        const retryInterval = getRetryInterval(response.status);
+        console.log(`Retrying image generation in ${retryInterval / 1000} seconds. Attempt ${retryCount + 1} of ${MAX_RETRIES}`);
+        await new Promise(resolve => setTimeout(resolve, retryInterval));
         return generateImage(retryCount + 1);
       } else {
         throw new Error(`Max retries reached. Unable to generate image. Last error: ${errorData.error || response.statusText}`);
@@ -173,4 +182,5 @@ export const useImageGeneration = ({
   };
 
   return { generateImage };
+};
 };
