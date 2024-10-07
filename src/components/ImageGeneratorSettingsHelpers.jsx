@@ -1,5 +1,6 @@
 import React from 'react'
-import { Button, Label } from "@/components/ui"
+import { Button } from "@/components/ui/button"
+import { Label } from "@/components/ui/label"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { HelpCircle } from "lucide-react"
 
