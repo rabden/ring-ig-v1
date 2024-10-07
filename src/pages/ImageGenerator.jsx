@@ -58,7 +58,6 @@ const ImageGenerator = () => {
     handleDownload,
     handleDiscard,
     handleViewDetails,
-    setSelectedStyle,
   } = useImageHandlers({
     setActiveTab,
     generateImage,
@@ -158,6 +157,9 @@ const ImageGenerator = () => {
       />
     </div>
   )
+}
+
+export default ImageGenerator
 }
 
 export default ImageGenerator
