@@ -8,7 +8,6 @@ import { MoreVertical } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import SkeletonImageCard from './SkeletonImageCard'
 import { modelConfigs } from '@/utils/modelConfigs'
-import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination"
 
 const breakpointColumnsObj = {
   default: 4,
@@ -17,25 +16,18 @@ const breakpointColumnsObj = {
   500: 2
 }
 
-const IMAGES_PER_PAGE = 100 // Updated to 100 images per page
-
 const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails, activeView, generatingImages = [], nsfwEnabled }) => {
   const [images, setImages] = useState([])
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
 
   const { isLoading, refetch } = useQuery({
-    queryKey: ['images', userId, activeView, nsfwEnabled, currentPage],
+    queryKey: ['images', userId, activeView, nsfwEnabled],
     queryFn: async () => {
       if (!userId) return []
-      const from = (currentPage - 1) * IMAGES_PER_PAGE
-      const to = from + IMAGES_PER_PAGE - 1
 
-      const { data, error, count } = await supabase
+      const { data, error } = await supabase
         .from('user_images')
-        .select('*', { count: 'exact' })
+        .select('*')
         .order('created_at', { ascending: false })
-        .range(from, to)
 
       if (error) throw error
 
@@ -46,28 +38,26 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
       });
 
       setImages(filteredData);
-      setTotalPages(Math.ceil(count / IMAGES_PER_PAGE));
       return filteredData;
     },
     enabled: !!userId,
   })
 
   useEffect(() => {
-    setCurrentPage(1) // Reset to first page when activeView or nsfwEnabled changes
-    refetch() // Refetch images when activeView or nsfwEnabled changes
+    refetch()
   }, [activeView, nsfwEnabled, refetch])
 
   useEffect(() => {
     const subscription = supabase
       .channel('user_images_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'user_images' }, (payload) => {
-        if (payload.eventType === 'INSERT' && currentPage === 1) {
+        if (payload.eventType === 'INSERT') {
           setImages((prevImages) => {
             const isNsfw = modelConfigs[payload.new.model]?.category === "NSFW";
             if (activeView === 'myImages' && payload.new.user_id === userId && (nsfwEnabled || !isNsfw)) {
-              return [payload.new, ...prevImages.slice(0, IMAGES_PER_PAGE - 1)]
+              return [payload.new, ...prevImages]
             } else if (activeView === 'inspiration' && payload.new.user_id !== userId && (nsfwEnabled || !isNsfw)) {
-              return [payload.new, ...prevImages.slice(0, IMAGES_PER_PAGE - 1)]
+              return [payload.new, ...prevImages]
             }
             return prevImages
           })
@@ -80,7 +70,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
     return () => {
       subscription.unsubscribe()
     }
-  }, [userId, activeView, nsfwEnabled, currentPage])
+  }, [userId, activeView, nsfwEnabled])
 
   const renderContent = () => {
     const content = []
@@ -105,7 +95,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
                 alt={image.prompt} 
                 className="absolute inset-0 w-full h-full object-cover cursor-pointer"
                 onClick={() => onImageClick(image, index)}
-                loading="lazy" // Add lazy loading
+                loading="lazy"
               />
             </CardContent>
           </Card>
@@ -142,50 +132,14 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
     return content
   }
 
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage)
-    setImages([]) // Clear current images
-    window.scrollTo(0, 0) // Scroll to top when changing pages
-  }
-
   return (
-    <>
-      <Masonry
-        breakpointCols={breakpointColumnsObj}
-        className="flex w-auto"
-        columnClassName="bg-clip-padding px-2"
-      >
-        {renderContent()}
-      </Masonry>
-      {totalPages > 1 && (
-        <Pagination className="mt-8">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious 
-                onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
-                disabled={currentPage === 1}
-              />
-            </PaginationItem>
-            {[...Array(totalPages)].map((_, index) => (
-              <PaginationItem key={index}>
-                <PaginationLink
-                  onClick={() => handlePageChange(index + 1)}
-                  isActive={currentPage === index + 1}
-                >
-                  {index + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext 
-                onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
-                disabled={currentPage === totalPages}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
-    </>
+    <Masonry
+      breakpointCols={breakpointColumnsObj}
+      className="flex w-auto"
+      columnClassName="bg-clip-padding px-2"
+    >
+      {renderContent()}
+    </Masonry>
   )
 }
 
