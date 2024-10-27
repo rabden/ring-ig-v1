@@ -7,7 +7,6 @@ import AuthOverlay from '@/components/AuthOverlay'
 import BottomNavbar from '@/components/BottomNavbar'
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings'
 import ImageGallery from '@/components/ImageGallery'
-import ModelSidebarMenu from '@/components/ModelSidebarMenu'
 import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
 import ProfileMenu from '@/components/ProfileMenu'
@@ -22,7 +21,7 @@ const ImageGenerator = () => {
     width, setWidth, height, setHeight, steps, setSteps,
     model, setModel, activeTab, setActiveTab, aspectRatio, setAspectRatio,
     useAspectRatio, setUseAspectRatio, quality, setQuality,
-    modelSidebarOpen, setModelSidebarOpen, selectedImage, setSelectedImage,
+    selectedImage, setSelectedImage,
     detailsDialogOpen, setDetailsDialogOpen, fullScreenViewOpen, setFullScreenViewOpen,
     fullScreenImageIndex, setFullScreenImageIndex, generatingImages, setGeneratingImages,
     activeView, setActiveView, nsfwEnabled, setNsfwEnabled
@@ -117,7 +116,7 @@ const ImageGenerator = () => {
           handlePromptKeyDown={handlePromptKeyDown}
           generateImage={handleGenerateImage}
           model={model}
-          setModel={handleModelChange}
+          setModel={setModel}
           seed={seed}
           setSeed={setSeed}
           randomizeSeed={randomizeSeed}
@@ -132,9 +131,6 @@ const ImageGenerator = () => {
           setWidth={setWidth}
           height={height}
           setHeight={setHeight}
-          steps={steps}
-          setSteps={setSteps}
-          setModelSidebarOpen={setModelSidebarOpen}
           session={session}
           credits={credits}
           nsfwEnabled={nsfwEnabled}
@@ -142,13 +138,6 @@ const ImageGenerator = () => {
         />
       </div>
       <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} session={session} credits={credits} />
-      <ModelSidebarMenu
-        isOpen={modelSidebarOpen}
-        onClose={() => setModelSidebarOpen(false)}
-        onSelectModel={handleModelChange}
-        currentModel={model}
-        nsfwEnabled={nsfwEnabled}
-      />
       <ImageDetailsDialog
         open={detailsDialogOpen}
         onOpenChange={setDetailsDialogOpen}
