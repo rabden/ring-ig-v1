@@ -9,9 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { HelpCircle } from "lucide-react"
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
-import { modelConfigs } from '@/utils/modelConfigs'
 
-// Helper component for the tooltip
 const SettingTooltip = ({ content }) => (
   <Popover>
     <PopoverTrigger asChild>
@@ -56,16 +54,11 @@ const ImageGeneratorSettings = ({
   setWidth,
   height,
   setHeight,
-  steps,
-  setSteps,
-  setModelSidebarOpen,
   session,
   credits,
   nsfwEnabled,
   setNsfwEnabled
 }) => {
-  const currentModel = model && modelConfigs[model] ? modelConfigs[model] : null;
-
   return (
     <div className="space-y-4 pb-20 md:pb-0">
       <div className="flex justify-between items-center mb-4">
@@ -85,15 +78,40 @@ const ImageGeneratorSettings = ({
         <Button onClick={generateImage} className="w-full" disabled={!session}>
           Generate Image
         </Button>
-        <SettingSection label="Model" tooltip="Choose the AI model to use for image generation. Different models may produce different styles or qualities of images.">
-          <Button
-            variant="outline"
-            className="w-full justify-between"
-            onClick={() => setModelSidebarOpen(true)}
-          >
-            {currentModel ? currentModel.name : "Select a model"}
-            {currentModel && <span className="ml-2 opacity-50">{currentModel.category}</span>}
-          </Button>
+        <SettingSection label="Model" tooltip="Choose between fast generation or higher quality output.">
+          <div className="grid grid-cols-2 gap-2">
+            {!nsfwEnabled ? (
+              <>
+                <Button
+                  variant={model === 'flux' ? 'default' : 'outline'}
+                  onClick={() => setModel('flux')}
+                >
+                  Fast
+                </Button>
+                <Button
+                  variant={model === 'fluxDev' ? 'default' : 'outline'}
+                  onClick={() => setModel('fluxDev')}
+                >
+                  Quality
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant={model === 'nsfwMaster' ? 'default' : 'outline'}
+                  onClick={() => setModel('nsfwMaster')}
+                >
+                  Reality
+                </Button>
+                <Button
+                  variant={model === 'animeNsfw' ? 'default' : 'outline'}
+                  onClick={() => setModel('animeNsfw')}
+                >
+                  Anime
+                </Button>
+              </>
+            )}
+          </div>
         </SettingSection>
         <SettingSection label="Seed" tooltip="A seed is a number that initializes the random generation process. Using the same seed with the same settings will produce the same image.">
           <div className="flex items-center space-x-2">
@@ -113,7 +131,7 @@ const ImageGeneratorSettings = ({
             </div>
           </div>
         </SettingSection>
-        <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more processing time and credits.">
+        <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more credits.">
           <Tabs value={quality} onValueChange={setQuality}>
             <TabsList className="grid grid-cols-3 w-full">
               {Object.keys(qualityOptions).map((q) => (
@@ -165,19 +183,6 @@ const ImageGeneratorSettings = ({
             </>
           )}
         </SettingSection>
-        {currentModel && (
-          <SettingSection label="Inference Steps" tooltip="The number of denoising steps. More steps can result in higher quality images but take longer to generate.">
-            <Tabs value={steps.toString()} onValueChange={(value) => setSteps(parseInt(value))}>
-              <TabsList className="grid grid-cols-5 w-full">
-                {currentModel.inferenceSteps.map((step) => (
-                  <TabsTrigger key={step} value={step.toString()}>
-                    {step}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          </SettingSection>
-        )}
         <div className="flex items-center justify-between">
           <SettingSection label="Enable NSFW Content" tooltip="Toggle to allow or disallow the generation of Not Safe For Work (NSFW) content.">
             <Switch
