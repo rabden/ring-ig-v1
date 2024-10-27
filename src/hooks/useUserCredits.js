@@ -39,7 +39,6 @@ export const useUserCredits = (userId) => {
     queryKey: ['userCredits', userId],
     queryFn: fetchCredits,
     enabled: Boolean(userId),
-    retry: 2,
     refetchInterval: 60000, // Refetch every minute to check for updates
   });
 

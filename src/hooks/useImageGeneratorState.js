@@ -20,15 +20,9 @@ export const useImageGeneratorState = () => {
   const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0)
   const [generatingImages, setGeneratingImages] = useState([])
   const [activeView, setActiveView] = useState('myImages')
-  const [nsfwEnabled, setNsfwEnabled] = useState(() => {
-    const saved = localStorage.getItem('nsfwEnabled')
-    return saved ? JSON.parse(saved) : false
-  })
+  const [nsfwEnabled, setNsfwEnabled] = useState(false)
 
-  useEffect(() => {
-    localStorage.setItem('nsfwEnabled', JSON.stringify(nsfwEnabled))
-  }, [nsfwEnabled])
-
+  // Update model when NSFW toggle changes
   useEffect(() => {
     if (nsfwEnabled) {
       setModel('nsfwMaster')
