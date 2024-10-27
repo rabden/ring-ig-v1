@@ -9,10 +9,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Switch } from "@/components/ui/switch";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
-const ProfileMenu = ({ user, credits, nsfwEnabled, setNsfwEnabled }) => {
+const ProfileMenu = ({ user, credits }) => {
   const { logout } = useSupabaseAuth();
 
   const displayName = user.user_metadata.display_name || user.email.split('@')[0];
@@ -37,14 +36,6 @@ const ProfileMenu = ({ user, credits, nsfwEnabled, setNsfwEnabled }) => {
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           Credits: {credits !== undefined ? credits : 'Loading...'}
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem className="flex justify-between cursor-default">
-          <span>NSFW Content</span>
-          <Switch
-            checked={nsfwEnabled}
-            onCheckedChange={setNsfwEnabled}
-          />
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={logout}>
