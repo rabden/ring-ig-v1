@@ -33,8 +33,13 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
 
       const filteredData = data.filter(img => {
         const isNsfw = modelConfigs[img.model]?.category === "NSFW";
-        return (activeView === 'myImages' && img.user_id === userId && (nsfwEnabled || !isNsfw)) ||
-               (activeView === 'inspiration' && img.user_id !== userId && (nsfwEnabled || !isNsfw));
+        if (nsfwEnabled) {
+          return isNsfw && ((activeView === 'myImages' && img.user_id === userId) ||
+                 (activeView === 'inspiration' && img.user_id !== userId));
+        } else {
+          return !isNsfw && ((activeView === 'myImages' && img.user_id === userId) ||
+                 (activeView === 'inspiration' && img.user_id !== userId));
+        }
       });
 
       setImages(filteredData);
