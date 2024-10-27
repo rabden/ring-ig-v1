@@ -1,8 +1,7 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
@@ -47,14 +46,8 @@ const ImageGeneratorSettings = ({
   setRandomizeSeed,
   quality,
   setQuality,
-  useAspectRatio,
-  setUseAspectRatio,
   aspectRatio,
   setAspectRatio,
-  width,
-  setWidth,
-  height,
-  setHeight,
   session,
   credits,
   nsfwEnabled,
@@ -62,25 +55,48 @@ const ImageGeneratorSettings = ({
   style,
   setStyle
 }) => {
+  const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
+  const hasEnoughCredits = credits >= creditCost;
+
   return (
     <div className="space-y-4 pb-20 md:pb-0">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Settings</h2>
-        {session && <div className="text-sm font-medium">Credits: {credits}</div>}
+        {session && (
+          <div className="text-sm font-medium">
+            Credits: {credits}
+            {!hasEnoughCredits && (
+              <span className="text-destructive ml-2">
+                Need {creditCost} credits for {quality}
+              </span>
+            )}
+          </div>
+        )}
       </div>
       <div className="space-y-4">
         <SettingSection label="Prompt" tooltip="Enter a description of the image you want to generate. Be as specific as possible for best results.">
           <Textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            onKeyDown={handlePromptKeyDown}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey && (!session || !hasEnoughCredits)) {
+                e.preventDefault();
+                return;
+              }
+              handlePromptKeyDown(e);
+            }}
             placeholder="Enter your prompt here"
             className="min-h-[100px] resize-y"
           />
         </SettingSection>
-        <Button onClick={generateImage} className="w-full" disabled={!session}>
-          Generate Image
+        <Button 
+          onClick={generateImage} 
+          className="w-full" 
+          disabled={!session || !hasEnoughCredits}
+        >
+          {!session ? 'Sign in to generate' : !hasEnoughCredits ? `Need ${creditCost} credits for ${quality}` : 'Generate Image'}
         </Button>
+        
         <SettingSection label="Model" tooltip="Choose between fast generation or higher quality output.">
           <div className="grid grid-cols-2 gap-2">
             {!nsfwEnabled ? (
@@ -130,6 +146,7 @@ const ImageGeneratorSettings = ({
             ))}
           </div>
         </SettingSection>
+
         <SettingSection label="Seed" tooltip="A seed is a number that initializes the random generation process. Using the same seed with the same settings will produce the same image.">
           <div className="flex items-center space-x-2">
             <Input
@@ -148,6 +165,7 @@ const ImageGeneratorSettings = ({
             </div>
           </div>
         </SettingSection>
+
         <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more credits.">
           <Tabs value={quality} onValueChange={setQuality}>
             <TabsList className="grid grid-cols-3 w-full">
@@ -157,49 +175,22 @@ const ImageGeneratorSettings = ({
             </TabsList>
           </Tabs>
         </SettingSection>
-        <SettingSection label="Use Aspect Ratio" tooltip="Choose a predefined aspect ratio for your image, or set custom dimensions below.">
-          <div className="flex items-center justify-between">
-            <Switch
-              checked={useAspectRatio}
-              onCheckedChange={setUseAspectRatio}
-            />
+
+        <SettingSection label="Aspect Ratio" tooltip="Choose a predefined aspect ratio for your image.">
+          <div className="grid grid-cols-3 gap-2">
+            {Object.keys(aspectRatios).map((ratio) => (
+              <Button
+                key={ratio}
+                variant={aspectRatio === ratio ? "default" : "outline"}
+                className="w-full text-xs py-1 px-2"
+                onClick={() => setAspectRatio(ratio)}
+              >
+                {ratio}
+              </Button>
+            ))}
           </div>
-          {useAspectRatio ? (
-            <div className="grid grid-cols-3 gap-2">
-              {Object.keys(aspectRatios).map((ratio) => (
-                <Button
-                  key={ratio}
-                  variant={aspectRatio === ratio ? "default" : "outline"}
-                  className="w-full text-xs py-1 px-2"
-                  onClick={() => setAspectRatio(ratio)}
-                >
-                  {ratio}
-                </Button>
-              ))}
-            </div>
-          ) : (
-            <>
-              <SettingSection label={`Width: ${width}px`} tooltip="Set the width of the generated image in pixels.">
-                <Slider
-                  min={256}
-                  max={qualityOptions[quality]}
-                  step={8}
-                  value={[width]}
-                  onValueChange={(value) => setWidth(value[0])}
-                />
-              </SettingSection>
-              <SettingSection label={`Height: ${height}px`} tooltip="Set the height of the generated image in pixels.">
-                <Slider
-                  min={256}
-                  max={qualityOptions[quality]}
-                  step={8}
-                  value={[height]}
-                  onValueChange={(value) => setHeight(value[0])}
-                />
-              </SettingSection>
-            </>
-          )}
         </SettingSection>
+
         <div className="flex items-center justify-between">
           <SettingSection label="Enable NSFW Content" tooltip="Toggle to allow or disallow the generation of Not Safe For Work (NSFW) content.">
             <Switch
