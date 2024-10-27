@@ -11,7 +11,7 @@ const StyleChooser = ({ style, setStyle }) => {
           <Button
             key={key}
             variant={style === key ? "default" : "outline"}
-            onClick={() => setStyle(key)}
+            onClick={() => setStyle(style === key ? null : key)}
             className="flex-shrink-0"
           >
             {config.name}

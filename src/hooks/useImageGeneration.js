@@ -122,8 +122,8 @@ export const useImageGeneration = ({
     }
 
     const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed;
-    const styleSuffix = styleConfigs[style]?.suffix || styleConfigs.general.suffix;
-    const modifiedPrompt = `${prompt}, ${styleSuffix}${modelConfigs[model]?.promptSuffix || ''}`;
+    const styleSuffix = style ? (styleConfigs[style]?.suffix || styleConfigs.general.suffix) : '';
+    const modifiedPrompt = `${prompt}${styleSuffix ? ', ' + styleSuffix : ''}${modelConfigs[model]?.promptSuffix || ''}`;
 
     const maxDimension = qualityOptions[quality];
     const { width: finalWidth, height: finalHeight } = calculateDimensions(useAspectRatio, aspectRatio, width, height, maxDimension);

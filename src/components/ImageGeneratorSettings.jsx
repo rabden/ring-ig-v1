@@ -6,11 +6,10 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
-import { Slider } from "@/components/ui/slider"
 import { HelpCircle } from "lucide-react"
-import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
+import { qualityOptions } from '@/utils/imageConfigs'
 import StyleChooser from './StyleChooser'
-import AuthOverlay from './AuthOverlay'
+import AspectRatioChooser from './AspectRatioChooser'
 
 const SettingSection = ({ label, tooltip, children }) => (
   <div className="space-y-2">
@@ -31,23 +30,6 @@ const SettingSection = ({ label, tooltip, children }) => (
   </div>
 )
 
-const AspectRatioVisualizer = ({ ratio }) => {
-  const [width, height] = ratio.split(':').map(Number)
-  const scale = 40 / Math.max(width, height)
-  
-  return (
-    <div className="flex justify-center mb-2">
-      <div 
-        className="border-2 border-primary bg-muted"
-        style={{
-          width: `${width * scale}px`,
-          height: `${height * scale}px`,
-        }}
-      />
-    </div>
-  )
-}
-
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
   handlePromptKeyDown,
@@ -64,20 +46,6 @@ const ImageGeneratorSettings = ({
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const hasEnoughCredits = credits >= creditCost;
-
-  const handleAspectRatioChange = (value) => {
-    const ratios = [
-      "9:16", "3:4", "4:5", "1:1", "5:4", "4:3", "16:9"
-    ]
-    setAspectRatio(ratios[Math.floor((value[0] / 100) * (ratios.length - 1))])
-  }
-
-  const getCurrentRatioIndex = () => {
-    const ratios = [
-      "9:16", "3:4", "4:5", "1:1", "5:4", "4:3", "16:9"
-    ]
-    return (ratios.indexOf(aspectRatio) / (ratios.length - 1)) * 100
-  }
 
   return (
     <div className="space-y-4 pb-20 md:pb-0">
@@ -159,7 +127,7 @@ const ImageGeneratorSettings = ({
         </SettingSection>
 
         {/* Style */}
-        <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
+        <SettingSection label="Style" tooltip="Choose a style to enhance your image generation, or click again to disable">
           <StyleChooser style={style} setStyle={setStyle} />
         </SettingSection>
 
@@ -176,14 +144,7 @@ const ImageGeneratorSettings = ({
 
         {/* Aspect Ratio */}
         <SettingSection label="Aspect Ratio" tooltip="Slide left for portrait, center for square, right for landscape">
-          <AspectRatioVisualizer ratio={aspectRatio} />
-          <Slider
-            value={[getCurrentRatioIndex()]}
-            onValueChange={handleAspectRatioChange}
-            max={100}
-            step={1}
-            className="w-full"
-          />
+          <AspectRatioChooser aspectRatio={aspectRatio} setAspectRatio={setAspectRatio} />
         </SettingSection>
 
         {/* Seed */}
