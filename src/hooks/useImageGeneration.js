@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
 import { toast } from 'sonner'
 import { modelConfigs, styleConfigs } from '@/utils/modelConfigs'
-import { qualityOptions } from '@/utils/imageConfigs'
+import { qualityOptions, aspectRatios } from '@/utils/imageConfigs'
 
 const MAX_RETRIES = 5;
 
