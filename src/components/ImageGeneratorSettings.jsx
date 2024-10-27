@@ -9,8 +9,6 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { HelpCircle } from "lucide-react"
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
 import StyleChooser from './StyleChooser'
-import { Drawer } from 'vaul'
-import AuthOverlay from './AuthOverlay'
 
 const SettingSection = ({ label, tooltip, children }) => (
   <div className="space-y-2">
@@ -43,15 +41,13 @@ const ImageGeneratorSettings = ({
   session,
   credits,
   nsfwEnabled, setNsfwEnabled,
-  style, setStyle,
-  activeTab,
-  setActiveTab
+  style, setStyle
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const hasEnoughCredits = credits >= creditCost;
 
-  const SettingsContent = () => (
-    <div className="space-y-4">
+  return (
+    <div className="space-y-4 pb-20 md:pb-0">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Settings</h2>
         {session && (
@@ -185,36 +181,6 @@ const ImageGeneratorSettings = ({
         </div>
       </div>
     </div>
-  )
-
-  return (
-    <>
-      {/* Desktop view */}
-      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto hidden md:block md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
-        {!session && (
-          <div className="absolute inset-0 z-10">
-            <AuthOverlay />
-          </div>
-        )}
-        <SettingsContent />
-      </div>
-
-      {/* Mobile view */}
-      <Drawer.Root 
-        open={activeTab === 'input'} 
-        onOpenChange={(open) => setActiveTab(open ? 'input' : 'images')}
-      >
-        <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-          <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 max-h-[95vh] overflow-y-auto">
-            <div className="p-4">
-              <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-8" />
-              <SettingsContent />
-            </div>
-          </Drawer.Content>
-        </Drawer.Portal>
-      </Drawer.Root>
-    </>
   )
 }
 

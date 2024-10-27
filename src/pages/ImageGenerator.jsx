@@ -13,8 +13,6 @@ import ProfileMenu from '@/components/ProfileMenu'
 import ActionButtons from '@/components/ActionButtons'
 import { useImageGeneratorState } from '@/hooks/useImageGeneratorState'
 import { useImageHandlers } from '@/hooks/useImageHandlers'
-import { Button } from '@/components/ui/button'
-import { Settings2 } from 'lucide-react'
 import { aspectRatios } from '@/utils/imageConfigs'
 import { styleConfigs } from '@/utils/styleConfigs'
 
@@ -94,14 +92,7 @@ const ImageGenerator = () => {
               <div className="hidden md:block">
                 <ProfileMenu user={session.user} credits={credits} />
               </div>
-              <div className="flex items-center gap-2">
-                <div className="block md:hidden">
-                  <Button variant="ghost" size="icon" className="rounded-full" onClick={() => setActiveTab('input')}>
-                    <Settings2 size={20} />
-                  </Button>
-                </div>
-                <ActionButtons activeView={activeView} setActiveView={setActiveView} />
-              </div>
+              <ActionButtons activeView={activeView} setActiveView={setActiveView} />
             </>
           )}
         </div>
@@ -117,36 +108,41 @@ const ImageGenerator = () => {
           nsfwEnabled={nsfwEnabled}
         />
       </div>
-      <ImageGeneratorSettings
-        prompt={prompt}
-        setPrompt={setPrompt}
-        handlePromptKeyDown={handlePromptKeyDown}
-        generateImage={handleGenerateImage}
-        model={model}
-        setModel={setModel}
-        seed={seed}
-        setSeed={setSeed}
-        randomizeSeed={randomizeSeed}
-        setRandomizeSeed={setRandomizeSeed}
-        quality={quality}
-        setQuality={setQuality}
-        useAspectRatio={useAspectRatio}
-        setUseAspectRatio={setUseAspectRatio}
-        aspectRatio={aspectRatio}
-        setAspectRatio={setAspectRatio}
-        width={width}
-        setWidth={setWidth}
-        height={height}
-        setHeight={setHeight}
-        session={session}
-        credits={credits}
-        nsfwEnabled={nsfwEnabled}
-        setNsfwEnabled={setNsfwEnabled}
-        style={style}
-        setStyle={setStyle}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
+      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
+        {!session && (
+          <div className="absolute inset-0 z-10">
+            <AuthOverlay />
+          </div>
+        )}
+        <ImageGeneratorSettings
+          prompt={prompt}
+          setPrompt={setPrompt}
+          handlePromptKeyDown={handlePromptKeyDown}
+          generateImage={handleGenerateImage}
+          model={model}
+          setModel={setModel}
+          seed={seed}
+          setSeed={setSeed}
+          randomizeSeed={randomizeSeed}
+          setRandomizeSeed={setRandomizeSeed}
+          quality={quality}
+          setQuality={setQuality}
+          useAspectRatio={useAspectRatio}
+          setUseAspectRatio={setUseAspectRatio}
+          aspectRatio={aspectRatio}
+          setAspectRatio={setAspectRatio}
+          width={width}
+          setWidth={setWidth}
+          height={height}
+          setHeight={setHeight}
+          session={session}
+          credits={credits}
+          nsfwEnabled={nsfwEnabled}
+          setNsfwEnabled={setNsfwEnabled}
+          style={style}
+          setStyle={setStyle}
+        />
+      </div>
       <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} session={session} credits={credits} />
       <ImageDetailsDialog
         open={detailsDialogOpen}
