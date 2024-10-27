@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { HelpCircle } from "lucide-react"
-import { qualityOptions } from '@/utils/imageConfigs'
+import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
 import { modelConfigs, styleConfigs } from '@/utils/modelConfigs'
 
 const SettingTooltip = ({ content }) => (
@@ -64,6 +64,8 @@ const ImageGeneratorSettings = ({
   selectedStyle,
   setSelectedStyle
 }) => {
+  const currentModel = modelConfigs[model];
+
   return (
     <div className="space-y-4 pb-20 md:pb-0">
       <div className="flex justify-between items-center mb-4">
