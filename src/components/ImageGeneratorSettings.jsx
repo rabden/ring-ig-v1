@@ -9,8 +9,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { HelpCircle } from "lucide-react"
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
-import { modelConfigs, styleConfigs } from '@/utils/modelConfigs'
+import { modelConfigs } from '@/utils/modelConfigs'
 
+// Helper component for the tooltip
 const SettingTooltip = ({ content }) => (
   <Popover>
     <PopoverTrigger asChild>
@@ -57,14 +58,13 @@ const ImageGeneratorSettings = ({
   setHeight,
   steps,
   setSteps,
+  setModelSidebarOpen,
   session,
   credits,
   nsfwEnabled,
-  setNsfwEnabled,
-  selectedStyle,
-  setSelectedStyle
+  setNsfwEnabled
 }) => {
-  const currentModel = modelConfigs[model];
+  const currentModel = model && modelConfigs[model] ? modelConfigs[model] : null;
 
   return (
     <div className="space-y-4 pb-20 md:pb-0">
@@ -72,7 +72,6 @@ const ImageGeneratorSettings = ({
         <h2 className="text-2xl font-semibold">Settings</h2>
         {session && <div className="text-sm font-medium">Credits: {credits}</div>}
       </div>
-
       <div className="space-y-4">
         <SettingSection label="Prompt" tooltip="Enter a description of the image you want to generate. Be as specific as possible for best results.">
           <Textarea
@@ -83,62 +82,19 @@ const ImageGeneratorSettings = ({
             className="min-h-[100px] resize-y"
           />
         </SettingSection>
-
         <Button onClick={generateImage} className="w-full" disabled={!session}>
           Generate Image
         </Button>
-
-        <SettingSection label="Model" tooltip="Choose between fast generation or higher quality results.">
-          <div className="grid grid-cols-2 gap-2">
-            {nsfwEnabled ? (
-              <>
-                <Button
-                  variant={model === 'nsfwMaster' ? 'default' : 'outline'}
-                  onClick={() => setModel('nsfwMaster')}
-                >
-                  Reality
-                </Button>
-                <Button
-                  variant={model === 'animeNsfw' ? 'default' : 'outline'}
-                  onClick={() => setModel('animeNsfw')}
-                >
-                  Anime
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant={model === 'flux' ? 'default' : 'outline'}
-                  onClick={() => setModel('flux')}
-                >
-                  Fast
-                </Button>
-                <Button
-                  variant={model === 'fluxDev' ? 'default' : 'outline'}
-                  onClick={() => setModel('fluxDev')}
-                >
-                  Quality
-                </Button>
-              </>
-            )}
-          </div>
+        <SettingSection label="Model" tooltip="Choose the AI model to use for image generation. Different models may produce different styles or qualities of images.">
+          <Button
+            variant="outline"
+            className="w-full justify-between"
+            onClick={() => setModelSidebarOpen(true)}
+          >
+            {currentModel ? currentModel.name : "Select a model"}
+            {currentModel && <span className="ml-2 opacity-50">{currentModel.category}</span>}
+          </Button>
         </SettingSection>
-
-        <SettingSection label="Style" tooltip="Choose a style to enhance your prompt with specific artistic characteristics.">
-          <div className="grid grid-cols-3 gap-2">
-            {Object.entries(styleConfigs).map(([key, style]) => (
-              <Button
-                key={key}
-                variant={selectedStyle === key ? 'default' : 'outline'}
-                onClick={() => setSelectedStyle(key)}
-                className="text-xs"
-              >
-                {style.name}
-              </Button>
-            ))}
-          </div>
-        </SettingSection>
-
         <SettingSection label="Seed" tooltip="A seed is a number that initializes the random generation process. Using the same seed with the same settings will produce the same image.">
           <div className="flex items-center space-x-2">
             <Input
@@ -222,7 +178,6 @@ const ImageGeneratorSettings = ({
             </Tabs>
           </SettingSection>
         )}
-
         <div className="flex items-center justify-between">
           <SettingSection label="Enable NSFW Content" tooltip="Toggle to allow or disallow the generation of Not Safe For Work (NSFW) content.">
             <Switch
