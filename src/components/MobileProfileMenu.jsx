@@ -8,22 +8,18 @@ import { User } from 'lucide-react';
 
 const MobileProfileMenu = ({ user, credits }) => {
   const { logout } = useSupabaseAuth();
-  const [isExpanded, setIsExpanded] = React.useState(false);
+  const [snapPoint, setSnapPoint] = React.useState(1);
 
   const handleLogout = () => {
     logout();
   };
 
-  const handleDrag = (event) => {
-    if (event.deltaY < -100) {
-      setIsExpanded(true);
-    } else if (event.deltaY > 100) {
-      setIsExpanded(false);
-    }
-  };
-
   return (
-    <Drawer.Root>
+    <Drawer.Root 
+      snapPoints={[1, 100]} 
+      activeSnapPoint={snapPoint}
+      setActiveSnapPoint={setSnapPoint}
+    >
       <Drawer.Trigger asChild>
         <Button variant="ghost" size="icon" className="rounded-full">
           {user ? (
@@ -38,12 +34,7 @@ const MobileProfileMenu = ({ user, credits }) => {
       </Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-        <Drawer.Content 
-          className={`bg-background flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 transition-all duration-300 ${
-            isExpanded ? 'h-screen mt-0' : 'max-h-[96%] mt-24'
-          }`}
-          onTouchMove={handleDrag}
-        >
+        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 max-h-[100dvh]">
           <div className="p-4 bg-muted/40 rounded-t-[10px] flex-1">
             <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-8" />
             <div className="max-w-md mx-auto">
