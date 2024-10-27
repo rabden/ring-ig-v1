@@ -8,52 +8,40 @@ import { Textarea } from "@/components/ui/textarea"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { HelpCircle } from "lucide-react"
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
-import { styleConfigs } from '@/utils/styleConfigs'
-
-const SettingTooltip = ({ content }) => (
-  <Popover>
-    <PopoverTrigger asChild>
-      <Button variant="ghost" className="h-3 w-3 p-0 text-muted-foreground hover:text-foreground opacity-70">
-        <HelpCircle className="h-3 w-3" />
-      </Button>
-    </PopoverTrigger>
-    <PopoverContent className="w-80 text-sm" align="start">
-      {content}
-    </PopoverContent>
-  </Popover>
-)
+import StyleChooser from './StyleChooser'
 
 const SettingSection = ({ label, tooltip, children }) => (
   <div className="space-y-2">
     <div className="flex items-center space-x-2">
       <Label>{label}</Label>
-      <SettingTooltip content={tooltip} />
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button variant="ghost" className="h-3 w-3 p-0 text-muted-foreground hover:text-foreground opacity-70">
+            <HelpCircle className="h-3 w-3" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-80 text-sm" align="start">
+          {tooltip}
+        </PopoverContent>
+      </Popover>
     </div>
     {children}
   </div>
 )
 
 const ImageGeneratorSettings = ({
-  prompt,
-  setPrompt,
+  prompt, setPrompt,
   handlePromptKeyDown,
   generateImage,
-  model,
-  setModel,
-  seed,
-  setSeed,
-  randomizeSeed,
-  setRandomizeSeed,
-  quality,
-  setQuality,
-  aspectRatio,
-  setAspectRatio,
+  model, setModel,
+  seed, setSeed,
+  randomizeSeed, setRandomizeSeed,
+  quality, setQuality,
+  aspectRatio, setAspectRatio,
   session,
   credits,
-  nsfwEnabled,
-  setNsfwEnabled,
-  style,
-  setStyle
+  nsfwEnabled, setNsfwEnabled,
+  style, setStyle
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const hasEnoughCredits = credits >= creditCost;
@@ -89,6 +77,7 @@ const ImageGeneratorSettings = ({
             className="min-h-[100px] resize-y"
           />
         </SettingSection>
+        
         <Button 
           onClick={generateImage} 
           className="w-full" 
@@ -96,7 +85,7 @@ const ImageGeneratorSettings = ({
         >
           {!session ? 'Sign in to generate' : !hasEnoughCredits ? `Need ${creditCost} credits for ${quality}` : 'Generate Image'}
         </Button>
-        
+
         <SettingSection label="Model" tooltip="Choose between fast generation or higher quality output.">
           <div className="grid grid-cols-2 gap-2">
             {!nsfwEnabled ? (
@@ -132,19 +121,9 @@ const ImageGeneratorSettings = ({
             )}
           </div>
         </SettingSection>
+
         <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
-            {Object.entries(styleConfigs).map(([key, config]) => (
-              <Button
-                key={key}
-                variant={style === key ? "default" : "outline"}
-                onClick={() => setStyle(key)}
-                className="w-full text-xs py-1 px-2"
-              >
-                {config.name}
-              </Button>
-            ))}
-          </div>
+          <StyleChooser style={style} setStyle={setStyle} />
         </SettingSection>
 
         <SettingSection label="Seed" tooltip="A seed is a number that initializes the random generation process. Using the same seed with the same settings will produce the same image.">
