@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/supabase'
 import { toast } from 'sonner'
 import { modelConfigs } from '@/utils/modelConfigs'
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
+import { styleConfigs } from '@/utils/styleConfigs'
 
 const MAX_RETRIES = 5;
 
@@ -79,6 +80,7 @@ export const useImageGeneration = ({
   aspectRatio,
   updateCredits,
   setGeneratingImages,
+  style
 }) => {
   const uploadImageMutation = useMutation({
     mutationFn: async ({ imageBlob, metadata }) => {
@@ -121,7 +123,8 @@ export const useImageGeneration = ({
     }
 
     const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed;
-    const modifiedPrompt = prompt + (modelConfigs[model]?.promptSuffix || '');
+    const styleSuffix = styleConfigs[style]?.suffix || styleConfigs.general.suffix;
+    const modifiedPrompt = `${prompt}, ${styleSuffix}${modelConfigs[model]?.promptSuffix || ''}`;
 
     const maxDimension = qualityOptions[quality];
     const { width: finalWidth, height: finalHeight } = calculateDimensions(useAspectRatio, aspectRatio, width, height, maxDimension);

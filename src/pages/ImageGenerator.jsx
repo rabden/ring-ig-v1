@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import { useUserCredits } from '@/hooks/useUserCredits'
 import { useImageGeneration } from '@/hooks/useImageGeneration'
@@ -14,6 +14,7 @@ import ActionButtons from '@/components/ActionButtons'
 import { useImageGeneratorState } from '@/hooks/useImageGeneratorState'
 import { useImageHandlers } from '@/hooks/useImageHandlers'
 import { aspectRatios } from '@/utils/imageConfigs'
+import { styleConfigs } from '@/utils/styleConfigs'
 
 const ImageGenerator = () => {
   const {
@@ -31,6 +32,8 @@ const ImageGenerator = () => {
   const { credits, updateCredits } = useUserCredits(session?.user?.id)
   const queryClient = useQueryClient()
 
+  const [style, setStyle] = useState('general')
+
   const { generateImage } = useImageGeneration({
     session,
     prompt,
@@ -45,6 +48,7 @@ const ImageGenerator = () => {
     aspectRatio,
     updateCredits,
     setGeneratingImages,
+    style
   })
 
   const {
@@ -135,6 +139,8 @@ const ImageGenerator = () => {
           credits={credits}
           nsfwEnabled={nsfwEnabled}
           setNsfwEnabled={setNsfwEnabled}
+          style={style}
+          setStyle={setStyle}
         />
       </div>
       <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} session={session} credits={credits} />

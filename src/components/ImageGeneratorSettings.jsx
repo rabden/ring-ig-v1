@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { HelpCircle } from "lucide-react"
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
+import { styleConfigs } from '@/utils/styleConfigs'
 
 const SettingTooltip = ({ content }) => (
   <Popover>
@@ -57,7 +58,9 @@ const ImageGeneratorSettings = ({
   session,
   credits,
   nsfwEnabled,
-  setNsfwEnabled
+  setNsfwEnabled,
+  style,
+  setStyle
 }) => {
   return (
     <div className="space-y-4 pb-20 md:pb-0">
@@ -111,6 +114,20 @@ const ImageGeneratorSettings = ({
                 </Button>
               </>
             )}
+          </div>
+        </SettingSection>
+        <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
+            {Object.entries(styleConfigs).map(([key, config]) => (
+              <Button
+                key={key}
+                variant={style === key ? "default" : "outline"}
+                onClick={() => setStyle(key)}
+                className="w-full text-xs py-1 px-2"
+              >
+                {config.name}
+              </Button>
+            ))}
           </div>
         </SettingSection>
         <SettingSection label="Seed" tooltip="A seed is a number that initializes the random generation process. Using the same seed with the same settings will produce the same image.">
