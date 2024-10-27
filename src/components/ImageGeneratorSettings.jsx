@@ -55,11 +55,27 @@ const ImageGeneratorSettings = ({
   style,
   setStyle
 }) => {
+  const getRequiredCredits = () => {
+    const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
+    return creditCost || 1;
+  };
+
+  const hasEnoughCredits = credits >= getRequiredCredits();
+
   return (
     <div className="space-y-4 pb-20 md:pb-0">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Settings</h2>
-        {session && <div className="text-sm font-medium">Credits: {credits}</div>}
+        {session && (
+          <div className="text-sm font-medium">
+            Credits: {credits}
+            {!hasEnoughCredits && (
+              <span className="text-destructive ml-2">
+                (Need {getRequiredCredits()} for {quality})
+              </span>
+            )}
+          </div>
+        )}
       </div>
       <div className="space-y-4">
         <SettingSection label="Prompt" tooltip="Enter a description of the image you want to generate. Be as specific as possible for best results.">
@@ -71,8 +87,15 @@ const ImageGeneratorSettings = ({
             className="min-h-[100px] resize-y"
           />
         </SettingSection>
-        <Button onClick={generateImage} className="w-full" disabled={!session}>
-          Generate Image
+        <Button 
+          onClick={generateImage} 
+          className="w-full" 
+          disabled={!session || !hasEnoughCredits || !prompt.trim()}
+        >
+          {!session ? 'Sign in to Generate' : 
+           !hasEnoughCredits ? `Need ${getRequiredCredits()} Credits` :
+           !prompt.trim() ? 'Enter a Prompt' : 
+           'Generate Image'}
         </Button>
         <SettingSection label="Model" tooltip="Choose between fast generation or higher quality output.">
           <div className="grid grid-cols-2 gap-2">
