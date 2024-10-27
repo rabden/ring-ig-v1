@@ -58,17 +58,13 @@ const ImageGeneratorSettings = ({
   setHeight,
   steps,
   setSteps,
+  setModelSidebarOpen,
   session,
   credits,
   nsfwEnabled,
   setNsfwEnabled
 }) => {
   const currentModel = model && modelConfigs[model] ? modelConfigs[model] : null;
-
-  const handleModelSelection = (selectedModel) => {
-    setModel(selectedModel);
-    setSteps(modelConfigs[selectedModel].defaultStep);
-  };
 
   return (
     <div className="space-y-4 pb-20 md:pb-0">
@@ -89,43 +85,32 @@ const ImageGeneratorSettings = ({
         <Button onClick={generateImage} className="w-full" disabled={!session}>
           Generate Image
         </Button>
-        <SettingSection label="Model" tooltip="Choose the AI model to use for image generation.">
-          <div className="flex space-x-2">
-            {nsfwEnabled ? (
-              <>
-                <Button
-                  variant={model === 'nsfwMaster' ? 'default' : 'outline'}
-                  className="flex-1"
-                  onClick={() => handleModelSelection('nsfwMaster')}
-                >
-                  Reality
-                </Button>
-                <Button
-                  variant={model === 'animeNsfw' ? 'default' : 'outline'}
-                  className="flex-1"
-                  onClick={() => handleModelSelection('animeNsfw')}
-                >
-                  Anime
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant={model === 'flux' ? 'default' : 'outline'}
-                  className="flex-1"
-                  onClick={() => handleModelSelection('flux')}
-                >
-                  Fast
-                </Button>
-                <Button
-                  variant={model === 'fluxDev' ? 'default' : 'outline'}
-                  className="flex-1"
-                  onClick={() => handleModelSelection('fluxDev')}
-                >
-                  Quality
-                </Button>
-              </>
-            )}
+        <SettingSection label="Model" tooltip="Choose the AI model to use for image generation. Different models may produce different styles or qualities of images.">
+          <Button
+            variant="outline"
+            className="w-full justify-between"
+            onClick={() => setModelSidebarOpen(true)}
+          >
+            {currentModel ? currentModel.name : "Select a model"}
+            {currentModel && <span className="ml-2 opacity-50">{currentModel.category}</span>}
+          </Button>
+        </SettingSection>
+        <SettingSection label="Seed" tooltip="A seed is a number that initializes the random generation process. Using the same seed with the same settings will produce the same image.">
+          <div className="flex items-center space-x-2">
+            <Input
+              type="number"
+              value={seed}
+              onChange={(e) => setSeed(parseInt(e.target.value))}
+              disabled={randomizeSeed}
+            />
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="randomizeSeed"
+                checked={randomizeSeed}
+                onCheckedChange={setRandomizeSeed}
+              />
+              <Label htmlFor="randomizeSeed">Random</Label>
+            </div>
           </div>
         </SettingSection>
         <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more processing time and credits.">
@@ -198,14 +183,7 @@ const ImageGeneratorSettings = ({
             <Switch
               id="nsfwToggle"
               checked={nsfwEnabled}
-              onCheckedChange={(checked) => {
-                setNsfwEnabled(checked);
-                if (checked) {
-                  handleModelSelection('nsfwMaster');
-                } else {
-                  handleModelSelection('flux');
-                }
-              }}
+              onCheckedChange={setNsfwEnabled}
             />
           </SettingSection>
         </div>
