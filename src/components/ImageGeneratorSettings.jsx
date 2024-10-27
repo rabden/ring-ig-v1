@@ -6,9 +6,11 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { HelpCircle } from "lucide-react"
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
 import StyleChooser from './StyleChooser'
+import AuthOverlay from './AuthOverlay'
 
 const SettingSection = ({ label, tooltip, children }) => (
   <div className="space-y-2">
@@ -61,23 +63,25 @@ const ImageGeneratorSettings = ({
           </div>
         )}
       </div>
+
       <div className="space-y-4">
+        {/* Prompt */}
         <SettingSection label="Prompt" tooltip="Enter a description of the image you want to generate. Be as specific as possible for best results.">
           <Textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey && (!session || !hasEnoughCredits)) {
-                e.preventDefault();
-                return;
-              }
-              handlePromptKeyDown(e);
-            }}
+            onKeyDown={handlePromptKeyDown}
             placeholder="Enter your prompt here"
-            className="min-h-[100px] resize-y"
+            className="min-h-[40px] resize-none overflow-hidden transition-all duration-200"
+            rows={1}
+            onInput={(e) => {
+              e.target.style.height = 'auto';
+              e.target.style.height = e.target.scrollHeight + 'px';
+            }}
           />
         </SettingSection>
-        
+
+        {/* Generate Button */}
         <Button 
           onClick={generateImage} 
           className="w-full" 
@@ -86,46 +90,42 @@ const ImageGeneratorSettings = ({
           {!session ? 'Sign in to generate' : !hasEnoughCredits ? `Need ${creditCost} credits for ${quality}` : 'Generate Image'}
         </Button>
 
-        <SettingSection label="Model" tooltip="Choose between fast generation or higher quality output.">
-          <div className="grid grid-cols-2 gap-2">
-            {!nsfwEnabled ? (
-              <>
-                <Button
-                  variant={model === 'flux' ? 'default' : 'outline'}
-                  onClick={() => setModel('flux')}
-                >
-                  Fast
-                </Button>
-                <Button
-                  variant={model === 'fluxDev' ? 'default' : 'outline'}
-                  onClick={() => setModel('fluxDev')}
-                >
-                  Quality
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant={model === 'nsfwMaster' ? 'default' : 'outline'}
-                  onClick={() => setModel('nsfwMaster')}
-                >
-                  Reality
-                </Button>
-                <Button
-                  variant={model === 'animeNsfw' ? 'default' : 'outline'}
-                  onClick={() => setModel('animeNsfw')}
-                >
-                  Anime
-                </Button>
-              </>
-            )}
-          </div>
-        </SettingSection>
-
+        {/* Style */}
         <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
           <StyleChooser style={style} setStyle={setStyle} />
         </SettingSection>
 
+        {/* Quality */}
+        <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more credits.">
+          <Tabs value={quality} onValueChange={setQuality}>
+            <TabsList className="grid grid-cols-3 w-full">
+              {Object.keys(qualityOptions).map((q) => (
+                <TabsTrigger key={q} value={q}>{q}</TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        </SettingSection>
+
+        {/* Aspect Ratio */}
+        <SettingSection label="Aspect Ratio" tooltip="Choose a predefined aspect ratio for your image.">
+          <ScrollArea className="w-full whitespace-nowrap">
+            <div className="flex space-x-2 pb-4">
+              {Object.keys(aspectRatios).map((ratio) => (
+                <Button
+                  key={ratio}
+                  variant={aspectRatio === ratio ? "default" : "outline"}
+                  className="flex-shrink-0"
+                  onClick={() => setAspectRatio(ratio)}
+                >
+                  {ratio}
+                </Button>
+              ))}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        </SettingSection>
+
+        {/* Seed */}
         <SettingSection label="Seed" tooltip="A seed is a number that initializes the random generation process. Using the same seed with the same settings will produce the same image.">
           <div className="flex items-center space-x-2">
             <Input
@@ -145,31 +145,7 @@ const ImageGeneratorSettings = ({
           </div>
         </SettingSection>
 
-        <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more credits.">
-          <Tabs value={quality} onValueChange={setQuality}>
-            <TabsList className="grid grid-cols-3 w-full">
-              {Object.keys(qualityOptions).map((q) => (
-                <TabsTrigger key={q} value={q}>{q}</TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
-        </SettingSection>
-
-        <SettingSection label="Aspect Ratio" tooltip="Choose a predefined aspect ratio for your image.">
-          <div className="grid grid-cols-3 gap-2">
-            {Object.keys(aspectRatios).map((ratio) => (
-              <Button
-                key={ratio}
-                variant={aspectRatio === ratio ? "default" : "outline"}
-                className="w-full text-xs py-1 px-2"
-                onClick={() => setAspectRatio(ratio)}
-              >
-                {ratio}
-              </Button>
-            ))}
-          </div>
-        </SettingSection>
-
+        {/* NSFW Toggle */}
         <div className="flex items-center justify-between">
           <SettingSection label="Enable NSFW Content" tooltip="Toggle to allow or disallow the generation of Not Safe For Work (NSFW) content.">
             <Switch
@@ -180,6 +156,12 @@ const ImageGeneratorSettings = ({
           </SettingSection>
         </div>
       </div>
+
+      {!session && (
+        <div className="absolute inset-0 z-10">
+          <AuthOverlay />
+        </div>
+      )}
     </div>
   )
 }
