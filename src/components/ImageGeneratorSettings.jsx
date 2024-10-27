@@ -6,10 +6,10 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
-import { Slider } from "@/components/ui/slider"
 import { HelpCircle } from "lucide-react"
-import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
+import { qualityOptions } from '@/utils/imageConfigs'
 import StyleChooser from './StyleChooser'
+import AspectRatioChooser from './AspectRatioChooser'
 import AuthOverlay from './AuthOverlay'
 
 const SettingSection = ({ label, tooltip, children }) => (
@@ -31,23 +31,6 @@ const SettingSection = ({ label, tooltip, children }) => (
   </div>
 )
 
-const AspectRatioVisualizer = ({ ratio }) => {
-  const [width, height] = ratio.split(':').map(Number)
-  const scale = 40 / Math.max(width, height)
-  
-  return (
-    <div className="flex justify-center mb-2">
-      <div 
-        className="border-2 border-primary bg-muted"
-        style={{
-          width: `${width * scale}px`,
-          height: `${height * scale}px`,
-        }}
-      />
-    </div>
-  )
-}
-
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
   handlePromptKeyDown,
@@ -64,20 +47,6 @@ const ImageGeneratorSettings = ({
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const hasEnoughCredits = credits >= creditCost;
-
-  const handleAspectRatioChange = (value) => {
-    const ratios = [
-      "9:16", "3:4", "4:5", "1:1", "5:4", "4:3", "16:9"
-    ]
-    setAspectRatio(ratios[Math.floor((value[0] / 100) * (ratios.length - 1))])
-  }
-
-  const getCurrentRatioIndex = () => {
-    const ratios = [
-      "9:16", "3:4", "4:5", "1:1", "5:4", "4:3", "16:9"
-    ]
-    return (ratios.indexOf(aspectRatio) / (ratios.length - 1)) * 100
-  }
 
   return (
     <div className="space-y-4 pb-20 md:pb-0">
@@ -96,7 +65,6 @@ const ImageGeneratorSettings = ({
       </div>
 
       <div className="space-y-4">
-        {/* Prompt */}
         <SettingSection label="Prompt" tooltip="Enter a description of the image you want to generate. Be as specific as possible for best results.">
           <Textarea
             value={prompt}
@@ -112,7 +80,6 @@ const ImageGeneratorSettings = ({
           />
         </SettingSection>
 
-        {/* Generate Button */}
         <Button 
           onClick={generateImage} 
           className="w-full" 
@@ -121,7 +88,6 @@ const ImageGeneratorSettings = ({
           {!session ? 'Sign in to generate' : !hasEnoughCredits ? `Need ${creditCost} credits for ${quality}` : 'Generate Image'}
         </Button>
 
-        {/* Model */}
         <SettingSection label="Model" tooltip="Choose between fast generation or higher quality output.">
           <div className="grid grid-cols-2 gap-2">
             {!nsfwEnabled ? (
@@ -158,12 +124,10 @@ const ImageGeneratorSettings = ({
           </div>
         </SettingSection>
 
-        {/* Style */}
         <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
           <StyleChooser style={style} setStyle={setStyle} />
         </SettingSection>
 
-        {/* Quality */}
         <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more credits.">
           <Tabs value={quality} onValueChange={setQuality}>
             <TabsList className="grid grid-cols-3 w-full">
@@ -174,19 +138,10 @@ const ImageGeneratorSettings = ({
           </Tabs>
         </SettingSection>
 
-        {/* Aspect Ratio */}
         <SettingSection label="Aspect Ratio" tooltip="Slide left for portrait, center for square, right for landscape">
-          <AspectRatioVisualizer ratio={aspectRatio} />
-          <Slider
-            value={[getCurrentRatioIndex()]}
-            onValueChange={handleAspectRatioChange}
-            max={100}
-            step={1}
-            className="w-full"
-          />
+          <AspectRatioChooser aspectRatio={aspectRatio} setAspectRatio={setAspectRatio} />
         </SettingSection>
 
-        {/* Seed */}
         <SettingSection label="Seed" tooltip="A seed is a number that initializes the random generation process. Using the same seed with the same settings will produce the same image.">
           <div className="flex items-center space-x-2">
             <Input
@@ -206,7 +161,6 @@ const ImageGeneratorSettings = ({
           </div>
         </SettingSection>
 
-        {/* NSFW Toggle */}
         <div className="flex items-center justify-between">
           <SettingSection label="Enable NSFW Content" tooltip="Toggle to allow or disallow the generation of Not Safe For Work (NSFW) content.">
             <Switch
