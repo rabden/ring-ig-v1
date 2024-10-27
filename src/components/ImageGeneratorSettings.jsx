@@ -62,6 +62,15 @@ const ImageGeneratorSettings = ({
 
   const hasEnoughCredits = credits >= getRequiredCredits();
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (hasEnoughCredits && prompt.trim() && session) {
+        generateImage();
+      }
+    }
+  };
+
   return (
     <div className="space-y-4 pb-20 md:pb-0">
       <div className="flex justify-between items-center mb-4">
@@ -82,7 +91,7 @@ const ImageGeneratorSettings = ({
           <Textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            onKeyDown={handlePromptKeyDown}
+            onKeyDown={handleKeyDown}
             placeholder="Enter your prompt here"
             className="min-h-[100px] resize-y"
           />
@@ -170,7 +179,7 @@ const ImageGeneratorSettings = ({
         </SettingSection>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ImageGeneratorSettings
+export default ImageGeneratorSettings;

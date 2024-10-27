@@ -29,8 +29,16 @@ const MobileProfileMenu = ({ user, credits, nsfwEnabled, setNsfwEnabled }) => {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent side="bottom" className="h-[80vh] px-6">
-        <SheetHeader className="pb-4">
+      <SheetContent 
+        side="bottom" 
+        className="h-[85vh] px-6 rounded-t-[20px] border-t-0"
+        style={{
+          background: 'linear-gradient(to bottom, hsl(var(--background)) 0%, hsl(var(--card)) 100%)',
+          backdropFilter: 'blur(20px)',
+        }}
+      >
+        <div className="absolute left-1/2 top-2 -translate-x-1/2 h-1.5 w-12 rounded-full bg-muted" />
+        <SheetHeader className="pb-4 pt-6">
           <SheetTitle>{user ? 'Profile' : 'Sign In'}</SheetTitle>
         </SheetHeader>
         {user ? (
@@ -53,6 +61,7 @@ const MobileProfileMenu = ({ user, credits, nsfwEnabled, setNsfwEnabled }) => {
                 <Switch
                   checked={nsfwEnabled}
                   onCheckedChange={setNsfwEnabled}
+                  aria-label="Toggle NSFW content"
                 />
               </div>
               <Button onClick={handleLogout} variant="outline" className="w-full">

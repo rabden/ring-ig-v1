@@ -37,11 +37,12 @@ const ProfileMenu = ({ user, credits, nsfwEnabled, setNsfwEnabled }) => {
         <DropdownMenuItem>
           Credits: {credits !== undefined ? credits : 'Loading...'}
         </DropdownMenuItem>
-        <DropdownMenuItem className="flex items-center justify-between cursor-default">
+        <DropdownMenuItem className="flex items-center justify-between cursor-default" onSelect={(e) => e.preventDefault()}>
           <span>NSFW Content</span>
           <Switch
             checked={nsfwEnabled}
             onCheckedChange={setNsfwEnabled}
+            aria-label="Toggle NSFW content"
           />
         </DropdownMenuItem>
         <DropdownMenuSeparator />
