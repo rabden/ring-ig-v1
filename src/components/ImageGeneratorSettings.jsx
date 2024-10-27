@@ -10,6 +10,7 @@ import { HelpCircle } from "lucide-react"
 import { aspectRatios, qualityOptions } from '@/utils/imageConfigs'
 import StyleChooser from './StyleChooser'
 import { Drawer } from 'vaul'
+import AuthOverlay from './AuthOverlay'
 
 const SettingSection = ({ label, tooltip, children }) => (
   <div className="space-y-2">
