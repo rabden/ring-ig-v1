@@ -1,20 +1,12 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { modelConfigs } from '@/utils/modelConfigs';
 
 const ModelSidebarMenu = ({ isOpen, onClose, onSelectModel, currentModel, nsfwEnabled }) => {
-  const filteredModels = Object.entries(modelConfigs).filter(([_, config]) => 
-    nsfwEnabled || config.category !== "NSFW"
-  );
-
-  const groupedModels = filteredModels.reduce((acc, [key, config]) => {
-    if (!acc[config.category]) {
-      acc[config.category] = [];
-    }
-    acc[config.category].push({ key, ...config });
-    return acc;
-  }, {});
+  const handleModelSelect = (model) => {
+    onSelectModel(model);
+    onClose();
+  };
 
   return (
     <div className={`fixed top-0 right-0 w-[300px] h-full bg-background border-l border-border transform transition-transform duration-300 ease-in-out ${isOpen ? 'translate-x-0' : 'translate-x-full'} z-50`}>
@@ -23,24 +15,43 @@ const ModelSidebarMenu = ({ isOpen, onClose, onSelectModel, currentModel, nsfwEn
         <Button variant="ghost" size="sm" onClick={onClose}>×</Button>
       </div>
       <ScrollArea className="h-[calc(100vh-64px)] p-4">
-        {Object.entries(groupedModels).map(([category, models]) => (
-          <div key={category} className="mb-6">
-            <h3 className="text-sm font-semibold mb-2 text-muted-foreground">{category}</h3>
-            {models.map((model) => (
+        <div className="space-y-2">
+          {!nsfwEnabled ? (
+            <>
               <Button
-                key={model.key}
-                variant={currentModel === model.key ? "secondary" : "ghost"}
-                className="w-full justify-start mb-1 text-left"
-                onClick={() => {
-                  onSelectModel(model.key);
-                  onClose();
-                }}
+                variant={currentModel === 'flux' ? "secondary" : "ghost"}
+                className="w-full justify-start"
+                onClick={() => handleModelSelect('flux')}
               >
-                <span className="truncate">{model.name}</span>
+                Fast
               </Button>
-            ))}
-          </div>
-        ))}
+              <Button
+                variant={currentModel === 'fluxDev' ? "secondary" : "ghost"}
+                className="w-full justify-start"
+                onClick={() => handleModelSelect('fluxDev')}
+              >
+                Quality
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant={currentModel === 'nsfwMaster' ? "secondary" : "ghost"}
+                className="w-full justify-start"
+                onClick={() => handleModelSelect('nsfwMaster')}
+              >
+                Reality
+              </Button>
+              <Button
+                variant={currentModel === 'animeNsfw' ? "secondary" : "ghost"}
+                className="w-full justify-start"
+                onClick={() => handleModelSelect('animeNsfw')}
+              >
+                Anime
+              </Button>
+            </>
+          )}
+        </div>
       </ScrollArea>
     </div>
   );

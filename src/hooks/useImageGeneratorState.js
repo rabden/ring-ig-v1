@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { modelConfigs } from '@/utils/imageConfigs'
+import { useState, useEffect } from 'react'
+import { modelConfigs } from '@/utils/modelConfigs'
 
 export const useImageGeneratorState = () => {
   const [prompt, setPrompt] = useState('')
@@ -21,6 +21,17 @@ export const useImageGeneratorState = () => {
   const [generatingImages, setGeneratingImages] = useState([])
   const [activeView, setActiveView] = useState('myImages')
   const [nsfwEnabled, setNsfwEnabled] = useState(false)
+
+  // Update model when NSFW toggle changes
+  useEffect(() => {
+    if (nsfwEnabled) {
+      setModel('nsfwMaster')
+      setSteps(modelConfigs.nsfwMaster.defaultStep)
+    } else {
+      setModel('flux')
+      setSteps(modelConfigs.flux.defaultStep)
+    }
+  }, [nsfwEnabled])
 
   return {
     prompt, setPrompt,
