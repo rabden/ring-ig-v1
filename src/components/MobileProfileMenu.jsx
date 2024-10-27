@@ -2,11 +2,12 @@ import React from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import SignInDialog from '@/components/SignInDialog';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { User } from 'lucide-react';
 
-const MobileProfileMenu = ({ user, credits }) => {
+const MobileProfileMenu = ({ user, credits, nsfwEnabled, setNsfwEnabled }) => {
   const { logout } = useSupabaseAuth();
 
   const handleLogout = () => {
@@ -40,6 +41,13 @@ const MobileProfileMenu = ({ user, credits }) => {
             <h3 className="text-lg font-semibold">{user.user_metadata.display_name || user.email}</h3>
             <p className="text-sm text-muted-foreground">{user.email}</p>
             <p className="text-sm font-medium">Credits: {credits}</p>
+            <div className="flex items-center justify-between w-full">
+              <span className="text-sm">NSFW Content</span>
+              <Switch
+                checked={nsfwEnabled}
+                onCheckedChange={setNsfwEnabled}
+              />
+            </div>
             <Button onClick={handleLogout} variant="outline" className="w-full">
               Log out
             </Button>
