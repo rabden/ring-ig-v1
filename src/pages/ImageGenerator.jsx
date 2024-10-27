@@ -15,6 +15,8 @@ import { useImageGeneratorState } from '@/hooks/useImageGeneratorState'
 import { useImageHandlers } from '@/hooks/useImageHandlers'
 import { Button } from '@/components/ui/button'
 import { Settings2 } from 'lucide-react'
+import { aspectRatios } from '@/utils/imageConfigs'
+import { styleConfigs } from '@/utils/styleConfigs'
 
 const ImageGenerator = () => {
   const {
