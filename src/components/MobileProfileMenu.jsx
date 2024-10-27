@@ -2,13 +2,11 @@ import React from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import SignInDialog from '@/components/SignInDialog';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { User } from 'lucide-react';
 
-const MobileProfileMenu = ({ user, credits, nsfwEnabled, setNsfwEnabled }) => {
+const MobileProfileMenu = ({ user, credits }) => {
   const { logout } = useSupabaseAuth();
 
   const handleLogout = () => {
@@ -29,45 +27,22 @@ const MobileProfileMenu = ({ user, credits, nsfwEnabled, setNsfwEnabled }) => {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent 
-        side="bottom" 
-        className="h-[85vh] px-6 rounded-t-[20px] border-t-0"
-        style={{
-          background: 'linear-gradient(to bottom, hsl(var(--background)) 0%, hsl(var(--card)) 100%)',
-          backdropFilter: 'blur(20px)',
-        }}
-      >
-        <div className="absolute left-1/2 top-2 -translate-x-1/2 h-1.5 w-12 rounded-full bg-muted" />
-        <SheetHeader className="pb-4 pt-6">
+      <SheetContent side="bottom" className="h-[80vh]">
+        <SheetHeader>
           <SheetTitle>{user ? 'Profile' : 'Sign In'}</SheetTitle>
         </SheetHeader>
         {user ? (
-          <div className="flex flex-col items-center space-y-6 mt-4">
+          <div className="flex flex-col items-center space-y-4 mt-4">
             <Avatar className="h-20 w-20">
               <AvatarImage src={user.user_metadata.avatar_url} alt={user.email} />
               <AvatarFallback>{user.email.charAt(0).toUpperCase()}</AvatarFallback>
             </Avatar>
-            <div className="text-center space-y-2">
-              <h3 className="text-lg font-semibold">{user.user_metadata.display_name || user.email}</h3>
-              <p className="text-sm text-muted-foreground">{user.email}</p>
-              <p className="text-sm font-medium">Credits: {credits}</p>
-            </div>
-            <div className="w-full space-y-4">
-              <div className="flex items-center justify-between py-2">
-                <div className="space-y-0.5">
-                  <Label>NSFW Content</Label>
-                  <p className="text-sm text-muted-foreground">Enable NSFW content generation</p>
-                </div>
-                <Switch
-                  checked={nsfwEnabled}
-                  onCheckedChange={setNsfwEnabled}
-                  aria-label="Toggle NSFW content"
-                />
-              </div>
-              <Button onClick={handleLogout} variant="outline" className="w-full">
-                Log out
-              </Button>
-            </div>
+            <h3 className="text-lg font-semibold">{user.user_metadata.display_name || user.email}</h3>
+            <p className="text-sm text-muted-foreground">{user.email}</p>
+            <p className="text-sm font-medium">Credits: {credits}</p>
+            <Button onClick={handleLogout} variant="outline" className="w-full">
+              Log out
+            </Button>
           </div>
         ) : (
           <div className="flex flex-col items-center space-y-4 mt-4">

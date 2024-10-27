@@ -1,7 +1,6 @@
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,8 +11,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
-const ProfileMenu = ({ user, credits, nsfwEnabled, setNsfwEnabled }) => {
+const ProfileMenu = ({ user, credits }) => {
   const { logout } = useSupabaseAuth();
+
   const displayName = user.user_metadata.display_name || user.email.split('@')[0];
 
   return (
@@ -36,14 +36,6 @@ const ProfileMenu = ({ user, credits, nsfwEnabled, setNsfwEnabled }) => {
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           Credits: {credits !== undefined ? credits : 'Loading...'}
-        </DropdownMenuItem>
-        <DropdownMenuItem className="flex items-center justify-between cursor-default" onSelect={(e) => e.preventDefault()}>
-          <span>NSFW Content</span>
-          <Switch
-            checked={nsfwEnabled}
-            onCheckedChange={setNsfwEnabled}
-            aria-label="Toggle NSFW content"
-          />
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={logout}>
