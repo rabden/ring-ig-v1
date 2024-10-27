@@ -73,7 +73,6 @@ export const useImageGeneration = ({
   randomizeSeed,
   width,
   height,
-  steps,
   model,
   quality,
   useAspectRatio,
@@ -147,12 +146,17 @@ export const useImageGeneration = ({
         method: "POST",
         body: JSON.stringify({
           inputs: modifiedPrompt,
-          parameters: { seed: actualSeed, width: finalWidth, height: finalHeight, num_inference_steps: modelConfigs[model].defaultStep }
+          parameters: { 
+            seed: actualSeed, 
+            width: finalWidth, 
+            height: finalHeight, 
+            num_inference_steps: modelConfigs[model].defaultStep 
+          }
         }),
       });
 
       const imageBlob = await handleApiResponse(response, retryCount, generateImage);
-      if (!imageBlob) return; // Retry in progress
+      if (!imageBlob) return;
 
       if (!imageBlob || imageBlob.size === 0) {
         throw new Error('Generated image is empty or invalid');
@@ -162,13 +166,13 @@ export const useImageGeneration = ({
       await uploadImageMutation.mutateAsync({ 
         imageBlob, 
         metadata: {
-          prompt: modifiedPrompt,
+          prompt,
           seed: actualSeed,
           width: finalWidth,
           height: finalHeight,
-          steps: modelConfigs[model].defaultStep,
           model,
           quality,
+          style,
           aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
         }
       });

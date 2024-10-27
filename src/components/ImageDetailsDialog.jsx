@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Copy } from "lucide-react"
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { toast } from 'sonner'
+import { styleConfigs } from '@/utils/styleConfigs'
 
 const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
   if (!image) return null
@@ -21,7 +22,7 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
     { label: "Seed", value: image.seed },
     { label: "Size", value: `${image.width}x${image.height}` },
     { label: "Aspect Ratio", value: image.aspect_ratio },
-    { label: "Steps", value: image.steps },
+    { label: "Style", value: styleConfigs[image.style]?.name || 'General' },
     { label: "Quality", value: image.quality },
   ]
 
