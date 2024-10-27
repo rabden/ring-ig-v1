@@ -139,11 +139,12 @@ export const useImageGeneration = ({
         headers: {
           Authorization: `Bearer ${apiKeyData}`,
           "Content-Type": "application/json",
+          "x-wait-for-model": "true"
         },
         method: "POST",
         body: JSON.stringify({
           inputs: modifiedPrompt,
-          parameters: { seed: actualSeed, width: finalWidth, height: finalHeight, num_inference_steps: steps }
+          parameters: { seed: actualSeed, width: finalWidth, height: finalHeight, num_inference_steps: modelConfigs[model].defaultStep }
         }),
       });
 
@@ -162,7 +163,7 @@ export const useImageGeneration = ({
           seed: actualSeed,
           width: finalWidth,
           height: finalHeight,
-          steps,
+          steps: modelConfigs[model].defaultStep,
           model,
           quality,
           aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
