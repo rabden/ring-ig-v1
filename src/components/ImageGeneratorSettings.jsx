@@ -48,7 +48,7 @@ const ImageGeneratorSettings = ({
   credits,
   nsfwEnabled, setNsfwEnabled,
   style, setStyle,
-  generatingImages
+  generatingImages = [] // Add default empty array
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const hasEnoughCredits = credits >= creditCost;
@@ -56,7 +56,7 @@ const ImageGeneratorSettings = ({
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className="flex justify-between items-center mb-4">
-        <GenerationStatus generatingCount={generatingImages.length} />
+        <GenerationStatus generatingCount={generatingImages?.length || 0} />
         {session && (
           <div className="text-sm font-medium">
             Credits: {credits}

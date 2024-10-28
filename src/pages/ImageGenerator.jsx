@@ -141,6 +141,7 @@ const ImageGenerator = () => {
           setNsfwEnabled={setNsfwEnabled}
           style={style}
           setStyle={setStyle}
+          generatingImages={generatingImages} // Ensure this prop is passed
         />
       </div>
       <BottomNavbar 
