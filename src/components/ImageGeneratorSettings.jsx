@@ -71,11 +71,11 @@ const ImageGeneratorSettings = ({
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={handlePromptKeyDown}
             placeholder="Enter your prompt here"
-            className="min-h-[40px] resize-none overflow-hidden transition-all duration-200"
+            className="min-h-[40px] max-h-[300px] resize-none overflow-y-auto transition-all duration-200"
             rows={1}
             onInput={(e) => {
               e.target.style.height = 'auto';
-              e.target.style.height = e.target.scrollHeight + 'px';
+              e.target.style.height = Math.min(e.target.scrollHeight, 300) + 'px';
             }}
           />
         </SettingSection>

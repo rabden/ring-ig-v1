@@ -8,6 +8,7 @@ import { MoreVertical } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import SkeletonImageCard from './SkeletonImageCard'
 import { modelConfigs } from '@/utils/modelConfigs'
+import MobileImageDrawer from './MobileImageDrawer'
 
 const breakpointColumnsObj = {
   default: 4,
@@ -18,6 +19,9 @@ const breakpointColumnsObj = {
 
 const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails, activeView, generatingImages = [], nsfwEnabled }) => {
   const [images, setImages] = useState([])
+  const [selectedImage, setSelectedImage] = useState(null)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [showImageInDrawer, setShowImageInDrawer] = useState(false)
 
   const { isLoading, refetch } = useQuery({
     queryKey: ['images', userId, activeView, nsfwEnabled],
@@ -72,6 +76,25 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
     }
   }, [userId, activeView, nsfwEnabled])
 
+  const handleImageClick = (image, index) => {
+    if (window.innerWidth <= 768) {
+      setSelectedImage(image)
+      setShowImageInDrawer(true)
+      setDrawerOpen(true)
+    } else {
+      onImageClick(image, index)
+    }
+  }
+
+  const handleMoreClick = (image, e) => {
+    e.stopPropagation()
+    if (window.innerWidth <= 768) {
+      setSelectedImage(image)
+      setShowImageInDrawer(false)
+      setDrawerOpen(true)
+    }
+  }
+
   const renderContent = () => {
     const content = []
 
@@ -94,36 +117,43 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
                 src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
                 alt={image.prompt} 
                 className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                onClick={() => onImageClick(image, index)}
+                onClick={() => handleImageClick(image, index)}
                 loading="lazy"
               />
             </CardContent>
           </Card>
           <div className="mt-2 flex items-center justify-between">
             <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
-                  Download
-                </DropdownMenuItem>
-                {activeView === 'myImages' && onDiscard && (
-                  <DropdownMenuItem onClick={() => onDiscard(image)}>
-                    Discard
+            <div className="md:hidden">
+              <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => handleMoreClick(image, e)}>
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="hidden md:block">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
+                    Download
                   </DropdownMenuItem>
-                )}
-                <DropdownMenuItem onClick={() => onRemix(image)}>
-                  Remix
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onViewDetails(image)}>
-                  View Details
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  {activeView === 'myImages' && onDiscard && (
+                    <DropdownMenuItem onClick={() => onDiscard(image)}>
+                      Discard
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={() => onRemix(image)}>
+                    Remix
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onViewDetails(image)}>
+                    View Details
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       )))
@@ -133,13 +163,26 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
   }
 
   return (
-    <Masonry
-      breakpointCols={breakpointColumnsObj}
-      className="flex w-auto"
-      columnClassName="bg-clip-padding px-2"
-    >
-      {renderContent()}
-    </Masonry>
+    <>
+      <Masonry
+        breakpointCols={breakpointColumnsObj}
+        className="flex w-auto"
+        columnClassName="bg-clip-padding px-2"
+      >
+        {renderContent()}
+      </Masonry>
+
+      <MobileImageDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        image={selectedImage}
+        showImage={showImageInDrawer}
+        onDownload={onDownload}
+        onDiscard={onDiscard}
+        onRemix={onRemix}
+        isOwner={selectedImage?.user_id === userId}
+      />
+    </>
   )
 }
 
