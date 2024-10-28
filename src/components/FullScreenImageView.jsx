@@ -20,24 +20,19 @@ const FullScreenImageView = ({
     return null;
   }
 
-  const handleAction = (action, ...args) => {
-    if (typeof action === 'function') {
-      action(...args);
-    }
-    onClose();
-  };
-
   const handleDownload = () => {
     const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
-    handleAction(onDownload, imageUrl, image.prompt);
+    onDownload(imageUrl, image.prompt);
   };
 
   const handleRemix = () => {
-    handleAction(onRemix, image);
+    onRemix(image);
+    onClose();
   };
 
   const handleDiscard = () => {
-    handleAction(onDiscard, image);
+    onDiscard(image);
+    onClose();
   };
 
   return (
