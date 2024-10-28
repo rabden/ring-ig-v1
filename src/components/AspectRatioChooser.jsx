@@ -6,7 +6,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 
 const AspectRatioVisualizer = ({ ratio }) => {
   const [width, height] = ratio.split(':').map(Number)
-  const maxHeight = 150 // Increased from 100 to 150
+  const maxHeight = 120 // Reduced from 150 to 120
   const scale = maxHeight / height
   const scaledWidth = width * scale
   
