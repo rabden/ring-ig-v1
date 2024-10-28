@@ -9,6 +9,47 @@ import StyleChooser from './StyleChooser';
 import AspectRatioChooser from './AspectRatioChooser';
 import SettingSection from './settings/SettingSection';
 import ModelSection from './settings/ModelSection';
+import { ArrowRight } from 'lucide-react';
+
+const PromptInput = ({ value, onChange, onKeyDown, onGenerate }) => {
+  const [isFocused, setIsFocused] = React.useState(false);
+  const textareaRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      const scrollHeight = textareaRef.current.scrollHeight;
+      textareaRef.current.style.height = Math.min(scrollHeight, 300) + 'px';
+    }
+  }, [value]);
+
+  const showButton = isFocused || value.length > 0;
+
+  return (
+    <div className="relative">
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={onChange}
+        onKeyDown={onKeyDown}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        placeholder="Enter your prompt here"
+        className="w-full min-h-[40px] max-h-[300px] resize-none overflow-y-auto bg-background rounded-md border border-input px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 pr-10 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500"
+        rows={1}
+      />
+      {showButton && (
+        <Button
+          size="icon"
+          className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7"
+          onClick={onGenerate}
+        >
+          <ArrowRight className="h-4 w-4" />
+        </Button>
+      )}
+    </div>
+  );
+};
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -33,7 +74,6 @@ const ImageGeneratorSettings = ({
   const hasEnoughCredits = totalCredits >= creditCost;
   const showGuidanceScale = model === 'fluxDev';
 
-  // Handle model change with quality adjustment
   const handleModelChange = (newModel) => {
     if (newModel === 'turbo' && quality === 'HD+') {
       setQuality('HD');
@@ -41,12 +81,15 @@ const ImageGeneratorSettings = ({
     setModel(newModel);
   };
 
-  // Get available quality options based on model
   const getAvailableQualities = () => {
     if (model === 'turbo') {
       return ["SD", "HD"];
     }
     return Object.keys(qualityOptions);
+  };
+
+  const handlePromptChange = (e) => {
+    setPrompt(e.target.value);
   };
 
   return (
@@ -66,17 +109,11 @@ const ImageGeneratorSettings = ({
       </div>
 
       <SettingSection label="Prompt" tooltip="Enter a description of the image you want to generate. Be as specific as possible for best results.">
-        <textarea
+        <PromptInput
           value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
+          onChange={handlePromptChange}
           onKeyDown={handlePromptKeyDown}
-          placeholder="Enter your prompt here"
-          className="w-full min-h-[40px] max-h-[300px] resize-none overflow-y-auto bg-background rounded-md border border-input px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500"
-          rows={1}
-          onInput={(e) => {
-            e.target.style.height = 'auto';
-            e.target.style.height = Math.min(e.target.scrollHeight, 300) + 'px';
-          }}
+          onGenerate={generateImage}
         />
       </SettingSection>
 
