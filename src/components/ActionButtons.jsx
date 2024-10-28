@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 
 const ActionButtons = ({ activeView, setActiveView }) => {
   return (
-    <div className="flex space-x-2">
+    <div className="hidden md:flex space-x-2">
       <Button
         variant={activeView === 'myImages' ? 'default' : 'outline'}
         onClick={() => setActiveView('myImages')}

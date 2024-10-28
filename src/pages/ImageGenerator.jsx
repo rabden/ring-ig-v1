@@ -143,7 +143,14 @@ const ImageGenerator = () => {
           setStyle={setStyle}
         />
       </div>
-      <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} session={session} credits={credits} />
+      <BottomNavbar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        session={session} 
+        credits={credits}
+        activeView={activeView}
+        setActiveView={setActiveView}
+      />
       <ImageDetailsDialog
         open={detailsDialogOpen}
         onOpenChange={setDetailsDialogOpen}
