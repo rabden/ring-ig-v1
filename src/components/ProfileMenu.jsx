@@ -35,7 +35,7 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem>
-          Credits: {credits !== undefined ? `${credits}${bonusCredits > 0 ? ` + B${bonusCredits}` : ''}` : 'Loading...'}
+          Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={logout}>
