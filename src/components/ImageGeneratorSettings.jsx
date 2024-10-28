@@ -68,6 +68,7 @@ const ImageGeneratorSettings = ({
   bonusCredits,
   nsfwEnabled, setNsfwEnabled,
   style, setStyle,
+  setSteps,
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const totalCredits = (credits || 0) + (bonusCredits || 0);
@@ -90,6 +91,20 @@ const ImageGeneratorSettings = ({
 
   const handlePromptChange = (e) => {
     setPrompt(e.target.value);
+    
+    // Update steps based on prompt length for turbo model
+    if (model === 'turbo') {
+      const promptLength = e.target.value.length;
+      if (promptLength <= 100) {
+        setSteps(4);
+      } else if (promptLength <= 150) {
+        setSteps(8);
+      } else if (promptLength <= 200) {
+        setSteps(10);
+      } else {
+        setSteps(12);
+      }
+    }
   };
 
   return (
