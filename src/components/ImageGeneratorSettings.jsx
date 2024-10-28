@@ -34,7 +34,7 @@ const ImageGeneratorSettings = ({
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
-  const showGuidanceScale = model !== 'flux' && model !== 'turbo';
+  const showGuidanceScale = model === 'fluxDev';
 
   // Get available quality options based on model
   const getAvailableQualities = () => {
