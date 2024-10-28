@@ -3,6 +3,7 @@ import { Drawer } from 'vaul'
 import { Button } from "@/components/ui/button"
 import { Download, RefreshCw, Trash2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { supabase } from '@/integrations/supabase/supabase'
 import { styleConfigs } from '@/utils/styleConfigs'
@@ -34,16 +35,15 @@ const MobileImageDrawer = ({
     <Drawer.Root 
       open={open} 
       onOpenChange={onOpenChange}
-      snapPoints={[0.1, 1]}
+      snapPoints={[1, 100]}
       activeSnapPoint={snapPoint}
       setActiveSnapPoint={setSnapPoint}
       dismissible
-      modal={false}
     >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40" />
         <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 max-h-[95vh] overflow-hidden">
-          <div className="p-4 bg-muted/40 rounded-t-[10px] h-full overflow-y-auto scrollbar-hide">
+          <div className="p-4 bg-muted/40 rounded-t-[10px] h-full overflow-y-auto">
             <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-8" />
             <div className="h-full">
               {showImage && (
