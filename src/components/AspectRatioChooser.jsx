@@ -28,10 +28,12 @@ const AspectRatioVisualizer = ({ ratio }) => {
 const AspectRatioChooser = ({ aspectRatio, setAspectRatio }) => {
   const [isOpen, setIsOpen] = useState(false)
   
+  // Ordered from most portrait to most landscape
   const ratios = [
-    "9:16", "16:9", "10:16", "16:10", "2:3", "3:2", 
-    "3:4", "4:3", "4:5", "5:4", "1:3", "3:1", 
-    "1:2", "2:1", "1:1"
+    "9:16", "10:16", "2:3", "3:4", "4:5",  // Portrait ratios
+    "1:1",                                  // Square ratio (center)
+    "5:4", "4:3", "3:2", "16:10", "16:9",  // Landscape ratios
+    "2:1", "3:1"                           // Wide landscape ratios
   ]
 
   const handleSliderChange = (value) => {
@@ -40,7 +42,8 @@ const AspectRatioChooser = ({ aspectRatio, setAspectRatio }) => {
   }
 
   const getCurrentRatioIndex = () => {
-    return (ratios.indexOf(aspectRatio) / (ratios.length - 1)) * 100
+    const index = ratios.indexOf(aspectRatio)
+    return (index / (ratios.length - 1)) * 100
   }
 
   return (
