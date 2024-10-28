@@ -31,6 +31,13 @@ const FullScreenImageView = ({
     toast.success('Prompt copied to clipboard');
   };
 
+  const handleDownload = () => {
+    onDownload(
+      supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl,
+      image.prompt
+    );
+  };
+
   // Get first few words of prompt for title
   const promptTitle = image.prompt.split(' ').slice(0, 4).join(' ') + '...';
 
@@ -54,7 +61,7 @@ const FullScreenImageView = ({
                 {/* Action Buttons */}
                 <div className="grid grid-cols-2 gap-2">
                   <Button 
-                    onClick={() => handleAction(() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt))}
+                    onClick={() => handleAction(handleDownload)}
                     className="col-span-2"
                     variant="outline"
                   >
@@ -64,7 +71,7 @@ const FullScreenImageView = ({
                   
                   {isOwner && (
                     <Button 
-                      onClick={() => handleAction(() => onDiscard(image))}
+                      onClick={() => handleAction(() => onDiscard(image.id))}
                       variant="destructive"
                     >
                       <Trash2 className="mr-2 h-4 w-4" />
