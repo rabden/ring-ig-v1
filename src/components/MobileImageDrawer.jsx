@@ -32,9 +32,13 @@ const MobileImageDrawer = ({
       const currentY = e.touches[0].clientY
       const diff = touchStartY.current - currentY
 
-      // If swiped up even slightly (more than 20px), expand to full screen
-      if (diff > 20) {
+      // If swiped up even slightly (more than 10px), expand to full screen
+      if (diff > 10) {
         setSnapPoint(1) // Full screen
+      }
+      // If swiped down (more than 10px), collapse
+      else if (diff < -10) {
+        setSnapPoint(0.4) // Collapsed state
       }
     }
 
