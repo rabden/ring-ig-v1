@@ -18,8 +18,6 @@ const MobileImageDrawer = ({
   onRemix,
   isOwner = false
 }) => {
-  const [snapPoint, setSnapPoint] = React.useState(1)
-  
   if (!image) return null
 
   const detailItems = [
@@ -31,24 +29,27 @@ const MobileImageDrawer = ({
     { label: "Quality", value: image.quality },
   ]
 
+  const handleAction = (action) => {
+    onOpenChange(false)
+    setTimeout(() => action(), 300)
+  }
+
   return (
     <Drawer.Root 
       open={open} 
       onOpenChange={onOpenChange}
-      snapPoints={[1, 100]}
-      activeSnapPoint={snapPoint}
-      setActiveSnapPoint={setSnapPoint}
       dismissible
     >
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 max-h-[95vh] overflow-hidden">
-          <div className="p-4 bg-muted/40 rounded-t-[10px] h-full overflow-y-auto">
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-8" />
-            <div className="h-full">
+        <Drawer.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
+        <Drawer.Content className="bg-background fixed bottom-0 left-0 right-0 max-h-[95vh] rounded-t-[10px] border-t shadow-lg transition-transform duration-300 ease-in-out">
+          <ScrollArea className="h-full max-h-[95vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mb-8" />
+              
               {showImage && (
-                <div className="mb-6 -mx-4">
-                  <div className="relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
+                <div className="mb-6 -mx-6">
+                  <div className="relative rounded-lg overflow-hidden" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
                     <img
                       src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
                       alt={image.prompt}
@@ -58,19 +59,19 @@ const MobileImageDrawer = ({
                 </div>
               )}
               
-              <div className="flex gap-2 mb-6">
+              <div className="grid grid-cols-3 gap-3 mb-6">
                 <Button
                   variant="outline"
-                  className="flex-1"
-                  onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}
+                  className="w-full"
+                  onClick={() => handleAction(() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt))}
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Download
                 </Button>
                 <Button
                   variant="outline"
-                  className="flex-1"
-                  onClick={() => onRemix(image)}
+                  className="w-full"
+                  onClick={() => handleAction(() => onRemix(image))}
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Remix
@@ -78,8 +79,8 @@ const MobileImageDrawer = ({
                 {isOwner && (
                   <Button
                     variant="outline"
-                    className="flex-1"
-                    onClick={() => onDiscard(image)}
+                    className="w-full"
+                    onClick={() => handleAction(() => onDiscard(image))}
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
                     Discard
@@ -90,16 +91,16 @@ const MobileImageDrawer = ({
               <div className="space-y-6">
                 <div>
                   <h3 className="text-lg font-semibold mb-2">Prompt</h3>
-                  <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md">
+                  <p className="text-sm text-muted-foreground bg-secondary/50 p-4 rounded-lg">
                     {image.prompt}
                   </p>
                 </div>
-                <Separator />
+                <Separator className="bg-border/50" />
                 <div className="grid grid-cols-2 gap-4">
                   {detailItems.map((item, index) => (
-                    <div key={index} className="space-y-1">
+                    <div key={index} className="space-y-1.5">
                       <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
-                      <Badge variant="outline" className="text-sm font-normal">
+                      <Badge variant="secondary" className="text-sm font-normal">
                         {item.value}
                       </Badge>
                     </div>
@@ -107,7 +108,7 @@ const MobileImageDrawer = ({
                 </div>
               </div>
             </div>
-          </div>
+          </ScrollArea>
         </Drawer.Content>
       </Drawer.Portal>
     </Drawer.Root>
