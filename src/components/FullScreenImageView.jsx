@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { Download, Trash2, RefreshCw } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { modelConfigs } from '@/utils/modelConfigs';
 
 const FullScreenImageView = ({ 
   image, 
@@ -42,7 +43,6 @@ const FullScreenImageView = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-background">
         <div className="flex h-full">
-          {/* Left side - Image */}
           <div className="flex-1 relative flex items-center justify-center bg-black/10 dark:bg-black/30">
             <img
               src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
@@ -51,7 +51,6 @@ const FullScreenImageView = ({
             />
           </div>
 
-          {/* Right side - Details and Actions */}
           <div className="w-[350px] border-l">
             <ScrollArea className="h-[100vh]">
               <div className="p-6 space-y-6">
@@ -64,7 +63,7 @@ const FullScreenImageView = ({
                   <h4 className="text-sm font-medium">Settings</h4>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>Model:</div>
-                    <div className="text-muted-foreground">{image.model}</div>
+                    <div className="text-muted-foreground">{modelConfigs[image.model]?.name || image.model}</div>
                     <div>Quality:</div>
                     <div className="text-muted-foreground">{image.quality}</div>
                     <div>Size:</div>
@@ -72,7 +71,7 @@ const FullScreenImageView = ({
                     <div>Seed:</div>
                     <div className="text-muted-foreground">{image.seed}</div>
                     <div>Style:</div>
-                    <div className="text-muted-foreground">{image.style || "General"}</div>
+                    <div className="text-muted-foreground">{styleConfigs[image.style]?.name || "General"}</div>
                   </div>
                 </div>
 

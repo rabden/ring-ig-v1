@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator"
 import { supabase } from '@/integrations/supabase/supabase'
 import { styleConfigs } from '@/utils/styleConfigs'
 import { toast } from 'sonner'
+import { modelConfigs } from '@/utils/modelConfigs'
 
 const MobileImageDrawer = ({ 
   open, 
@@ -22,7 +23,7 @@ const MobileImageDrawer = ({
   if (!image) return null
 
   const detailItems = [
-    { label: "Model", value: image.model },
+    { label: "Model", value: modelConfigs[image.model]?.name || image.model },
     { label: "Seed", value: image.seed },
     { label: "Size", value: `${image.width}x${image.height}` },
     { label: "Aspect Ratio", value: image.aspect_ratio },

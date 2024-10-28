@@ -13,12 +13,13 @@ import { Copy } from "lucide-react"
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { toast } from 'sonner'
 import { styleConfigs } from '@/utils/styleConfigs'
+import { modelConfigs } from '@/utils/modelConfigs'
 
 const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
   if (!image) return null
 
   const detailItems = [
-    { label: "Model", value: image.model },
+    { label: "Model", value: modelConfigs[image.model]?.name || image.model },
     { label: "Seed", value: image.seed },
     { label: "Size", value: `${image.width}x${image.height}` },
     { label: "Aspect Ratio", value: image.aspect_ratio },

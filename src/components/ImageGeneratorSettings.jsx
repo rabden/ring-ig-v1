@@ -100,13 +100,13 @@ const ImageGeneratorSettings = ({
                   variant={model === 'flux' ? 'default' : 'outline'}
                   onClick={() => setModel('flux')}
                 >
-                  Fast
+                  Ring.1
                 </Button>
                 <Button
                   variant={model === 'fluxDev' ? 'default' : 'outline'}
                   onClick={() => setModel('fluxDev')}
                 >
-                  Quality
+                  Ring.1 hyper
                 </Button>
               </>
             ) : (
@@ -115,13 +115,13 @@ const ImageGeneratorSettings = ({
                   variant={model === 'nsfwMaster' ? 'default' : 'outline'}
                   onClick={() => setModel('nsfwMaster')}
                 >
-                  Reality
+                  Ring.1N
                 </Button>
                 <Button
                   variant={model === 'animeNsfw' ? 'default' : 'outline'}
                   onClick={() => setModel('animeNsfw')}
                 >
-                  Anime
+                  Ring.1Nanime
                 </Button>
               </>
             )}
