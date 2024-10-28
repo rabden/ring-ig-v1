@@ -1,11 +1,13 @@
 import React from 'react'
 import { Button } from "@/components/ui/button"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { styleConfigs } from '@/utils/styleConfigs'
 
-const StyleChooser = ({ style, setStyle, styles = {} }) => {
+const StyleChooser = ({ style, setStyle }) => {
   const handleStyleClick = (key) => {
+    // If clicking the active style, deselect it
     if (style === key) {
-      setStyle('auto')
+      setStyle(null)
     } else {
       setStyle(key)
     }
@@ -14,7 +16,7 @@ const StyleChooser = ({ style, setStyle, styles = {} }) => {
   return (
     <ScrollArea className="w-full whitespace-nowrap">
       <div className="flex space-x-2 pb-4">
-        {Object.entries(styles).map(([key, config]) => (
+        {Object.entries(styleConfigs).map(([key, config]) => (
           <Button
             key={key}
             variant={style === key ? "default" : "outline"}
