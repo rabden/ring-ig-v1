@@ -2,7 +2,7 @@ import React from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
-import { Download, RefreshCw, Trash2, Copy } from "lucide-react";
+import { Download, RefreshCw, Trash2, Copy, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -31,6 +31,14 @@ const FullScreenImageView = ({ image, isOpen, onClose, onDownload, onDiscard, on
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-screen max-h-screen w-screen h-screen p-0 bg-background">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute left-4 top-4 z-50"
+          onClick={onClose}
+        >
+          <X className="h-4 w-4" />
+        </Button>
         <div className="flex h-full">
           {/* Left side - Image */}
           <div className="flex-1 relative flex items-center justify-center bg-black/10">
@@ -97,7 +105,7 @@ const FullScreenImageView = ({ image, isOpen, onClose, onDownload, onDiscard, on
                     {detailItems.map((item, index) => (
                       <div key={index} className="space-y-1.5">
                         <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
-                        <Badge variant="secondary" className="text-sm font-normal">
+                        <Badge variant="secondary" className="text-sm font-normal w-full h-8 flex items-center justify-center">
                           {item.value}
                         </Badge>
                       </div>
