@@ -2,7 +2,7 @@ import React from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
-import { Download, Trash2, RefreshCw, Info } from "lucide-react";
+import { Download, Trash2, RefreshCw } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const FullScreenImageView = ({ 
@@ -12,12 +12,16 @@ const FullScreenImageView = ({
   onDownload,
   onDiscard,
   onRemix,
-  onViewDetails,
   isOwner 
 }) => {
   if (!isOpen || !image) {
     return null;
   }
+
+  const handleAction = (action) => {
+    action();
+    onClose();
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -52,6 +56,8 @@ const FullScreenImageView = ({
                     <div className="text-muted-foreground">{image.width}x{image.height}</div>
                     <div>Seed:</div>
                     <div className="text-muted-foreground">{image.seed}</div>
+                    <div>Style:</div>
+                    <div className="text-muted-foreground">{image.style || "General"}</div>
                   </div>
                 </div>
 
@@ -59,7 +65,7 @@ const FullScreenImageView = ({
                   <h4 className="text-sm font-medium">Actions</h4>
                   <div className="grid grid-cols-1 gap-2">
                     <Button 
-                      onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}
+                      onClick={() => handleAction(() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt))}
                       className="w-full"
                       variant="outline"
                     >
@@ -68,7 +74,7 @@ const FullScreenImageView = ({
                     </Button>
                     {isOwner && (
                       <Button 
-                        onClick={() => onDiscard(image)}
+                        onClick={() => handleAction(() => onDiscard(image))}
                         className="w-full"
                         variant="destructive"
                       >
@@ -77,20 +83,12 @@ const FullScreenImageView = ({
                       </Button>
                     )}
                     <Button 
-                      onClick={() => onRemix(image)}
+                      onClick={() => handleAction(() => onRemix(image))}
                       className="w-full"
                       variant="outline"
                     >
                       <RefreshCw className="mr-2 h-4 w-4" />
                       Remix
-                    </Button>
-                    <Button 
-                      onClick={() => onViewDetails(image)}
-                      className="w-full"
-                      variant="outline"
-                    >
-                      <Info className="mr-2 h-4 w-4" />
-                      View Details
                     </Button>
                   </div>
                 </div>
