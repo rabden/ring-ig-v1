@@ -7,8 +7,8 @@ export const useImageGeneratorState = () => {
   const [randomizeSeed, setRandomizeSeed] = useState(true)
   const [width, setWidth] = useState(1024)
   const [height, setHeight] = useState(1024)
-  const [steps, setSteps] = useState(modelConfigs.flux.defaultStep)
-  const [model, setModel] = useState('flux')
+  const [steps, setSteps] = useState(modelConfigs.turbo.defaultStep)
+  const [model, setModel] = useState('turbo')
   const [activeTab, setActiveTab] = useState('images')
   const [aspectRatio, setAspectRatio] = useState("1:1")
   const [useAspectRatio, setUseAspectRatio] = useState(true)
@@ -28,8 +28,8 @@ export const useImageGeneratorState = () => {
       setModel('nsfwMaster')
       setSteps(modelConfigs.nsfwMaster.defaultStep)
     } else {
-      setModel('flux')
-      setSteps(modelConfigs.flux.defaultStep)
+      setModel('turbo')
+      setSteps(modelConfigs.turbo.defaultStep)
     }
   }, [nsfwEnabled])
 

@@ -34,7 +34,7 @@ const ImageGeneratorSettings = ({
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
-  const showGuidanceScale = model !== 'flux';
+  const showGuidanceScale = model !== 'flux' && model !== 'turbo';
 
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
@@ -75,7 +75,12 @@ const ImageGeneratorSettings = ({
         {!session ? 'Sign in to generate' : !hasEnoughCredits ? `Need ${creditCost} credits for ${quality}` : 'Generate Image'}
       </Button>
 
-      <ModelSection model={model} setModel={setModel} nsfwEnabled={nsfwEnabled} />
+      <ModelSection 
+        model={model} 
+        setModel={setModel} 
+        nsfwEnabled={nsfwEnabled} 
+        quality={quality}
+      />
 
       {showGuidanceScale && (
         <GuidanceScaleSection guidanceScale={guidanceScale} setGuidanceScale={setGuidanceScale} />
