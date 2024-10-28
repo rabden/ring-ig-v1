@@ -79,8 +79,7 @@ export const useImageGeneration = ({
   aspectRatio,
   updateCredits,
   setGeneratingImages,
-  style,
-  guidanceScale
+  style
 }) => {
   const uploadImageMutation = useMutation({
     mutationFn: async ({ imageBlob, metadata }) => {
@@ -96,8 +95,7 @@ export const useImageGeneration = ({
           user_id: session.user.id,
           storage_path: filePath,
           ...metadata,
-          style: metadata.style || 'general', // Ensure style is never null
-          guidance_scale: model !== 'flux' ? metadata.guidance_scale : null // Ensure guidance_scale is set correctly
+          style: metadata.style || 'general' // Ensure style is never null
         })
       if (insertError) throw insertError
     },
@@ -142,18 +140,6 @@ export const useImageGeneration = ({
       if (apiKeyError) throw new Error(`Failed to get API key: ${apiKeyError.message}`);
       if (!apiKeyData) throw new Error('No active API key available');
 
-      const parameters = { 
-        seed: actualSeed, 
-        width: finalWidth, 
-        height: finalHeight, 
-        num_inference_steps: modelConfigs[model].defaultStep 
-      };
-
-      // Add guidance_scale for non-flux models
-      if (model !== 'flux') {
-        parameters.guidance_scale = guidanceScale;
-      }
-
       const response = await fetch(modelConfigs[model]?.apiUrl, {
         headers: {
           Authorization: `Bearer ${apiKeyData}`,
@@ -163,7 +149,12 @@ export const useImageGeneration = ({
         method: "POST",
         body: JSON.stringify({
           inputs: modifiedPrompt,
-          parameters
+          parameters: { 
+            seed: actualSeed, 
+            width: finalWidth, 
+            height: finalHeight, 
+            num_inference_steps: modelConfigs[model].defaultStep 
+          }
         }),
       });
 
@@ -184,9 +175,8 @@ export const useImageGeneration = ({
           height: finalHeight,
           model,
           quality,
-          style: style || 'general',
+          style: style || 'general', // Ensure style is never null
           aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
-          guidance_scale: model !== 'flux' ? guidanceScale : null
         }
       });
 

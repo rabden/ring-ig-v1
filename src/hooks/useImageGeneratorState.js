@@ -21,7 +21,6 @@ export const useImageGeneratorState = () => {
   const [generatingImages, setGeneratingImages] = useState([])
   const [activeView, setActiveView] = useState('myImages')
   const [nsfwEnabled, setNsfwEnabled] = useState(false)
-  const [guidanceScale, setGuidanceScale] = useState(3.5)
 
   // Update model when NSFW toggle changes
   useEffect(() => {
@@ -53,7 +52,6 @@ export const useImageGeneratorState = () => {
     fullScreenImageIndex, setFullScreenImageIndex,
     generatingImages, setGeneratingImages,
     activeView, setActiveView,
-    nsfwEnabled, setNsfwEnabled,
-    guidanceScale, setGuidanceScale
+    nsfwEnabled, setNsfwEnabled
   }
 }
