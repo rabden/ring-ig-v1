@@ -30,20 +30,20 @@ const FullScreenImageView = ({ image, isOpen, onClose, onDownload, onDiscard, on
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[90vw] max-h-[90vh] p-0 bg-background">
+      <DialogContent className="max-w-screen max-h-screen w-screen h-screen p-0 bg-background">
         <div className="flex h-full">
           {/* Left side - Image */}
-          <div className="flex-1 relative">
+          <div className="flex-1 relative flex items-center justify-center bg-black/10">
             <img
               src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
               alt={image.prompt}
-              className="w-full h-full object-contain"
+              className="max-w-full max-h-screen object-contain"
             />
           </div>
 
           {/* Right side - Details Card */}
-          <div className="w-[350px] border-l bg-card">
-            <ScrollArea className="h-full">
+          <div className="w-[350px] border-l bg-card overflow-y-auto">
+            <ScrollArea className="h-screen">
               <div className="p-6 space-y-6">
                 <div className="grid grid-cols-2 gap-3">
                   <Button
