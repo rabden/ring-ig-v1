@@ -37,8 +37,25 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
 
       const filteredData = data.filter(img => {
         const isNsfw = modelConfigs[img.model]?.category === "NSFW";
-        return (activeView === 'myImages' && img.user_id === userId && (nsfwEnabled || !isNsfw)) ||
-               (activeView === 'inspiration' && img.user_id !== userId && (nsfwEnabled || !isNsfw));
+        
+        if (activeView === 'myImages') {
+          if (nsfwEnabled) {
+            // When NSFW is enabled, only show NSFW images from the user
+            return img.user_id === userId && isNsfw;
+          } else {
+            // When NSFW is disabled, only show non-NSFW images from the user
+            return img.user_id === userId && !isNsfw;
+          }
+        } else if (activeView === 'inspiration') {
+          if (nsfwEnabled) {
+            // When NSFW is enabled, only show NSFW images from others
+            return img.user_id !== userId && isNsfw;
+          } else {
+            // When NSFW is disabled, only show non-NSFW images from others
+            return img.user_id !== userId && !isNsfw;
+          }
+        }
+        return false;
       });
 
       setImages(filteredData);
@@ -58,12 +75,24 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
         if (payload.eventType === 'INSERT') {
           setImages((prevImages) => {
             const isNsfw = modelConfigs[payload.new.model]?.category === "NSFW";
-            if (activeView === 'myImages' && payload.new.user_id === userId && (nsfwEnabled || !isNsfw)) {
-              return [payload.new, ...prevImages]
-            } else if (activeView === 'inspiration' && payload.new.user_id !== userId && (nsfwEnabled || !isNsfw)) {
-              return [payload.new, ...prevImages]
+            if (activeView === 'myImages') {
+              if (nsfwEnabled) {
+                // Only add new NSFW images when NSFW is enabled
+                return isNsfw && payload.new.user_id === userId ? [payload.new, ...prevImages] : prevImages;
+              } else {
+                // Only add new non-NSFW images when NSFW is disabled
+                return !isNsfw && payload.new.user_id === userId ? [payload.new, ...prevImages] : prevImages;
+              }
+            } else if (activeView === 'inspiration') {
+              if (nsfwEnabled) {
+                // Only add new NSFW images when NSFW is enabled
+                return isNsfw && payload.new.user_id !== userId ? [payload.new, ...prevImages] : prevImages;
+              } else {
+                // Only add new non-NSFW images when NSFW is disabled
+                return !isNsfw && payload.new.user_id !== userId ? [payload.new, ...prevImages] : prevImages;
+              }
             }
-            return prevImages
+            return prevImages;
           })
         } else if (payload.eventType === 'DELETE') {
           setImages((prevImages) => prevImages.filter(img => img.id !== payload.old.id))
