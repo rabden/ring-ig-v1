@@ -74,7 +74,7 @@ const ImageGeneratorSettings = ({
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={handlePromptKeyDown}
             placeholder="Enter your prompt here"
-            className="min-h-[40px] max-h-[300px] resize-none overflow-y-auto transition-all duration-200"
+            className="min-h-[40px] max-h-[300px] resize-none overflow-y-auto transition-all duration-200 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500"
             rows={1}
             onInput={(e) => {
               e.target.style.height = 'auto';
