@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
 import Masonry from 'react-masonry-css'
@@ -6,9 +6,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MoreVertical } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import SkeletonImageCard from './SkeletonImageCard'
-import { modelConfigs } from '@/utils/modelConfigs'
 import MobileImageDrawer from './MobileImageDrawer'
+import { modelConfigs } from '@/utils/modelConfigs'
 
 const breakpointColumnsObj = {
   default: 4,
@@ -18,12 +17,12 @@ const breakpointColumnsObj = {
 }
 
 const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, onViewDetails, activeView, generatingImages = [], nsfwEnabled }) => {
-  const [images, setImages] = useState([])
-  const [selectedImage, setSelectedImage] = useState(null)
-  const [drawerOpen, setDrawerOpen] = useState(false)
-  const [showImageInDrawer, setShowImageInDrawer] = useState(false)
+  const [images, setImages] = React.useState([])
+  const [selectedImage, setSelectedImage] = React.useState(null)
+  const [drawerOpen, setDrawerOpen] = React.useState(false)
+  const [showImageInDrawer, setShowImageInDrawer] = React.useState(false)
 
-  const { isLoading, refetch } = useQuery({
+  const { refetch } = useQuery({
     queryKey: ['images', userId, activeView, nsfwEnabled],
     queryFn: async () => {
       if (!userId) return []
@@ -47,11 +46,11 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
     enabled: !!userId,
   })
 
-  useEffect(() => {
+  React.useEffect(() => {
     refetch()
   }, [activeView, nsfwEnabled, refetch])
 
-  useEffect(() => {
+  React.useEffect(() => {
     const subscription = supabase
       .channel('user_images_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'user_images' }, (payload) => {
@@ -95,73 +94,6 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
     }
   }
 
-  const renderContent = () => {
-    const content = []
-
-    if (activeView === 'myImages' && generatingImages && generatingImages.length > 0) {
-      content.push(...generatingImages.map((img, index) => (
-        <SkeletonImageCard key={`generating-${index}`} width={img.width} height={img.height} />
-      )))
-    }
-
-    if (isLoading) {
-      content.push(...Array.from({ length: 8 }).map((_, index) => (
-        <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
-      )))
-    } else if (images && images.length > 0) {
-      content.push(...images.map((image, index) => (
-        <div key={image.id} className="mb-4">
-          <Card className="overflow-hidden">
-            <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-              <img 
-                src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                alt={image.prompt} 
-                className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                onClick={() => handleImageClick(image, index)}
-                loading="lazy"
-              />
-            </CardContent>
-          </Card>
-          <div className="mt-2 flex items-center justify-between">
-            <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
-            <div className="md:hidden">
-              <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => handleMoreClick(image, e)}>
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </div>
-            <div className="hidden md:block">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
-                    Download
-                  </DropdownMenuItem>
-                  {activeView === 'myImages' && onDiscard && (
-                    <DropdownMenuItem onClick={() => onDiscard(image)}>
-                      Discard
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem onClick={() => onRemix(image)}>
-                    Remix
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onViewDetails(image)}>
-                    View Details
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </div>
-        </div>
-      )))
-    }
-
-    return content
-  }
-
   return (
     <>
       <Masonry
@@ -169,7 +101,54 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
         className="flex w-auto md:px-2 -mx-1 md:mx-0"
         columnClassName="bg-clip-padding px-1 md:px-2"
       >
-        {renderContent()}
+        {images?.map((image, index) => (
+          <div key={image.id} className="mb-4">
+            <Card className="overflow-hidden">
+              <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
+                <img 
+                  src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                  alt={image.prompt} 
+                  className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+                  onClick={() => handleImageClick(image, index)}
+                  loading="lazy"
+                />
+              </CardContent>
+            </Card>
+            <div className="mt-0.5 flex items-center justify-between">
+              <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
+              <div className="md:hidden">
+                <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => handleMoreClick(image, e)}>
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="hidden md:block">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
+                      Download
+                    </DropdownMenuItem>
+                    {activeView === 'myImages' && onDiscard && (
+                      <DropdownMenuItem onClick={() => onDiscard(image)}>
+                        Discard
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem onClick={() => onRemix(image)}>
+                      Remix
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onViewDetails(image)}>
+                      View Details
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </div>
+        ))}
       </Masonry>
 
       <MobileImageDrawer

@@ -11,6 +11,7 @@ import { qualityOptions } from '@/utils/imageConfigs'
 import StyleChooser from './StyleChooser'
 import AspectRatioChooser from './AspectRatioChooser'
 import AuthOverlay from './AuthOverlay'
+import GenerationStatus from './GenerationStatus'
 
 const SettingSection = ({ label, tooltip, children }) => (
   <div className="space-y-2">
@@ -46,7 +47,8 @@ const ImageGeneratorSettings = ({
   session,
   credits,
   nsfwEnabled, setNsfwEnabled,
-  style, setStyle
+  style, setStyle,
+  generatingImages
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const hasEnoughCredits = credits >= creditCost;
@@ -54,7 +56,7 @@ const ImageGeneratorSettings = ({
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold">Settings</h2>
+        <GenerationStatus generatingCount={generatingImages.length} />
         {session && (
           <div className="text-sm font-medium">
             Credits: {credits}
