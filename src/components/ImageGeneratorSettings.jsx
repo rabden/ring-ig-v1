@@ -41,7 +41,7 @@ const PromptInput = ({ value, onChange, onKeyDown, onGenerate }) => {
       {showButton && (
         <Button
           size="icon"
-          className="absolute right-2 bottom-2 h-7 w-7"
+          className="absolute right-3 bottom-3 h-7 w-7"
           onClick={onGenerate}
         >
           <ArrowRight className="h-4 w-4" />
