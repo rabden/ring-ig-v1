@@ -8,26 +8,26 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, activeView, s
     <button
       onClick={onClick}
       className={cn(
-        "flex flex-col items-center justify-center w-16 h-14 transition-all",
+        "flex flex-col items-center justify-center w-14 h-12 transition-all",
         isActive ? "text-primary" : "text-muted-foreground",
         "relative group"
       )}
     >
       <div className={cn(
-        "absolute inset-x-2 h-1 -top-2 rounded-full transition-all",
+        "absolute inset-x-2 h-0.5 -top-1 rounded-full transition-all",
         isActive ? "bg-primary" : "bg-transparent"
       )} />
-      <Icon size={18} className={cn(
+      <Icon size={16} className={cn(
         "transition-transform duration-200",
         isActive ? "scale-100" : "scale-90 group-hover:scale-100"
       )} />
-      <span className="text-[10px] mt-1 font-medium">{label}</span>
+      <span className="text-[9px] mt-0.5 font-medium">{label}</span>
     </button>
   );
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-lg border-t border-border/50 md:hidden">
-      <div className="flex items-center justify-around px-2 py-1 max-w-md mx-auto">
+    <div className="fixed bottom-0 left-0 right-0 bg-background/70 backdrop-blur-xl border-t border-border/30 md:hidden">
+      <div className="flex items-center justify-around px-2 max-w-md mx-auto">
         <NavButton
           icon={Image}
           label="My Images"
@@ -52,11 +52,11 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, activeView, s
           isActive={activeTab === 'input'}
           onClick={() => setActiveTab('input')}
         />
-        <div className="flex flex-col items-center justify-center w-16 h-14">
+        <div className="flex flex-col items-center justify-center w-14 h-12">
           <MobileProfileMenu user={session?.user} credits={credits} />
         </div>
       </div>
-      <div className="h-safe-area-bottom bg-background/80 backdrop-blur-lg" />
+      <div className="h-safe-area-bottom bg-background/70 backdrop-blur-xl" />
     </div>
   );
 };
