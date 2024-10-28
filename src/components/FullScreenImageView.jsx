@@ -4,6 +4,8 @@ import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { Download, Trash2, RefreshCw, Copy, ChevronDown, ChevronUp } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 
 const FullScreenImageView = ({ 
@@ -38,7 +40,6 @@ const FullScreenImageView = ({
     );
   };
 
-  // Get first few words of prompt for title
   const promptTitle = image.prompt.split(' ').slice(0, 4).join(' ') + '...';
 
   return (
@@ -55,66 +56,71 @@ const FullScreenImageView = ({
           </div>
 
           {/* Right side - Details and Actions */}
-          <div className="w-[350px] border-l">
+          <div className="w-[350px] border-l bg-card">
             <ScrollArea className="h-[100vh]">
-              <div className="p-6 space-y-6">
+              <div className="p-6 space-y-8">
                 {/* Action Buttons */}
-                <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-2">
                   <Button 
                     onClick={() => handleAction(handleDownload)}
-                    className="col-span-2"
-                    variant="outline"
+                    className="w-full"
+                    size="lg"
                   >
-                    <Download className="mr-2 h-4 w-4" />
-                    Download
+                    <Download className="mr-2 h-5 w-5" />
+                    Download Image
                   </Button>
                   
-                  {isOwner && (
+                  <div className="grid grid-cols-2 gap-2">
+                    {isOwner && (
+                      <Button 
+                        onClick={() => handleAction(() => onDiscard(image.id))}
+                        variant="destructive"
+                        className="w-full"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Discard
+                      </Button>
+                    )}
+                    
                     <Button 
-                      onClick={() => handleAction(() => onDiscard(image.id))}
-                      variant="destructive"
+                      onClick={() => handleAction(() => onRemix(image))}
+                      variant="secondary"
+                      className={isOwner ? "" : "col-span-2"}
                     >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Discard
+                      <RefreshCw className="mr-2 h-4 w-4" />
+                      Remix
                     </Button>
-                  )}
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Prompt Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">Prompt</h3>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleCopyPrompt}
+                      className="h-8 w-8"
+                    >
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
                   
-                  <Button 
-                    onClick={() => handleAction(() => onRemix(image))}
-                    variant="outline"
-                    className={isOwner ? "" : "col-span-2"}
-                  >
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Remix
-                  </Button>
-                </div>
-
-                {/* Prompt Title and Copy Button */}
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold truncate mr-2">{promptTitle}</h3>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleCopyPrompt}
-                    className="h-8 w-8"
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                {/* Expandable Prompt */}
-                <div className="space-y-2">
                   <div 
-                    className={`text-sm text-muted-foreground bg-secondary/50 p-4 rounded-lg cursor-pointer ${!isPromptExpanded && 'line-clamp-3'}`}
+                    className={`text-sm text-muted-foreground bg-muted/50 p-4 rounded-lg cursor-pointer transition-all ${!isPromptExpanded && 'line-clamp-3'}`}
                     onClick={() => setIsPromptExpanded(!isPromptExpanded)}
                   >
                     {image.prompt}
                   </div>
+                  
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsPromptExpanded(!isPromptExpanded)}
-                    className="w-full text-xs"
+                    className="w-full text-xs hover:bg-muted/50"
                   >
                     {isPromptExpanded ? (
                       <ChevronUp className="h-4 w-4 mr-1" />
@@ -125,22 +131,48 @@ const FullScreenImageView = ({
                   </Button>
                 </div>
 
+                <Separator />
+
                 {/* Image Details */}
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Image Details</h4>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div>Model:</div>
-                    <div className="text-muted-foreground">{image.model}</div>
-                    <div>Quality:</div>
-                    <div className="text-muted-foreground">{image.quality}</div>
-                    <div>Size:</div>
-                    <div className="text-muted-foreground">{image.width}x{image.height}</div>
-                    <div>Seed:</div>
-                    <div className="text-muted-foreground">{image.seed}</div>
-                    <div>Style:</div>
-                    <div className="text-muted-foreground">{image.style || "General"}</div>
-                    <div>Aspect Ratio:</div>
-                    <div className="text-muted-foreground">{image.aspect_ratio}</div>
+                <div className="space-y-4">
+                  <h4 className="font-medium">Image Details</h4>
+                  <div className="grid gap-4">
+                    <div className="grid grid-cols-2 items-center">
+                      <span className="text-sm text-muted-foreground">Model</span>
+                      <Badge variant="secondary" className="justify-self-end">
+                        {image.model}
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-2 items-center">
+                      <span className="text-sm text-muted-foreground">Quality</span>
+                      <Badge variant="secondary" className="justify-self-end">
+                        {image.quality}
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-2 items-center">
+                      <span className="text-sm text-muted-foreground">Size</span>
+                      <Badge variant="secondary" className="justify-self-end">
+                        {image.width}x{image.height}
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-2 items-center">
+                      <span className="text-sm text-muted-foreground">Seed</span>
+                      <Badge variant="secondary" className="justify-self-end">
+                        {image.seed}
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-2 items-center">
+                      <span className="text-sm text-muted-foreground">Style</span>
+                      <Badge variant="secondary" className="justify-self-end">
+                        {image.style || "General"}
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-2 items-center">
+                      <span className="text-sm text-muted-foreground">Aspect Ratio</span>
+                      <Badge variant="secondary" className="justify-self-end">
+                        {image.aspect_ratio}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
               </div>
