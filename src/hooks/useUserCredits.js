@@ -9,7 +9,7 @@ export const useUserCredits = (userId) => {
     
     const { data, error } = await supabase
       .from('user_credits')
-      .select('credit_count, last_refill_time')
+      .select('credit_count, bonus_credits, last_refill_time')
       .eq('user_id', userId)
       .single();
 
@@ -35,6 +35,17 @@ export const useUserCredits = (userId) => {
     return data;
   };
 
+  const addBonusCredits = async (amount) => {
+    const { data, error } = await supabase
+      .rpc('add_bonus_credits', {
+        p_user_id: userId,
+        p_bonus_amount: amount
+      });
+
+    if (error) throw error;
+    return data;
+  };
+
   const creditsQuery = useQuery({
     queryKey: ['userCredits', userId],
     queryFn: fetchCredits,
@@ -49,11 +60,21 @@ export const useUserCredits = (userId) => {
     },
   });
 
+  const addBonusCreditsMutation = useMutation({
+    mutationFn: addBonusCredits,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userCredits', userId] });
+    },
+  });
+
   return {
     credits: creditsQuery.data?.credit_count ?? 0,
+    bonusCredits: creditsQuery.data?.bonus_credits ?? 0,
+    totalCredits: (creditsQuery.data?.credit_count ?? 0) + (creditsQuery.data?.bonus_credits ?? 0),
     lastRefillTime: creditsQuery.data?.last_refill_time,
     isLoading: creditsQuery.isLoading,
     error: creditsQuery.error,
     updateCredits: updateCreditsMutation.mutate,
+    addBonusCredits: addBonusCreditsMutation.mutate,
   };
 };
