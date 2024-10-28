@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
-import { Download, Trash2, RefreshCw } from "lucide-react";
+import { Download, Trash2, RefreshCw, Copy, ChevronDown, ChevronUp } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 
 const FullScreenImageView = ({ 
   image, 
@@ -14,6 +15,8 @@ const FullScreenImageView = ({
   onRemix,
   isOwner 
 }) => {
+  const [isPromptExpanded, setIsPromptExpanded] = useState(false);
+  
   if (!isOpen || !image) {
     return null;
   }
@@ -22,6 +25,14 @@ const FullScreenImageView = ({
     action();
     onClose();
   };
+
+  const handleCopyPrompt = () => {
+    navigator.clipboard.writeText(image.prompt);
+    toast.success('Prompt copied to clipboard');
+  };
+
+  // Get first few words of prompt for title
+  const promptTitle = image.prompt.split(' ').slice(0, 4).join(' ') + '...';
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -40,13 +51,76 @@ const FullScreenImageView = ({
           <div className="w-[350px] border-l">
             <ScrollArea className="h-[100vh]">
               <div className="p-6 space-y-6">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Image Details</h3>
-                  <p className="text-sm text-muted-foreground">{image.prompt}</p>
+                {/* Action Buttons */}
+                <div className="grid grid-cols-2 gap-2">
+                  <Button 
+                    onClick={() => handleAction(() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt))}
+                    className="col-span-2"
+                    variant="outline"
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Download
+                  </Button>
+                  
+                  {isOwner && (
+                    <Button 
+                      onClick={() => handleAction(() => onDiscard(image))}
+                      variant="destructive"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Discard
+                    </Button>
+                  )}
+                  
+                  <Button 
+                    onClick={() => handleAction(() => onRemix(image))}
+                    variant="outline"
+                    className={isOwner ? "" : "col-span-2"}
+                  >
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Remix
+                  </Button>
                 </div>
 
+                {/* Prompt Title and Copy Button */}
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold truncate mr-2">{promptTitle}</h3>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleCopyPrompt}
+                    className="h-8 w-8"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+
+                {/* Expandable Prompt */}
                 <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Settings</h4>
+                  <div 
+                    className={`text-sm text-muted-foreground bg-secondary/50 p-4 rounded-lg cursor-pointer ${!isPromptExpanded && 'line-clamp-3'}`}
+                    onClick={() => setIsPromptExpanded(!isPromptExpanded)}
+                  >
+                    {image.prompt}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsPromptExpanded(!isPromptExpanded)}
+                    className="w-full text-xs"
+                  >
+                    {isPromptExpanded ? (
+                      <ChevronUp className="h-4 w-4 mr-1" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 mr-1" />
+                    )}
+                    {isPromptExpanded ? 'Show less' : 'Show more'}
+                  </Button>
+                </div>
+
+                {/* Image Details */}
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium">Image Details</h4>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>Model:</div>
                     <div className="text-muted-foreground">{image.model}</div>
@@ -58,38 +132,8 @@ const FullScreenImageView = ({
                     <div className="text-muted-foreground">{image.seed}</div>
                     <div>Style:</div>
                     <div className="text-muted-foreground">{image.style || "General"}</div>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Actions</h4>
-                  <div className="grid grid-cols-1 gap-2">
-                    <Button 
-                      onClick={() => handleAction(() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt))}
-                      className="w-full"
-                      variant="outline"
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Download
-                    </Button>
-                    {isOwner && (
-                      <Button 
-                        onClick={() => handleAction(() => onDiscard(image))}
-                        className="w-full"
-                        variant="destructive"
-                      >
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Discard
-                      </Button>
-                    )}
-                    <Button 
-                      onClick={() => handleAction(() => onRemix(image))}
-                      className="w-full"
-                      variant="outline"
-                    >
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Remix
-                    </Button>
+                    <div>Aspect Ratio:</div>
+                    <div className="text-muted-foreground">{image.aspect_ratio}</div>
                   </div>
                 </div>
               </div>
