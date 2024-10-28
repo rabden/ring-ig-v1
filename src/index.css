@@ -73,4 +73,8 @@
   body {
     @apply bg-background text-foreground;
   }
+  textarea:focus {
+    outline: none !important;
+    box-shadow: none !important;
+  }
 }
