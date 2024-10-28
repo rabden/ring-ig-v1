@@ -9,7 +9,6 @@ import StyleChooser from './StyleChooser';
 import AspectRatioChooser from './AspectRatioChooser';
 import SettingSection from './settings/SettingSection';
 import ModelSection from './settings/ModelSection';
-import GuidanceScaleSection from './settings/GuidanceScaleSection';
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -28,8 +27,6 @@ const ImageGeneratorSettings = ({
   bonusCredits,
   nsfwEnabled, setNsfwEnabled,
   style, setStyle,
-  guidanceScale = 3.5,
-  setGuidanceScale
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const totalCredits = (credits || 0) + (bonusCredits || 0);
@@ -97,10 +94,6 @@ const ImageGeneratorSettings = ({
         nsfwEnabled={nsfwEnabled} 
         quality={quality}
       />
-
-      {showGuidanceScale && (
-        <GuidanceScaleSection guidanceScale={guidanceScale} setGuidanceScale={setGuidanceScale} />
-      )}
 
       <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
         <StyleChooser style={style} setStyle={setStyle} />

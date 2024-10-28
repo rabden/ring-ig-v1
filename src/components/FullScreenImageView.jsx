@@ -73,12 +73,6 @@ const FullScreenImageView = ({
                     <div className="text-muted-foreground">{image.seed}</div>
                     <div>Style:</div>
                     <div className="text-muted-foreground">{styleConfigs[image.style]?.name || "General"}</div>
-                    {image.model !== 'flux' && (
-                      <>
-                        <div>Guidance Scale:</div>
-                        <div className="text-muted-foreground">{image.guidance_scale?.toFixed(1) || '3.5'}</div>
-                      </>
-                    )}
                   </div>
                 </div>
 
