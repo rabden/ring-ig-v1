@@ -2,7 +2,7 @@ import React from 'react'
 import { Button } from "@/components/ui/button"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 
-const StyleChooser = ({ style, setStyle, styles }) => {
+const StyleChooser = ({ style, setStyle, styles = {} }) => {
   const handleStyleClick = (key) => {
     if (style === key) {
       setStyle('auto')

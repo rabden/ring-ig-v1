@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { HelpCircle } from "lucide-react"
 import { qualityOptions } from '@/utils/imageConfigs'
+import { styleConfigs } from '@/utils/styleConfigs'
 import StyleChooser from './StyleChooser'
 import AspectRatioChooser from './AspectRatioChooser'
 import AuthOverlay from './AuthOverlay'
