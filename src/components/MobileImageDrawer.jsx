@@ -5,11 +5,9 @@ import { Download, RefreshCw, Trash2, Copy } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { supabase } from '@/integrations/supabase/supabase'
 import { styleConfigs } from '@/utils/styleConfigs'
 import { toast } from 'sonner'
-import { useQuery } from '@tanstack/react-query'
 
 const MobileImageDrawer = ({ 
   open, 
@@ -23,33 +21,6 @@ const MobileImageDrawer = ({
 }) => {
   const [snapPoint, setSnapPoint] = React.useState(1)
   
-  const { data: creator } = useQuery({
-    queryKey: ['user', image?.user_id],
-    queryFn: async () => {
-      if (!image?.user_id) return null
-
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session?.access_token) throw new Error('No access token')
-
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_PROJECT_URL}/functions/v1/get_user`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-          'x-supabase-auth': session.access_token
-        },
-        body: JSON.stringify({ user_id: image.user_id })
-      })
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch user data')
-      }
-      const data = await response.json()
-      return data.user
-    },
-    enabled: !!image?.user_id
-  })
-
   if (!image) return null
 
   const detailItems = [
@@ -82,7 +53,7 @@ const MobileImageDrawer = ({
     >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
-        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 min-h-[40vh] h-[calc(100vh-10px)] border-t shadow-lg transition-transform duration-300 ease-in-out">
+        <Drawer.Content className="bg-background fixed bottom-0 left-0 right-0 min-h-[40vh] h-[calc(100vh-10px)] rounded-t-[10px] border-t shadow-lg transition-transform duration-300 ease-in-out">
           <ScrollArea className="h-full overflow-y-auto">
             <div className="p-6">
               <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mb-8" />
@@ -95,19 +66,6 @@ const MobileImageDrawer = ({
                       alt={image.prompt}
                       className="absolute inset-0 w-full h-full object-cover"
                     />
-                  </div>
-                </div>
-              )}
-
-              {creator && (
-                <div className="flex items-center space-x-3 mb-6">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={creator.avatar_url} />
-                    <AvatarFallback>{creator.display_name?.charAt(0) || creator.email?.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="text-sm font-medium">{creator.display_name || 'Anonymous'}</p>
-                    <p className="text-xs text-muted-foreground">{creator.email}</p>
                   </div>
                 </div>
               )}
