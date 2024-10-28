@@ -38,13 +38,14 @@ const MobileImageDrawer = ({
       snapPoints={[1, 100]}
       activeSnapPoint={snapPoint}
       setActiveSnapPoint={setSnapPoint}
+      dismissible
     >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 max-h-[100dvh]">
-          <div className="p-4 bg-muted/40 rounded-t-[10px] flex-1">
+        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 max-h-[95vh] overflow-hidden">
+          <div className="p-4 bg-muted/40 rounded-t-[10px] h-full overflow-y-auto">
             <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-8" />
-            <ScrollArea className="h-full">
+            <div className="h-full">
               {showImage && (
                 <div className="mb-6 -mx-4">
                   <div className="relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
@@ -105,7 +106,7 @@ const MobileImageDrawer = ({
                   ))}
                 </div>
               </div>
-            </ScrollArea>
+            </div>
           </div>
         </Drawer.Content>
       </Drawer.Portal>
