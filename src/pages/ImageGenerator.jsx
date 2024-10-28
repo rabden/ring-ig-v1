@@ -137,6 +137,7 @@ const ImageGenerator = () => {
           setHeight={setHeight}
           session={session}
           credits={credits}
+          bonusCredits={bonusCredits}
           nsfwEnabled={nsfwEnabled}
           setNsfwEnabled={setNsfwEnabled}
           style={style}

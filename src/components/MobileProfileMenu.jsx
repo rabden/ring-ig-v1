@@ -6,7 +6,7 @@ import SignInDialog from '@/components/SignInDialog';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { User } from 'lucide-react';
 
-const MobileProfileMenu = ({ user, credits }) => {
+const MobileProfileMenu = ({ user, credits, bonusCredits }) => {
   const { logout } = useSupabaseAuth();
   const [snapPoint, setSnapPoint] = React.useState(1);
 
@@ -48,7 +48,9 @@ const MobileProfileMenu = ({ user, credits }) => {
                     {user.user_metadata.display_name || user.email}
                   </h3>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
-                  <p className="text-sm font-medium">Credits: {credits}</p>
+                  <p className="text-sm font-medium">
+                    Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
+                  </p>
                   <Button onClick={handleLogout} variant="outline" className="w-full">
                     Log out
                   </Button>
