@@ -29,7 +29,7 @@ const ImageGenerator = () => {
   } = useImageGeneratorState()
 
   const { session } = useSupabaseAuth()
-  const { credits, updateCredits } = useUserCredits(session?.user?.id)
+  const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id)
   const queryClient = useQueryClient()
 
   const [style, setStyle] = useState('general')
@@ -90,7 +90,7 @@ const ImageGenerator = () => {
           {session && (
             <>
               <div className="hidden md:block">
-                <ProfileMenu user={session.user} credits={credits} />
+                <ProfileMenu user={session.user} credits={credits} bonusCredits={bonusCredits} />
               </div>
               <ActionButtons activeView={activeView} setActiveView={setActiveView} />
             </>
