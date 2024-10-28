@@ -6,7 +6,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 
 const AspectRatioVisualizer = ({ ratio }) => {
   const [width, height] = ratio.split(':').map(Number)
-  const maxHeight = 120
+  const maxHeight = 120 // Reduced from 150 to 120
   const scale = maxHeight / height
   const scaledWidth = width * scale
   
@@ -28,12 +28,9 @@ const AspectRatioVisualizer = ({ ratio }) => {
 const AspectRatioChooser = ({ aspectRatio, setAspectRatio }) => {
   const [isOpen, setIsOpen] = useState(false)
   
-  // Ordered from most portrait to most landscape
   const ratios = [
-    "9:16", "10:16", "2:3", "3:4", "4:5",  // Portrait ratios
-    "1:1",                                  // Square ratio (center)
-    "5:4", "4:3", "3:2", "16:10", "16:9",  // Landscape ratios
-    "2:1", "3:1"                           // Wide landscape ratios
+    "9:21", "9:16", "2:3", "3:4", "4:5", "1:1", 
+    "5:4", "4:3", "3:2", "16:9", "21:9"
   ]
 
   const handleSliderChange = (value) => {
@@ -42,8 +39,7 @@ const AspectRatioChooser = ({ aspectRatio, setAspectRatio }) => {
   }
 
   const getCurrentRatioIndex = () => {
-    const index = ratios.indexOf(aspectRatio)
-    return (index / (ratios.length - 1)) * 100
+    return (ratios.indexOf(aspectRatio) / (ratios.length - 1)) * 100
   }
 
   return (
