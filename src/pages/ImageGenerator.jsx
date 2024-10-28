@@ -24,8 +24,7 @@ const ImageGenerator = () => {
     selectedImage, setSelectedImage,
     detailsDialogOpen, setDetailsDialogOpen, fullScreenViewOpen, setFullScreenViewOpen,
     fullScreenImageIndex, setFullScreenImageIndex, generatingImages, setGeneratingImages,
-    activeView, setActiveView, nsfwEnabled, setNsfwEnabled,
-    guidanceScale, setGuidanceScale
+    activeView, setActiveView, nsfwEnabled, setNsfwEnabled
   } = useImageGeneratorState()
 
   const { session } = useSupabaseAuth()
@@ -48,8 +47,7 @@ const ImageGenerator = () => {
     aspectRatio,
     updateCredits,
     setGeneratingImages,
-    style,
-    guidanceScale
+    style
   })
 
   const {
@@ -143,8 +141,6 @@ const ImageGenerator = () => {
           setNsfwEnabled={setNsfwEnabled}
           style={style}
           setStyle={setStyle}
-          guidanceScale={guidanceScale}
-          setGuidanceScale={setGuidanceScale}
         />
       </div>
       <BottomNavbar 
