@@ -50,29 +50,29 @@ const AspectRatioChooser = ({ aspectRatio, setAspectRatio }) => {
     <div className="space-y-4">
       <AspectRatioVisualizer ratio={aspectRatio} />
       
-      {/* Main ratio buttons in ribbon format */}
-      <div className="flex items-center gap-2">
-        <div className="flex gap-2 flex-grow">
-          {mainRatios.map((ratio) => (
-            <Button
-              key={ratio}
-              variant={aspectRatio === ratio ? "default" : "outline"}
-              onClick={() => setAspectRatio(ratio)}
-              className="flex-1"
-            >
-              {ratio}
-            </Button>
-          ))}
-        </div>
-        <CollapsibleTrigger asChild>
-          <Button variant="outline" size="icon" onClick={() => setIsOpen(!isOpen)}>
-            {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </Button>
-        </CollapsibleTrigger>
-      </div>
-
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleContent className="space-y-4">
+        {/* Main ratio buttons in ribbon format */}
+        <div className="flex items-center gap-2">
+          <div className="flex gap-2 flex-grow">
+            {mainRatios.map((ratio) => (
+              <Button
+                key={ratio}
+                variant={aspectRatio === ratio ? "default" : "outline"}
+                onClick={() => setAspectRatio(ratio)}
+                className="flex-1"
+              >
+                {ratio}
+              </Button>
+            ))}
+          </div>
+          <CollapsibleTrigger asChild>
+            <Button variant="outline" size="icon">
+              {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            </Button>
+          </CollapsibleTrigger>
+        </div>
+
+        <CollapsibleContent className="space-y-4 pt-4">
           <Slider
             value={[getCurrentRatioIndex()]}
             onValueChange={handleSliderChange}
