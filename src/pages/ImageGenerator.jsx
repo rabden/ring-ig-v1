@@ -142,6 +142,7 @@ const ImageGenerator = () => {
           setNsfwEnabled={setNsfwEnabled}
           style={style}
           setStyle={setStyle}
+          steps={steps}
           setSteps={setSteps}
         />
       </div>
@@ -162,6 +163,10 @@ const ImageGenerator = () => {
         image={selectedImage}
         isOpen={fullScreenViewOpen}
         onClose={() => setFullScreenViewOpen(false)}
+        onDownload={handleDownload}
+        onDiscard={handleDiscard}
+        onRemix={handleRemix}
+        isOwner={selectedImage?.user_id === session?.user?.id}
       />
     </div>
   )
