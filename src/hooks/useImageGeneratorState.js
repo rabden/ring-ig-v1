@@ -23,7 +23,6 @@ export const useImageGeneratorState = () => {
   const [nsfwEnabled, setNsfwEnabled] = useState(false)
   const [guidanceScale, setGuidanceScale] = useState(3.5)
 
-  // Update model when NSFW toggle changes
   useEffect(() => {
     if (nsfwEnabled) {
       setModel('nsfwMaster')
