@@ -95,6 +95,7 @@ export const useImageGeneration = ({
           user_id: session.user.id,
           storage_path: filePath,
           ...metadata,
+          style: metadata.style || 'general' // Ensure style is never null
         })
       if (insertError) throw insertError
     },
@@ -172,7 +173,7 @@ export const useImageGeneration = ({
           height: finalHeight,
           model,
           quality,
-          style,
+          style: style || 'general', // Ensure style is never null
           aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
         }
       });
