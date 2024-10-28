@@ -1,5 +1,5 @@
 import React from 'react'
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { Drawer } from 'vaul'
 import { Button } from "@/components/ui/button"
 import { Download, RefreshCw, Trash2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -18,6 +18,8 @@ const MobileImageDrawer = ({
   onRemix,
   isOwner = false
 }) => {
+  const [snapPoint, setSnapPoint] = React.useState(1)
+  
   if (!image) return null
 
   const detailItems = [
@@ -30,75 +32,84 @@ const MobileImageDrawer = ({
   ]
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-[90vh] px-0">
-        <SheetHeader className="px-6">
-          <SheetTitle>Image Details</SheetTitle>
-        </SheetHeader>
-        <ScrollArea className="h-full px-6">
-          {showImage && (
-            <div className="mb-6 -mx-6">
-              <div className="relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-                <img
-                  src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                  alt={image.prompt}
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-              </div>
-            </div>
-          )}
-          
-          <div className="flex gap-2 mb-6">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Download
-            </Button>
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => onRemix(image)}
-            >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Remix
-            </Button>
-            {isOwner && (
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => onDiscard(image)}
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Discard
-              </Button>
-            )}
-          </div>
-
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Prompt</h3>
-              <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md">
-                {image.prompt}
-              </p>
-            </div>
-            <Separator />
-            <div className="grid grid-cols-2 gap-4">
-              {detailItems.map((item, index) => (
-                <div key={index} className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
-                  <Badge variant="outline" className="text-sm font-normal">
-                    {item.value}
-                  </Badge>
+    <Drawer.Root 
+      open={open} 
+      onOpenChange={onOpenChange}
+      snapPoints={[1, 100]}
+      activeSnapPoint={snapPoint}
+      setActiveSnapPoint={setSnapPoint}
+    >
+      <Drawer.Portal>
+        <Drawer.Overlay className="fixed inset-0 bg-black/40" />
+        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 max-h-[100dvh]">
+          <div className="p-4 bg-muted/40 rounded-t-[10px] flex-1">
+            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-8" />
+            <ScrollArea className="h-full">
+              {showImage && (
+                <div className="mb-6 -mx-4">
+                  <div className="relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
+                    <img
+                      src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                      alt={image.prompt}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  </div>
                 </div>
-              ))}
-            </div>
+              )}
+              
+              <div className="flex gap-2 mb-6">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => onRemix(image)}
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Remix
+                </Button>
+                {isOwner && (
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => onDiscard(image)}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Discard
+                  </Button>
+                )}
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Prompt</h3>
+                  <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md">
+                    {image.prompt}
+                  </p>
+                </div>
+                <Separator />
+                <div className="grid grid-cols-2 gap-4">
+                  {detailItems.map((item, index) => (
+                    <div key={index} className="space-y-1">
+                      <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
+                      <Badge variant="outline" className="text-sm font-normal">
+                        {item.value}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </ScrollArea>
           </div>
-        </ScrollArea>
-      </SheetContent>
-    </Sheet>
+        </Drawer.Content>
+      </Drawer.Portal>
+    </Drawer.Root>
   )
 }
 
