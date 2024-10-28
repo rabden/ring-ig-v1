@@ -41,7 +41,7 @@ const PromptInput = ({ value, onChange, onKeyDown, onGenerate }) => {
       {showButton && (
         <Button
           size="icon"
-          className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7"
+          className="absolute right-2 bottom-2 h-7 w-7"
           onClick={onGenerate}
         >
           <ArrowRight className="h-4 w-4" />
@@ -116,14 +116,6 @@ const ImageGeneratorSettings = ({
           onGenerate={generateImage}
         />
       </SettingSection>
-
-      <Button 
-        onClick={generateImage} 
-        className="w-full" 
-        disabled={!session || !hasEnoughCredits}
-      >
-        {!session ? 'Sign in to generate' : !hasEnoughCredits ? `Need ${creditCost} credits for ${quality}` : 'Generate Image'}
-      </Button>
 
       <ModelSection 
         model={model} 
