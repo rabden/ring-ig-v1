@@ -99,8 +99,8 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
     const content = []
 
     if (activeView === 'myImages' && generatingImages && generatingImages.length > 0) {
-      content.push(...generatingImages.map((img, index) => (
-        <SkeletonImageCard key={`generating-${index}`} width={img.width} height={img.height} />
+      content.push(...generatingImages.map((img) => (
+        <SkeletonImageCard key={img.id} width={img.width} height={img.height} />
       )))
     }
 
@@ -110,7 +110,7 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
       )))
     } else if (images && images.length > 0) {
       content.push(...images.map((image, index) => (
-        <div key={image.id} className="mb-4">
+        <div key={image.id} className="mb-2">
           <Card className="overflow-hidden">
             <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
               <img 
@@ -122,17 +122,17 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
               />
             </CardContent>
           </Card>
-          <div className="mt-2 flex items-center justify-between">
-            <p className="text-sm truncate w-[70%] mr-2">{image.prompt}</p>
+          <div className="mt-1 flex items-center justify-between">
+            <p className="text-sm truncate w-[70%]">{image.prompt}</p>
             <div className="md:hidden">
-              <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => handleMoreClick(image, e)}>
+              <Button variant="ghost" className="h-6 w-6 p-0" onClick={(e) => handleMoreClick(image, e)}>
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </div>
             <div className="hidden md:block">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
+                  <Button variant="ghost" className="h-6 w-6 p-0">
                     <MoreVertical className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>

@@ -129,8 +129,9 @@ export const useImageGeneration = ({
     const maxDimension = qualityOptions[quality];
     const { width: finalWidth, height: finalHeight } = calculateDimensions(useAspectRatio, aspectRatio, width, height, maxDimension);
 
+    const generationId = Date.now().toString();
     if (retryCount === 0) {
-      setGeneratingImages(prev => [...prev, { width: finalWidth, height: finalHeight }]);
+      setGeneratingImages(prev => [...prev, { id: generationId, width: finalWidth, height: finalHeight }]);
     }
 
     try {
@@ -178,12 +179,13 @@ export const useImageGeneration = ({
         }
       });
 
+      setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
       toast.success(`Image generated successfully. ${creditCost} credits used.`);
     } catch (error) {
       console.error('Error generating image:', error);
       if (retryCount === MAX_RETRIES) {
         toast.error(`Failed to generate image after ${MAX_RETRIES} attempts: ${error.message}`);
-        setGeneratingImages(prev => prev.slice(1));
+        setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
       } else if (retryCount === 0) {
         toast.error(`Encountered an error. Retrying...`);
       }
