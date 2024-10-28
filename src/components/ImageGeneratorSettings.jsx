@@ -46,16 +46,23 @@ const ImageGeneratorSettings = ({
   nsfwEnabled, setNsfwEnabled,
   style, setStyle
 }) => {
-  // Update style when prompt changes
+  // Only update style when prompt changes if auto style is selected
   React.useEffect(() => {
-    const detectedStyle = detectStyle(prompt);
-    if (detectedStyle !== style) {
-      setStyle(detectedStyle);
+    if (style === 'auto') {
+      const detectedStyle = detectStyle(prompt);
+      if (detectedStyle) {
+        setStyle(detectedStyle);
+      }
     }
-  }, [prompt, setStyle]);
+  }, [prompt, style, setStyle]);
 
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const hasEnoughCredits = credits >= creditCost;
+
+  // Filter out 'auto' from the style chooser
+  const visibleStyles = Object.entries(styleConfigs)
+    .filter(([key]) => key !== 'auto')
+    .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
 
   return (
     <div className="space-y-4 pb-20 md:pb-0">
@@ -134,7 +141,7 @@ const ImageGeneratorSettings = ({
         </SettingSection>
 
         <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
-          <StyleChooser style={style} setStyle={setStyle} />
+          <StyleChooser style={style} setStyle={setStyle} styles={visibleStyles} />
         </SettingSection>
 
         <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more credits.">
