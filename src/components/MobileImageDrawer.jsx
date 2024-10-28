@@ -27,11 +27,12 @@ const MobileImageDrawer = ({
     queryKey: ['user', image?.user_id],
     queryFn: async () => {
       if (!image?.user_id) return null
-      const { data: userData } = await supabase.auth.admin.getUserById(image.user_id)
+      const { data: { user }, error } = await supabase.auth.admin.getUser(image.user_id)
+      if (error) throw error
       return {
-        email: userData?.user?.email,
-        avatar_url: userData?.user?.user_metadata?.avatar_url,
-        full_name: userData?.user?.user_metadata?.display_name || userData?.user?.email?.split('@')[0]
+        email: user?.email,
+        avatar_url: user?.user_metadata?.avatar_url,
+        full_name: user?.user_metadata?.display_name || user?.email?.split('@')[0]
       }
     },
     enabled: !!image?.user_id
