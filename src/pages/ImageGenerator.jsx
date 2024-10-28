@@ -14,6 +14,7 @@ import ActionButtons from '@/components/ActionButtons'
 import { useImageGeneratorState } from '@/hooks/useImageGeneratorState'
 import { useImageHandlers } from '@/hooks/useImageHandlers'
 import { aspectRatios } from '@/utils/imageConfigs'
+import { modelConfigs } from '@/utils/modelConfigs'
 
 const ImageGenerator = () => {
   const {
@@ -34,7 +35,7 @@ const ImageGenerator = () => {
   const [style, setStyle] = useState('general')
 
   const { generateImage } = useImageGeneration({
-    session,
+    session: { ...session, credits, bonusCredits },
     prompt,
     seed,
     randomizeSeed,
@@ -141,6 +142,7 @@ const ImageGenerator = () => {
           setNsfwEnabled={setNsfwEnabled}
           style={style}
           setStyle={setStyle}
+          setSteps={setSteps}
         />
       </div>
       <BottomNavbar 
