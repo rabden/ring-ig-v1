@@ -1,62 +1,82 @@
 export const styleConfigs = {
   general: {
     name: "General",
-    suffix: "masterfully crafted with ultra-detailed precision, hyper-realistic quality, cinematic lighting, dynamic composition, intricate textures, volumetric lighting, soft shadows, vivid colors, highly polished finish, 8K resolution, photorealistic rendering, perfect depth of field, sharp details and professional color grading"
+    suffix: "8k, uhd, professional, masterpiece, high-quality, detailed, sharp focus, high-resolution, intricate details, realistic lighting, professional photography, photorealistic"
   },
   anime: {
     name: "Anime",
-    suffix: "in the style of high-quality anime artwork, with vibrant colors and clean lines, featuring expressive characters with detailed eyes and dynamic poses, incorporating cel shading techniques, dramatic lighting, and detailed backgrounds inspired by Studio Ghibli and modern anime aesthetics"
+    suffix: "anime style, manga art, cel shading, vibrant colors, clean lines, anime aesthetic, Studio Ghibli inspired, detailed eyes, dynamic poses, 2D animation, japanese animation style"
   },
   "3d": {
     name: "3D",
-    suffix: "created as a stunning 3D render with octane render engine, featuring advanced material properties, ray-traced reflections, global illumination, volumetric lighting, subsurface scattering, ambient occlusion, physically accurate materials, and photorealistic textures with 8K resolution"
+    suffix: "octane render, 3D model, ray tracing, volumetric lighting, subsurface scattering, ambient occlusion, physically based rendering, 3D visualization, blender art, cinema4d"
   },
   realistic: {
     name: "Realistic",
-    suffix: "captured with ultra-realistic detail, mimicking professional DSLR photography with perfect exposure, natural lighting, shallow depth of field, high dynamic range, sharp focus, and subtle color grading, comparable to high-end commercial photography"
+    suffix: "photorealistic, hyperrealistic, photoreal, DSLR photo, 35mm film, professional photography, natural lighting, studio lighting, color grading, raw photo"
   },
   illustration: {
     name: "Illustration",
-    suffix: "crafted as a professional digital illustration with clean vectorized elements, balanced composition, harmonious color palette, detailed linework, and sophisticated shading techniques, suitable for commercial and editorial use"
+    suffix: "digital art, digital painting, professional illustration, concept art, editorial illustration, commercial art, digital illustration, artistic, painterly, illustrated"
   },
   concept: {
     name: "Concept Art",
-    suffix: "designed as professional concept art with atmospheric perspective, dramatic lighting, detailed environmental storytelling, rich textures, and cinematic composition, similar to AAA game and film production quality"
+    suffix: "concept art, visual development, environment design, character design, prop design, game art, film concept, key art, production art, conceptual design"
   },
   watercolor: {
     name: "Watercolor",
-    suffix: "painted in delicate watercolor style with soft color bleeding, gentle gradients, translucent layers, organic textures, and subtle paper grain, capturing the traditional medium's characteristic flow and luminosity"
+    suffix: "watercolor painting, wet on wet, traditional media, watercolor texture, fluid painting, organic texture, watercolor paper, traditional art, painted, artistic"
   },
   comic: {
     name: "Comic",
-    suffix: "illustrated in dynamic comic book style with bold linework, dramatic perspectives, high contrast shadows, halftone effects, and vibrant colors, inspired by modern comic art techniques"
+    suffix: "comic art, comic book style, graphic novel, ink drawing, cel shading, bold lines, comic panel, superhero art, action comics, manga style"
   },
   minimalist: {
     name: "Minimalist",
-    suffix: "executed in clean minimalist style with simplified forms, limited color palette, precise geometry, intentional negative space, and essential details only, focusing on core visual elements"
+    suffix: "minimalist, simple, clean design, geometric, minimal, negative space, modern design, simplified forms, basic shapes, elegant"
   },
   cyberpunk: {
     name: "Cyberpunk",
-    suffix: "rendered in cyberpunk aesthetic with neon lighting, high-tech elements, urban dystopia atmosphere, metallic surfaces, holographic effects, and futuristic design elements with strong contrast and atmospheric fog"
+    suffix: "cyberpunk, neon, sci-fi, futuristic, high tech, dystopian, cyber, synthwave, vaporwave, retrowave"
   },
   retro: {
     name: "Retro",
-    suffix: "designed with vintage aesthetics, featuring classic color palettes, period-appropriate textures, subtle grain, slight color bleeding, and authentic retro lighting characteristics from the 70s and 80s"
+    suffix: "vintage, retro style, old school, nostalgic, 80s, 70s, classic, aged, film grain, analog"
   },
   fantasy: {
     name: "Fantasy",
-    suffix: "crafted in high fantasy style with magical atmospheres, ethereal lighting, mystical elements, detailed worldbuilding, dramatic scenery, and enchanted environments with rich detail and atmospheric effects"
+    suffix: "fantasy art, magical, mystical, ethereal, enchanted, mythical, fairytale, dreamlike, surreal, otherworldly"
   },
   abstract: {
     name: "Abstract",
-    suffix: "composed with abstract elements, featuring dynamic shapes, bold color relationships, geometric patterns, fluid forms, and contemporary artistic expression, balancing complexity with visual harmony"
+    suffix: "abstract art, non-representational, geometric, contemporary art, modern art, experimental, avant-garde, abstract expressionism, artistic"
   },
   sketch: {
     name: "Sketch",
-    suffix: "rendered as a detailed sketch with precise linework, controlled shading, textural mark-making, and thoughtful composition, combining traditional drawing techniques with digital refinement"
+    suffix: "pencil drawing, hand drawn, sketched, line art, traditional sketch, graphite, charcoal, rough sketch, drawing, doodle"
   },
   oil: {
     name: "Oil Painting",
-    suffix: "painted in classical oil painting style with rich impasto textures, glazing techniques, subtle color transitions, dramatic chiaroscuro, and careful attention to light and shadow relationships"
+    suffix: "oil painting, traditional art, impasto, glazing, classical painting, fine art, canvas texture, brush strokes, traditional media, painted"
+  },
+  portrait: {
+    name: "Portrait",
+    suffix: "portrait photography, headshot, studio portrait, professional portrait, beauty shot, fashion photography, editorial portrait, model photo"
+  },
+  architectural: {
+    name: "Architectural",
+    suffix: "architecture photography, architectural visualization, building design, interior design, exterior design, architectural rendering, urban design"
+  },
+  nature: {
+    name: "Nature",
+    suffix: "nature photography, landscape, wildlife, botanical, organic, environmental, outdoor, natural light, wilderness, scenic"
+  },
+  pop: {
+    name: "Pop Art",
+    suffix: "pop art style, andy warhol, roy lichtenstein, bold colors, halftone dots, comic style, pop culture, retro pop, artistic"
+  },
+  pixel: {
+    name: "Pixel Art",
+    suffix: "pixel art, 8-bit, 16-bit, retro gaming, pixelated, sprite art, game art, low-res, vintage gaming, digital pixel"
   }
 }
