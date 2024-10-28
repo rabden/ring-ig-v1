@@ -165,14 +165,13 @@ const ImageGeneratorSettings = ({
           </div>
         </SettingSection>
 
-        <div className="flex items-center justify-between">
-          <SettingSection label="Enable NSFW Content" tooltip="Toggle to allow or disallow the generation of Not Safe For Work (NSFW) content.">
-            <Switch
-              id="nsfwToggle"
-              checked={nsfwEnabled}
-              onCheckedChange={setNsfwEnabled}
-            />
-          </SettingSection>
+        <div className="flex items-center justify-between space-x-4">
+          <Label htmlFor="nsfwToggle" className="text-sm font-medium">Enable NSFW Content</Label>
+          <Switch
+            id="nsfwToggle"
+            checked={nsfwEnabled}
+            onCheckedChange={setNsfwEnabled}
+          />
         </div>
       </div>
 
