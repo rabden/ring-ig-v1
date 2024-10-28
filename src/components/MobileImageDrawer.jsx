@@ -27,12 +27,19 @@ const MobileImageDrawer = ({
     queryKey: ['user', image?.user_id],
     queryFn: async () => {
       if (!image?.user_id) return null
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', image.user_id)
-        .single()
-      return data
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_PROJECT_URL}/functions/v1/get_user`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_API_KEY}`
+        },
+        body: JSON.stringify({ user_id: image.user_id })
+      })
+      if (!response.ok) {
+        throw new Error('Failed to fetch user data')
+      }
+      const data = await response.json()
+      return data.user
     },
     enabled: !!image?.user_id
   })
@@ -69,7 +76,7 @@ const MobileImageDrawer = ({
     >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
-        <Drawer.Content className="bg-background fixed bottom-0 left-0 right-0 min-h-[40vh] h-[calc(100vh-10px)] rounded-t-[10px] border-t shadow-lg transition-transform duration-300 ease-in-out">
+        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 min-h-[40vh] h-[calc(100vh-10px)] border-t shadow-lg transition-transform duration-300 ease-in-out">
           <ScrollArea className="h-full overflow-y-auto">
             <div className="p-6">
               <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mb-8" />
@@ -90,10 +97,10 @@ const MobileImageDrawer = ({
                 <div className="flex items-center space-x-3 mb-6">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={creator.avatar_url} />
-                    <AvatarFallback>{creator.full_name?.charAt(0) || creator.email?.charAt(0)}</AvatarFallback>
+                    <AvatarFallback>{creator.display_name?.charAt(0) || creator.email?.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="text-sm font-medium">{creator.full_name || 'Anonymous'}</p>
+                    <p className="text-sm font-medium">{creator.display_name || 'Anonymous'}</p>
                     <p className="text-xs text-muted-foreground">{creator.email}</p>
                   </div>
                 </div>
