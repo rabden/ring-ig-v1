@@ -11,6 +11,7 @@ import { qualityOptions } from '@/utils/imageConfigs'
 import StyleChooser from './StyleChooser'
 import AspectRatioChooser from './AspectRatioChooser'
 import AuthOverlay from './AuthOverlay'
+import { detectStyle } from '@/utils/styleDetection'
 
 const SettingSection = ({ label, tooltip, children }) => (
   <div className="space-y-2">
@@ -45,6 +46,14 @@ const ImageGeneratorSettings = ({
   nsfwEnabled, setNsfwEnabled,
   style, setStyle
 }) => {
+  // Update style when prompt changes
+  React.useEffect(() => {
+    const detectedStyle = detectStyle(prompt);
+    if (detectedStyle !== style) {
+      setStyle(detectedStyle);
+    }
+  }, [prompt, setStyle]);
+
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const hasEnoughCredits = credits >= creditCost;
 

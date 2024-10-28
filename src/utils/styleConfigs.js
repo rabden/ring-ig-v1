@@ -1,6 +1,6 @@
 export const styleConfigs = {
-  general: {
-    name: "General",
+  auto: {
+    name: "Auto",
     suffix: "ultra-detailed, hyper-realistic, cinematic lighting, dynamic composition, intricate textures, volumetric lighting, soft shadows, vivid colors, highly polished, 8K resolution, photorealistic rendering, depth of field, with sharp details and perfect symmetry"
   },
   anime: {
