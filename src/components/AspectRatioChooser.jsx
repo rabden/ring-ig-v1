@@ -6,15 +6,17 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 
 const AspectRatioVisualizer = ({ ratio }) => {
   const [width, height] = ratio.split(':').map(Number)
-  const scale = 60 / Math.max(width, height) // Increased scale for bigger visualization
+  const maxHeight = 100 // Fixed height for consistent vertical space
+  const scale = maxHeight / height
+  const scaledWidth = width * scale
   
   return (
     <div className="flex flex-col items-center space-y-2 mb-2">
       <div 
-        className="border-2 border-primary bg-muted flex items-center justify-center text-sm"
+        className="border-2 border-primary bg-muted flex items-center justify-center text-sm transition-all duration-300 ease-in-out"
         style={{
-          width: `${width * scale}px`,
-          height: `${height * scale}px`,
+          width: `${scaledWidth}px`,
+          height: `${maxHeight}px`,
         }}
       >
         {ratio}
@@ -27,7 +29,8 @@ const AspectRatioChooser = ({ aspectRatio, setAspectRatio }) => {
   const [isOpen, setIsOpen] = useState(false)
   
   const ratios = [
-    "9:16", "3:4", "4:5", "1:1", "5:4", "4:3", "16:9"
+    "9:21", "9:16", "2:3", "3:4", "4:5", "1:1", 
+    "5:4", "4:3", "3:2", "16:9", "21:9"
   ]
 
   const handleSliderChange = (value) => {
@@ -46,8 +49,8 @@ const AspectRatioChooser = ({ aspectRatio, setAspectRatio }) => {
         value={[getCurrentRatioIndex()]}
         onValueChange={handleSliderChange}
         max={100}
-        step={1}
-        className="w-full"
+        step={0.1}
+        className="w-full transition-all duration-300"
       />
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger asChild>
