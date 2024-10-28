@@ -36,20 +36,20 @@ const ImageGeneratorSettings = ({
   const hasEnoughCredits = totalCredits >= creditCost;
   const showGuidanceScale = model === 'fluxDev';
 
+  // Handle model change with quality adjustment
+  const handleModelChange = (newModel) => {
+    if (newModel === 'turbo' && quality === 'HD+') {
+      setQuality('HD');
+    }
+    setModel(newModel);
+  };
+
   // Get available quality options based on model
   const getAvailableQualities = () => {
     if (model === 'turbo') {
       return ["SD", "HD"];
     }
     return Object.keys(qualityOptions);
-  };
-
-  // Handle model change
-  const handleModelChange = (newModel) => {
-    setModel(newModel);
-    if (newModel === 'turbo' && quality === 'HD+') {
-      setQuality('HD');
-    }
   };
 
   return (

@@ -4,11 +4,6 @@ import SettingSection from './SettingSection';
 import { modelConfigs } from '@/utils/modelConfigs';
 
 const ModelSection = ({ model, setModel, nsfwEnabled, quality }) => {
-  const isQualitySupported = (modelName) => {
-    const modelConfig = modelConfigs[modelName];
-    return !modelConfig.qualityLimits || modelConfig.qualityLimits.includes(quality);
-  };
-
   return (
     <SettingSection 
       label="Model" 
@@ -20,7 +15,6 @@ const ModelSection = ({ model, setModel, nsfwEnabled, quality }) => {
             <Button
               variant={model === 'turbo' ? 'default' : 'outline'}
               onClick={() => setModel('turbo')}
-              disabled={!isQualitySupported('turbo')}
             >
               Ring.1 turbo
             </Button>
