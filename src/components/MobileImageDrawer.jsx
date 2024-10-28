@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React from 'react'
 import { Drawer } from 'vaul'
 import { Button } from "@/components/ui/button"
 import { Download, RefreshCw, Trash2, Copy } from "lucide-react"
@@ -19,43 +19,6 @@ const MobileImageDrawer = ({
   onRemix,
   isOwner = false
 }) => {
-  const [snapPoint, setSnapPoint] = useState(1)
-  const drawerRef = useRef(null)
-  const touchStartY = useRef(0)
-  
-  useEffect(() => {
-    const handleTouchStart = (e) => {
-      touchStartY.current = e.touches[0].clientY
-    }
-
-    const handleTouchMove = (e) => {
-      const currentY = e.touches[0].clientY
-      const diff = touchStartY.current - currentY
-
-      // If swiped up even slightly (more than 10px), expand to full screen
-      if (diff > 10) {
-        setSnapPoint(1) // Full screen
-      }
-      // If swiped down (more than 10px), collapse
-      else if (diff < -10) {
-        setSnapPoint(0.4) // Collapsed state
-      }
-    }
-
-    const drawer = drawerRef.current
-    if (drawer) {
-      drawer.addEventListener('touchstart', handleTouchStart)
-      drawer.addEventListener('touchmove', handleTouchMove)
-    }
-
-    return () => {
-      if (drawer) {
-        drawer.removeEventListener('touchstart', handleTouchStart)
-        drawer.removeEventListener('touchmove', handleTouchMove)
-      }
-    }
-  }, [])
-  
   if (!image) return null
 
   const detailItems = [
@@ -81,21 +44,14 @@ const MobileImageDrawer = ({
     <Drawer.Root 
       open={open} 
       onOpenChange={onOpenChange}
-      snapPoints={[0.4, 1]}
-      activeSnapPoint={snapPoint}
-      setActiveSnapPoint={setSnapPoint}
-      dismissible
+      snapPoints={[1, 100]}
     >
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
-        <Drawer.Content 
-          ref={drawerRef}
-          className="bg-background fixed bottom-0 left-0 right-0 min-h-[40vh] h-[calc(100vh-10px)] rounded-t-[10px] border-t shadow-lg transition-transform duration-300 ease-in-out"
-        >
-          <ScrollArea className="h-full overflow-y-auto">
-            <div className="p-6">
-              <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mb-8" />
-              
+        <Drawer.Overlay className="fixed inset-0 bg-black/40" />
+        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 max-h-[100dvh]">
+          <div className="p-4 bg-muted/40 rounded-t-[10px] flex-1">
+            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-8" />
+            <div className="max-w-md mx-auto">
               {showImage && (
                 <div className="mb-6 -mx-6">
                   <div className="relative rounded-lg overflow-hidden" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
@@ -168,7 +124,7 @@ const MobileImageDrawer = ({
                 </div>
               </div>
             </div>
-          </ScrollArea>
+          </div>
         </Drawer.Content>
       </Drawer.Portal>
     </Drawer.Root>
