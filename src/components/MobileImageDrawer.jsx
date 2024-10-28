@@ -27,12 +27,12 @@ const MobileImageDrawer = ({
     queryKey: ['user', image?.user_id],
     queryFn: async () => {
       if (!image?.user_id) return null
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', image.user_id)
-        .single()
-      return data
+      const { data: userData } = await supabase.auth.admin.getUserById(image.user_id)
+      return {
+        email: userData?.user?.email,
+        avatar_url: userData?.user?.user_metadata?.avatar_url,
+        full_name: userData?.user?.user_metadata?.display_name || userData?.user?.email?.split('@')[0]
+      }
     },
     enabled: !!image?.user_id
   })
@@ -90,10 +90,10 @@ const MobileImageDrawer = ({
                 <div className="flex items-center space-x-3 mb-6">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={creator.avatar_url} />
-                    <AvatarFallback>{creator.full_name?.charAt(0) || creator.email?.charAt(0)}</AvatarFallback>
+                    <AvatarFallback>{creator.email?.charAt(0).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <p className="text-sm font-medium">{creator.full_name || 'Anonymous'}</p>
+                    <p className="text-sm font-medium">{creator.full_name}</p>
                     <p className="text-xs text-muted-foreground">{creator.email}</p>
                   </div>
                 </div>
