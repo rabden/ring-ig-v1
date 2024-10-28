@@ -27,14 +27,20 @@ const MobileImageDrawer = ({
     queryKey: ['user', image?.user_id],
     queryFn: async () => {
       if (!image?.user_id) return null
+
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) throw new Error('No access token')
+
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_PROJECT_URL}/functions/v1/get_user`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_API_KEY}`
+          'Authorization': `Bearer ${session.access_token}`,
+          'x-supabase-auth': session.access_token
         },
         body: JSON.stringify({ user_id: image.user_id })
       })
+      
       if (!response.ok) {
         throw new Error('Failed to fetch user data')
       }
@@ -43,7 +49,7 @@ const MobileImageDrawer = ({
     },
     enabled: !!image?.user_id
   })
-  
+
   if (!image) return null
 
   const detailItems = [
