@@ -36,6 +36,22 @@ const ImageGeneratorSettings = ({
   const hasEnoughCredits = totalCredits >= creditCost;
   const showGuidanceScale = model !== 'flux' && model !== 'turbo';
 
+  // Get available quality options based on model
+  const getAvailableQualities = () => {
+    if (model === 'turbo') {
+      return ["SD", "HD"];
+    }
+    return Object.keys(qualityOptions);
+  };
+
+  // Handle model change
+  const handleModelChange = (newModel) => {
+    setModel(newModel);
+    if (newModel === 'turbo' && quality === 'HD+') {
+      setQuality('HD');
+    }
+  };
+
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className="flex justify-between items-center mb-4">
@@ -77,7 +93,7 @@ const ImageGeneratorSettings = ({
 
       <ModelSection 
         model={model} 
-        setModel={setModel} 
+        setModel={handleModelChange}
         nsfwEnabled={nsfwEnabled} 
         quality={quality}
       />
@@ -92,8 +108,8 @@ const ImageGeneratorSettings = ({
 
       <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more credits.">
         <Tabs value={quality} onValueChange={setQuality}>
-          <TabsList className="grid grid-cols-3 w-full">
-            {Object.keys(qualityOptions).map((q) => (
+          <TabsList className="grid" style={{ gridTemplateColumns: `repeat(${getAvailableQualities().length}, 1fr)` }}>
+            {getAvailableQualities().map((q) => (
               <TabsTrigger key={q} value={q}>{q}</TabsTrigger>
             ))}
           </TabsList>
