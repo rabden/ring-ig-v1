@@ -1,7 +1,7 @@
 import React from 'react'
 import { Drawer } from 'vaul'
 import { Button } from "@/components/ui/button"
-import { Download, RefreshCw, Trash2, Copy } from "lucide-react"
+import { Download, RefreshCw, Trash2, Copy, X } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
@@ -44,14 +44,18 @@ const MobileImageDrawer = ({
     <Drawer.Root 
       open={open} 
       onOpenChange={onOpenChange}
-      snapPoints={[1, 100]}
     >
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 max-h-[100dvh]">
-          <div className="p-4 bg-muted/40 rounded-t-[10px] flex-1">
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-8" />
-            <div className="max-w-md mx-auto">
+        <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-sm" />
+        <Drawer.Content className="bg-background/95 backdrop-blur-sm fixed inset-0 flex flex-col">
+          <div className="flex justify-between items-center p-4 border-b">
+            <h3 className="text-lg font-semibold">Image Details</h3>
+            <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <ScrollArea className="flex-1 p-4">
+            <div className="max-w-md mx-auto space-y-6">
               {showImage && (
                 <div className="mb-6 -mx-6">
                   <div className="relative rounded-lg overflow-hidden" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
@@ -64,10 +68,10 @@ const MobileImageDrawer = ({
                 </div>
               )}
               
-              <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="grid grid-cols-2 gap-3">
                 <Button
                   variant="secondary"
-                  className="w-full bg-secondary/80 hover:bg-secondary"
+                  className="w-full"
                   onClick={() => handleAction(() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt))}
                 >
                   <Download className="w-4 h-4 mr-2" />
@@ -75,7 +79,7 @@ const MobileImageDrawer = ({
                 </Button>
                 <Button
                   variant="secondary"
-                  className="w-full bg-secondary/80 hover:bg-secondary"
+                  className="w-full"
                   onClick={() => handleAction(() => onRemix(image))}
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />
@@ -107,7 +111,7 @@ const MobileImageDrawer = ({
                       Copy
                     </Button>
                   </div>
-                  <p className="text-sm text-muted-foreground bg-secondary/50 p-4 rounded-lg">
+                  <p className="text-sm text-muted-foreground bg-muted/50 p-4 rounded-lg">
                     {image.prompt}
                   </p>
                 </div>
@@ -124,7 +128,7 @@ const MobileImageDrawer = ({
                 </div>
               </div>
             </div>
-          </div>
+          </ScrollArea>
         </Drawer.Content>
       </Drawer.Portal>
     </Drawer.Root>
