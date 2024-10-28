@@ -1,34 +1,15 @@
-import React from 'react'
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
-import { HelpCircle } from "lucide-react"
-import { Slider } from "@/components/ui/slider"
-import { qualityOptions } from '@/utils/imageConfigs'
-import StyleChooser from './StyleChooser'
-import AspectRatioChooser from './AspectRatioChooser'
-
-const SettingSection = ({ label, tooltip, children }) => (
-  <div className="space-y-2">
-    <div className="flex items-center space-x-2">
-      <Label>{label}</Label>
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="ghost" className="h-3 w-3 p-0 text-muted-foreground hover:text-foreground opacity-70">
-            <HelpCircle className="h-3 w-3" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-80 text-sm" align="start">
-          {tooltip}
-        </PopoverContent>
-      </Popover>
-    </div>
-    {children}
-  </div>
-)
+import React from 'react';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { qualityOptions } from '@/utils/imageConfigs';
+import StyleChooser from './StyleChooser';
+import AspectRatioChooser from './AspectRatioChooser';
+import SettingSection from './settings/SettingSection';
+import ModelSection from './settings/ModelSection';
+import GuidanceScaleSection from './settings/GuidanceScaleSection';
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -47,7 +28,8 @@ const ImageGeneratorSettings = ({
   bonusCredits,
   nsfwEnabled, setNsfwEnabled,
   style, setStyle,
-  guidanceScale, setGuidanceScale
+  guidanceScale = 3.5,
+  setGuidanceScale
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const totalCredits = (credits || 0) + (bonusCredits || 0);
@@ -93,61 +75,10 @@ const ImageGeneratorSettings = ({
         {!session ? 'Sign in to generate' : !hasEnoughCredits ? `Need ${creditCost} credits for ${quality}` : 'Generate Image'}
       </Button>
 
-      <SettingSection label="Model" tooltip="Choose between fast generation or higher quality output.">
-        <div className="grid grid-cols-2 gap-2">
-          {!nsfwEnabled ? (
-            <>
-              <Button
-                variant={model === 'flux' ? 'default' : 'outline'}
-                onClick={() => setModel('flux')}
-              >
-                Ring.1
-              </Button>
-              <Button
-                variant={model === 'fluxDev' ? 'default' : 'outline'}
-                onClick={() => setModel('fluxDev')}
-              >
-                Ring.1 hyper
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                variant={model === 'nsfwMaster' ? 'default' : 'outline'}
-                onClick={() => setModel('nsfwMaster')}
-              >
-                Ring.1N
-              </Button>
-              <Button
-                variant={model === 'animeNsfw' ? 'default' : 'outline'}
-                onClick={() => setModel('animeNsfw')}
-              >
-                Ring.1Nanime
-              </Button>
-            </>
-          )}
-        </div>
-      </SettingSection>
+      <ModelSection model={model} setModel={setModel} nsfwEnabled={nsfwEnabled} />
 
       {showGuidanceScale && (
-        <SettingSection 
-          label="Guidance Scale" 
-          tooltip="Controls how closely the image follows your prompt. Higher values result in images that more closely match your prompt but may be less diverse."
-        >
-          <div className="space-y-2">
-            <Slider
-              value={[guidanceScale]}
-              onValueChange={([value]) => setGuidanceScale(value)}
-              min={1}
-              max={20}
-              step={0.1}
-              className="w-full"
-            />
-            <div className="text-sm text-muted-foreground text-right">
-              {guidanceScale.toFixed(1)}
-            </div>
-          </div>
-        </SettingSection>
+        <GuidanceScaleSection guidanceScale={guidanceScale} setGuidanceScale={setGuidanceScale} />
       )}
 
       <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">

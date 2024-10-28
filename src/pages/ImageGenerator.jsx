@@ -14,7 +14,6 @@ import ActionButtons from '@/components/ActionButtons'
 import { useImageGeneratorState } from '@/hooks/useImageGeneratorState'
 import { useImageHandlers } from '@/hooks/useImageHandlers'
 import { aspectRatios } from '@/utils/imageConfigs'
-import { styleConfigs } from '@/utils/styleConfigs'
 
 const ImageGenerator = () => {
   const {
@@ -25,7 +24,8 @@ const ImageGenerator = () => {
     selectedImage, setSelectedImage,
     detailsDialogOpen, setDetailsDialogOpen, fullScreenViewOpen, setFullScreenViewOpen,
     fullScreenImageIndex, setFullScreenImageIndex, generatingImages, setGeneratingImages,
-    activeView, setActiveView, nsfwEnabled, setNsfwEnabled
+    activeView, setActiveView, nsfwEnabled, setNsfwEnabled,
+    guidanceScale, setGuidanceScale
   } = useImageGeneratorState()
 
   const { session } = useSupabaseAuth()
@@ -48,7 +48,8 @@ const ImageGenerator = () => {
     aspectRatio,
     updateCredits,
     setGeneratingImages,
-    style
+    style,
+    guidanceScale
   })
 
   const {
@@ -120,7 +121,7 @@ const ImageGenerator = () => {
           handlePromptKeyDown={handlePromptKeyDown}
           generateImage={handleGenerateImage}
           model={model}
-          setModel={setModel}
+          setModel={handleModelChange}
           seed={seed}
           setSeed={setSeed}
           randomizeSeed={randomizeSeed}
@@ -142,6 +143,8 @@ const ImageGenerator = () => {
           setNsfwEnabled={setNsfwEnabled}
           style={style}
           setStyle={setStyle}
+          guidanceScale={guidanceScale}
+          setGuidanceScale={setGuidanceScale}
         />
       </div>
       <BottomNavbar 
