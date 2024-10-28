@@ -5,14 +5,26 @@ import { styleConfigs } from '@/utils/styleConfigs'
 
 const StyleChooser = ({ style, setStyle }) => {
   const handleStyleClick = (key) => {
-    setStyle(key);
+    // If clicking the currently active style, deactivate it by setting to 'auto'
+    if (style === key) {
+      setStyle('auto');
+    } else {
+      setStyle(key);
+    }
   }
 
   return (
     <ScrollArea className="w-full whitespace-nowrap">
       <div className="flex space-x-2 pb-4">
+        <Button
+          variant={style === 'auto' ? "default" : "outline"}
+          onClick={() => handleStyleClick('auto')}
+          className="flex-shrink-0"
+        >
+          Auto
+        </Button>
         {Object.entries(styleConfigs)
-          .filter(([key]) => key !== 'auto') // Hide 'auto' from UI
+          .filter(([key]) => key !== 'auto')
           .map(([key, config]) => (
             <Button
               key={key}
