@@ -166,8 +166,8 @@ const ImageGallery = ({ userId, onImageClick, onDownload, onDiscard, onRemix, on
     <>
       <Masonry
         breakpointCols={breakpointColumnsObj}
-        className="flex w-auto"
-        columnClassName="bg-clip-padding px-2"
+        className="flex w-auto md:px-2 -mx-1 md:mx-0"
+        columnClassName="bg-clip-padding px-1 md:px-2"
       >
         {renderContent()}
       </Masonry>

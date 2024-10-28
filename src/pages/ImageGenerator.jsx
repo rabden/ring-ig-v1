@@ -85,8 +85,8 @@ const ImageGenerator = () => {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
-      <div className={`flex-grow p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
-        <div className="flex justify-between items-center mb-6">
+      <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
+        <div className="flex justify-between items-center mb-4 md:mb-6">
           {session && (
             <>
               <div className="hidden md:block">
@@ -108,7 +108,7 @@ const ImageGenerator = () => {
           nsfwEnabled={nsfwEnabled}
         />
       </div>
-      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
+      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-4 md:p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
         {!session && (
           <div className="absolute inset-0 z-10">
             <AuthOverlay />

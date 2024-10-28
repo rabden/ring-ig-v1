@@ -39,7 +39,10 @@ const ImageGeneratorSettings = ({
   seed, setSeed,
   randomizeSeed, setRandomizeSeed,
   quality, setQuality,
+  useAspectRatio, setUseAspectRatio,
   aspectRatio, setAspectRatio,
+  width, setWidth,
+  height, setHeight,
   session,
   credits,
   nsfwEnabled, setNsfwEnabled,
@@ -49,7 +52,7 @@ const ImageGeneratorSettings = ({
   const hasEnoughCredits = credits >= creditCost;
 
   return (
-    <div className="space-y-4 pb-20 md:pb-0">
+    <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Settings</h2>
         {session && (
