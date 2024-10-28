@@ -28,8 +28,7 @@ const MobileImageDrawer = ({
     { label: "Size", value: `${image.width}x${image.height}` },
     { label: "Aspect Ratio", value: image.aspect_ratio },
     { label: "Style", value: styleConfigs[image.style]?.name || 'General' },
-    { label: "Quality", value: image.quality },
-    ...(image.model !== 'flux' ? [{ label: "Guidance Scale", value: image.guidance_scale?.toFixed(1) || '3.5' }] : []),
+    { label: "Quality", value: image.quality }
   ]
 
   const handleAction = (action) => {
@@ -49,18 +48,19 @@ const MobileImageDrawer = ({
     >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-sm" />
-        <Drawer.Content className="bg-background/95 backdrop-blur-sm fixed inset-0 flex flex-col">
+        <Drawer.Content className="fixed bottom-0 left-0 right-0 mt-24 flex h-[96vh] flex-col rounded-t-[10px] bg-background">
+          <div className="mx-auto mt-4 h-1.5 w-[100px] rounded-full bg-muted" />
           <div className="flex justify-between items-center p-4 border-b">
             <h3 className="text-lg font-semibold">Image Details</h3>
             <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)}>
               <X className="h-4 w-4" />
             </Button>
           </div>
-          <ScrollArea className="flex-1 p-4">
-            <div className="max-w-md mx-auto space-y-6">
+          <ScrollArea className="flex-1">
+            <div className="max-w-md mx-auto space-y-6 p-4">
               {showImage && (
-                <div className="mb-6 -mx-6">
-                  <div className="relative rounded-lg overflow-hidden" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
+                <div className="mb-6 -mx-4">
+                  <div className="relative rounded-lg overflow-hidden bg-muted/30" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
                     <img
                       src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
                       alt={image.prompt}
