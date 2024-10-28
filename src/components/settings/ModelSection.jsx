@@ -23,7 +23,6 @@ const ModelSection = ({ model, setModel, nsfwEnabled, quality }) => {
               disabled={!isQualitySupported('turbo')}
             >
               Ring.1 turbo
-              {!isQualitySupported('turbo') && <span className="text-xs block">Not available for HD+</span>}
             </Button>
             <Button
               variant={model === 'flux' ? 'default' : 'outline'}
