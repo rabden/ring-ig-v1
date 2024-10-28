@@ -6,10 +6,10 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover"
 import { HelpCircle } from "lucide-react"
+import { Slider } from "@/components/ui/slider"
 import { qualityOptions } from '@/utils/imageConfigs'
 import StyleChooser from './StyleChooser'
 import AspectRatioChooser from './AspectRatioChooser'
-import AuthOverlay from './AuthOverlay'
 
 const SettingSection = ({ label, tooltip, children }) => (
   <div className="space-y-2">
@@ -46,11 +46,13 @@ const ImageGeneratorSettings = ({
   credits,
   bonusCredits,
   nsfwEnabled, setNsfwEnabled,
-  style, setStyle
+  style, setStyle,
+  guidanceScale, setGuidanceScale
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
+  const showGuidanceScale = model !== 'flux';
 
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
@@ -126,6 +128,27 @@ const ImageGeneratorSettings = ({
           )}
         </div>
       </SettingSection>
+
+      {showGuidanceScale && (
+        <SettingSection 
+          label="Guidance Scale" 
+          tooltip="Controls how closely the image follows your prompt. Higher values result in images that more closely match your prompt but may be less diverse."
+        >
+          <div className="space-y-2">
+            <Slider
+              value={[guidanceScale]}
+              onValueChange={([value]) => setGuidanceScale(value)}
+              min={1}
+              max={20}
+              step={0.1}
+              className="w-full"
+            />
+            <div className="text-sm text-muted-foreground text-right">
+              {guidanceScale.toFixed(1)}
+            </div>
+          </div>
+        </SettingSection>
+      )}
 
       <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
         <StyleChooser style={style} setStyle={setStyle} />

@@ -29,6 +29,7 @@ const MobileImageDrawer = ({
     { label: "Aspect Ratio", value: image.aspect_ratio },
     { label: "Style", value: styleConfigs[image.style]?.name || 'General' },
     { label: "Quality", value: image.quality },
+    ...(image.model !== 'flux' ? [{ label: "Guidance Scale", value: image.guidance_scale?.toFixed(1) || '3.5' }] : []),
   ]
 
   const handleAction = (action) => {
