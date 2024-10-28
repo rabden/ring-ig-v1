@@ -122,7 +122,7 @@ export const useImageGeneration = ({
     }
 
     const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed;
-    const styleSuffix = styleConfigs[style]?.suffix || styleConfigs.general.suffix;
+    const styleSuffix = styleConfigs[style]?.suffix || styleConfigs.auto.suffix;
     const modifiedPrompt = `${prompt}, ${styleSuffix}${modelConfigs[model]?.promptSuffix || ''}`;
 
     const maxDimension = qualityOptions[quality];
