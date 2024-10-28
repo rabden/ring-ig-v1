@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Drawer } from 'vaul'
 import { Button } from "@/components/ui/button"
 import { Download, RefreshCw, Trash2, Copy } from "lucide-react"
@@ -19,7 +19,38 @@ const MobileImageDrawer = ({
   onRemix,
   isOwner = false
 }) => {
-  const [snapPoint, setSnapPoint] = React.useState(1)
+  const [snapPoint, setSnapPoint] = useState(1)
+  const drawerRef = useRef(null)
+  const touchStartY = useRef(0)
+  
+  useEffect(() => {
+    const handleTouchStart = (e) => {
+      touchStartY.current = e.touches[0].clientY
+    }
+
+    const handleTouchMove = (e) => {
+      const currentY = e.touches[0].clientY
+      const diff = touchStartY.current - currentY
+
+      // If swiped up even slightly (more than 20px), expand to full screen
+      if (diff > 20) {
+        setSnapPoint(1) // Full screen
+      }
+    }
+
+    const drawer = drawerRef.current
+    if (drawer) {
+      drawer.addEventListener('touchstart', handleTouchStart)
+      drawer.addEventListener('touchmove', handleTouchMove)
+    }
+
+    return () => {
+      if (drawer) {
+        drawer.removeEventListener('touchstart', handleTouchStart)
+        drawer.removeEventListener('touchmove', handleTouchMove)
+      }
+    }
+  }, [])
   
   if (!image) return null
 
@@ -53,7 +84,10 @@ const MobileImageDrawer = ({
     >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
-        <Drawer.Content className="bg-background fixed bottom-0 left-0 right-0 min-h-[40vh] h-[calc(100vh-10px)] rounded-t-[10px] border-t shadow-lg transition-transform duration-300 ease-in-out">
+        <Drawer.Content 
+          ref={drawerRef}
+          className="bg-background fixed bottom-0 left-0 right-0 min-h-[40vh] h-[calc(100vh-10px)] rounded-t-[10px] border-t shadow-lg transition-transform duration-300 ease-in-out"
+        >
           <ScrollArea className="h-full overflow-y-auto">
             <div className="p-6">
               <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mb-8" />
