@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Trash2, RefreshCw } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { modelConfigs } from '@/utils/modelConfigs';
+import { styleConfigs } from '@/utils/styleConfigs';
 
 const FullScreenImageView = ({ 
   image, 
