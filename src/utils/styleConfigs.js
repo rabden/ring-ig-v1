@@ -7,7 +7,7 @@ export const styleConfigs = {
     name: "Anime",
     suffix: "in a highly detailed anime art style, with vibrant colors, dynamic lighting, clean lines, expressive facial features, large eyes, and a stylized background. The characters should have smooth, cel-shaded textures and distinct, exaggerated emotions, similar to traditional Japanese animation. The atmosphere should be lively, with intricate attention to details in the scenery and character clothing"
   },
-  "3d": {
+  '3d': {
     name: "3D",
     suffix: "3D rendered, octane render, highly detailed 3D model, volumetric lighting, ray tracing, subsurface scattering, ambient occlusion, physically based rendering, 3D visualization"
   },
@@ -39,4 +39,7 @@ export const styleConfigs = {
     name: "Sketch",
     suffix: "hand-drawn sketch style, pencil drawing, artistic sketching, detailed linework, traditional art technique, expressive strokes"
   }
-}
+};
+
+// Re-export for use in other files
+export { detectStyle } from './styleDetection';
