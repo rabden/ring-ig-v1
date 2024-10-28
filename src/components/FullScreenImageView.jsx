@@ -18,9 +18,24 @@ const FullScreenImageView = ({
     return null;
   }
 
-  const handleAction = (action) => {
-    action();
+  const handleAction = (action, ...args) => {
+    if (typeof action === 'function') {
+      action(...args);
+    }
     onClose();
+  };
+
+  const handleDownload = () => {
+    const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
+    handleAction(onDownload, imageUrl, image.prompt);
+  };
+
+  const handleRemix = () => {
+    handleAction(onRemix, image);
+  };
+
+  const handleDiscard = () => {
+    handleAction(onDiscard, image);
   };
 
   return (
@@ -65,7 +80,7 @@ const FullScreenImageView = ({
                   <h4 className="text-sm font-medium">Actions</h4>
                   <div className="grid grid-cols-1 gap-2">
                     <Button 
-                      onClick={() => handleAction(() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt))}
+                      onClick={handleDownload}
                       className="w-full"
                       variant="outline"
                     >
@@ -74,7 +89,7 @@ const FullScreenImageView = ({
                     </Button>
                     {isOwner && (
                       <Button 
-                        onClick={() => handleAction(() => onDiscard(image))}
+                        onClick={handleDiscard}
                         className="w-full"
                         variant="destructive"
                       >
@@ -83,7 +98,7 @@ const FullScreenImageView = ({
                       </Button>
                     )}
                     <Button 
-                      onClick={() => handleAction(() => onRemix(image))}
+                      onClick={handleRemix}
                       className="w-full"
                       variant="outline"
                     >
