@@ -5,9 +5,11 @@ import { Download, RefreshCw, Trash2, Copy } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { supabase } from '@/integrations/supabase/supabase'
 import { styleConfigs } from '@/utils/styleConfigs'
 import { toast } from 'sonner'
+import { useQuery } from '@tanstack/react-query'
 
 const MobileImageDrawer = ({ 
   open, 
@@ -20,6 +22,20 @@ const MobileImageDrawer = ({
   isOwner = false
 }) => {
   const [snapPoint, setSnapPoint] = React.useState(1)
+  
+  const { data: creator } = useQuery({
+    queryKey: ['user', image?.user_id],
+    queryFn: async () => {
+      if (!image?.user_id) return null
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', image.user_id)
+        .single()
+      return data
+    },
+    enabled: !!image?.user_id
+  })
   
   if (!image) return null
 
@@ -66,6 +82,19 @@ const MobileImageDrawer = ({
                       alt={image.prompt}
                       className="absolute inset-0 w-full h-full object-cover"
                     />
+                  </div>
+                </div>
+              )}
+
+              {creator && (
+                <div className="flex items-center space-x-3 mb-6">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={creator.avatar_url} />
+                    <AvatarFallback>{creator.full_name?.charAt(0) || creator.email?.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-medium">{creator.full_name || 'Anonymous'}</p>
+                    <p className="text-xs text-muted-foreground">{creator.email}</p>
                   </div>
                 </div>
               )}
