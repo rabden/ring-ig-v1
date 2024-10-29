@@ -16,7 +16,8 @@ const getRetryInterval = (statusCode) => {
   }
 };
 
-const makeDivisibleBy8 = (num) => Math.floor(num / 8) * 8;
+// Updated to make dimensions divisible by 16
+const makeDivisibleBy16 = (num) => Math.floor(num / 16) * 16;
 
 const calculateDimensions = (useAspectRatio, aspectRatio, width, height, maxDimension) => {
   let finalWidth, finalHeight;
@@ -38,8 +39,8 @@ const calculateDimensions = (useAspectRatio, aspectRatio, width, height, maxDime
   }
 
   return {
-    width: makeDivisibleBy8(finalWidth),
-    height: makeDivisibleBy8(finalHeight)
+    width: makeDivisibleBy16(finalWidth),
+    height: makeDivisibleBy16(finalHeight)
   };
 };
 
