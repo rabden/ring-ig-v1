@@ -32,7 +32,7 @@ export const modelConfigs = {
   animeNsfw: {
     name: "Ring.1 Anime",
     category: "NSFW",
-    apiUrl: "https://api-inference.huggingface.co/models/John6666/mala-anime-mix-nsfw-pony-xl-v5-sdxl",
+    apiUrl: "https://api-inference.huggingface.co/models/John6666/mala-anime-mix-nsfw-pony-xl-v5new-sdxl-spo",
     inferenceSteps: [25, 30, 35, 40, 45],
     defaultStep: 30
   },
