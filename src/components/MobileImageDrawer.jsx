@@ -2,15 +2,10 @@ import React from 'react'
 import { Drawer } from 'vaul'
 import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
 import { supabase } from '@/integrations/supabase/supabase'
-import { styleConfigs } from '@/utils/styleConfigs'
-import { modelConfigs } from '@/utils/modelConfigs'
 import { useQuery } from '@tanstack/react-query'
 import { findCommonWords } from '@/utils/textUtils'
-import Masonry from 'react-masonry-css'
 import ImageActions from './drawer/ImageActions'
 import ImagePrompt from './drawer/ImagePrompt'
 import ImageDetails from './drawer/ImageDetails'
@@ -24,7 +19,6 @@ const MobileImageDrawer = ({
   onDownload,
   onDiscard,
   onRemix,
-  onImageClick,
   isOwner = false,
   nsfwEnabled = false
 }) => {
@@ -60,7 +54,12 @@ const MobileImageDrawer = ({
   };
 
   const handleSimilarImageClick = (similarImage) => {
-    onImageClick(similarImage);
+    onOpenChange(false);
+    setTimeout(() => {
+      onOpenChange(true);
+      // Update the current image to the clicked similar image
+      image = similarImage;
+    }, 300);
   };
 
   return (
