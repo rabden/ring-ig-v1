@@ -69,6 +69,8 @@ const ImageGeneratorSettings = ({
   nsfwEnabled, setNsfwEnabled,
   style, setStyle,
   setSteps,
+  autoStyle,
+  setAutoStyle
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const totalCredits = (credits || 0) + (bonusCredits || 0);
@@ -140,7 +142,12 @@ const ImageGeneratorSettings = ({
       />
 
       <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
-        <StyleChooser style={style} setStyle={setStyle} />
+        <StyleChooser 
+          style={style} 
+          setStyle={setStyle}
+          autoStyle={autoStyle}
+          setAutoStyle={setAutoStyle}
+        />
       </SettingSection>
 
       <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more credits.">

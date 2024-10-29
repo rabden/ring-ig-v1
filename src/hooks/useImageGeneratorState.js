@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { modelConfigs } from '@/utils/modelConfigs'
+import { findBestMatchingStyle } from '@/utils/styleMatching'
 
 export const useImageGeneratorState = () => {
   const [prompt, setPrompt] = useState('')
@@ -21,16 +22,16 @@ export const useImageGeneratorState = () => {
   const [generatingImages, setGeneratingImages] = useState([])
   const [activeView, setActiveView] = useState('myImages')
   const [nsfwEnabled, setNsfwEnabled] = useState(false)
+  const [autoStyle, setAutoStyle] = useState(true)
+  const [style, setStyle] = useState('general')
 
+  // Update style automatically when prompt changes and auto style is enabled
   useEffect(() => {
-    if (nsfwEnabled) {
-      setModel('nsfwMaster')
-      setSteps(modelConfigs.nsfwMaster.defaultStep)
-    } else {
-      setModel('turbo')
-      setSteps(modelConfigs.turbo.defaultStep)
+    if (autoStyle && prompt) {
+      const matchedStyle = findBestMatchingStyle(prompt)
+      setStyle(matchedStyle)
     }
-  }, [nsfwEnabled])
+  }, [prompt, autoStyle])
 
   return {
     prompt, setPrompt,
@@ -51,6 +52,8 @@ export const useImageGeneratorState = () => {
     fullScreenImageIndex, setFullScreenImageIndex,
     generatingImages, setGeneratingImages,
     activeView, setActiveView,
-    nsfwEnabled, setNsfwEnabled
+    nsfwEnabled, setNsfwEnabled,
+    style, setStyle,
+    autoStyle, setAutoStyle
   }
 }
