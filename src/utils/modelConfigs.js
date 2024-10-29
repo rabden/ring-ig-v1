@@ -21,15 +21,22 @@ export const modelConfigs = {
     inferenceSteps: [25, 30, 35, 40, 45],
     defaultStep: 30
   },
+  preLar: {
+    name: "Ring.1 Pre-lar",
+    category: "General",
+    apiUrl: "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large",
+    inferenceSteps: [40],
+    defaultStep: 40
+  },
   animeNsfw: {
-    name: "Ring.1Nanime",
+    name: "Ring.1 Anime",
     category: "NSFW",
-    apiUrl: "https://api-inference.huggingface.co/models/John6666/rdxl-anime-sdxlpony7-sdxl",
+    apiUrl: "https://api-inference.huggingface.co/models/John6666/mala-anime-mix-nsfw-pony-xl-v5-sdxl",
     inferenceSteps: [25, 30, 35, 40, 45],
     defaultStep: 30
   },
   nsfwMaster: {
-    name: "Ring.1N",
+    name: "Ring.1Npro",
     category: "NSFW",
     apiUrl: "https://api-inference.huggingface.co/models/pimpilikipilapi1/NSFW_master",
     inferenceSteps: [30, 35, 40, 45, 50],
