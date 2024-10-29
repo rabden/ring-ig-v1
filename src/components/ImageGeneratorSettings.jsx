@@ -10,6 +10,7 @@ import AspectRatioChooser from './AspectRatioChooser';
 import SettingSection from './settings/SettingSection';
 import ModelSection from './settings/ModelSection';
 import { ArrowRight, X } from 'lucide-react';
+import { modelConfigs } from '@/utils/modelConfigs';
 
 const PromptInput = ({ value, onChange, onKeyDown, onGenerate }) => {
   const [isFocused, setIsFocused] = React.useState(false);
@@ -92,19 +93,13 @@ const ImageGeneratorSettings = ({
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
   const showGuidanceScale = model === 'fluxDev';
+  const isNsfwModel = modelConfigs[model]?.category === "NSFW";
 
   const handleModelChange = (newModel) => {
     if ((newModel === 'turbo' || newModel === 'preLar') && quality === 'HD+') {
       setQuality('HD');
     }
     setModel(newModel);
-  };
-
-  const getAvailableQualities = () => {
-    if (model === 'turbo' || model === 'preLar') {
-      return ["SD", "HD"];
-    }
-    return Object.keys(qualityOptions);
   };
 
   const handlePromptChange = (e) => {
@@ -157,9 +152,12 @@ const ImageGeneratorSettings = ({
         quality={quality}
       />
 
-      <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
-        <StyleChooser style={style} setStyle={setStyle} />
-      </SettingSection>
+      {/* Only show style section for non-NSFW models */}
+      {!isNsfwModel && (
+        <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
+          <StyleChooser style={style} setStyle={setStyle} />
+        </SettingSection>
+      )}
 
       <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more credits.">
         <Tabs value={quality} onValueChange={setQuality}>

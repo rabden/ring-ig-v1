@@ -128,8 +128,11 @@ export const useImageGeneration = ({
     }
 
     const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed;
-    const styleSuffix = styleConfigs[style]?.suffix || styleConfigs.general.suffix;
-    const modifiedPrompt = `${prompt}, ${styleSuffix}${modelConfigs[model]?.promptSuffix || ''}`;
+    
+    // Only add style suffix if not using NSFW models
+    const isNsfwModel = modelConfigs[model]?.category === "NSFW";
+    const styleSuffix = !isNsfwModel ? (styleConfigs[style]?.suffix || styleConfigs.general.suffix) : '';
+    const modifiedPrompt = isNsfwModel ? prompt : `${prompt}, ${styleSuffix}${modelConfigs[model]?.promptSuffix || ''}`;
 
     const maxDimension = qualityOptions[quality];
     const { width: finalWidth, height: finalHeight } = calculateDimensions(useAspectRatio, aspectRatio, width, height, maxDimension);
