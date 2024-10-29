@@ -39,7 +39,11 @@ const MobileImageDrawer = ({
     queryFn: async () => {
       if (!showImage) return [];
       
-      let query = supabase
+      const allowedModels = nsfwEnabled 
+        ? ['nsfwMaster', 'animeNsfw', 'nsfwPro']
+        : ['turbo', 'flux', 'fluxDev', 'preLar'];
+
+      const { data, error } = await supabase
         .from('user_images')
         .select('*')
         .neq('id', image.id)
@@ -47,16 +51,9 @@ const MobileImageDrawer = ({
           type: 'plain',
           config: 'english'
         })
+        .in('model', allowedModels)
         .limit(20);
 
-      // Filter images based on NSFW setting
-      if (nsfwEnabled) {
-        query = query.filter('model', 'in', ['nsfwMaster', 'animeNsfw', 'nsfwPro']);
-      } else {
-        query = query.filter('model', 'in', ['turbo', 'flux', 'fluxDev', 'preLar']);
-      }
-
-      const { data, error } = await query;
       if (error) throw error;
       return data || [];
     },
