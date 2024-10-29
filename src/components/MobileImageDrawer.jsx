@@ -1,22 +1,20 @@
 import React from 'react'
 import { Drawer } from 'vaul'
 import { Button } from "@/components/ui/button"
-import { Download, RefreshCw, Trash2, Copy, X } from "lucide-react"
+import { X } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { supabase } from '@/integrations/supabase/supabase'
 import { styleConfigs } from '@/utils/styleConfigs'
-import { toast } from 'sonner'
 import { modelConfigs } from '@/utils/modelConfigs'
 import { useQuery } from '@tanstack/react-query'
 import { findCommonWords } from '@/utils/textUtils'
 import Masonry from 'react-masonry-css'
-
-const breakpointColumnsObj = {
-  default: 2,
-  640: 2
-}
+import ImageActions from './drawer/ImageActions'
+import ImagePrompt from './drawer/ImagePrompt'
+import ImageDetails from './drawer/ImageDetails'
+import SimilarImages from './drawer/SimilarImages'
 
 const MobileImageDrawer = ({ 
   open, 
@@ -31,15 +29,6 @@ const MobileImageDrawer = ({
   nsfwEnabled = false
 }) => {
   if (!image) return null;
-
-  const detailItems = [
-    { label: "Model", value: modelConfigs[image.model]?.name || image.model },
-    { label: "Seed", value: image.seed },
-    { label: "Size", value: `${image.width}x${image.height}` },
-    { label: "Aspect Ratio", value: image.aspect_ratio },
-    { label: "Style", value: styleConfigs[image.style]?.name || 'General' },
-    { label: "Quality", value: image.quality },
-  ];
 
   const { data: similarImages } = useQuery({
     queryKey: ['similarImages', image.id, nsfwEnabled],
@@ -59,9 +48,8 @@ const MobileImageDrawer = ({
 
       if (error) throw error;
 
-      // Filter images based on prompt similarity
       const filteredData = data.filter(img => findCommonWords(img.prompt, image.prompt));
-      return filteredData.slice(0, 20); // Limit to 20 most relevant results
+      return filteredData.slice(0, 20);
     },
     enabled: open && showImage
   });
@@ -71,9 +59,8 @@ const MobileImageDrawer = ({
     setTimeout(() => action(), 300);
   };
 
-  const handleCopyPrompt = () => {
-    navigator.clipboard.writeText(image.prompt);
-    toast.success('Prompt copied to clipboard');
+  const handleSimilarImageClick = (similarImage) => {
+    onImageClick(similarImage);
   };
 
   return (
@@ -101,99 +88,26 @@ const MobileImageDrawer = ({
                 </div>
               )}
               
-              <div className="grid grid-cols-2 gap-3">
-                <Button
-                  variant="secondary"
-                  className="w-full"
-                  onClick={() => handleAction(() => onDownload(
-                    supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl,
-                    image.prompt
-                  ))}
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  Download
-                </Button>
-                <Button
-                  variant="secondary"
-                  className="w-full"
-                  onClick={() => handleAction(() => onRemix(image))}
-                >
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Remix
-                </Button>
-                {isOwner && (
-                  <Button
-                    variant="destructive"
-                    className="w-full col-span-2"
-                    onClick={() => handleAction(() => onDiscard(image))}
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Discard
-                  </Button>
-                )}
-              </div>
+              <ImageActions
+                onDownload={() => handleAction(() => onDownload(
+                  supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl,
+                  image.prompt
+                ))}
+                onRemix={() => handleAction(() => onRemix(image))}
+                onDiscard={() => handleAction(() => onDiscard(image))}
+                isOwner={isOwner}
+              />
 
               <div className="space-y-6">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-lg font-semibold">Prompt</h3>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8"
-                      onClick={handleCopyPrompt}
-                    >
-                      <Copy className="w-4 h-4 mr-2" />
-                      Copy
-                    </Button>
-                  </div>
-                  <p className="text-sm text-muted-foreground bg-muted/50 p-4 rounded-lg">
-                    {image.prompt}
-                  </p>
-                </div>
+                <ImagePrompt prompt={image.prompt} />
                 <Separator className="bg-border/50" />
-                <div className="grid grid-cols-2 gap-4">
-                  {detailItems.map((item, index) => (
-                    <div key={index} className="space-y-1.5">
-                      <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
-                      <Badge variant="secondary" className="text-sm font-normal">
-                        {item.value}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
+                <ImageDetails image={image} />
 
                 {showImage && similarImages && similarImages.length > 0 && (
-                  <>
-                    <Separator className="bg-border/50" />
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Similar Images</h3>
-                      <Masonry
-                        breakpointCols={breakpointColumnsObj}
-                        className="flex -ml-2 w-auto"
-                        columnClassName="pl-2 bg-clip-padding"
-                      >
-                        {similarImages.map((similarImage) => (
-                          <div key={similarImage.id} className="mb-2">
-                            <div className="relative rounded-lg overflow-hidden" style={{ paddingTop: `${(similarImage.height / similarImage.width) * 100}%` }}>
-                              <img
-                                src={supabase.storage.from('user-images').getPublicUrl(similarImage.storage_path).data.publicUrl}
-                                alt={similarImage.prompt}
-                                className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                                onClick={() => {
-                                  onOpenChange(false);
-                                  setTimeout(() => onImageClick(similarImage), 300);
-                                }}
-                              />
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                              {similarImage.prompt}
-                            </p>
-                          </div>
-                        ))}
-                      </Masonry>
-                    </div>
-                  </>
+                  <SimilarImages
+                    similarImages={similarImages}
+                    onImageClick={handleSimilarImageClick}
+                  />
                 )}
               </div>
             </div>
