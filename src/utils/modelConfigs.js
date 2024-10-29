@@ -46,7 +46,7 @@ export const modelConfigs = {
   nsfwPro: {
     name: "Ring.1Npro",
     category: "NSFW",
-    apiUrl: "https://api-inference.huggingface.co/models/John6666/rdxl-anime-sdxlpony7-sdxl",
+    apiUrl: "https://api-inference.huggingface.co/models/xey/sldr_flux_nsfw_v2-studio",
     inferenceSteps: [25, 30, 35, 40, 45],
     defaultStep: 30
   }
