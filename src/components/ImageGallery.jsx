@@ -61,6 +61,26 @@ const ImageGallery = ({
         return false;
       });
 
+      // Sort images based on hot and trending status for inspiration tab
+      if (activeView === 'inspiration') {
+        filteredData.sort((a, b) => {
+          // Both hot and trending
+          if (a.is_hot && a.is_trending && (!b.is_hot || !b.is_trending)) return -1;
+          if (b.is_hot && b.is_trending && (!a.is_hot || !a.is_trending)) return 1;
+          
+          // Only hot
+          if (a.is_hot && !b.is_hot) return -1;
+          if (b.is_hot && !a.is_hot) return 1;
+          
+          // Only trending
+          if (a.is_trending && !b.is_trending) return -1;
+          if (b.is_trending && !a.is_trending) return 1;
+          
+          // If same status, sort by date
+          return new Date(b.created_at) - new Date(a.created_at);
+        });
+      }
+
       setImages(filteredData);
       return filteredData;
     },
