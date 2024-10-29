@@ -10,6 +10,13 @@ import { styleConfigs } from '@/utils/styleConfigs'
 import { toast } from 'sonner'
 import { modelConfigs } from '@/utils/modelConfigs'
 import { useQuery } from '@tanstack/react-query'
+import { findCommonWords } from '@/utils/textUtils'
+import Masonry from 'react-masonry-css'
+
+const breakpointColumnsObj = {
+  default: 2,
+  640: 2
+}
 
 const MobileImageDrawer = ({ 
   open, 
@@ -47,15 +54,14 @@ const MobileImageDrawer = ({
         .from('user_images')
         .select('*')
         .neq('id', image.id)
-        .textSearch('prompt', image.prompt, {
-          type: 'plain',
-          config: 'english'
-        })
         .in('model', allowedModels)
-        .limit(20);
+        .limit(50);
 
       if (error) throw error;
-      return data || [];
+
+      // Filter images based on prompt similarity
+      const filteredData = data.filter(img => findCommonWords(img.prompt, image.prompt));
+      return filteredData.slice(0, 20); // Limit to 20 most relevant results
     },
     enabled: open && showImage
   });
@@ -162,21 +168,30 @@ const MobileImageDrawer = ({
                     <Separator className="bg-border/50" />
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold">Similar Images</h3>
-                      <div className="grid grid-cols-2 gap-2">
+                      <Masonry
+                        breakpointCols={breakpointColumnsObj}
+                        className="flex -ml-2 w-auto"
+                        columnClassName="pl-2 bg-clip-padding"
+                      >
                         {similarImages.map((similarImage) => (
-                          <div key={similarImage.id} className="relative rounded-lg overflow-hidden" style={{ paddingTop: '100%' }}>
-                            <img
-                              src={supabase.storage.from('user-images').getPublicUrl(similarImage.storage_path).data.publicUrl}
-                              alt={similarImage.prompt}
-                              className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                              onClick={() => {
-                                onOpenChange(false);
-                                setTimeout(() => onImageClick(similarImage), 300);
-                              }}
-                            />
+                          <div key={similarImage.id} className="mb-2">
+                            <div className="relative rounded-lg overflow-hidden" style={{ paddingTop: `${(similarImage.height / similarImage.width) * 100}%` }}>
+                              <img
+                                src={supabase.storage.from('user-images').getPublicUrl(similarImage.storage_path).data.publicUrl}
+                                alt={similarImage.prompt}
+                                className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+                                onClick={() => {
+                                  onOpenChange(false);
+                                  setTimeout(() => onImageClick(similarImage), 300);
+                                }}
+                              />
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                              {similarImage.prompt}
+                            </p>
                           </div>
                         ))}
-                      </div>
+                      </Masonry>
                     </div>
                   </>
                 )}
