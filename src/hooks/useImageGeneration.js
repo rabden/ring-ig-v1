@@ -90,13 +90,16 @@ export const useImageGeneration = ({
         .upload(filePath, imageBlob)
       if (uploadError) throw uploadError
 
+      // Remove generationId before inserting into database
+      const { generationId, ...dbMetadata } = metadata
+      
       const { error: insertError } = await supabase
         .from('user_images')
         .insert({
           user_id: session.user.id,
           storage_path: filePath,
-          ...metadata,
-          style: metadata.style || 'general'
+          ...dbMetadata,
+          style: dbMetadata.style || 'general'
         })
       if (insertError) throw insertError
     },
