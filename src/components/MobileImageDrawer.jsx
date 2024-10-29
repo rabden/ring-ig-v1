@@ -12,14 +12,18 @@ import { modelConfigs } from '@/utils/modelConfigs'
 import { useQuery } from '@tanstack/react-query'
 
 const formatSearchQuery = (text) => {
-  // Split into words, filter out common words, and join with &
-  return text
+  // Split into words and prepare for tsquery format
+  const words = text
+    .toLowerCase()
     .split(/\s+/)
     .filter(word => word.length > 2) // Filter out short words
-    .filter(word => !['the', 'and', 'or', 'in', 'on', 'at', 'with', 'to', 'of', 'a', 'an', 'is'].includes(word.toLowerCase())) // Filter common words
+    .filter(word => !['the', 'and', 'or', 'in', 'on', 'at', 'with', 'to', 'of', 'a', 'an', 'is'].includes(word)) // Filter common words
     .map(word => word.replace(/[^a-zA-Z0-9]/g, '')) // Remove special characters
     .filter(word => word) // Remove empty strings
-    .join(' & ');
+    .map(word => word + ':*') // Add prefix search capability
+    .join(' & '); // Join with AND operator
+
+  return words;
 };
 
 const MobileImageDrawer = ({ 
@@ -56,7 +60,10 @@ const MobileImageDrawer = ({
         .from('user_images')
         .select('*')
         .neq('id', image.id)
-        .textSearch('prompt', searchQuery)
+        .textSearch('prompt', searchQuery, {
+          type: 'websearch',
+          config: 'english'
+        })
         .limit(20);
       
       if (error) throw error;
