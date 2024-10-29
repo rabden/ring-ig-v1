@@ -27,9 +27,14 @@ const ModelSection = ({ model, setModel, nsfwEnabled, quality }) => {
             <Button
               variant={model === 'fluxDev' ? 'default' : 'outline'}
               onClick={() => setModel('fluxDev')}
-              className="col-span-2"
             >
               Ring.1 hyper
+            </Button>
+            <Button
+              variant={model === 'preLar' ? 'default' : 'outline'}
+              onClick={() => setModel('preLar')}
+            >
+              Ring.1 Pre-lar
             </Button>
           </>
         ) : (
@@ -44,7 +49,13 @@ const ModelSection = ({ model, setModel, nsfwEnabled, quality }) => {
               variant={model === 'animeNsfw' ? 'default' : 'outline'}
               onClick={() => setModel('animeNsfw')}
             >
-              Ring.1Nanime
+              Ring.1 Anime
+            </Button>
+            <Button
+              variant={model === 'nsfwPro' ? 'default' : 'outline'}
+              onClick={() => setModel('nsfwPro')}
+            >
+              Ring.1Npro
             </Button>
           </>
         )}
