@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/supabase'
 import { styleConfigs } from '@/utils/styleConfigs'
 import { toast } from 'sonner'
 import { modelConfigs } from '@/utils/modelConfigs'
+import { useQuery } from '@tanstack/react-query'
 
 const MobileImageDrawer = ({ 
   open, 
@@ -29,8 +30,25 @@ const MobileImageDrawer = ({
     { label: "Aspect Ratio", value: image.aspect_ratio },
     { label: "Style", value: styleConfigs[image.style]?.name || 'General' },
     { label: "Quality", value: image.quality },
-    ...(image.model !== 'flux' ? [{ label: "Guidance Scale", value: image.guidance_scale?.toFixed(1) || '3.5' }] : []),
   ]
+
+  const { data: similarImages } = useQuery({
+    queryKey: ['similarImages', image.id],
+    queryFn: async () => {
+      if (!showImage) return [] // Only fetch similar images when opened from image click
+      
+      const { data, error } = await supabase
+        .from('user_images')
+        .select('*')
+        .neq('id', image.id)
+        .textSearch('prompt', image.prompt)
+        .limit(20)
+      
+      if (error) throw error
+      return data || []
+    },
+    enabled: open && showImage
+  })
 
   const handleAction = (action) => {
     onOpenChange(false)
@@ -128,6 +146,30 @@ const MobileImageDrawer = ({
                     </div>
                   ))}
                 </div>
+
+                {showImage && similarImages && similarImages.length > 0 && (
+                  <>
+                    <Separator className="bg-border/50" />
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold">Similar Images</h3>
+                      <div className="grid grid-cols-2 gap-2">
+                        {similarImages.map((similarImage) => (
+                          <div key={similarImage.id} className="relative rounded-lg overflow-hidden" style={{ paddingTop: '100%' }}>
+                            <img
+                              src={supabase.storage.from('user-images').getPublicUrl(similarImage.storage_path).data.publicUrl}
+                              alt={similarImage.prompt}
+                              className="absolute inset-0 w-full h-full object-cover"
+                              onClick={() => {
+                                onOpenChange(false)
+                                setTimeout(() => onImageClick(similarImage), 300)
+                              }}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </ScrollArea>
