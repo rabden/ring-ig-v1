@@ -1,15 +1,14 @@
 import React from 'react'
 import { Drawer } from 'vaul'
 import { Button } from "@/components/ui/button"
-import { X } from "lucide-react"
+import { Download, RefreshCw, Trash2, Copy, X } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
 import { supabase } from '@/integrations/supabase/supabase'
-import { useQuery } from '@tanstack/react-query'
-import { findCommonWords } from '@/utils/textUtils'
-import ImageActions from './drawer/ImageActions'
-import ImagePrompt from './drawer/ImagePrompt'
-import ImageDetails from './drawer/ImageDetails'
-import SimilarImages from './drawer/SimilarImages'
+import { styleConfigs } from '@/utils/styleConfigs'
+import { toast } from 'sonner'
+import { modelConfigs } from '@/utils/modelConfigs'
 
 const MobileImageDrawer = ({ 
   open, 
@@ -19,51 +18,35 @@ const MobileImageDrawer = ({
   onDownload,
   onDiscard,
   onRemix,
-  isOwner = false,
-  nsfwEnabled = false
+  isOwner = false
 }) => {
-  if (!image) return null;
+  if (!image) return null
 
-  const { data: similarImages } = useQuery({
-    queryKey: ['similarImages', image.id, nsfwEnabled],
-    queryFn: async () => {
-      if (!showImage) return [];
-      
-      const allowedModels = nsfwEnabled 
-        ? ['nsfwMaster', 'animeNsfw', 'nsfwPro']
-        : ['turbo', 'flux', 'fluxDev', 'preLar'];
-
-      const { data, error } = await supabase
-        .from('user_images')
-        .select('*')
-        .neq('id', image.id)
-        .in('model', allowedModels)
-        .limit(50);
-
-      if (error) throw error;
-
-      const filteredData = data.filter(img => findCommonWords(img.prompt, image.prompt));
-      return filteredData.slice(0, 20);
-    },
-    enabled: open && showImage
-  });
+  const detailItems = [
+    { label: "Model", value: modelConfigs[image.model]?.name || image.model },
+    { label: "Seed", value: image.seed },
+    { label: "Size", value: `${image.width}x${image.height}` },
+    { label: "Aspect Ratio", value: image.aspect_ratio },
+    { label: "Style", value: styleConfigs[image.style]?.name || 'General' },
+    { label: "Quality", value: image.quality },
+    ...(image.model !== 'flux' ? [{ label: "Guidance Scale", value: image.guidance_scale?.toFixed(1) || '3.5' }] : []),
+  ]
 
   const handleAction = (action) => {
-    onOpenChange(false);
-    setTimeout(() => action(), 300);
-  };
+    onOpenChange(false)
+    setTimeout(() => action(), 300)
+  }
 
-  const handleSimilarImageClick = (similarImage) => {
-    onOpenChange(false);
-    setTimeout(() => {
-      onOpenChange(true);
-      // Update the current image to the clicked similar image
-      image = similarImage;
-    }, 300);
-  };
+  const handleCopyPrompt = () => {
+    navigator.clipboard.writeText(image.prompt)
+    toast.success('Prompt copied to clipboard')
+  }
 
   return (
-    <Drawer.Root open={open} onOpenChange={onOpenChange}>
+    <Drawer.Root 
+      open={open} 
+      onOpenChange={onOpenChange}
+    >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-sm" />
         <Drawer.Content className="bg-background/95 backdrop-blur-sm fixed inset-0 flex flex-col">
@@ -87,34 +70,71 @@ const MobileImageDrawer = ({
                 </div>
               )}
               
-              <ImageActions
-                onDownload={() => handleAction(() => onDownload(
-                  supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl,
-                  image.prompt
-                ))}
-                onRemix={() => handleAction(() => onRemix(image))}
-                onDiscard={() => handleAction(() => onDiscard(image))}
-                isOwner={isOwner}
-              />
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  variant="secondary"
+                  className="w-full"
+                  onClick={() => handleAction(() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt))}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download
+                </Button>
+                <Button
+                  variant="secondary"
+                  className="w-full"
+                  onClick={() => handleAction(() => onRemix(image))}
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Remix
+                </Button>
+                {isOwner && (
+                  <Button
+                    variant="destructive"
+                    className="w-full col-span-2"
+                    onClick={() => handleAction(() => onDiscard(image))}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Discard
+                  </Button>
+                )}
+              </div>
 
               <div className="space-y-6">
-                <ImagePrompt prompt={image.prompt} />
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-lg font-semibold">Prompt</h3>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8"
+                      onClick={handleCopyPrompt}
+                    >
+                      <Copy className="w-4 h-4 mr-2" />
+                      Copy
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground bg-muted/50 p-4 rounded-lg">
+                    {image.prompt}
+                  </p>
+                </div>
                 <Separator className="bg-border/50" />
-                <ImageDetails image={image} />
-
-                {showImage && similarImages && similarImages.length > 0 && (
-                  <SimilarImages
-                    similarImages={similarImages}
-                    onImageClick={handleSimilarImageClick}
-                  />
-                )}
+                <div className="grid grid-cols-2 gap-4">
+                  {detailItems.map((item, index) => (
+                    <div key={index} className="space-y-1.5">
+                      <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
+                      <Badge variant="secondary" className="text-sm font-normal">
+                        {item.value}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </ScrollArea>
         </Drawer.Content>
       </Drawer.Portal>
     </Drawer.Root>
-  );
-};
+  )
+}
 
-export default MobileImageDrawer;
+export default MobileImageDrawer
