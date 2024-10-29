@@ -100,15 +100,15 @@ export const useImageGeneration = ({
         })
       if (insertError) throw insertError
     },
-    onSuccess: () => {
-      setGeneratingImages(prev => prev.slice(1))
+    onSuccess: (_, { metadata: { generationId } }) => {
+      setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
     },
-    onError: (error) => {
-      console.error('Error uploading image:', error)
-      toast.error('Failed to save image. Please try again.')
-      setGeneratingImages(prev => prev.slice(1))
+    onError: (error, { metadata: { generationId } }) => {
+      console.error('Error uploading image:', error);
+      toast.error('Failed to save image. Please try again.');
+      setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
     },
-  })
+  });
 
   const generateImage = async (retryCount = 0) => {
     if (!session || !prompt) {
@@ -138,8 +138,14 @@ export const useImageGeneration = ({
 
     try {
       const { data: apiKeyData, error: apiKeyError } = await supabase.rpc('get_random_huggingface_api_key');
-      if (apiKeyError) throw new Error(`Failed to get API key: ${apiKeyError.message}`);
-      if (!apiKeyData) throw new Error('No active API key available');
+      if (apiKeyError) {
+        setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
+        throw new Error(`Failed to get API key: ${apiKeyError.message}`);
+      }
+      if (!apiKeyData) {
+        setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
+        throw new Error('No active API key available');
+      }
 
       const parameters = { 
         seed: actualSeed, 
@@ -162,9 +168,13 @@ export const useImageGeneration = ({
       });
 
       const imageBlob = await handleApiResponse(response, retryCount, generateImage);
-      if (!imageBlob) return;
+      if (!imageBlob) {
+        setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
+        return;
+      }
 
       if (!imageBlob || imageBlob.size === 0) {
+        setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
         throw new Error('Generated image is empty or invalid');
       }
 
@@ -179,17 +189,17 @@ export const useImageGeneration = ({
           model,
           quality,
           style: style || 'general',
-          aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`
+          aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
+          generationId
         }
       });
 
-      setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
       toast.success(`Image generated successfully. ${creditCost} credits used.`);
     } catch (error) {
       console.error('Error generating image:', error);
+      setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
       if (retryCount === MAX_RETRIES) {
         toast.error(`Failed to generate image after ${MAX_RETRIES} attempts: ${error.message}`);
-        setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
       } else if (retryCount === 0) {
         toast.error(`Encountered an error. Retrying...`);
       }
