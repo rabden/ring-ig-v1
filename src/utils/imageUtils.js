@@ -1,4 +1,4 @@
-import { qualityOptions } from '@/utils/imageConfigs';
+import { qualityOptions, aspectRatios } from '@/utils/imageConfigs';
 import { styleConfigs } from '@/utils/styleConfigs';
 import { modelConfigs } from '@/utils/modelConfigs';
 
