@@ -1,8 +1,8 @@
-const MAX_RETRIES = 5;
+export const MAX_RETRIES = 5;
 
 export const getRetryInterval = (statusCode) => {
   switch (statusCode) {
-    case 504: return 10000;  // 10 seconds for timeouts
+    case 504: return 30000;  // 30 seconds for timeouts (increased from 10s)
     case 503: return 120000; // 2 minutes for service unavailable
     case 500: return 10000;  // 10 seconds for server errors
     case 429: return 2000;   // 2 seconds for rate limits
@@ -17,17 +17,23 @@ export const shouldRetry = (statusCode, retryCount) => {
 
 export const handleApiResponse = async (response, retryCount, retryFn) => {
   if (!response.ok) {
-    const errorData = await response.json();
-    console.error('API response error:', errorData);
+    let errorMessage;
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.error || response.statusText;
+      console.error('API response error:', errorData);
+    } catch (e) {
+      errorMessage = response.statusText;
+    }
 
     if (shouldRetry(response.status, retryCount)) {
       const retryInterval = getRetryInterval(response.status);
       console.log(`Retrying image generation in ${retryInterval / 1000} seconds. Attempt ${retryCount + 1} of ${MAX_RETRIES}`);
       await new Promise(resolve => setTimeout(resolve, retryInterval));
-      return retryFn(retryCount + 1);
+      return retryFn();
     }
 
-    throw new Error(`API error: ${errorData.error || response.statusText}`);
+    throw new Error(`API error: ${errorMessage}`);
   }
 
   return await response.blob();
