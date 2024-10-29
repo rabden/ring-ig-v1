@@ -17,36 +17,52 @@ const PromptInput = ({ value, onChange, onKeyDown, onGenerate }) => {
 
   React.useEffect(() => {
     if (textareaRef.current) {
+      // Reset height before calculating new height to handle text deletion
       textareaRef.current.style.height = 'auto';
       const scrollHeight = textareaRef.current.scrollHeight;
-      textareaRef.current.style.height = Math.min(scrollHeight, 300) + 'px';
+      // Smooth transition for height changes
+      textareaRef.current.style.height = `${Math.min(scrollHeight, 300)}px`;
     }
   }, [value]);
 
   const showButton = isFocused || value.length > 0;
+  const isButtonEnabled = value.trim().length > 0;
+
+  const handleKeyDown = (e) => {
+    // Allow new lines with Shift+Enter
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (isButtonEnabled) {
+        onGenerate();
+      }
+    } else {
+      onKeyDown?.(e);
+    }
+  };
 
   return (
-    <div className="relative">
+    <div className="relative group">
       <textarea
         ref={textareaRef}
         value={value}
         onChange={onChange}
-        onKeyDown={onKeyDown}
+        onKeyDown={handleKeyDown}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        placeholder="Enter your prompt here"
-        className="w-full min-h-[40px] max-h-[300px] resize-none overflow-y-auto bg-background rounded-md border border-input px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 pr-10 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500"
+        placeholder="Describe the image you want to create... (Press Enter to generate, Shift+Enter for new line)"
+        className="w-full min-h-[56px] max-h-[300px] resize-none overflow-y-auto bg-background rounded-md border border-input px-3 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pr-12 transition-all duration-200 ease-in-out scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500"
         rows={1}
       />
-      {showButton && (
-        <Button
-          size="icon"
-          className="absolute right-3 bottom-3 h-7 w-7"
-          onClick={onGenerate}
-        >
-          <ArrowRight className="h-4 w-4" />
-        </Button>
-      )}
+      <Button
+        size="icon"
+        className={`absolute right-3 bottom-3 h-8 w-8 transition-all duration-200 ${
+          showButton ? 'opacity-100' : 'opacity-0'
+        } ${isButtonEnabled ? '' : 'cursor-not-allowed opacity-50'}`}
+        onClick={onGenerate}
+        disabled={!isButtonEnabled}
+      >
+        <ArrowRight className="h-4 w-4" />
+      </Button>
     </div>
   );
 };
