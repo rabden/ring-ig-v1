@@ -1,30 +1,15 @@
-import React from 'react'
-import { Drawer } from 'vaul'
-import { Button } from "@/components/ui/button"
-import { Download, RefreshCw, Trash2, Copy, X } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
-import { supabase } from '@/integrations/supabase/supabase'
-import { styleConfigs } from '@/utils/styleConfigs'
-import { toast } from 'sonner'
-import { modelConfigs } from '@/utils/modelConfigs'
-import { useQuery } from '@tanstack/react-query'
-
-const formatSearchQuery = (text) => {
-  // Split into words and prepare for tsquery format
-  const words = text
-    .toLowerCase()
-    .split(/\s+/)
-    .filter(word => word.length > 2) // Filter out short words
-    .filter(word => !['the', 'and', 'or', 'in', 'on', 'at', 'with', 'to', 'of', 'a', 'an', 'is'].includes(word)) // Filter common words
-    .map(word => word.replace(/[^a-zA-Z0-9]/g, '')) // Remove special characters
-    .filter(word => word) // Remove empty strings
-    .map(word => `${word}:*`) // Add prefix search capability
-    .join(' | '); // Join with OR operator to match any word
-
-  return words ? `(${words})` : ''; // Wrap in parentheses if not empty
-};
+import React from 'react';
+import { Drawer } from 'vaul';
+import { Button } from "@/components/ui/button";
+import { Download, RefreshCw, Trash2, Copy, X } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { supabase } from '@/integrations/supabase/supabase';
+import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
+import { formatSearchQuery } from '@/utils/searchUtils';
+import ImageDetails from './drawer/ImageDetails';
+import SimilarImages from './drawer/SimilarImages';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -39,19 +24,10 @@ const MobileImageDrawer = ({
 }) => {
   if (!image) return null;
 
-  const detailItems = [
-    { label: "Model", value: modelConfigs[image.model]?.name || image.model },
-    { label: "Seed", value: image.seed },
-    { label: "Size", value: `${image.width}x${image.height}` },
-    { label: "Aspect Ratio", value: image.aspect_ratio },
-    { label: "Style", value: styleConfigs[image.style]?.name || 'General' },
-    { label: "Quality", value: image.quality },
-  ];
-
   const { data: similarImages } = useQuery({
     queryKey: ['similarImages', image.id],
     queryFn: async () => {
-      if (!showImage) return []; // Only fetch similar images when opened from image click
+      if (!showImage) return [];
       
       const searchQuery = formatSearchQuery(image.prompt);
       if (!searchQuery) return [];
@@ -84,10 +60,7 @@ const MobileImageDrawer = ({
   };
 
   return (
-    <Drawer.Root 
-      open={open} 
-      onOpenChange={onOpenChange}
-    >
+    <Drawer.Root open={open} onOpenChange={onOpenChange}>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/80 backdrop-blur-sm" />
         <Drawer.Content className="bg-background/95 backdrop-blur-sm fixed inset-0 flex flex-col">
@@ -101,7 +74,10 @@ const MobileImageDrawer = ({
             <div className="max-w-md mx-auto space-y-6">
               {showImage && (
                 <div className="mb-6 -mx-6">
-                  <div className="relative rounded-lg overflow-hidden" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
+                  <div 
+                    className="relative rounded-lg overflow-hidden" 
+                    style={{ paddingTop: `${(image.height / image.width) * 100}%` }}
+                  >
                     <img
                       src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
                       alt={image.prompt}
@@ -115,7 +91,10 @@ const MobileImageDrawer = ({
                 <Button
                   variant="secondary"
                   className="w-full"
-                  onClick={() => handleAction(() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt))}
+                  onClick={() => handleAction(() => onDownload(
+                    supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl,
+                    image.prompt
+                  ))}
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Download
@@ -159,40 +138,13 @@ const MobileImageDrawer = ({
                   </p>
                 </div>
                 <Separator className="bg-border/50" />
-                <div className="grid grid-cols-2 gap-4">
-                  {detailItems.map((item, index) => (
-                    <div key={index} className="space-y-1.5">
-                      <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
-                      <Badge variant="secondary" className="text-sm font-normal">
-                        {item.value}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-
-              {showImage && similarImages && similarImages.length > 0 && (
-                <>
-                  <Separator className="bg-border/50" />
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Similar Images</h3>
-                    <div className="grid grid-cols-2 gap-2">
-                      {similarImages.map((similarImage) => (
-                        <div key={similarImage.id} className="relative rounded-lg overflow-hidden" style={{ paddingTop: '100%' }}>
-                          <img
-                            src={supabase.storage.from('user-images').getPublicUrl(similarImage.storage_path).data.publicUrl}
-                            alt={similarImage.prompt}
-                            className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                            onClick={() => {
-                              onOpenChange(false);
-                              setTimeout(() => onImageClick(similarImage), 300);
-                            }}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
+                <ImageDetails image={image} />
+                {showImage && <SimilarImages 
+                  similarImages={similarImages} 
+                  onImageClick={onImageClick}
+                  onOpenChange={onOpenChange}
+                />}
+              </div>
             </div>
           </ScrollArea>
         </Drawer.Content>
