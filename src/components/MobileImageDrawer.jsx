@@ -11,6 +11,17 @@ import { toast } from 'sonner'
 import { modelConfigs } from '@/utils/modelConfigs'
 import { useQuery } from '@tanstack/react-query'
 
+const formatSearchQuery = (text) => {
+  // Split into words, filter out common words, and join with &
+  return text
+    .split(/\s+/)
+    .filter(word => word.length > 2) // Filter out short words
+    .filter(word => !['the', 'and', 'or', 'in', 'on', 'at', 'with', 'to', 'of', 'a', 'an', 'is'].includes(word.toLowerCase())) // Filter common words
+    .map(word => word.replace(/[^a-zA-Z0-9]/g, '')) // Remove special characters
+    .filter(word => word) // Remove empty strings
+    .join(' & ');
+};
+
 const MobileImageDrawer = ({ 
   open, 
   onOpenChange, 
@@ -19,9 +30,10 @@ const MobileImageDrawer = ({
   onDownload,
   onDiscard,
   onRemix,
+  onImageClick,
   isOwner = false
 }) => {
-  if (!image) return null
+  if (!image) return null;
 
   const detailItems = [
     { label: "Model", value: modelConfigs[image.model]?.name || image.model },
@@ -30,35 +42,38 @@ const MobileImageDrawer = ({
     { label: "Aspect Ratio", value: image.aspect_ratio },
     { label: "Style", value: styleConfigs[image.style]?.name || 'General' },
     { label: "Quality", value: image.quality },
-  ]
+  ];
 
   const { data: similarImages } = useQuery({
     queryKey: ['similarImages', image.id],
     queryFn: async () => {
-      if (!showImage) return [] // Only fetch similar images when opened from image click
+      if (!showImage) return []; // Only fetch similar images when opened from image click
       
+      const searchQuery = formatSearchQuery(image.prompt);
+      if (!searchQuery) return [];
+
       const { data, error } = await supabase
         .from('user_images')
         .select('*')
         .neq('id', image.id)
-        .textSearch('prompt', image.prompt)
-        .limit(20)
+        .textSearch('prompt', searchQuery)
+        .limit(20);
       
-      if (error) throw error
-      return data || []
+      if (error) throw error;
+      return data || [];
     },
     enabled: open && showImage
-  })
+  });
 
   const handleAction = (action) => {
-    onOpenChange(false)
-    setTimeout(() => action(), 300)
-  }
+    onOpenChange(false);
+    setTimeout(() => action(), 300);
+  };
 
   const handleCopyPrompt = () => {
-    navigator.clipboard.writeText(image.prompt)
-    toast.success('Prompt copied to clipboard')
-  }
+    navigator.clipboard.writeText(image.prompt);
+    toast.success('Prompt copied to clipboard');
+  };
 
   return (
     <Drawer.Root 
@@ -160,8 +175,8 @@ const MobileImageDrawer = ({
                               alt={similarImage.prompt}
                               className="absolute inset-0 w-full h-full object-cover"
                               onClick={() => {
-                                onOpenChange(false)
-                                setTimeout(() => onImageClick(similarImage), 300)
+                                onOpenChange(false);
+                                setTimeout(() => onImageClick(similarImage), 300);
                               }}
                             />
                           </div>
@@ -176,7 +191,7 @@ const MobileImageDrawer = ({
         </Drawer.Content>
       </Drawer.Portal>
     </Drawer.Root>
-  )
-}
+  );
+};
 
-export default MobileImageDrawer
+export default MobileImageDrawer;
