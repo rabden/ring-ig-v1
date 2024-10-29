@@ -29,18 +29,14 @@ const MobileImageDrawer = ({
     queryFn: async () => {
       if (!showImage) return [];
       
-      const searchQuery = formatSearchQuery(image.prompt);
-      if (!searchQuery) return [];
-
       const { data, error } = await supabase
         .from('user_images')
-        .select('*, similarity:prompt_weights')
+        .select('*')
         .neq('id', image.id)
-        .textSearch('prompt_weights', searchQuery, {
-          type: 'websearch',
+        .textSearch('prompt', image.prompt, {
+          type: 'plain',
           config: 'english'
         })
-        .order('similarity', { ascending: false })
         .limit(20);
       
       if (error) throw error;
