@@ -9,7 +9,47 @@ import StyleChooser from './StyleChooser';
 import AspectRatioChooser from './AspectRatioChooser';
 import SettingSection from './settings/SettingSection';
 import ModelSection from './settings/ModelSection';
-import PromptInput from './PromptInput';
+import { ArrowRight } from 'lucide-react';
+
+const PromptInput = ({ value, onChange, onKeyDown, onGenerate }) => {
+  const [isFocused, setIsFocused] = React.useState(false);
+  const textareaRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      const scrollHeight = textareaRef.current.scrollHeight;
+      textareaRef.current.style.height = Math.min(scrollHeight, 300) + 'px';
+    }
+  }, [value]);
+
+  const showButton = isFocused || value.length > 0;
+
+  return (
+    <div className="relative">
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={onChange}
+        onKeyDown={onKeyDown}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+        placeholder="Enter your prompt here"
+        className="w-full min-h-[40px] max-h-[300px] resize-none overflow-y-auto bg-background rounded-md border border-input px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 pr-10 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500"
+        rows={1}
+      />
+      {showButton && (
+        <Button
+          size="icon"
+          className="absolute right-3 bottom-3 h-7 w-7"
+          onClick={onGenerate}
+        >
+          <ArrowRight className="h-4 w-4" />
+        </Button>
+      )}
+    </div>
+  );
+};
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -33,6 +73,7 @@ const ImageGeneratorSettings = ({
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
+  const showGuidanceScale = model === 'fluxDev';
 
   const handleModelChange = (newModel) => {
     if ((newModel === 'turbo' || newModel === 'preLar') && quality === 'HD+') {
@@ -51,6 +92,7 @@ const ImageGeneratorSettings = ({
   const handlePromptChange = (e) => {
     setPrompt(e.target.value);
     
+    // Update steps based on prompt length for turbo model
     if (model === 'turbo') {
       const promptLength = e.target.value.length;
       if (promptLength <= 100) {
@@ -81,7 +123,7 @@ const ImageGeneratorSettings = ({
         )}
       </div>
 
-      <SettingSection label="Prompt" tooltip="Enter a description of the image you want to generate">
+      <SettingSection label="Prompt" tooltip="Enter a description of the image you want to generate. Be as specific as possible for best results.">
         <PromptInput
           value={prompt}
           onChange={handlePromptChange}
