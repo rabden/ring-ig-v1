@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { modelConfigs } from '@/utils/modelConfigs';
 import { qualityOptions } from '@/utils/imageConfigs';
 import { calculateDimensions, getModifiedPrompt } from '@/utils/imageUtils';
-import { handleApiResponse } from '@/utils/retryUtils';
+import { handleApiResponse, MAX_RETRIES } from '@/utils/retryUtils';
 
 export const useImageGeneration = ({
   session,
