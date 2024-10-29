@@ -87,7 +87,7 @@ const ImageGeneratorSettings = ({
   bonusCredits,
   nsfwEnabled, setNsfwEnabled,
   style, setStyle,
-  setSteps,
+  steps, setSteps,
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const totalCredits = (credits || 0) + (bonusCredits || 0);
@@ -100,6 +100,13 @@ const ImageGeneratorSettings = ({
       setQuality('HD');
     }
     setModel(newModel);
+  };
+
+  const getAvailableQualities = () => {
+    if (model === 'turbo' || model === 'preLar') {
+      return ["SD", "HD"];
+    }
+    return Object.keys(qualityOptions);
   };
 
   const handlePromptChange = (e) => {
