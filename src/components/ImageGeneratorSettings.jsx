@@ -76,14 +76,14 @@ const ImageGeneratorSettings = ({
   const showGuidanceScale = model === 'fluxDev';
 
   const handleModelChange = (newModel) => {
-    if (newModel === 'turbo' && quality === 'HD+') {
+    if ((newModel === 'turbo' || newModel === 'preLar') && quality === 'HD+') {
       setQuality('HD');
     }
     setModel(newModel);
   };
 
   const getAvailableQualities = () => {
-    if (model === 'turbo') {
+    if (model === 'turbo' || model === 'preLar') {
       return ["SD", "HD"];
     }
     return Object.keys(qualityOptions);
