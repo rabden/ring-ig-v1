@@ -20,10 +20,10 @@ const formatSearchQuery = (text) => {
     .filter(word => !['the', 'and', 'or', 'in', 'on', 'at', 'with', 'to', 'of', 'a', 'an', 'is'].includes(word)) // Filter common words
     .map(word => word.replace(/[^a-zA-Z0-9]/g, '')) // Remove special characters
     .filter(word => word) // Remove empty strings
-    .map(word => word + ':*') // Add prefix search capability
-    .join(' & '); // Join with AND operator
+    .map(word => `${word}:*`) // Add prefix search capability
+    .join(' | '); // Join with OR operator to match any word
 
-  return words;
+  return words ? `(${words})` : ''; // Wrap in parentheses if not empty
 };
 
 const MobileImageDrawer = ({ 
@@ -58,12 +58,13 @@ const MobileImageDrawer = ({
 
       const { data, error } = await supabase
         .from('user_images')
-        .select('*')
+        .select('*, similarity:prompt_weights')
         .neq('id', image.id)
-        .textSearch('prompt', searchQuery, {
+        .textSearch('prompt_weights', searchQuery, {
           type: 'websearch',
           config: 'english'
         })
+        .order('similarity', { ascending: false })
         .limit(20);
       
       if (error) throw error;
@@ -169,30 +170,29 @@ const MobileImageDrawer = ({
                   ))}
                 </div>
 
-                {showImage && similarImages && similarImages.length > 0 && (
-                  <>
-                    <Separator className="bg-border/50" />
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Similar Images</h3>
-                      <div className="grid grid-cols-2 gap-2">
-                        {similarImages.map((similarImage) => (
-                          <div key={similarImage.id} className="relative rounded-lg overflow-hidden" style={{ paddingTop: '100%' }}>
-                            <img
-                              src={supabase.storage.from('user-images').getPublicUrl(similarImage.storage_path).data.publicUrl}
-                              alt={similarImage.prompt}
-                              className="absolute inset-0 w-full h-full object-cover"
-                              onClick={() => {
-                                onOpenChange(false);
-                                setTimeout(() => onImageClick(similarImage), 300);
-                              }}
-                            />
-                          </div>
-                        ))}
-                      </div>
+              {showImage && similarImages && similarImages.length > 0 && (
+                <>
+                  <Separator className="bg-border/50" />
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Similar Images</h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      {similarImages.map((similarImage) => (
+                        <div key={similarImage.id} className="relative rounded-lg overflow-hidden" style={{ paddingTop: '100%' }}>
+                          <img
+                            src={supabase.storage.from('user-images').getPublicUrl(similarImage.storage_path).data.publicUrl}
+                            alt={similarImage.prompt}
+                            className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+                            onClick={() => {
+                              onOpenChange(false);
+                              setTimeout(() => onImageClick(similarImage), 300);
+                            }}
+                          />
+                        </div>
+                      ))}
                     </div>
-                  </>
-                )}
-              </div>
+                  </div>
+                </>
+              )}
             </div>
           </ScrollArea>
         </Drawer.Content>
