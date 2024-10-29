@@ -10,13 +10,6 @@ import { styleConfigs } from '@/utils/styleConfigs'
 import { toast } from 'sonner'
 import { modelConfigs } from '@/utils/modelConfigs'
 import { useQuery } from '@tanstack/react-query'
-import Masonry from 'react-masonry-css'
-
-const breakpointColumnsObj = {
-  default: 2,
-  700: 2,
-  500: 2
-}
 
 const MobileImageDrawer = ({ 
   open, 
@@ -169,31 +162,21 @@ const MobileImageDrawer = ({
                     <Separator className="bg-border/50" />
                     <div className="space-y-4">
                       <h3 className="text-lg font-semibold">Similar Images</h3>
-                      <Masonry
-                        breakpointCols={breakpointColumnsObj}
-                        className="flex w-auto -ml-2 -mr-2"
-                        columnClassName="pl-2 pr-2"
-                      >
+                      <div className="grid grid-cols-2 gap-2">
                         {similarImages.map((similarImage) => (
-                          <div key={similarImage.id} className="mb-4">
-                            <div 
-                              className="relative rounded-lg overflow-hidden" 
-                              style={{ paddingTop: `${(similarImage.height / similarImage.width) * 100}%` }}
-                            >
-                              <img
-                                src={supabase.storage.from('user-images').getPublicUrl(similarImage.storage_path).data.publicUrl}
-                                alt={similarImage.prompt}
-                                className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-                                onClick={() => {
-                                  onOpenChange(false);
-                                  setTimeout(() => onImageClick(similarImage), 300);
-                                }}
-                              />
-                            </div>
-                            <p className="text-sm truncate mt-1">{similarImage.prompt}</p>
+                          <div key={similarImage.id} className="relative rounded-lg overflow-hidden" style={{ paddingTop: '100%' }}>
+                            <img
+                              src={supabase.storage.from('user-images').getPublicUrl(similarImage.storage_path).data.publicUrl}
+                              alt={similarImage.prompt}
+                              className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+                              onClick={() => {
+                                onOpenChange(false);
+                                setTimeout(() => onImageClick(similarImage), 300);
+                              }}
+                            />
                           </div>
                         ))}
-                      </Masonry>
+                      </div>
                     </div>
                   </>
                 )}
