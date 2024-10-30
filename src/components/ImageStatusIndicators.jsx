@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 
 const StatusIcon = ({ children, className }) => (
   <div className={cn(
-    "absolute z-[5] rounded-full p-1 bg-background/80 backdrop-blur-sm",
+    "absolute z-[2] rounded-full p-1 bg-background/80 backdrop-blur-sm",
     className
   )}>
     {children}
