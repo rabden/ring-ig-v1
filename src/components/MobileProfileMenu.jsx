@@ -26,20 +26,21 @@ const MobileProfileMenu = ({ user, credits, bonusCredits }) => {
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[60]" />
         <Drawer.Content className="fixed inset-0 bg-background flex flex-col z-[60]">
-          <div className="flex-1 p-6">
-            <div className="max-w-md mx-auto space-y-8">
+          <div className="flex-1 p-4">
+            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-6" />
+            <div className="max-w-md mx-auto space-y-6">
               {user ? (
                 <>
-                  <div className="flex flex-col items-center space-y-4 pt-8">
-                    <Avatar className="h-24 w-24">
+                  <div className="flex flex-col items-center space-y-3 pt-4">
+                    <Avatar className="h-20 w-20">
                       <AvatarImage src={user.user_metadata.avatar_url} alt={user.email} />
                       <AvatarFallback>{user.email.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div className="text-center">
-                      <h3 className="text-xl font-semibold">
+                      <h3 className="text-lg font-semibold">
                         {user.user_metadata.display_name || user.email}
                       </h3>
-                      <p className="text-sm text-muted-foreground mt-1">{user.email}</p>
+                      <p className="text-sm text-muted-foreground">{user.email}</p>
                     </div>
                   </div>
 
@@ -49,7 +50,7 @@ const MobileProfileMenu = ({ user, credits, bonusCredits }) => {
                       <div>
                         <p className="text-sm font-medium">Available Credits</p>
                         <p className="text-2xl font-bold mt-1">
-                          {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
+                          {credits} + {bonusCredits}
                         </p>
                       </div>
                     </div>
@@ -58,14 +59,14 @@ const MobileProfileMenu = ({ user, credits, bonusCredits }) => {
                   <Button 
                     onClick={logout} 
                     variant="outline" 
-                    className="w-full h-12"
+                    className="w-full h-11"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
                     Log out
                   </Button>
                 </>
               ) : (
-                <div className="flex flex-col items-center space-y-4 pt-12">
+                <div className="flex flex-col items-center space-y-4 pt-8">
                   <SignInDialog />
                 </div>
               )}

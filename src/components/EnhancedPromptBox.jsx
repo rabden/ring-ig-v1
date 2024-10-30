@@ -12,7 +12,7 @@ const EnhancedPromptBox = ({ value, onChange, onKeyDown, onGenerate }) => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
       const scrollHeight = textareaRef.current.scrollHeight;
-      textareaRef.current.style.height = Math.min(scrollHeight, 300) + 'px';
+      textareaRef.current.style.height = Math.min(scrollHeight, 200) + 'px';
     }
   }, [value]);
 
@@ -24,8 +24,8 @@ const EnhancedPromptBox = ({ value, onChange, onKeyDown, onGenerate }) => {
   };
 
   return (
-    <div className="relative rounded-lg bg-secondary/30 p-2 group transition-all duration-200 hover:bg-secondary/40">
-      <ScrollArea className="relative w-full max-h-[300px] mb-10">
+    <div className="relative rounded-lg bg-secondary/30 group transition-all duration-200 hover:bg-secondary/40">
+      <ScrollArea className="relative w-full max-h-[200px] mb-8">
         <textarea
           ref={textareaRef}
           value={value}
@@ -35,7 +35,7 @@ const EnhancedPromptBox = ({ value, onChange, onKeyDown, onGenerate }) => {
           onBlur={() => setIsFocused(false)}
           placeholder="Describe your imagination here..."
           className={cn(
-            "w-full min-h-[80px] resize-none bg-transparent px-3 py-2 text-sm",
+            "w-full min-h-[60px] resize-none bg-transparent px-2 py-1.5 text-sm",
             "placeholder:text-muted-foreground/70",
             "focus:outline-none",
             "scrollbar-thin scrollbar-thumb-secondary scrollbar-track-transparent"
@@ -44,13 +44,13 @@ const EnhancedPromptBox = ({ value, onChange, onKeyDown, onGenerate }) => {
         />
       </ScrollArea>
       
-      <div className="absolute left-0 right-0 bottom-2 flex items-center justify-end px-2 bg-transparent">
+      <div className="absolute left-0 right-0 bottom-1 flex items-center justify-end px-2 bg-transparent">
         {value && (
           <Button
             size="icon"
             variant="ghost"
             onClick={handleClear}
-            className="h-8 w-8 opacity-70 hover:opacity-100"
+            className="h-7 w-7 opacity-70 hover:opacity-100"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -59,7 +59,7 @@ const EnhancedPromptBox = ({ value, onChange, onKeyDown, onGenerate }) => {
           size="icon"
           onClick={onGenerate}
           className={cn(
-            "h-8 w-8 transition-all duration-200",
+            "h-7 w-7 transition-all duration-200",
             !value && "opacity-50 cursor-not-allowed"
           )}
           disabled={!value}
