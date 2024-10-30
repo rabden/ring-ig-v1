@@ -25,7 +25,7 @@ const EnhancedPromptBox = ({ value, onChange, onKeyDown, onGenerate }) => {
 
   return (
     <div className="relative rounded-lg bg-secondary/30 p-2 group transition-all duration-200 hover:bg-secondary/40">
-      <ScrollArea className="relative w-full max-h-[300px]">
+      <ScrollArea className="relative w-full max-h-[300px] mb-10">
         <textarea
           ref={textareaRef}
           value={value}
@@ -44,7 +44,7 @@ const EnhancedPromptBox = ({ value, onChange, onKeyDown, onGenerate }) => {
         />
       </ScrollArea>
       
-      <div className="absolute right-2 bottom-2 flex items-center gap-2">
+      <div className="absolute left-0 right-0 bottom-2 flex items-center justify-end px-2 bg-transparent">
         {value && (
           <Button
             size="icon"
