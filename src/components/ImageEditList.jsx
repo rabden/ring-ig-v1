@@ -57,15 +57,15 @@ const ImageEditList = ({ images, isLoading }) => {
               <label className="flex items-center gap-2">
                 <span className="text-sm">Hot</span>
                 <Switch
-                  checked={image.is_hot}
-                  onCheckedChange={() => handleToggle(image.id, 'is_hot', image.is_hot)}
+                  checked={image.is_hot || false}
+                  onCheckedChange={() => handleToggle(image.id, 'is_hot', image.is_hot || false)}
                 />
               </label>
               <label className="flex items-center gap-2">
                 <span className="text-sm">Trending</span>
                 <Switch
-                  checked={image.is_trending}
-                  onCheckedChange={() => handleToggle(image.id, 'is_trending', image.is_trending)}
+                  checked={image.is_trending || false}
+                  onCheckedChange={() => handleToggle(image.id, 'is_trending', image.is_trending || false)}
                 />
               </label>
             </div>
