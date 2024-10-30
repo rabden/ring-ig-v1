@@ -34,17 +34,6 @@ export const getModifiedPrompt = (prompt, style, model) => {
   if (modelConfig?.noStyleSuffix) {
     return prompt;
   }
-
-  // Extract character references and details if present
-  const parts = prompt.split('{');
-  const basePrompt = parts[0].trim();
-  const characterDetails = parts[1]?.split('}')[0];
-
-  // Add character details if present
-  const promptWithDetails = characterDetails 
-    ? `${basePrompt} (${characterDetails})`
-    : basePrompt;
-
   const styleSuffix = styleConfigs[style]?.suffix || styleConfigs.general.suffix;
-  return `${promptWithDetails}, ${styleSuffix}${modelConfigs[model]?.promptSuffix || ''}`;
+  return `${prompt}, ${styleSuffix}${modelConfigs[model]?.promptSuffix || ''}`;
 };

@@ -9,11 +9,10 @@ import StyleChooser from './StyleChooser';
 import AspectRatioChooser from './AspectRatioChooser';
 import SettingSection from './settings/SettingSection';
 import ModelSection from './settings/ModelSection';
-import CharacterGallery from './CharacterGallery';
 import { ArrowRight, X } from 'lucide-react';
-import { useCharacters } from '@/hooks/useCharacters';
+import { modelConfigs } from '@/utils/modelConfigs';
 
-const PromptInput = ({ value, onChange, onKeyDown, onGenerate, onMentionCharacter }) => {
+const PromptInput = ({ value, onChange, onKeyDown, onGenerate }) => {
   const [isFocused, setIsFocused] = React.useState(false);
   const textareaRef = React.useRef(null);
   const [showClear, setShowClear] = React.useState(false);
@@ -27,18 +26,6 @@ const PromptInput = ({ value, onChange, onKeyDown, onGenerate, onMentionCharacte
     }
   }, [value]);
 
-  const handleInput = (e) => {
-    const text = e.target.value;
-    const lastWord = text.split(' ').pop();
-    
-    if (lastWord.startsWith('@')) {
-      const characterName = lastWord.slice(1);
-      onMentionCharacter(characterName, text);
-    } else {
-      onChange(e);
-    }
-  };
-
   const handleClear = () => {
     onChange({ target: { value: '' } });
   };
@@ -50,11 +37,11 @@ const PromptInput = ({ value, onChange, onKeyDown, onGenerate, onMentionCharacte
       <textarea
         ref={textareaRef}
         value={value}
-        onChange={handleInput}
+        onChange={onChange}
         onKeyDown={onKeyDown}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
-        placeholder="Enter your prompt here. Use @character to reference saved characters"
+        placeholder="Enter your prompt here"
         className="w-full min-h-[40px] max-h-[300px] resize-none overflow-y-auto bg-background rounded-md border border-input px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 pr-10 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500"
         rows={1}
       />
@@ -102,39 +89,9 @@ const ImageGeneratorForm = ({
   style, setStyle,
   steps, setSteps,
 }) => {
-  const { data: characters } = useCharacters(session?.user?.id);
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
-
-  const handleMentionCharacter = (name, currentText) => {
-    const character = characters?.find(c => 
-      c.character_name.toLowerCase() === name.toLowerCase()
-    );
-    
-    if (character) {
-      const characterDetails = `{${character.character_name}, ${character.description}, Age:${character.age}, ${character.eyes_shape} eyes, ${character.eyes_color} eye color, ${character.nose_shape} nose, ${character.hair_type} ${character.hair_color} ${character.hair_length} hair, ${character.height} height, ${character.cultural_accent} features, ${character.personality} personality, ${character.face_shape} face, ${character.body_color} skin, ${character.body_shape} body}`;
-      
-      // Replace @mention with character name
-      const newText = currentText.replace(`@${name}`, character.character_name);
-      setPrompt(newText);
-      
-      // Set model to preLar and use character's ID as seed
-      setModel('preLar');
-      setSeed(character.character_id);
-      setRandomizeSeed(false);
-    }
-  };
-
-  const handleUseCharacter = (character) => {
-    const characterPrompt = `${character.character_name}: A ${character.age} year old ${character.gender.toLowerCase()} with ${character.eyes_color.toLowerCase()} ${character.eyes_shape.toLowerCase()} eyes, ${character.hair_length.toLowerCase()} ${character.hair_color.toLowerCase()} ${character.hair_type.toLowerCase()} hair, ${character.height.toLowerCase()} height, ${character.body_shape.toLowerCase()} body shape, ${character.body_color.toLowerCase()} skin tone, ${character.face_shape.toLowerCase()} face, ${character.nose_shape.toLowerCase()} nose, ${character.cultural_accent} features, ${character.personality.toLowerCase()} personality`;
-    setPrompt((currentPrompt) => currentPrompt ? `${currentPrompt}, ${characterPrompt}` : characterPrompt);
-    
-    // Set model to preLar and use character's ID as seed
-    setModel('preLar');
-    setSeed(character.character_id);
-    setRandomizeSeed(false);
-  };
 
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
@@ -152,17 +109,12 @@ const ImageGeneratorForm = ({
         )}
       </div>
 
-      <SettingSection label="Characters" tooltip="Use your saved characters in the prompt">
-        <CharacterGallery session={session} onUseCharacter={handleUseCharacter} />
-      </SettingSection>
-
-      <SettingSection label="Prompt" tooltip="Enter your prompt. Use @character to reference saved characters">
+      <SettingSection label="Prompt" tooltip="Enter a description of the image you want to generate. Be as specific as possible for best results.">
         <PromptInput
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={handlePromptKeyDown}
           onGenerate={generateImage}
-          onMentionCharacter={handleMentionCharacter}
         />
       </SettingSection>
 
