@@ -13,8 +13,16 @@ const ADMIN_EMAILS = [
 ]
 
 const AdminDashboard = () => {
-  const { session } = useSupabaseAuth()
+  const { session, loading } = useSupabaseAuth()
   
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    )
+  }
+
   if (!session) {
     toast.error("Please sign in to access the admin dashboard")
     return <Navigate to="/" replace />
