@@ -28,9 +28,9 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
           <div className="p-4 bg-muted/40 flex-1">
             <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-8" />
             <ScrollArea className="h-[calc(100vh-80px)]">
-              <div className="max-w-md mx-auto space-y-6">
+              <div className="max-w-md mx-auto space-y-4">
                 {showImage && (
-                  <div className="relative rounded-lg overflow-hidden mb-4">
+                  <div className="relative rounded-lg overflow-hidden">
                     <img
                       src={supabase.storage.from('user-images').getPublicUrl(image?.storage_path).data.publicUrl}
                       alt={image?.prompt}
@@ -38,35 +38,23 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                     />
                   </div>
                 )}
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Prompt</h3>
-                  <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md">
-                    {image.prompt}
-                  </p>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  {detailItems.map((item, index) => (
-                    <div key={index} className="space-y-1">
-                      <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
-                      <Badge variant="outline" className="text-sm font-normal">
-                        {item.value}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-                <div className="space-y-2 pt-4">
+                
+                <div className="flex gap-2 justify-between px-1">
                   <Button
-                    variant="outline"
-                    className="w-full justify-start"
+                    variant="ghost"
+                    size="sm"
+                    className="flex-1"
                     onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image?.storage_path).data.publicUrl, image?.prompt)}
                   >
                     <Download className="mr-2 h-4 w-4" />
                     Download
                   </Button>
+                  
                   {isOwner && (
                     <Button
-                      variant="outline"
-                      className="w-full justify-start text-destructive hover:text-destructive"
+                      variant="ghost"
+                      size="sm"
+                      className="flex-1 text-destructive hover:text-destructive"
                       onClick={() => {
                         onDiscard(image);
                         onOpenChange(false);
@@ -76,9 +64,11 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                       Discard
                     </Button>
                   )}
+                  
                   <Button
-                    variant="outline"
-                    className="w-full justify-start"
+                    variant="ghost"
+                    size="sm"
+                    className="flex-1"
                     onClick={() => {
                       onRemix(image);
                       onOpenChange(false);
@@ -87,6 +77,26 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                     <Wand2 className="mr-2 h-4 w-4" />
                     Remix
                   </Button>
+                </div>
+
+                <div className="space-y-4 pt-2">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Prompt</h3>
+                    <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md">
+                      {image.prompt}
+                    </p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    {detailItems.map((item, index) => (
+                      <div key={index} className="space-y-1">
+                        <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
+                        <Badge variant="outline" className="text-sm font-normal">
+                          {item.value}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </ScrollArea>
