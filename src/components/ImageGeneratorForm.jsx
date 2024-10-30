@@ -9,8 +9,8 @@ import StyleChooser from './StyleChooser';
 import AspectRatioChooser from './AspectRatioChooser';
 import SettingSection from './settings/SettingSection';
 import ModelSection from './settings/ModelSection';
+import CharacterGallery from './CharacterGallery';
 import { ArrowRight, X } from 'lucide-react';
-import { modelConfigs } from '@/utils/modelConfigs';
 
 const PromptInput = ({ value, onChange, onKeyDown, onGenerate }) => {
   const [isFocused, setIsFocused] = React.useState(false);
@@ -93,6 +93,11 @@ const ImageGeneratorForm = ({
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
 
+  const handleUseCharacter = (character) => {
+    const characterPrompt = `${character.character_name}: A ${character.age} year old ${character.gender.toLowerCase()} with ${character.eyes_color.toLowerCase()} ${character.eyes_shape.toLowerCase()} eyes, ${character.hair_length.toLowerCase()} ${character.hair_color.toLowerCase()} ${character.hair_type.toLowerCase()} hair, ${character.height.toLowerCase()} height, ${character.body_shape.toLowerCase()} body shape, ${character.body_color.toLowerCase()} skin tone, ${character.face_shape.toLowerCase()} face, ${character.nose_shape.toLowerCase()} nose, ${character.cultural_accent} features, ${character.personality.toLowerCase()} personality`;
+    setPrompt((currentPrompt) => currentPrompt ? `${currentPrompt}, ${characterPrompt}` : characterPrompt);
+  };
+
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className="flex justify-between items-center mb-4">
@@ -108,6 +113,10 @@ const ImageGeneratorForm = ({
           </div>
         )}
       </div>
+
+      <SettingSection label="Characters" tooltip="Use your saved characters in the prompt">
+        <CharacterGallery session={session} onUseCharacter={handleUseCharacter} />
+      </SettingSection>
 
       <SettingSection label="Prompt" tooltip="Enter a description of the image you want to generate. Be as specific as possible for best results.">
         <PromptInput
