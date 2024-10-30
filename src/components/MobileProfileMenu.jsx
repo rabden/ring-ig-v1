@@ -4,22 +4,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import SignInDialog from '@/components/SignInDialog';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { User } from 'lucide-react';
+import { User, LogOut, CreditCard } from 'lucide-react';
 
 const MobileProfileMenu = ({ user, credits, bonusCredits }) => {
   const { logout } = useSupabaseAuth();
-  const [snapPoint, setSnapPoint] = React.useState(1);
-
-  const handleLogout = () => {
-    logout();
-  };
 
   return (
-    <Drawer.Root 
-      snapPoints={[1, 100]} 
-      activeSnapPoint={snapPoint}
-      setActiveSnapPoint={setSnapPoint}
-    >
+    <Drawer.Root>
       <Drawer.Trigger asChild>
         <Button variant="ghost" size="icon" className="rounded-full">
           {user ? (
@@ -34,29 +25,47 @@ const MobileProfileMenu = ({ user, credits, bonusCredits }) => {
       </Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[60]" />
-        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 max-h-[100dvh] z-[60]">
-          <div className="p-4 bg-muted/40 rounded-t-[10px] flex-1">
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-8" />
-            <div className="max-w-md mx-auto">
+        <Drawer.Content className="fixed inset-0 bg-background flex flex-col z-[60]">
+          <div className="flex-1 p-6">
+            <div className="max-w-md mx-auto space-y-8">
               {user ? (
-                <div className="flex flex-col items-center space-y-4">
-                  <Avatar className="h-20 w-20">
-                    <AvatarImage src={user.user_metadata.avatar_url} alt={user.email} />
-                    <AvatarFallback>{user.email.charAt(0).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                  <h3 className="text-lg font-semibold">
-                    {user.user_metadata.display_name || user.email}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
-                  <p className="text-sm font-medium">
-                    Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
-                  </p>
-                  <Button onClick={handleLogout} variant="outline" className="w-full">
+                <>
+                  <div className="flex flex-col items-center space-y-4 pt-8">
+                    <Avatar className="h-24 w-24">
+                      <AvatarImage src={user.user_metadata.avatar_url} alt={user.email} />
+                      <AvatarFallback>{user.email.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div className="text-center">
+                      <h3 className="text-xl font-semibold">
+                        {user.user_metadata.display_name || user.email}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-1">{user.email}</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-secondary/30 rounded-lg p-4">
+                    <div className="flex items-center gap-3">
+                      <CreditCard className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium">Available Credits</p>
+                        <p className="text-2xl font-bold mt-1">
+                          {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button 
+                    onClick={logout} 
+                    variant="outline" 
+                    className="w-full h-12"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
                     Log out
                   </Button>
-                </div>
+                </>
               ) : (
-                <div className="flex flex-col items-center space-y-4">
+                <div className="flex flex-col items-center space-y-4 pt-12">
                   <SignInDialog />
                 </div>
               )}
