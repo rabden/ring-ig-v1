@@ -1,18 +1,72 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart, ResponsiveContainer, Bar, XAxis, YAxis, Tooltip } from 'recharts';
-
-const data = [
-  { name: 'Mon', images: 40 },
-  { name: 'Tue', images: 30 },
-  { name: 'Wed', images: 45 },
-  { name: 'Thu', images: 50 },
-  { name: 'Fri', images: 35 },
-  { name: 'Sat', images: 25 },
-  { name: 'Sun', images: 42 },
-];
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/supabase';
 
 const AnalyticsOverview = () => {
+  const { data: totalImages } = useQuery({
+    queryKey: ['adminTotalImages'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('user_images')
+        .select('*', { count: 'exact' });
+      if (error) throw error;
+      return count || 0;
+    }
+  });
+
+  const { data: activeUsers } = useQuery({
+    queryKey: ['adminActiveUsers'],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact' });
+      if (error) throw error;
+      return count || 0;
+    }
+  });
+
+  const { data: totalCredits } = useQuery({
+    queryKey: ['adminTotalCredits'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_credits')
+        .select('credit_count');
+      if (error) throw error;
+      return data.reduce((sum, user) => sum + user.credit_count, 0);
+    }
+  });
+
+  const { data: weeklyData } = useQuery({
+    queryKey: ['adminWeeklyImages'],
+    queryFn: async () => {
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const endDate = new Date();
+      const startDate = new Date(endDate);
+      startDate.setDate(startDate.getDate() - 7);
+
+      const { data, error } = await supabase
+        .from('user_images')
+        .select('created_at')
+        .gte('created_at', startDate.toISOString())
+        .lte('created_at', endDate.toISOString());
+
+      if (error) throw error;
+
+      const dailyCounts = data.reduce((acc, img) => {
+        const day = new Date(img.created_at).getDay();
+        acc[day] = (acc[day] || 0) + 1;
+        return acc;
+      }, {});
+
+      return days.map((name, index) => ({
+        name,
+        images: dailyCounts[index] || 0
+      }));
+    }
+  });
+
   return (
     <div className="space-y-6">
       <div className="grid gap-4 md:grid-cols-3">
@@ -21,8 +75,7 @@ const AnalyticsOverview = () => {
             <CardTitle className="text-sm font-medium">Total Images</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">267</div>
-            <p className="text-xs text-muted-foreground">+12% from last month</p>
+            <div className="text-2xl font-bold">{totalImages || 0}</div>
           </CardContent>
         </Card>
         <Card>
@@ -30,17 +83,15 @@ const AnalyticsOverview = () => {
             <CardTitle className="text-sm font-medium">Active Users</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">42</div>
-            <p className="text-xs text-muted-foreground">+8% from last month</p>
+            <div className="text-2xl font-bold">{activeUsers || 0}</div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Credits Used</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Credits</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">1,324</div>
-            <p className="text-xs text-muted-foreground">+20% from last month</p>
+            <div className="text-2xl font-bold">{totalCredits || 0}</div>
           </CardContent>
         </Card>
       </div>
@@ -52,7 +103,7 @@ const AnalyticsOverview = () => {
         <CardContent>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data}>
+              <BarChart data={weeklyData || []}>
                 <XAxis dataKey="name" />
                 <YAxis />
                 <Tooltip />
