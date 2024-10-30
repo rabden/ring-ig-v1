@@ -25,8 +25,8 @@ export const modelConfigs = {
     name: "Ring.1 Pre-lar",
     category: "General",
     apiUrl: "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large",
-    inferenceSteps: [50],
-    defaultStep: 50,
+    inferenceSteps: [40],
+    defaultStep: 40,
     qualityLimits: ["SD", "HD"]
   },
   animeNsfw: {
