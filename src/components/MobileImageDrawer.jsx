@@ -1,12 +1,13 @@
 import React from 'react';
 import { Drawer } from 'vaul';
 import { Button } from "@/components/ui/button";
-import { Download, Trash2, Wand2 } from "lucide-react";
+import { Download, Trash2, Wand2, Copy } from "lucide-react";
 import { supabase } from '@/integrations/supabase/supabase';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { styleConfigs } from '@/utils/styleConfigs';
 import { modelConfigs } from '@/utils/modelConfigs';
+import { toast } from 'sonner';
 
 const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, onDiscard, onRemix, isOwner }) => {
   if (!image) return null;
@@ -19,6 +20,15 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
     { label: "Style", value: styleConfigs[image.style]?.name || 'General' },
     { label: "Quality", value: image.quality },
   ];
+
+  const handleCopyPrompt = async () => {
+    try {
+      await navigator.clipboard.writeText(image.prompt);
+      toast.success('Prompt copied to clipboard');
+    } catch (err) {
+      toast.error('Failed to copy prompt');
+    }
+  };
 
   return (
     <Drawer.Root open={open} onOpenChange={onOpenChange}>
@@ -81,7 +91,12 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
 
                 <div className="space-y-4 pt-2">
                   <div>
-                    <h3 className="text-lg font-semibold mb-2">Prompt</h3>
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-semibold">Prompt</h3>
+                      <Button variant="ghost" size="sm" onClick={handleCopyPrompt}>
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
                     <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md">
                       {image.prompt}
                     </p>

@@ -2,10 +2,11 @@ import React from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
-import { Download, Trash2, RefreshCw } from "lucide-react";
+import { Download, Trash2, RefreshCw, Copy } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { modelConfigs } from '@/utils/modelConfigs';
 import { styleConfigs } from '@/utils/styleConfigs';
+import { toast } from 'sonner';
 
 const FullScreenImageView = ({ 
   image, 
@@ -35,6 +36,15 @@ const FullScreenImageView = ({
     onClose();
   };
 
+  const handleCopyPrompt = async () => {
+    try {
+      await navigator.clipboard.writeText(image.prompt);
+      toast.success('Prompt copied to clipboard');
+    } catch (err) {
+      toast.error('Failed to copy prompt');
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-background">
@@ -51,7 +61,12 @@ const FullScreenImageView = ({
             <ScrollArea className="h-[100vh]">
               <div className="p-6 space-y-6">
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold">Image Details</h3>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">Image Details</h3>
+                    <Button variant="ghost" size="icon" onClick={handleCopyPrompt}>
+                      <Copy className="h-4 w-4" />
+                    </Button>
+                  </div>
                   <p className="text-sm text-muted-foreground">{image.prompt}</p>
                 </div>
 
