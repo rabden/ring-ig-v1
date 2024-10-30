@@ -9,66 +9,8 @@ import StyleChooser from './StyleChooser';
 import AspectRatioChooser from './AspectRatioChooser';
 import SettingSection from './settings/SettingSection';
 import ModelSection from './settings/ModelSection';
-import { ArrowRight, X } from 'lucide-react';
+import PromptInput from './settings/PromptInput';
 import { modelConfigs } from '@/utils/modelConfigs';
-
-const PromptInput = ({ value, onChange, onKeyDown, onGenerate }) => {
-  const [isFocused, setIsFocused] = React.useState(false);
-  const textareaRef = React.useRef(null);
-  const [showClear, setShowClear] = React.useState(false);
-
-  React.useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      const scrollHeight = textareaRef.current.scrollHeight;
-      textareaRef.current.style.height = Math.min(scrollHeight, 300) + 'px';
-      setShowClear(scrollHeight > 100);
-    }
-  }, [value]);
-
-  const handleClear = () => {
-    onChange({ target: { value: '' } });
-  };
-
-  const showButton = isFocused || value.length > 0;
-
-  return (
-    <div className="relative">
-      <textarea
-        ref={textareaRef}
-        value={value}
-        onChange={onChange}
-        onKeyDown={onKeyDown}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        placeholder="Enter your prompt here"
-        className="w-full min-h-[40px] max-h-[300px] resize-none overflow-y-auto bg-background rounded-md border border-input px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 pr-10 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500"
-        rows={1}
-      />
-      <div className="absolute right-3 bottom-3 flex flex-col gap-2 items-center">
-        {showClear && (
-          <Button
-            size="icon"
-            variant="ghost"
-            className="h-7 w-7"
-            onClick={handleClear}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        )}
-        {showButton && (
-          <Button
-            size="icon"
-            className="h-7 w-7"
-            onClick={onGenerate}
-          >
-            <ArrowRight className="h-4 w-4" />
-          </Button>
-        )}
-      </div>
-    </div>
-  );
-};
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
