@@ -127,7 +127,7 @@ export const useImageGeneration = ({
           height: finalHeight,
           model,
           quality,
-          style: style || 'general',
+          style: modelConfigs[model]?.category === "NSFW" ? "N/A" : (style || 'general'),
           aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
           generationId
         }
