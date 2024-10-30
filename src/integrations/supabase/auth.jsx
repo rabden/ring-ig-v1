@@ -23,30 +23,35 @@ export const SupabaseAuthProviderInner = ({ children }) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    const getSession = async () => {
-      setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
-    };
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-      queryClient.invalidateQueries('user');
     });
 
-    getSession();
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setSession(session);
+      queryClient.invalidateQueries('user');
+      setLoading(false);
+    });
 
     return () => {
-      authListener.subscription.unsubscribe();
-      setLoading(false);
+      subscription?.unsubscribe();
     };
   }, [queryClient]);
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    setSession(null);
-    queryClient.invalidateQueries('user');
+    try {
+      await supabase.auth.signOut();
+      setSession(null);
+      queryClient.invalidateQueries('user');
+      window.localStorage.removeItem('supabase.auth.token');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
     setLoading(false);
   };
 
