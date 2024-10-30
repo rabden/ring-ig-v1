@@ -28,28 +28,30 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="container mx-auto p-4 md:p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
-          Logged in as: {session.user.email}
-        </p>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto p-4 md:p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+          <p className="text-sm text-muted-foreground">
+            Logged in as: {session.user.email}
+          </p>
+        </div>
+        
+        <Tabs defaultValue="users" className="w-full space-y-6">
+          <TabsList>
+            <TabsTrigger value="users">Users</TabsTrigger>
+            <TabsTrigger value="images">Images</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="users" className="space-y-4">
+            <UsersList />
+          </TabsContent>
+          
+          <TabsContent value="images" className="space-y-4">
+            <ImagesList />
+          </TabsContent>
+        </Tabs>
       </div>
-      
-      <Tabs defaultValue="users" className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="users">Users</TabsTrigger>
-          <TabsTrigger value="images">Images</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="users" className="mt-4">
-          <UsersList />
-        </TabsContent>
-        
-        <TabsContent value="images" className="mt-4">
-          <ImagesList />
-        </TabsContent>
-      </Tabs>
     </div>
   )
 }
