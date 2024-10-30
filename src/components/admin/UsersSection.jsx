@@ -8,12 +8,17 @@ const UsersSection = () => {
   const { data: users, isLoading } = useQuery({
     queryKey: ['adminUsers'],
     queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
       const { data, error } = await supabase
         .from('profiles')
         .select(`
           *,
           user_credits (credit_count)
-        `);
+        `)
+        .eq('id', session.user.id);
+
       if (error) throw error;
       return data;
     }

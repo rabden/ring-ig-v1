@@ -8,13 +8,18 @@ const ImagesSection = () => {
   const { data: images, isLoading } = useQuery({
     queryKey: ['adminImages'],
     queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
       const { data, error } = await supabase
         .from('user_images')
         .select(`
           *,
           profiles (display_name)
         `)
+        .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
+
       if (error) throw error;
       return data;
     }

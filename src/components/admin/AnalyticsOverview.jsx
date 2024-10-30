@@ -8,9 +8,14 @@ const AnalyticsOverview = () => {
   const { data: totalImages } = useQuery({
     queryKey: ['adminTotalImages'],
     queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
       const { count, error } = await supabase
         .from('user_images')
-        .select('*', { count: 'exact' });
+        .select('*', { count: 'exact' })
+        .eq('user_id', session.user.id);
+
       if (error) throw error;
       return count || 0;
     }
@@ -19,9 +24,14 @@ const AnalyticsOverview = () => {
   const { data: activeUsers } = useQuery({
     queryKey: ['adminActiveUsers'],
     queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
       const { count, error } = await supabase
         .from('profiles')
-        .select('*', { count: 'exact' });
+        .select('*', { count: 'exact' })
+        .eq('id', session.user.id);
+
       if (error) throw error;
       return count || 0;
     }
@@ -30,9 +40,14 @@ const AnalyticsOverview = () => {
   const { data: totalCredits } = useQuery({
     queryKey: ['adminTotalCredits'],
     queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
       const { data, error } = await supabase
         .from('user_credits')
-        .select('credit_count');
+        .select('credit_count')
+        .eq('user_id', session.user.id);
+
       if (error) throw error;
       return data.reduce((sum, user) => sum + user.credit_count, 0);
     }
@@ -41,6 +56,9 @@ const AnalyticsOverview = () => {
   const { data: weeklyData } = useQuery({
     queryKey: ['adminWeeklyImages'],
     queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error('Not authenticated');
+
       const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       const endDate = new Date();
       const startDate = new Date(endDate);
@@ -49,6 +67,7 @@ const AnalyticsOverview = () => {
       const { data, error } = await supabase
         .from('user_images')
         .select('created_at')
+        .eq('user_id', session.user.id)
         .gte('created_at', startDate.toISOString())
         .lte('created_at', endDate.toISOString());
 
