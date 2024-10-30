@@ -13,8 +13,7 @@ const AnalyticsOverview = () => {
 
       const { count, error } = await supabase
         .from('user_images')
-        .select('*', { count: 'exact' })
-        .eq('user_id', session.user.id);
+        .select('*', { count: 'exact' });
 
       if (error) throw error;
       return count || 0;
@@ -29,8 +28,7 @@ const AnalyticsOverview = () => {
 
       const { count, error } = await supabase
         .from('profiles')
-        .select('*', { count: 'exact' })
-        .eq('id', session.user.id);
+        .select('*', { count: 'exact' });
 
       if (error) throw error;
       return count || 0;
@@ -45,8 +43,7 @@ const AnalyticsOverview = () => {
 
       const { data, error } = await supabase
         .from('user_credits')
-        .select('credit_count')
-        .eq('user_id', session.user.id);
+        .select('credit_count');
 
       if (error) throw error;
       return data.reduce((sum, user) => sum + user.credit_count, 0);
@@ -67,7 +64,6 @@ const AnalyticsOverview = () => {
       const { data, error } = await supabase
         .from('user_images')
         .select('created_at')
-        .eq('user_id', session.user.id)
         .gte('created_at', startDate.toISOString())
         .lte('created_at', endDate.toISOString());
 

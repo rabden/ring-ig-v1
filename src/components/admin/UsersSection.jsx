@@ -16,8 +16,7 @@ const UsersSection = () => {
         .select(`
           *,
           user_credits (credit_count)
-        `)
-        .eq('id', session.user.id);
+        `);
 
       if (error) throw error;
       return data;
