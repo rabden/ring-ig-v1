@@ -41,8 +41,8 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
               <CreditCard className="h-4 w-4 text-muted-foreground" />
               <div className="flex-1">
                 <p className="text-sm">Credits Available</p>
-                <p className="text-sm font-semibold">
-                  {credits} + {bonusCredits}
+                <p className="text-xs text-muted-foreground">
+                  {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''} credits
                 </p>
               </div>
             </div>
