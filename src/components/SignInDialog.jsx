@@ -1,5 +1,11 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { SupabaseAuthUI } from '@/integrations/supabase/auth';
 
@@ -9,9 +15,9 @@ const SignInDialog = () => {
       <DialogTrigger asChild>
         <Button variant="outline">Sign In</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] z-[100]">
         <DialogHeader>
-          <DialogTitle>Sign In or Sign Up</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">Welcome Back</DialogTitle>
         </DialogHeader>
         <SupabaseAuthUI />
       </DialogContent>
