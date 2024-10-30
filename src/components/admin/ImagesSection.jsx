@@ -14,13 +14,29 @@ const ImagesSection = () => {
       const { data, error } = await supabase
         .from('user_images')
         .select(`
-          *,
-          profiles (display_name)
+          id,
+          storage_path,
+          prompt,
+          model,
+          created_at,
+          user_id
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+
+      // Get user emails in a separate query
+      const { data: users, error: usersError } = await supabase
+        .from('auth.users')
+        .select('id, email');
+
+      if (usersError) throw usersError;
+
+      // Combine the data
+      return data.map(image => ({
+        ...image,
+        user_email: users.find(u => u.id === image.user_id)?.email || 'Anonymous'
+      }));
     }
   });
 
@@ -42,7 +58,10 @@ const ImagesSection = () => {
               <div className="p-4">
                 <p className="text-sm truncate">{image.prompt}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  By: {image.profiles?.display_name || 'Anonymous'}
+                  By: {image.user_email}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Created: {new Date(image.created_at).toLocaleDateString()}
                 </p>
               </div>
             </CardContent>
