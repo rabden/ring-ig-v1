@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { ThemeProvider } from "@/components/theme-provider"
 import ImageGenerator from "./pages/ImageGenerator"
+import AdminDashboard from "./pages/AdminDashboard"
 import { SupabaseAuthProvider } from '@/integrations/supabase/auth'
 
 const queryClient = new QueryClient({
@@ -25,6 +26,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<ImageGenerator />} />
+              <Route path="/admin" element={<AdminDashboard />} />
             </Routes>
           </BrowserRouter>
         </SupabaseAuthProvider>
