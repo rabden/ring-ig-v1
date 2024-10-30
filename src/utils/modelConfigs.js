@@ -33,21 +33,24 @@ export const modelConfigs = {
     name: "Ring.1 Anime",
     category: "NSFW",
     apiUrl: "https://api-inference.huggingface.co/models/John6666/bho-nsfw-mix2-v10-sdxl",
-    inferenceSteps: [25, 30, 35, 40, 45],
-    defaultStep: 30
+    inferenceSteps: [35],
+    defaultStep: 35,
+    noStyleSuffix: true
   },
   nsfwMaster: {
     name: "Ring.1N",
     category: "NSFW",
     apiUrl: "https://api-inference.huggingface.co/models/pimpilikipilapi1/NSFW_master",
     inferenceSteps: [30, 35, 40, 45, 50],
-    defaultStep: 35
+    defaultStep: 35,
+    noStyleSuffix: true
   },
   nsfwPro: {
     name: "Ring.1Npro",
     category: "NSFW",
     apiUrl: "https://api-inference.huggingface.co/models/stablediffusionapi/mklan-xxx-nsfw-pony",
-    inferenceSteps: [25, 30, 35, 40, 45],
-    defaultStep: 30
+    inferenceSteps: [35],
+    defaultStep: 35,
+    noStyleSuffix: true
   }
 };

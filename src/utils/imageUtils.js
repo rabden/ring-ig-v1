@@ -2,7 +2,6 @@ import { qualityOptions, aspectRatios } from '@/utils/imageConfigs';
 import { styleConfigs } from '@/utils/styleConfigs';
 import { modelConfigs } from '@/utils/modelConfigs';
 
-// Makes dimensions divisible by 16 for API compatibility
 export const makeDivisibleBy16 = (num) => Math.floor(num / 16) * 16;
 
 export const calculateDimensions = (useAspectRatio, aspectRatio, width, height, maxDimension) => {
@@ -31,7 +30,10 @@ export const calculateDimensions = (useAspectRatio, aspectRatio, width, height, 
 };
 
 export const getModifiedPrompt = (prompt, style, model) => {
-  const isNsfwModel = modelConfigs[model]?.category === "NSFW";
-  const styleSuffix = !isNsfwModel ? (styleConfigs[style]?.suffix || styleConfigs.general.suffix) : '';
-  return isNsfwModel ? prompt : `${prompt}, ${styleSuffix}${modelConfigs[model]?.promptSuffix || ''}`;
+  const modelConfig = modelConfigs[model];
+  if (modelConfig?.noStyleSuffix) {
+    return prompt;
+  }
+  const styleSuffix = styleConfigs[style]?.suffix || styleConfigs.general.suffix;
+  return `${prompt}, ${styleSuffix}${modelConfigs[model]?.promptSuffix || ''}`;
 };
