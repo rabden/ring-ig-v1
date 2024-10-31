@@ -64,7 +64,7 @@ const ImageCard = ({
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.01 } // Changed from 0.1 to 0.01 to detect when even 1% of the image is visible
     );
 
     if (imageRef.current) {
