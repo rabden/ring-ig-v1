@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MoreVertical } from "lucide-react"
@@ -17,18 +17,6 @@ const ImageCard = ({
   userId,
   isMobile 
 }) => {
-  const [imageError, setImageError] = useState(false);
-  
-  const imageUrl = supabase.storage
-    .from('user-images')
-    .getPublicUrl(image.storage_path)
-    .data.publicUrl;
-
-  const handleImageError = () => {
-    setImageError(true);
-    console.error('Failed to load image:', image.storage_path);
-  };
-
   return (
     <div className="mb-2">
       <Card className="overflow-hidden">
@@ -37,21 +25,13 @@ const ImageCard = ({
             isTrending={image.is_trending} 
             isHot={image.is_hot} 
           />
-          {!imageError ? (
-            <img 
-              src={imageUrl}
-              alt={image.prompt} 
-              className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-              onClick={() => onImageClick(image)}
-              onError={handleImageError}
-              loading="lazy"
-              crossOrigin="anonymous"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-muted">
-              <p className="text-sm text-muted-foreground">Image unavailable</p>
-            </div>
-          )}
+          <img 
+            src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+            alt={image.prompt} 
+            className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+            onClick={() => onImageClick(image)}
+            loading="lazy"
+          />
         </CardContent>
       </Card>
       <div className="mt-1 flex items-center justify-between">
@@ -68,7 +48,7 @@ const ImageCard = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onDownload(imageUrl, image.prompt)}>
+              <DropdownMenuItem onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
                 Download
               </DropdownMenuItem>
               {image.user_id === userId && (

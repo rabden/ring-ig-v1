@@ -1,28 +1,35 @@
-import React from 'react';
-import { styleConfigs } from '@/utils/styleConfigs';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import React from 'react'
+import { Button } from "@/components/ui/button"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { styleConfigs } from '@/utils/styleConfigs'
 
 const StyleChooser = ({ style, setStyle }) => {
-  return (
-    <Select value={style} onValueChange={setStyle}>
-      <SelectTrigger className="w-full">
-        <SelectValue placeholder="Select a style" />
-      </SelectTrigger>
-      <SelectContent>
-        {Object.entries(styleConfigs).map(([key, config]) => (
-          <SelectItem key={key} value={key}>
-            {config.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  );
-};
+  const handleStyleClick = (key) => {
+    // If clicking the active style, deselect it
+    if (style === key) {
+      setStyle(null)
+    } else {
+      setStyle(key)
+    }
+  }
 
-export default StyleChooser;
+  return (
+    <ScrollArea className="w-full whitespace-nowrap">
+      <div className="flex space-x-2 pb-4">
+        {Object.entries(styleConfigs).map(([key, config]) => (
+          <Button
+            key={key}
+            variant={style === key ? "default" : "outline"}
+            onClick={() => handleStyleClick(key)}
+            className="flex-shrink-0"
+          >
+            {config.name}
+          </Button>
+        ))}
+      </div>
+      <ScrollBar orientation="horizontal" />
+    </ScrollArea>
+  )
+}
+
+export default StyleChooser
