@@ -46,26 +46,29 @@ const ImageCard = ({
   });
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setShouldLoad(true);
-            // Clear any existing timeout when image comes into view
-            if (timeoutRef.current) {
-              clearTimeout(timeoutRef.current);
-            }
-          } else {
-            // Start timer to unload image after 10 seconds out of view
+    const options = {
+      threshold: 0.001, // Detect when even 0.1% of the element is visible
+      rootMargin: '100% 0px' // Load images that are one viewport height above and below
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setShouldLoad(true);
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+          }
+        } else {
+          // Only start unload timer if the element is completely out of view and margin
+          if (entry.intersectionRatio === 0) {
             timeoutRef.current = setTimeout(() => {
               setShouldLoad(false);
               setImageLoaded(false);
             }, 10000);
           }
-        });
-      },
-      { threshold: 0.01 } // Changed from 0.1 to 0.01 to detect when even 1% of the image is visible
-    );
+        }
+      });
+    }, options);
 
     if (imageRef.current) {
       observer.observe(imageRef.current);
