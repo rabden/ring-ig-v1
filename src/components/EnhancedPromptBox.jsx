@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { cn } from "@/lib/utils";
-import { Send, X, Wand2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Send, X } from "lucide-react";
 
 const EnhancedPromptBox = ({ 
   value, 
@@ -40,13 +39,6 @@ const EnhancedPromptBox = ({
   const handleClear = () => {
     if (onChange) {
       onChange({ target: { value: '' } });
-    }
-  };
-
-  const handleEnhance = () => {
-    if (value && onChange) {
-      const enhancedPrompt = `${value}, 8k, uhd, professional, masterpiece, high-quality, detailed`;
-      onChange({ target: { value: enhancedPrompt } });
     }
   };
 
@@ -89,34 +81,30 @@ const EnhancedPromptBox = ({
               value ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
             )}
           >
-            <Button
-              variant="ghost"
-              size="icon"
+            <button
               onClick={handleClear}
               disabled={!value.trim() || disabled}
-              className="h-6 w-6 mr-2"
+              className={cn(
+                "flex items-center justify-center w-8 h-6",
+                "bg-transparent border-none cursor-pointer p-0",
+                "opacity-70 hover:opacity-100 transition-opacity mr-2",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
+              )}
             >
-              <X className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleEnhance}
-              disabled={!value.trim() || disabled}
-              className="h-6 w-6 mr-2"
-              title="Enhance prompt"
-            >
-              <Wand2 className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
+              <X className="w-5 h-5" />
+            </button>
+            <button
               onClick={onSubmit}
               disabled={!value.trim() || disabled}
-              className="h-6 w-6"
+              className={cn(
+                "flex items-center justify-center w-8 h-6",
+                "bg-transparent border-none cursor-pointer p-0",
+                "opacity-70 hover:opacity-100 transition-opacity",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
+              )}
             >
-              <Send className="h-4 w-4" />
-            </Button>
+              <Send className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </div>
