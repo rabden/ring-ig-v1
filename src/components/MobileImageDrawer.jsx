@@ -5,11 +5,14 @@ import { Download, Trash2, Wand2, Copy, Crown } from "lucide-react";
 import { supabase } from '@/integrations/supabase/supabase';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { styleConfigs } from '@/utils/styleConfigs';
-import { modelConfigs } from '@/utils/modelConfigs';
+import { useStyleConfigs } from '@/hooks/useStyleConfigs';
+import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { toast } from 'sonner';
 
 const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, onDiscard, onRemix, isOwner }) => {
+  const { data: modelConfigs } = useModelConfigs();
+  const { data: styleConfigs } = useStyleConfigs();
+  
   if (!image) return null;
 
   const premiumStyles = ['anime', '3d', 'realistic', 'illustration', 'concept', 'watercolor', 'comic', 'minimalist', 'cyberpunk', 'retro'];
@@ -19,7 +22,7 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
   const detailItems = [
     { 
       label: "Model", 
-      value: modelConfigs[image.model]?.name || image.model,
+      value: modelConfigs?.[image.model]?.name || image.model,
       isPro: premiumModels.includes(image.model)
     },
     { label: "Seed", value: image.seed },
@@ -31,7 +34,7 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
     },
     { 
       label: "Style", 
-      value: styleConfigs[image.style]?.name || 'General',
+      value: styleConfigs?.[image.style]?.name || 'General',
       isPro: premiumStyles.includes(image.style)
     },
     { label: "Quality", value: image.quality },

@@ -6,8 +6,8 @@ import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ImageStatusIndicators from './ImageStatusIndicators'
 import { supabase } from '@/integrations/supabase/supabase'
-import { modelConfigs } from '@/utils/modelConfigs'
-import { styleConfigs } from '@/utils/styleConfigs'
+import { useModelConfigs } from '@/hooks/useModelConfigs'
+import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import LikeButton from './LikeButton'
 
 const ImageCard = ({ 
@@ -23,9 +23,12 @@ const ImageCard = ({
   isLiked,
   onToggleLike
 }) => {
-  const isNsfw = modelConfigs[image.model]?.category === "NSFW";
-  const modelName = modelConfigs[image.model]?.name || image.model;
-  const styleName = styleConfigs[image.style]?.name || 'General';
+  const { data: modelConfigs } = useModelConfigs();
+  const { data: styleConfigs } = useStyleConfigs();
+  
+  const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
+  const modelName = modelConfigs?.[image.model]?.name || image.model;
+  const styleName = styleConfigs?.[image.style]?.name || 'General';
 
   return (
     <div className="mb-2">
