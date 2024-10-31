@@ -1,5 +1,7 @@
 import React from 'react';
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { qualityOptions } from '@/utils/imageConfigs';
 import StyleChooser from './StyleChooser';
