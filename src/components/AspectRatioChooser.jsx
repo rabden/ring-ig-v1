@@ -34,16 +34,15 @@ const AspectRatioChooser = ({ aspectRatio, setAspectRatio, proMode }) => {
   
   const premiumRatios = ['9:21', '21:9', '3:2', '2:3', '4:5', '5:4', '10:16', '16:10'];
   
-  // Organize ratios from portrait to square to landscape
+  // Organize ratios from portrait (tall) to square to landscape (wide)
   const ratios = [
-    "9:21", "9:16", "2:3", "3:4", "4:5", "10:16", "1:2", 
+    "1:2", "10:16", "3:4", "4:5", "9:16", "9:21",
     "1:1", // Center point
-    "2:1", "5:4", "4:3", "3:2", "16:10", "16:9", "21:9"
+    "21:9", "16:9", "16:10", "4:3", "3:2", "2:1"
   ].filter(ratio => proMode || !premiumRatios.includes(ratio));
 
   const handleSliderChange = (value) => {
     const centerIndex = ratios.indexOf("1:1");
-    const totalSteps = ratios.length - 1;
     const sliderValue = value[0];
     
     // Calculate index based on slider position relative to center
@@ -51,15 +50,15 @@ const AspectRatioChooser = ({ aspectRatio, setAspectRatio, proMode }) => {
     if (sliderValue === 50) {
       index = centerIndex;
     } else if (sliderValue < 50) {
-      // Map 0-49 to indices before center
-      const beforeCenterSteps = centerIndex;
-      const normalizedValue = (sliderValue / 50) * beforeCenterSteps;
-      index = Math.floor(normalizedValue);
-    } else {
-      // Map 51-100 to indices after center
-      const afterCenterSteps = totalSteps - centerIndex;
-      const normalizedValue = ((sliderValue - 50) / 50) * afterCenterSteps;
+      // Map 0-49 to indices after center (landscape)
+      const afterCenterSteps = ratios.length - 1 - centerIndex;
+      const normalizedValue = ((50 - sliderValue) / 50) * afterCenterSteps;
       index = centerIndex + Math.ceil(normalizedValue);
+    } else {
+      // Map 51-100 to indices before center (portrait)
+      const beforeCenterSteps = centerIndex;
+      const normalizedValue = ((sliderValue - 50) / 50) * beforeCenterSteps;
+      index = Math.floor(beforeCenterSteps - normalizedValue);
     }
     
     setAspectRatio(ratios[index]);
@@ -71,14 +70,16 @@ const AspectRatioChooser = ({ aspectRatio, setAspectRatio, proMode }) => {
     
     if (currentIndex === centerIndex) return 50;
     
-    if (currentIndex < centerIndex) {
-      // Before center: map to 0-49
-      return (currentIndex / centerIndex) * 50;
-    } else {
-      // After center: map to 51-100
+    if (currentIndex > centerIndex) {
+      // After center (landscape): map to 0-49
       const stepsAfterCenter = currentIndex - centerIndex;
       const totalStepsAfterCenter = ratios.length - 1 - centerIndex;
-      return 50 + ((stepsAfterCenter / totalStepsAfterCenter) * 50);
+      return 50 - ((stepsAfterCenter / totalStepsAfterCenter) * 50);
+    } else {
+      // Before center (portrait): map to 51-100
+      const stepsBeforeCenter = centerIndex - currentIndex;
+      const totalStepsBeforeCenter = centerIndex;
+      return 50 + ((stepsBeforeCenter / totalStepsBeforeCenter) * 50);
     }
   }
 
