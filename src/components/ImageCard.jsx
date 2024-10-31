@@ -40,11 +40,11 @@ const ImageCard = ({
             loading="lazy"
           />
           <div className="absolute bottom-2 left-2 flex gap-2">
-            <Badge variant="secondary" className="bg-black/50 text-white border-none">
+            <Badge variant="secondary" className="bg-black/50 text-white border-none text-[10px] md:text-xs">
               {modelName}
             </Badge>
             {!isNsfw && (
-              <Badge variant="secondary" className="bg-black/50 text-white border-none">
+              <Badge variant="secondary" className="bg-black/50 text-white border-none text-[10px] md:text-xs">
                 {styleName}
               </Badge>
             )}
