@@ -41,7 +41,7 @@ const MobileProfileMenu = ({ user, credits, bonusCredits }) => {
                     </h3>
                     <p className="text-sm text-muted-foreground">{user.email}</p>
                     <p className="text-sm font-medium">
-                      Credits: {credits} + {bonusCredits}
+                      Credits: {credits} + B{bonusCredits}
                     </p>
                   </div>
                   <Button onClick={logout} variant="outline" className="w-full max-w-xs">

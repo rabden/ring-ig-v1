@@ -74,7 +74,7 @@ const ImageGeneratorSettings = ({
         <h2 className="text-2xl font-semibold">Settings</h2>
         {session && (
           <div className="text-sm font-medium">
-            Credits: {credits} + {bonusCredits}
+            Credits: {credits} + B{bonusCredits}
             {!hasEnoughCredits && (
               <span className="text-destructive ml-2">
                 Need {creditCost} credits for {quality}
