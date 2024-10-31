@@ -34,10 +34,10 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
     <Drawer.Root open={open} onOpenChange={onOpenChange}>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[60]" />
-        <Drawer.Content className="bg-background flex flex-col fixed bottom-0 left-0 right-0 h-[85vh] rounded-t-[10px] z-[60]">
-          <div className="p-4 bg-muted/40 flex-1 overflow-hidden">
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-4" />
-            <ScrollArea className="h-[calc(100%-2rem)]">
+        <Drawer.Content className="bg-background flex flex-col fixed inset-0 z-[60]">
+          <div className="p-4 bg-muted/40 flex-1">
+            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-8" />
+            <ScrollArea className="h-[calc(100vh-80px)]">
               <div className="max-w-md mx-auto space-y-4 px-2">
                 {showImage && (
                   <div className="relative rounded-lg overflow-hidden">

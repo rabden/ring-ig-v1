@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, X, Wand2 } from "lucide-react";
+import { ArrowRight, X, Wand2, ArrowUpRight, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const EnhancedPromptBox = ({ 
@@ -46,7 +46,7 @@ const EnhancedPromptBox = ({
             onBlur={() => setIsFocused(false)}
             placeholder={placeholder}
             disabled={disabled}
-            className="w-full min-h-[40px] max-h-[200px] resize-none bg-transparent border-0 p-0 focus:outline-none focus:ring-0 placeholder:text-muted-foreground text-sm"
+            className="w-full min-h-[40px] max-h-[200px] resize-none bg-transparent border-0 p-0 focus:outline-none focus:ring-0 placeholder:text-muted-foreground text-sm scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500"
             rows={1}
           />
         </div>
@@ -83,8 +83,9 @@ const EnhancedPromptBox = ({
             className="h-6 text-xs"
             onClick={() => onChange({ target: { value: value + ", high quality, 8k" } })}
           >
-            <Wand2 className="h-3 w-3 mr-1" />
+            <ArrowUpRight className="h-3 w-3 mr-1" />
             Enhance Quality
+            <X className="h-3 w-3 ml-1" />
           </Button>
           <Button
             variant="secondary"
@@ -92,8 +93,9 @@ const EnhancedPromptBox = ({
             className="h-6 text-xs"
             onClick={() => onChange({ target: { value: value + ", detailed, sharp focus" } })}
           >
-            <Wand2 className="h-3 w-3 mr-1" />
+            <Plus className="h-3 w-3 mr-1" />
             Add Details
+            <X className="h-3 w-3 ml-1" />
           </Button>
         </div>
       )}
