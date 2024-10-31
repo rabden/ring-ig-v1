@@ -5,7 +5,7 @@ import SettingSection from './SettingSection';
 import { modelConfigs } from '@/utils/modelConfigs';
 
 const ModelSection = ({ model, setModel, nsfwEnabled, quality }) => {
-  const premiumModels = ['flux', 'fluxDev', 'nsfwPro'];
+  const premiumModels = ['preLar', 'animeNsfw'];
 
   const renderModelButton = (modelKey, label) => (
     <Button
@@ -35,7 +35,6 @@ const ModelSection = ({ model, setModel, nsfwEnabled, quality }) => {
           <>
             {renderModelButton('nsfwMaster', 'Ring.1N')}
             {renderModelButton('animeNsfw', 'Ring.1 Anime')}
-            {renderModelButton('nsfwPro', 'Ring.1Npro')}
           </>
         )}
       </div>
