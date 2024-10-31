@@ -12,23 +12,27 @@ import { toast } from 'sonner';
 const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, onDiscard, onRemix, isOwner }) => {
   if (!image) return null;
 
+  const premiumStyles = ['anime', '3d', 'realistic', 'illustration', 'concept', 'watercolor', 'comic', 'minimalist', 'cyberpunk', 'retro'];
+  const premiumAspectRatios = ['21:9', '9:21', '1.91:1', '1:1.91'];
+  const premiumModels = ['flux', 'fluxDev', 'nsfwPro'];
+
   const detailItems = [
     { 
       label: "Model", 
       value: modelConfigs[image.model]?.name || image.model,
-      isPro: ['flux', 'fluxDev', 'nsfwPro'].includes(image.model)
+      isPro: premiumModels.includes(image.model)
     },
     { label: "Seed", value: image.seed },
     { label: "Size", value: `${image.width}x${image.height}` },
     { 
       label: "Aspect Ratio", 
       value: image.aspect_ratio,
-      isPro: ['21:9', '9:21', '1.91:1', '1:1.91'].includes(image.aspect_ratio)
+      isPro: premiumAspectRatios.includes(image.aspect_ratio)
     },
     { 
       label: "Style", 
       value: styleConfigs[image.style]?.name || 'General',
-      isPro: ['anime', '3d', 'realistic', 'illustration', 'concept', 'watercolor', 'comic', 'minimalist', 'cyberpunk', 'retro'].includes(image.style)
+      isPro: premiumStyles.includes(image.style)
     },
     { label: "Quality", value: image.quality },
   ];
@@ -46,10 +50,10 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
     <Drawer.Root open={open} onOpenChange={onOpenChange}>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[60]" />
-        <Drawer.Content className="bg-background flex flex-col fixed bottom-0 left-0 right-0 z-[60] max-h-[90vh] rounded-t-[10px]">
-          <div className="p-4 bg-muted/40 overflow-hidden">
+        <Drawer.Content className="bg-background flex flex-col fixed bottom-0 left-0 right-0 z-[60] h-[85vh] rounded-t-[10px]">
+          <div className="p-4 bg-muted/40 overflow-hidden h-full">
             <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-4" />
-            <ScrollArea className="h-[calc(90vh-80px)]">
+            <ScrollArea className="h-[calc(85vh-80px)]">
               <div className="max-w-md mx-auto space-y-4 px-2 pb-6">
                 {showImage && (
                   <div className="relative rounded-lg overflow-hidden">
@@ -120,7 +124,7 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                         <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
                         <Badge variant="outline" className="text-xs sm:text-sm font-normal flex items-center gap-1 w-fit">
                           {item.value}
-                          {item.isPro && <Crown className="h-3 w-3" />}
+                          {item.isPro && <Crown className="h-3 w-3 ml-1" />}
                         </Badge>
                       </div>
                     ))}
