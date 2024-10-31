@@ -4,8 +4,8 @@ import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { Download, Trash2, RefreshCw, Copy } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { modelConfigs } from '@/utils/modelConfigs';
-import { styleConfigs } from '@/utils/styleConfigs';
+import { useModelConfigs } from '@/hooks/useModelConfigs';
+import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { toast } from 'sonner';
 
 const FullScreenImageView = ({ 
@@ -17,6 +17,9 @@ const FullScreenImageView = ({
   onRemix,
   isOwner 
 }) => {
+  const { data: modelConfigs } = useModelConfigs();
+  const { data: styleConfigs } = useStyleConfigs();
+
   if (!isOpen || !image) {
     return null;
   }
@@ -74,7 +77,7 @@ const FullScreenImageView = ({
                   <h4 className="text-sm font-medium">Settings</h4>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div>Model:</div>
-                    <div className="text-muted-foreground">{modelConfigs[image.model]?.name || image.model}</div>
+                    <div className="text-muted-foreground">{modelConfigs?.[image.model]?.name || image.model}</div>
                     <div>Quality:</div>
                     <div className="text-muted-foreground">{image.quality}</div>
                     <div>Size:</div>
@@ -82,7 +85,7 @@ const FullScreenImageView = ({
                     <div>Seed:</div>
                     <div className="text-muted-foreground">{image.seed}</div>
                     <div>Style:</div>
-                    <div className="text-muted-foreground">{styleConfigs[image.style]?.name || "General"}</div>
+                    <div className="text-muted-foreground">{styleConfigs?.[image.style]?.name || "General"}</div>
                   </div>
                 </div>
 
