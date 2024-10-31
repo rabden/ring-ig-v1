@@ -1,4 +1,5 @@
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -11,10 +12,24 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { supabase } from '@/integrations/supabase/supabase';
 
 const ProfileMenu = ({ user, credits, bonusCredits, proMode, setProMode }) => {
   const { logout } = useSupabaseAuth();
   const displayName = user.user_metadata.display_name || user.email.split('@')[0];
+
+  const { data: totalLikes = 0 } = useQuery({
+    queryKey: ['totalLikes', user.id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('user_image_likes')
+        .select('*', { count: 'exact' })
+        .eq('created_by', user.id);
+      
+      if (error) throw error;
+      return count || 0;
+    },
+  });
 
   return (
     <DropdownMenu>
@@ -36,6 +51,9 @@ const ProfileMenu = ({ user, credits, bonusCredits, proMode, setProMode }) => {
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          Total Likes: {totalLikes}
         </DropdownMenuItem>
         <DropdownMenuItem>
           <div className="flex items-center justify-between w-full">
