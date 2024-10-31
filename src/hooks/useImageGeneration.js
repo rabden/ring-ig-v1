@@ -1,6 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
-import { toast } from 'sonner';
 import { modelConfigs } from '@/utils/modelConfigs';
 import { qualityOptions } from '@/utils/imageConfigs';
 import { calculateDimensions, getModifiedPrompt } from '@/utils/imageUtils';
@@ -46,7 +45,6 @@ export const useImageGeneration = ({
     },
     onError: (error, { metadata: { generationId } }) => {
       console.error('Error uploading image:', error);
-      toast.error('Failed to save image. Please try again.');
       setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
     },
   });
@@ -54,14 +52,12 @@ export const useImageGeneration = ({
   const generateImage = async (retryCount = 0) => {
     if (!session || !prompt) {
       !session && console.log('User not authenticated');
-      !prompt && toast.error('Please enter a prompt');
       return;
     }
 
     const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
     const totalCredits = session.credits + (session.bonusCredits || 0);
     if (totalCredits < creditCost) {
-      toast.error(`Insufficient credits. You need ${creditCost} credits for ${quality} quality.`);
       return;
     }
 
@@ -133,15 +129,9 @@ export const useImageGeneration = ({
         }
       });
 
-      toast.success(`Image generated successfully. ${creditCost} credits used.`);
     } catch (error) {
       console.error('Error generating image:', error);
       setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-      if (retryCount === MAX_RETRIES) {
-        toast.error(`Failed to generate image after ${MAX_RETRIES} attempts: ${error.message}`);
-      } else if (retryCount === 0) {
-        toast.error(`Encountered an error. Retrying...`);
-      }
     }
   };
 

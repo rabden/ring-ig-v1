@@ -27,7 +27,8 @@ export const modelConfigs = {
     apiUrl: "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large",
     inferenceSteps: [50],
     defaultStep: 50,
-    qualityLimits: ["SD", "HD"]
+    qualityLimits: ["SD", "HD"],
+    isPremium: true
   },
   animeNsfw: {
     name: "Ring.1 Anime",
@@ -35,21 +36,14 @@ export const modelConfigs = {
     apiUrl: "https://api-inference.huggingface.co/models/John6666/mala-anime-mix-nsfw-pony-xl-v5-sdxl",
     inferenceSteps: [35],
     defaultStep: 35,
-    noStyleSuffix: true
+    noStyleSuffix: true,
+    isPremium: true
   },
   nsfwMaster: {
     name: "Ring.1N",
     category: "NSFW",
     apiUrl: "https://api-inference.huggingface.co/models/pimpilikipilapi1/NSFW_master",
     inferenceSteps: [30, 35, 40, 45, 50],
-    defaultStep: 35,
-    noStyleSuffix: true
-  },
-  nsfwPro: {
-    name: "Ring.1Npro",
-    category: "NSFW",
-    apiUrl: "https://api-inference.huggingface.co/models/stablediffusionapi/mklan-xxx-nsfw-pony",
-    inferenceSteps: [35],
     defaultStep: 35,
     noStyleSuffix: true
   }

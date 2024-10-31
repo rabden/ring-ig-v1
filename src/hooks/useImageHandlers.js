@@ -80,10 +80,8 @@ export const useImageHandlers = ({
       link.click()
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
-      toast.success('Image downloaded successfully')
     } catch (error) {
       console.error('Error downloading image:', error)
-      toast.error('Failed to download image')
     }
   }
 
@@ -91,10 +89,8 @@ export const useImageHandlers = ({
     try {
       await deleteImageCompletely(image.id)
       queryClient.invalidateQueries(['images', session?.user?.id, activeView])
-      toast.success('Image discarded successfully')
     } catch (error) {
       console.error('Error discarding image:', error)
-      toast.error('Failed to discard image')
     }
   }
 
