@@ -6,6 +6,7 @@ import SkeletonImageCard from './SkeletonImageCard'
 import { modelConfigs } from '@/utils/modelConfigs'
 import MobileImageDrawer from './MobileImageDrawer'
 import ImageCard from './ImageCard'
+import { useLikes } from '@/hooks/useLikes'
 
 const breakpointColumnsObj = {
   default: 4,
@@ -25,12 +26,12 @@ const ImageGallery = ({
   generatingImages = [], 
   nsfwEnabled 
 }) => {
-  const [images, setImages] = useState([])
   const [selectedImage, setSelectedImage] = useState(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [showImageInDrawer, setShowImageInDrawer] = useState(false)
+  const { userLikes, toggleLike } = useLikes(userId);
 
-  const { isLoading, refetch } = useQuery({
+  const { data: images, isLoading, refetch } = useQuery({
     queryKey: ['images', userId, activeView, nsfwEnabled],
     queryFn: async () => {
       if (!userId) return []
@@ -61,27 +62,18 @@ const ImageGallery = ({
         return false;
       });
 
-      // Sort images based on hot and trending status for inspiration tab
       if (activeView === 'inspiration') {
         filteredData.sort((a, b) => {
-          // Both hot and trending
           if (a.is_hot && a.is_trending && (!b.is_hot || !b.is_trending)) return -1;
           if (b.is_hot && b.is_trending && (!a.is_hot || !a.is_trending)) return 1;
-          
-          // Only hot
           if (a.is_hot && !b.is_hot) return -1;
           if (b.is_hot && !a.is_hot) return 1;
-          
-          // Only trending
           if (a.is_trending && !b.is_trending) return -1;
           if (b.is_trending && !a.is_trending) return 1;
-          
-          // If same status, sort by date
           return new Date(b.created_at) - new Date(a.created_at);
         });
       }
 
-      setImages(filteredData);
       return filteredData;
     },
     enabled: !!userId,
@@ -96,25 +88,22 @@ const ImageGallery = ({
       .channel('user_images_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'user_images' }, (payload) => {
         if (payload.eventType === 'INSERT') {
-          setImages((prevImages) => {
-            const isNsfw = modelConfigs[payload.new.model]?.category === "NSFW";
-            if (activeView === 'myImages') {
-              if (nsfwEnabled) {
-                return isNsfw && payload.new.user_id === userId ? [payload.new, ...prevImages] : prevImages;
-              } else {
-                return !isNsfw && payload.new.user_id === userId ? [payload.new, ...prevImages] : prevImages;
-              }
-            } else if (activeView === 'inspiration') {
-              if (nsfwEnabled) {
-                return isNsfw && payload.new.user_id !== userId ? [payload.new, ...prevImages] : prevImages;
-              } else {
-                return !isNsfw && payload.new.user_id !== userId ? [payload.new, ...prevImages] : prevImages;
-              }
+          const isNsfw = modelConfigs[payload.new.model]?.category === "NSFW";
+          if (activeView === 'myImages') {
+            if (nsfwEnabled) {
+              if (isNsfw && payload.new.user_id === userId) refetch();
+            } else {
+              if (!isNsfw && payload.new.user_id === userId) refetch();
             }
-            return prevImages;
-          })
+          } else if (activeView === 'inspiration') {
+            if (nsfwEnabled) {
+              if (isNsfw && payload.new.user_id !== userId) refetch();
+            } else {
+              if (!isNsfw && payload.new.user_id !== userId) refetch();
+            }
+          }
         } else if (payload.eventType === 'DELETE') {
-          setImages((prevImages) => prevImages.filter(img => img.id !== payload.old.id))
+          refetch();
         }
       })
       .subscribe()
@@ -122,7 +111,7 @@ const ImageGallery = ({
     return () => {
       subscription.unsubscribe()
     }
-  }, [userId, activeView, nsfwEnabled])
+  }, [userId, activeView, nsfwEnabled, refetch])
 
   const handleImageClick = (image, index) => {
     if (window.innerWidth <= 768) {
@@ -169,6 +158,8 @@ const ImageGallery = ({
           onViewDetails={onViewDetails}
           userId={userId}
           isMobile={window.innerWidth <= 768}
+          isLiked={userLikes.includes(image.id)}
+          onToggleLike={toggleLike}
         />
       )))
     }

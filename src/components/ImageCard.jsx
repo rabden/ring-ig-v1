@@ -8,6 +8,7 @@ import ImageStatusIndicators from './ImageStatusIndicators'
 import { supabase } from '@/integrations/supabase/supabase'
 import { modelConfigs } from '@/utils/modelConfigs'
 import { styleConfigs } from '@/utils/styleConfigs'
+import LikeButton from './LikeButton'
 
 const ImageCard = ({ 
   image, 
@@ -18,7 +19,9 @@ const ImageCard = ({
   onRemix, 
   onViewDetails,
   userId,
-  isMobile 
+  isMobile,
+  isLiked,
+  onToggleLike
 }) => {
   const isNsfw = modelConfigs[image.model]?.category === "NSFW";
   const modelName = modelConfigs[image.model]?.name || image.model;
@@ -53,35 +56,38 @@ const ImageCard = ({
       </Card>
       <div className="mt-1 flex items-center justify-between">
         <p className="text-sm truncate w-[70%]">{image.prompt}</p>
-        {isMobile ? (
-          <Button variant="ghost" className="h-6 w-6 p-0" onClick={(e) => onMoreClick(image, e)}>
-            <MoreVertical className="h-4 w-4" />
-          </Button>
-        ) : (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-6 w-6 p-0">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
-                Download
-              </DropdownMenuItem>
-              {image.user_id === userId && (
-                <DropdownMenuItem onClick={() => onDiscard(image)}>
-                  Discard
+        <div className="flex items-center gap-1">
+          <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
+          {isMobile ? (
+            <Button variant="ghost" className="h-6 w-6 p-0" onClick={(e) => onMoreClick(image, e)}>
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-6 w-6 p-0">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
+                  Download
                 </DropdownMenuItem>
-              )}
-              <DropdownMenuItem onClick={() => onRemix(image)}>
-                Remix
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onViewDetails(image)}>
-                View Details
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+                {image.user_id === userId && (
+                  <DropdownMenuItem onClick={() => onDiscard(image)}>
+                    Discard
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onClick={() => onRemix(image)}>
+                  Remix
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onViewDetails(image)}>
+                  View Details
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+        </div>
       </div>
     </div>
   )
