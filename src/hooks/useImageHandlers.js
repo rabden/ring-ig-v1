@@ -1,6 +1,6 @@
 import { toast } from 'sonner'
 import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
-import { modelConfigs } from '@/utils/modelConfigs'
+import { useModelConfigs } from '@/hooks/useModelConfigs'
 
 export const useImageHandlers = ({
   setActiveTab,
@@ -25,6 +25,8 @@ export const useImageHandlers = ({
   setDetailsDialogOpen,
   setActiveView,
 }) => {
+  const { data: modelConfigs } = useModelConfigs();
+
   const handleGenerateImage = async () => {
     setActiveTab('images')
     setActiveView('myImages')
@@ -38,7 +40,7 @@ export const useImageHandlers = ({
 
   const handleModelChange = (value) => {
     setModel(value)
-    if (modelConfigs[value] && modelConfigs[value].defaultStep) {
+    if (modelConfigs?.[value]?.defaultStep) {
       setSteps(modelConfigs[value].defaultStep)
     } else {
       console.warn(`Default step not found for model: ${value}`)

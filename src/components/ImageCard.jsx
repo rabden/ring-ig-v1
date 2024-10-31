@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MoreVertical } from "lucide-react"
@@ -6,10 +6,11 @@ import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ImageStatusIndicators from './ImageStatusIndicators'
 import { supabase } from '@/integrations/supabase/supabase'
-import { modelConfigs } from '@/utils/modelConfigs'
-import { styleConfigs } from '@/utils/styleConfigs'
+import { useModelConfigs } from '@/hooks/useModelConfigs'
+import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import LikeButton from './LikeButton'
-import LazyImage from './LazyImage'
+import { useQuery } from '@tanstack/react-query'
+import { Skeleton } from "@/components/ui/skeleton"
 
 const ImageCard = ({ 
   image, 
@@ -24,9 +25,71 @@ const ImageCard = ({
   isLiked,
   onToggleLike
 }) => {
-  const isNsfw = modelConfigs[image.model]?.category === "NSFW";
-  const modelName = modelConfigs[image.model]?.name || image.model;
-  const styleName = styleConfigs[image.style]?.name || 'General';
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const imageRef = useRef(null);
+  const { data: modelConfigs } = useModelConfigs();
+  const { data: styleConfigs } = useStyleConfigs();
+  
+  const { data: likeCount = 0 } = useQuery({
+    queryKey: ['imageLikes', image.id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('user_image_likes')
+        .select('*', { count: 'exact' })
+        .eq('image_id', image.id);
+      
+      if (error) throw error;
+      return count || 0;
+    },
+  });
+
+  useEffect(() => {
+    const checkVisibility = () => {
+      if (!imageRef.current) return;
+
+      const rect = imageRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const verticalMargin = windowHeight; // One viewport height margin
+      
+      const isVisible = (
+        rect.top <= windowHeight + verticalMargin &&
+        rect.bottom >= -verticalMargin
+      );
+
+      if (isVisible) {
+        setShouldLoad(true);
+      } else if (rect.bottom < -verticalMargin || rect.top > windowHeight + verticalMargin) {
+        // Only unload if completely out of view plus margin
+        setShouldLoad(false);
+        setImageLoaded(false);
+      }
+    };
+
+    // Initial check
+    checkVisibility();
+
+    // Add scroll and resize listeners
+    window.addEventListener('scroll', checkVisibility, { passive: true });
+    window.addEventListener('resize', checkVisibility);
+
+    return () => {
+      window.removeEventListener('scroll', checkVisibility);
+      window.removeEventListener('resize', checkVisibility);
+    };
+  }, []);
+
+  const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
+  const modelName = modelConfigs?.[image.model]?.name || image.model;
+  const styleName = styleConfigs?.[image.style]?.name || 'General';
+
+  const handleDoubleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isLiked) {
+      onToggleLike(image.id);
+    }
+  };
 
   return (
     <div className="mb-2">
@@ -36,12 +99,24 @@ const ImageCard = ({
             isTrending={image.is_trending} 
             isHot={image.is_hot} 
           />
-          <LazyImage 
-            src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-            alt={image.prompt}
-            className="absolute inset-0 w-full h-full object-cover cursor-pointer"
-            onClick={() => onImageClick(image)}
-          />
+          <div ref={imageRef}>
+            {(!imageLoaded || !shouldLoad) && (
+              <div className="absolute inset-0 bg-muted animate-pulse">
+                <Skeleton className="w-full h-full" />
+              </div>
+            )}
+            {shouldLoad && (
+              <img 
+                src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                alt={image.prompt} 
+                className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                onClick={() => onImageClick(image)}
+                onDoubleClick={handleDoubleClick}
+                onLoad={() => setImageLoaded(true)}
+                loading="lazy"
+              />
+            )}
+          </div>
           <div className="absolute bottom-2 left-2 flex gap-1">
             <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
               {modelName}
@@ -57,7 +132,10 @@ const ImageCard = ({
       <div className="mt-1 flex items-center justify-between">
         <p className="text-sm truncate w-[70%]">{image.prompt}</p>
         <div className="flex items-center gap-1">
-          <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
+          <div className="flex items-center gap-1">
+            <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
+            <span className="text-xs text-muted-foreground">{likeCount}</span>
+          </div>
           {isMobile ? (
             <Button variant="ghost" className="h-6 w-6 p-0" onClick={(e) => onMoreClick(image, e)}>
               <MoreVertical className="h-4 w-4" />
