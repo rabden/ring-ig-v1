@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import SettingSection from './SettingSection';
-import { modelConfigs } from '@/utils/modelConfigs';
+import { Crown } from "lucide-react";
 
 const ModelSection = ({ model, setModel, nsfwEnabled, quality }) => {
   return (
@@ -13,26 +13,30 @@ const ModelSection = ({ model, setModel, nsfwEnabled, quality }) => {
         {!nsfwEnabled ? (
           <>
             <Button
-              variant={model === 'turbo' ? 'default' : 'outline'}
+              variant="outline"
               onClick={() => setModel('turbo')}
+              className={model === 'turbo' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}
             >
               Ring.1 turbo
             </Button>
             <Button
-              variant={model === 'flux' ? 'default' : 'outline'}
+              variant="outline"
               onClick={() => setModel('flux')}
+              className={`flex items-center gap-1 ${model === 'flux' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}`}
             >
-              Ring.1
+              Ring.1 <Crown className="h-3 w-3" />
             </Button>
             <Button
-              variant={model === 'fluxDev' ? 'default' : 'outline'}
+              variant="outline"
               onClick={() => setModel('fluxDev')}
+              className={`flex items-center gap-1 ${model === 'fluxDev' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}`}
             >
-              Ring.1 hyper
+              Ring.1 hyper <Crown className="h-3 w-3" />
             </Button>
             <Button
-              variant={model === 'preLar' ? 'default' : 'outline'}
+              variant="outline"
               onClick={() => setModel('preLar')}
+              className={model === 'preLar' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}
             >
               Ring.1 Pre-lar
             </Button>
@@ -40,22 +44,25 @@ const ModelSection = ({ model, setModel, nsfwEnabled, quality }) => {
         ) : (
           <>
             <Button
-              variant={model === 'nsfwMaster' ? 'default' : 'outline'}
+              variant="outline"
               onClick={() => setModel('nsfwMaster')}
+              className={model === 'nsfwMaster' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}
             >
               Ring.1N
             </Button>
             <Button
-              variant={model === 'animeNsfw' ? 'default' : 'outline'}
+              variant="outline"
               onClick={() => setModel('animeNsfw')}
+              className={model === 'animeNsfw' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}
             >
               Ring.1 Anime
             </Button>
             <Button
-              variant={model === 'nsfwPro' ? 'default' : 'outline'}
+              variant="outline"
               onClick={() => setModel('nsfwPro')}
+              className={`flex items-center gap-1 ${model === 'nsfwPro' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}`}
             >
-              Ring.1Npro
+              Ring.1Npro <Crown className="h-3 w-3" />
             </Button>
           </>
         )}

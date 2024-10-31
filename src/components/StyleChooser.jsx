@@ -2,10 +2,10 @@ import React from 'react'
 import { Button } from "@/components/ui/button"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { styleConfigs } from '@/utils/styleConfigs'
+import { Crown } from "lucide-react"
 
 const StyleChooser = ({ style, setStyle }) => {
   const handleStyleClick = (key) => {
-    // If clicking the active style, deselect it
     if (style === key) {
       setStyle(null)
     } else {
@@ -21,9 +21,10 @@ const StyleChooser = ({ style, setStyle }) => {
             key={key}
             variant={style === key ? "default" : "outline"}
             onClick={() => handleStyleClick(key)}
-            className="flex-shrink-0"
+            className="flex-shrink-0 flex items-center gap-1"
           >
             {config.name}
+            {config.isPro && <Crown className="h-3 w-3" />}
           </Button>
         ))}
       </div>

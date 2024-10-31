@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
-import { ChevronDown, ChevronUp } from "lucide-react"
+import { ChevronDown, ChevronUp, Crown } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 
 const AspectRatioVisualizer = ({ ratio }) => {
   const [width, height] = ratio.split(':').map(Number)
-  const maxHeight = 120 // Reduced from 150 to 120
+  const maxHeight = 120
   const scale = maxHeight / height
   const scaledWidth = width * scale
   
@@ -32,6 +32,8 @@ const AspectRatioChooser = ({ aspectRatio, setAspectRatio }) => {
     "9:21", "9:16", "2:3", "3:4", "4:5", "1:1", 
     "5:4", "4:3", "3:2", "16:9", "21:9"
   ]
+
+  const proRatios = ["21:9", "9:21", "1.91:1", "1:1.91"]
 
   const handleSliderChange = (value) => {
     const index = Math.floor((value[0] / 100) * (ratios.length - 1))
@@ -66,9 +68,10 @@ const AspectRatioChooser = ({ aspectRatio, setAspectRatio }) => {
                 key={ratio}
                 variant={aspectRatio === ratio ? "default" : "outline"}
                 onClick={() => setAspectRatio(ratio)}
-                className="w-full"
+                className="w-full flex items-center gap-1"
               >
                 {ratio}
+                {proRatios.includes(ratio) && <Crown className="h-3 w-3" />}
               </Button>
             ))}
           </div>

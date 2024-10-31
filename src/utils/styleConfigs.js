@@ -5,39 +5,48 @@ export const styleConfigs = {
   },
   anime: {
     name: "Anime",
-    suffix: "anime style, manga art, cel shading, vibrant colors, clean lines, anime aesthetic, Studio Ghibli inspired, detailed eyes, dynamic poses, 2D animation, japanese animation style"
+    suffix: "anime style, manga art, cel shading, vibrant colors, clean lines, anime aesthetic, Studio Ghibli inspired, detailed eyes, dynamic poses, 2D animation, japanese animation style",
+    isPro: true
   },
   "3d": {
     name: "3D",
-    suffix: "octane render, 3D model, ray tracing, volumetric lighting, subsurface scattering, ambient occlusion, physically based rendering, 3D visualization, blender art, cinema4d"
+    suffix: "octane render, 3D model, ray tracing, volumetric lighting, subsurface scattering, ambient occlusion, physically based rendering, 3D visualization, blender art, cinema4d",
+    isPro: true
   },
   realistic: {
     name: "Realistic",
-    suffix: "photorealistic, hyperrealistic, photoreal, DSLR photo, 35mm film, professional photography, natural lighting, studio lighting, color grading, raw photo"
+    suffix: "photorealistic, hyperrealistic, photoreal, DSLR photo, 35mm film, professional photography, natural lighting, studio lighting, color grading, raw photo",
+    isPro: true
   },
   illustration: {
     name: "Illustration",
-    suffix: "digital art, digital painting, professional illustration, concept art, editorial illustration, commercial art, digital illustration, artistic, painterly, illustrated"
+    suffix: "digital art, digital painting, professional illustration, concept art, editorial illustration, commercial art, digital illustration, artistic, painterly, illustrated",
+    isPro: true
   },
   concept: {
     name: "Concept Art",
-    suffix: "concept art, visual development, environment design, character design, prop design, game art, film concept, key art, production art, conceptual design"
+    suffix: "concept art, visual development, environment design, character design, prop design, game art, film concept, key art, production art, conceptual design",
+    isPro: true
   },
   watercolor: {
     name: "Watercolor",
-    suffix: "watercolor painting, wet on wet, traditional media, watercolor texture, fluid painting, organic texture, watercolor paper, traditional art, painted, artistic"
+    suffix: "watercolor painting, wet on wet, traditional media, watercolor texture, fluid painting, organic texture, watercolor paper, traditional art, painted, artistic",
+    isPro: true
   },
   comic: {
     name: "Comic",
-    suffix: "comic art, comic book style, graphic novel, ink drawing, cel shading, bold lines, comic panel, superhero art, action comics, manga style"
+    suffix: "comic art, comic book style, graphic novel, ink drawing, cel shading, bold lines, comic panel, superhero art, action comics, manga style",
+    isPro: true
   },
   minimalist: {
     name: "Minimalist",
-    suffix: "minimalist, simple, clean design, geometric, minimal, negative space, modern design, simplified forms, basic shapes, elegant"
+    suffix: "minimalist, simple, clean design, geometric, minimal, negative space, modern design, simplified forms, basic shapes, elegant",
+    isPro: true
   },
   cyberpunk: {
     name: "Cyberpunk",
-    suffix: "cyberpunk, neon, sci-fi, futuristic, high tech, dystopian, cyber, synthwave, vaporwave, retrowave"
+    suffix: "cyberpunk, neon, sci-fi, futuristic, high tech, dystopian, cyber, synthwave, vaporwave, retrowave",
+    isPro: true
   },
   retro: {
     name: "Retro",
