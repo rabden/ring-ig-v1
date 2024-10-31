@@ -32,7 +32,7 @@ const ImageGallery = ({
   const [showImageInDrawer, setShowImageInDrawer] = useState(false)
   const { userLikes, toggleLike } = useLikes(userId)
   const { data: modelConfigs } = useModelConfigs()
-  const { handleImageLoad, isImageLoaded } = useImageLoadManager(5) // 5MB limit
+  const { handleImageLoad: handleImageLoadInternal } = useImageLoadManager(5) // 5MB limit
   const [unloadedImages, setUnloadedImages] = useState(new Set())
 
   const { data: images, isLoading } = useQuery({
@@ -46,7 +46,6 @@ const ImageGallery = ({
 
       if (error) throw error
 
-      // Filtering logic here
       const filteredData = data.filter(img => {
         const isNsfw = modelConfigs?.[img.model]?.category === "NSFW";
         
@@ -71,9 +70,9 @@ const ImageGallery = ({
     enabled: !!userId && !!modelConfigs,
   })
 
-  const handleImageLoadAndUnload = (imageId, size) => {
-    const imagesToUnload = handleImageLoad(imageId, size)
-    setUnloadedImages(imagesToUnload)
+  const handleImageLoadAndUnload = async (imageId, size) => {
+    const imagesToUnload = await handleImageLoadInternal(imageId, size)
+    setUnloadedImages(new Set(imagesToUnload))
   }
 
   const handleImageClick = (image) => {
