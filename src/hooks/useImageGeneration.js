@@ -90,13 +90,12 @@ export const useImageGeneration = ({
         throw new Error('No active API key available');
       }
 
-      // Use the model's default inference steps from the database
+      // Use only the required parameters for the API call
       const parameters = {
         seed: actualSeed,
         width: finalWidth,
         height: finalHeight,
         num_inference_steps: modelConfig?.defaultStep || 30,
-        guidance_scale: 7.5,
         negative_prompt: "ugly, disfigured, low quality, blurry, nsfw"
       };
 
