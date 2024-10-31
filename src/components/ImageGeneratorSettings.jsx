@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { qualityOptions } from '@/utils/imageConfigs';
-import StyleSelector from './StyleSelector';
+import StyleChooser from './StyleChooser';
 import AspectRatioChooser from './AspectRatioChooser';
 import SettingSection from './settings/SettingSection';
 import ModelSection from './settings/ModelSection';
@@ -162,7 +162,7 @@ const ImageGeneratorSettings = ({
       {/* Only show style section for non-NSFW models */}
       {!isNsfwModel && (
         <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
-          <StyleSelector style={style} setStyle={setStyle} />
+          <StyleChooser style={style} setStyle={setStyle} />
         </SettingSection>
       )}
 
