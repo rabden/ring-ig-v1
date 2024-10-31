@@ -2,13 +2,14 @@ import React from 'react'
 import { Button } from "@/components/ui/button"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { Crown } from "lucide-react"
-import { styleConfigs } from '@/utils/styleConfigs'
+import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 
 const StyleChooser = ({ style, setStyle, proMode }) => {
-  const premiumStyles = [
-    'comic', 'retro', 'abstract', '3d', 'oil', 
-    'portrait', 'architectural', 'pop', 'watercolor'
-  ];
+  const { data: styleConfigs, isLoading } = useStyleConfigs();
+
+  if (isLoading || !styleConfigs) {
+    return null;
+  }
 
   const handleStyleClick = (key) => {
     if (style === key) {
@@ -22,8 +23,7 @@ const StyleChooser = ({ style, setStyle, proMode }) => {
     <ScrollArea className="w-full whitespace-nowrap">
       <div className="flex space-x-2 pb-4">
         {Object.entries(styleConfigs).map(([key, config]) => {
-          const isPremium = premiumStyles.includes(key);
-          const isDisabled = !proMode && isPremium;
+          const isDisabled = !proMode && config.isPremium;
           
           return (
             <Button
@@ -34,7 +34,7 @@ const StyleChooser = ({ style, setStyle, proMode }) => {
               disabled={isDisabled}
             >
               {config.name}
-              {isPremium && <Crown className="h-3 w-3" />}
+              {config.isPremium && <Crown className="h-3 w-3" />}
             </Button>
           );
         })}
