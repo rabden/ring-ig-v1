@@ -19,7 +19,8 @@ export const modelConfigs = {
     category: "General",
     apiUrl: "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev",
     inferenceSteps: [25, 30, 35, 40, 45],
-    defaultStep: 30
+    defaultStep: 30,
+    isPremium: true
   },
   preLar: {
     name: "Ring.1 Pre-lar",

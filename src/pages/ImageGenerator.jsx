@@ -17,6 +17,7 @@ import { aspectRatios } from '@/utils/imageConfigs'
 import { modelConfigs } from '@/utils/modelConfigs'
 
 const ImageGenerator = () => {
+  const [proMode, setProMode] = useState(false);
   const {
     prompt, setPrompt, seed, setSeed, randomizeSeed, setRandomizeSeed,
     width, setWidth, height, setHeight, steps, setSteps,
@@ -90,7 +91,13 @@ const ImageGenerator = () => {
           {session && (
             <>
               <div className="hidden md:block">
-                <ProfileMenu user={session.user} credits={credits} bonusCredits={bonusCredits} />
+                <ProfileMenu 
+                  user={session.user} 
+                  credits={credits} 
+                  bonusCredits={bonusCredits}
+                  proMode={proMode}
+                  setProMode={setProMode}
+                />
               </div>
               <ActionButtons activeView={activeView} setActiveView={setActiveView} />
             </>
@@ -144,6 +151,7 @@ const ImageGenerator = () => {
           setStyle={setStyle}
           steps={steps}
           setSteps={setSteps}
+          proMode={proMode}
         />
       </div>
       <BottomNavbar 

@@ -4,11 +4,10 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { Crown } from "lucide-react"
 import { styleConfigs } from '@/utils/styleConfigs'
 
-const StyleChooser = ({ style, setStyle }) => {
+const StyleChooser = ({ style, setStyle, proMode }) => {
   const premiumStyles = [
-    'anime', '3d', 'realistic', 'illustration', 
-    'concept', 'watercolor', 'comic', 'minimalist', 
-    'cyberpunk', 'retro'
+    'comic', 'retro', 'abstract', '3d', 'oil', 
+    'portrait', 'architectural', 'pop', 'watercolor'
   ];
 
   const handleStyleClick = (key) => {
@@ -28,6 +27,7 @@ const StyleChooser = ({ style, setStyle }) => {
             variant={style === key ? "default" : "outline"}
             onClick={() => handleStyleClick(key)}
             className="flex-shrink-0 flex items-center gap-1"
+            disabled={!proMode && premiumStyles.includes(key)}
           >
             {config.name}
             {premiumStyles.includes(key) && <Crown className="h-3 w-3" />}

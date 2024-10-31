@@ -9,7 +9,8 @@ export const styleConfigs = {
   },
   "3d": {
     name: "3D",
-    suffix: "octane render, 3D model, ray tracing, volumetric lighting, subsurface scattering, ambient occlusion, physically based rendering, 3D visualization, blender art, cinema4d"
+    suffix: "octane render, 3D model, ray tracing, volumetric lighting, subsurface scattering, ambient occlusion, physically based rendering, 3D visualization, blender art, cinema4d",
+    isPremium: true
   },
   realistic: {
     name: "Realistic",
@@ -25,11 +26,13 @@ export const styleConfigs = {
   },
   watercolor: {
     name: "Watercolor",
-    suffix: "watercolor painting, wet on wet, traditional media, watercolor texture, fluid painting, organic texture, watercolor paper, traditional art, painted, artistic"
+    suffix: "watercolor painting, wet on wet, traditional media, watercolor texture, fluid painting, organic texture, watercolor paper, traditional art, painted, artistic",
+    isPremium: true
   },
   comic: {
     name: "Comic",
-    suffix: "comic art, comic book style, graphic novel, ink drawing, cel shading, bold lines, comic panel, superhero art, action comics, manga style"
+    suffix: "comic art, comic book style, graphic novel, ink drawing, cel shading, bold lines, comic panel, superhero art, action comics, manga style",
+    isPremium: true
   },
   minimalist: {
     name: "Minimalist",
@@ -41,7 +44,8 @@ export const styleConfigs = {
   },
   retro: {
     name: "Retro",
-    suffix: "vintage, retro style, old school, nostalgic, 80s, 70s, classic, aged, film grain, analog"
+    suffix: "vintage, retro style, old school, nostalgic, 80s, 70s, classic, aged, film grain, analog",
+    isPremium: true
   },
   fantasy: {
     name: "Fantasy",
@@ -49,7 +53,8 @@ export const styleConfigs = {
   },
   abstract: {
     name: "Abstract",
-    suffix: "abstract art, non-representational, geometric, contemporary art, modern art, experimental, avant-garde, abstract expressionism, artistic"
+    suffix: "abstract art, non-representational, geometric, contemporary art, modern art, experimental, avant-garde, abstract expressionism, artistic",
+    isPremium: true
   },
   sketch: {
     name: "Sketch",
@@ -57,15 +62,18 @@ export const styleConfigs = {
   },
   oil: {
     name: "Oil Painting",
-    suffix: "oil painting, traditional art, impasto, glazing, classical painting, fine art, canvas texture, brush strokes, traditional media, painted"
+    suffix: "oil painting, traditional art, impasto, glazing, classical painting, fine art, canvas texture, brush strokes, traditional media, painted",
+    isPremium: true
   },
   portrait: {
     name: "Portrait",
-    suffix: "portrait photography, headshot, studio portrait, professional portrait, beauty shot, fashion photography, editorial portrait, model photo"
+    suffix: "portrait photography, headshot, studio portrait, professional portrait, beauty shot, fashion photography, editorial portrait, model photo",
+    isPremium: true
   },
   architectural: {
     name: "Architectural",
-    suffix: "architecture photography, architectural visualization, building design, interior design, exterior design, architectural rendering, urban design"
+    suffix: "architecture photography, architectural visualization, building design, interior design, exterior design, architectural rendering, urban design",
+    isPremium: true
   },
   nature: {
     name: "Nature",
@@ -73,10 +81,11 @@ export const styleConfigs = {
   },
   pop: {
     name: "Pop Art",
-    suffix: "pop art style, andy warhol, roy lichtenstein, bold colors, halftone dots, comic style, pop culture, retro pop, artistic"
+    suffix: "pop art style, andy warhol, roy lichtenstein, bold colors, halftone dots, comic style, pop culture, retro pop, artistic",
+    isPremium: true
   },
   pixel: {
     name: "Pixel Art",
     suffix: "pixel art, 8-bit, 16-bit, retro gaming, pixelated, sprite art, game art, low-res, vintage gaming, digital pixel"
   }
-}
+};

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,9 +12,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
-const ProfileMenu = ({ user, credits, bonusCredits }) => {
+const ProfileMenu = ({ user, credits, bonusCredits, proMode, setProMode }) => {
   const { logout } = useSupabaseAuth();
-
   const displayName = user.user_metadata.display_name || user.email.split('@')[0];
 
   return (
@@ -36,6 +36,12 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
         <DropdownMenuSeparator />
         <DropdownMenuItem>
           Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
+        </DropdownMenuItem>
+        <DropdownMenuItem>
+          <div className="flex items-center justify-between w-full">
+            <span>Pro Mode</span>
+            <Switch checked={proMode} onCheckedChange={setProMode} />
+          </div>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={logout}>
