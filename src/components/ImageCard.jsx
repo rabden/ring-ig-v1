@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MoreVertical } from "lucide-react"
@@ -10,6 +10,7 @@ import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import LikeButton from './LikeButton'
 import { useQuery } from '@tanstack/react-query'
+import LazyImage from './LazyImage'
 
 const ImageCard = ({ 
   image, 
@@ -22,7 +23,10 @@ const ImageCard = ({
   userId,
   isMobile,
   isLiked,
-  onToggleLike
+  onToggleLike,
+  onImageLoad,
+  isUnloaded,
+  setIsUnloaded
 }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
@@ -60,13 +64,15 @@ const ImageCard = ({
             isTrending={image.is_trending} 
             isHot={image.is_hot} 
           />
-          <img 
+          <LazyImage 
             src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-            alt={image.prompt} 
+            alt={image.prompt}
             className="absolute inset-0 w-full h-full object-cover cursor-pointer"
             onClick={() => onImageClick(image)}
             onDoubleClick={handleDoubleClick}
-            loading="lazy"
+            onLoad={(size) => onImageLoad(image.id, size)}
+            isUnloaded={isUnloaded}
+            setIsUnloaded={setIsUnloaded}
           />
           <div className="absolute bottom-2 left-2 flex gap-1">
             <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
@@ -119,7 +125,7 @@ const ImageCard = ({
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ImageCard
+export default ImageCard;
