@@ -46,11 +46,11 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
     <Drawer.Root open={open} onOpenChange={onOpenChange}>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[60]" />
-        <Drawer.Content className="bg-background flex flex-col fixed bottom-0 left-0 right-0 z-[60] max-h-[95vh]">
+        <Drawer.Content className="bg-background flex flex-col fixed bottom-0 left-0 right-0 z-[60] max-h-[90vh] rounded-t-[10px]">
           <div className="p-4 bg-muted/40 overflow-hidden">
             <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-4" />
-            <ScrollArea className="h-[calc(95vh-80px)]">
-              <div className="max-w-md mx-auto space-y-4 px-2">
+            <ScrollArea className="h-[calc(90vh-80px)]">
+              <div className="max-w-md mx-auto space-y-4 px-2 pb-6">
                 {showImage && (
                   <div className="relative rounded-lg overflow-hidden">
                     <img
@@ -65,7 +65,7 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="flex-1"
+                    className="flex-1 text-xs sm:text-sm"
                     onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image?.storage_path).data.publicUrl, image?.prompt)}
                   >
                     <Download className="mr-2 h-4 w-4" />
@@ -76,7 +76,7 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="flex-1 text-destructive hover:text-destructive"
+                      className="flex-1 text-destructive hover:text-destructive text-xs sm:text-sm"
                       onClick={() => {
                         onDiscard(image);
                         onOpenChange(false);
@@ -90,7 +90,7 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="flex-1"
+                    className="flex-1 text-xs sm:text-sm"
                     onClick={() => {
                       onRemix(image);
                       onOpenChange(false);
@@ -114,11 +114,11 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                     </p>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-3">
                     {detailItems.map((item, index) => (
                       <div key={index} className="space-y-1">
                         <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
-                        <Badge variant="outline" className="text-sm font-normal flex items-center gap-1 w-fit">
+                        <Badge variant="outline" className="text-xs sm:text-sm font-normal flex items-center gap-1 w-fit">
                           {item.value}
                           {item.isPro && <Crown className="h-3 w-3" />}
                         </Badge>
