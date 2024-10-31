@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/supabase'
 import { modelConfigs } from '@/utils/modelConfigs'
 import { styleConfigs } from '@/utils/styleConfigs'
 import LikeButton from './LikeButton'
+import LazyImage from './LazyImage'
 
 const ImageCard = ({ 
   image, 
@@ -35,12 +36,11 @@ const ImageCard = ({
             isTrending={image.is_trending} 
             isHot={image.is_hot} 
           />
-          <img 
+          <LazyImage 
             src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-            alt={image.prompt} 
+            alt={image.prompt}
             className="absolute inset-0 w-full h-full object-cover cursor-pointer"
             onClick={() => onImageClick(image)}
-            loading="lazy"
           />
           <div className="absolute bottom-2 left-2 flex gap-1">
             <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
@@ -90,7 +90,7 @@ const ImageCard = ({
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ImageCard
+export default ImageCard;
