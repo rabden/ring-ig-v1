@@ -8,7 +8,7 @@ const EnhancedPromptBox = ({
   onSubmit,
   onKeyDown,
   className,
-  placeholder = "Describe the image you want to generate...",
+  placeholder = "Request a change...",
   disabled = false
 }) => {
   const textareaRef = useRef(null);
@@ -41,8 +41,10 @@ const EnhancedPromptBox = ({
       <div className="max-w-[900px] mx-auto">
         <div 
           className={cn(
-            "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
-            "border rounded-lg p-3 min-h-[48px] transition-all duration-200",
+            "bg-card border-border",
+            "border rounded-lg p-3",
+            "min-h-[48px] max-h-[300px]",
+            "transition-all duration-200 ease-out",
             "flex flex-col gap-2",
             (isFocused || value) && "min-h-[24px]",
             className
