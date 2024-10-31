@@ -7,6 +7,7 @@ import MobileImageDrawer from './MobileImageDrawer'
 import ImageCard from './ImageCard'
 import { useLikes } from '@/hooks/useLikes'
 import { useImageLoadManager } from '@/hooks/useImageLoadManager'
+import { useModelConfigs } from '@/hooks/useModelConfigs'
 
 const breakpointColumnsObj = {
   default: 4,
