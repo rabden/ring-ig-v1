@@ -1,62 +1,68 @@
 export const modelConfig = {
   turbo: {
-    name: "Turbo",
+    name: "Ring.1 turbo",
     category: "General",
-    apiUrl: "https://api-inference.huggingface.co/models/stabilityai/sdxl-turbo",
+    apiUrl: "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large-turbo",
+    inferenceSteps: [4],
     defaultStep: 4,
     qualityLimits: ["SD", "HD"],
-    noStyleSuffix: true,
-    isPremium: false,
-    promptSuffix: ""
-  },
-  preLar: {
-    name: "PreLar",
-    category: "General",
-    apiUrl: "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0",
-    defaultStep: 30,
-    qualityLimits: ["SD", "HD"],
     noStyleSuffix: false,
     isPremium: false,
-    promptSuffix: ""
+    promptSuffix: null
   },
   flux: {
-    name: "Flux",
+    name: "Ring.1",
     category: "General",
-    apiUrl: "https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5",
-    defaultStep: 35,
-    qualityLimits: ["SD", "HD", "HD+"],
+    apiUrl: "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell",
+    inferenceSteps: [4, 8, 12, 16, 20],
+    defaultStep: 8,
+    qualityLimits: null,
     noStyleSuffix: false,
-    isPremium: true,
-    promptSuffix: ""
+    isPremium: false,
+    promptSuffix: null
   },
   fluxDev: {
-    name: "Flux Dev",
+    name: "Ring.1 hyper",
     category: "General",
-    apiUrl: "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1",
-    defaultStep: 35,
-    qualityLimits: ["SD", "HD", "HD+"],
+    apiUrl: "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev",
+    inferenceSteps: [25, 30, 35, 40, 45],
+    defaultStep: 30,
+    qualityLimits: null,
     noStyleSuffix: false,
     isPremium: true,
-    promptSuffix: ""
+    promptSuffix: null
   },
-  nsfwMaster: {
-    name: "NSFW Master",
-    category: "NSFW",
-    apiUrl: "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1",
-    defaultStep: 35,
-    qualityLimits: ["SD", "HD", "HD+"],
-    noStyleSuffix: true,
-    isPremium: false,
-    promptSuffix: ", nsfw"
+  preLar: {
+    name: "Ring.1 Pre-lar",
+    category: "General",
+    apiUrl: "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large",
+    inferenceSteps: [50],
+    defaultStep: 50,
+    qualityLimits: ["SD", "HD"],
+    noStyleSuffix: false,
+    isPremium: true,
+    promptSuffix: null
   },
-  nsfwPro: {
-    name: "NSFW Pro",
+  animeNsfw: {
+    name: "Ring.1 Anime",
     category: "NSFW",
-    apiUrl: "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1",
+    apiUrl: "https://api-inference.huggingface.co/models/John6666/mala-anime-mix-nsfw-pony-xl-v5-sdxl",
+    inferenceSteps: [35],
     defaultStep: 35,
-    qualityLimits: ["SD", "HD", "HD+"],
+    qualityLimits: null,
     noStyleSuffix: true,
     isPremium: true,
-    promptSuffix: ", nsfw, high quality"
+    promptSuffix: null
+  },
+  nsfwMaster: {
+    name: "Ring.1N",
+    category: "NSFW",
+    apiUrl: "https://api-inference.huggingface.co/models/pimpilikipilapi1/NSFW_master",
+    inferenceSteps: [30, 35, 40, 45, 50],
+    defaultStep: 35,
+    qualityLimits: null,
+    noStyleSuffix: true,
+    isPremium: false,
+    promptSuffix: null
   }
 };
