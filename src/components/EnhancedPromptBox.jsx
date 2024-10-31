@@ -1,12 +1,10 @@
-import React, { useRef, useEffect } from 'react';
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { ArrowRight, X, Wand2, ArrowUpRight, Plus } from "lucide-react";
+import React, { useRef, useEffect, useState } from 'react';
 import { cn } from "@/lib/utils";
+import { Send } from "lucide-react";
 
 const EnhancedPromptBox = ({ 
   value, 
-  onChange, 
+  onChange,
   onSubmit,
   onKeyDown,
   className,
@@ -14,92 +12,83 @@ const EnhancedPromptBox = ({
   disabled = false
 }) => {
   const textareaRef = useRef(null);
-  const [isFocused, setIsFocused] = React.useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+
+  const updateLayout = () => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = '24px';
+      const newHeight = Math.min(textareaRef.current.scrollHeight, 200);
+      textareaRef.current.style.height = `${newHeight}px`;
+    }
+  };
 
   useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      const scrollHeight = textareaRef.current.scrollHeight;
-      textareaRef.current.style.height = Math.min(scrollHeight, 200) + 'px';
-    }
+    updateLayout();
   }, [value]);
 
-  const handleClear = () => {
-    onChange({ target: { value: '' } });
-    textareaRef.current?.focus();
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      if (value.trim() && !disabled) {
+        onSubmit();
+      }
+    }
+    onKeyDown?.(e);
   };
 
   return (
-    <Card className={cn(
-      "relative overflow-hidden transition-all duration-200",
-      isFocused ? "ring-2 ring-primary" : "",
-      className
-    )}>
-      <div className="flex items-start p-3 gap-2">
-        <div className="flex-grow relative">
-          <textarea
-            ref={textareaRef}
-            value={value}
-            onChange={onChange}
-            onKeyDown={onKeyDown}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            placeholder={placeholder}
-            disabled={disabled}
-            className="w-full min-h-[40px] max-h-[200px] resize-none bg-transparent border-0 p-0 focus:outline-none focus:ring-0 placeholder:text-muted-foreground text-sm scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500"
-            rows={1}
-          />
-        </div>
-        
-        <div className="flex flex-col gap-2 pt-1">
-          {value && (
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={handleClear}
-              className="h-6 w-6"
-              type="button"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+    <div className="fixed bottom-0 left-0 right-0 p-4 z-50">
+      <div className="max-w-[900px] mx-auto">
+        <div 
+          className={cn(
+            "bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+            "border rounded-lg p-3 min-h-[48px] transition-all duration-200",
+            "flex flex-col gap-2",
+            (isFocused || value) && "min-h-[24px]",
+            className
           )}
-          <Button
-            size="icon"
-            onClick={onSubmit}
-            className="h-6 w-6"
-            disabled={!value.trim() || disabled}
-            type="submit"
+        >
+          <div className="relative w-full">
+            <textarea
+              ref={textareaRef}
+              value={value}
+              onChange={onChange}
+              onKeyDown={handleKeyDown}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              placeholder={placeholder}
+              disabled={disabled}
+              className={cn(
+                "w-full bg-transparent border-0 outline-none resize-none p-0 m-0",
+                "text-sm leading-relaxed placeholder:text-muted-foreground",
+                "scrollbar-thin scrollbar-thumb-accent scrollbar-track-transparent"
+              )}
+              style={{ height: '24px' }}
+            />
+          </div>
+          
+          <div 
+            className={cn(
+              "flex justify-end h-6 transition-all duration-200",
+              value ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+            )}
           >
-            <ArrowRight className="h-4 w-4" />
-          </Button>
+            <button
+              onClick={onSubmit}
+              disabled={!value.trim() || disabled}
+              className={cn(
+                "flex items-center justify-center w-8 h-6",
+                "bg-transparent border-none cursor-pointer p-0",
+                "opacity-70 hover:opacity-100 transition-opacity",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
+              )}
+            >
+              <Send className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </div>
-      
-      {value && (
-        <div className="px-3 pb-2 flex gap-2 flex-wrap">
-          <Button
-            variant="secondary"
-            size="sm"
-            className="h-6 text-xs"
-            onClick={() => onChange({ target: { value: value + ", high quality, 8k" } })}
-          >
-            <ArrowUpRight className="h-3 w-3 mr-1" />
-            Enhance Quality
-            <X className="h-3 w-3 ml-1" />
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            className="h-6 text-xs"
-            onClick={() => onChange({ target: { value: value + ", detailed, sharp focus" } })}
-          >
-            <Plus className="h-3 w-3 mr-1" />
-            Add Details
-            <X className="h-3 w-3 ml-1" />
-          </Button>
-        </div>
-      )}
-    </Card>
+    </div>
   );
 };
 
