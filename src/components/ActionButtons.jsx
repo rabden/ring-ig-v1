@@ -1,9 +1,10 @@
 import React from 'react'
 import { Button } from "@/components/ui/button"
+import GeneratingImagesDropdown from './GeneratingImagesDropdown'
 
-const ActionButtons = ({ activeView, setActiveView }) => {
+const ActionButtons = ({ activeView, setActiveView, generatingImages }) => {
   return (
-    <div className="hidden md:flex space-x-2">
+    <div className="hidden md:flex items-center space-x-2">
       <Button
         variant={activeView === 'myImages' ? 'default' : 'outline'}
         onClick={() => setActiveView('myImages')}
@@ -18,6 +19,7 @@ const ActionButtons = ({ activeView, setActiveView }) => {
       >
         Inspiration
       </Button>
+      <GeneratingImagesDropdown generatingImages={generatingImages} />
     </div>
   )
 }

@@ -101,7 +101,11 @@ const ImageGenerator = () => {
                   setProMode={setProMode}
                 />
               </div>
-              <ActionButtons activeView={activeView} setActiveView={setActiveView} />
+              <ActionButtons 
+                activeView={activeView} 
+                setActiveView={setActiveView} 
+                generatingImages={generatingImages}
+              />
             </>
           )}
         </div>

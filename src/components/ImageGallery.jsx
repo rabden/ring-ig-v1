@@ -32,6 +32,7 @@ const ImageGallery = ({
   const [showImageInDrawer, setShowImageInDrawer] = useState(false)
   const { userLikes, toggleLike } = useLikes(userId)
   const { data: modelConfigs } = useModelConfigs()
+  const isMobile = window.innerWidth <= 768
 
   const { data: images, isLoading, refetch } = useQuery({
     queryKey: ['images', userId, activeView, nsfwEnabled],
@@ -168,7 +169,7 @@ const ImageGallery = ({
   const renderContent = () => {
     const content = []
 
-    if (activeView === 'myImages' && generatingImages && generatingImages.length > 0) {
+    if (activeView === 'myImages' && generatingImages && generatingImages.length > 0 && isMobile) {
       content.push(...generatingImages.map((img) => (
         <SkeletonImageCard key={img.id} width={img.width} height={img.height} />
       )))
@@ -190,7 +191,7 @@ const ImageGallery = ({
           onRemix={onRemix}
           onViewDetails={onViewDetails}
           userId={userId}
-          isMobile={window.innerWidth <= 768}
+          isMobile={isMobile}
           isLiked={userLikes.includes(image.id)}
           onToggleLike={toggleLike}
         />
