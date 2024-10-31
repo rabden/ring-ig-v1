@@ -33,8 +33,13 @@ const EnhancedPromptBox = ({
       if (value.trim() && !disabled) {
         onSubmit();
       }
+      // Remove the onKeyDown prop call to prevent double submission
+      return;
     }
-    onKeyDown?.(e);
+    // Only call onKeyDown for non-Enter key presses
+    if (e.key !== 'Enter') {
+      onKeyDown?.(e);
+    }
   };
 
   const handleClear = () => {
