@@ -2,11 +2,12 @@ import React from 'react';
 import { Drawer } from 'vaul';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import SignInDialog from '@/components/SignInDialog';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { User } from 'lucide-react';
 
-const MobileProfileMenu = ({ user, credits, bonusCredits }) => {
+const MobileProfileMenu = ({ user, credits, bonusCredits, proMode, setProMode }) => {
   const { logout } = useSupabaseAuth();
   const [snapPoint, setSnapPoint] = React.useState(1);
 
@@ -51,6 +52,10 @@ const MobileProfileMenu = ({ user, credits, bonusCredits }) => {
                   <p className="text-sm font-medium">
                     Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
                   </p>
+                  <div className="flex items-center justify-between w-full px-4 py-2">
+                    <span className="text-sm font-medium">Pro Mode</span>
+                    <Switch checked={proMode} onCheckedChange={setProMode} />
+                  </div>
                   <Button onClick={handleLogout} variant="outline" className="w-full">
                     Log out
                   </Button>

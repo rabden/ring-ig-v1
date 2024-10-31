@@ -4,14 +4,15 @@ import { Crown } from "lucide-react";
 import SettingSection from './SettingSection';
 import { modelConfigs } from '@/utils/modelConfigs';
 
-const ModelSection = ({ model, setModel, nsfwEnabled, quality }) => {
-  const premiumModels = ['preLar', 'animeNsfw'];
+const ModelSection = ({ model, setModel, nsfwEnabled, quality, proMode }) => {
+  const premiumModels = ['preLar', 'animeNsfw', 'fluxDev'];
 
   const renderModelButton = (modelKey, label) => (
     <Button
       variant={model === modelKey ? 'default' : 'outline'}
       onClick={() => setModel(modelKey)}
       className="flex items-center justify-center gap-1"
+      disabled={!proMode && premiumModels.includes(modelKey)}
     >
       {label}
       {premiumModels.includes(modelKey) && <Crown className="h-4 w-4" />}

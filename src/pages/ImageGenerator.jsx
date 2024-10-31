@@ -161,6 +161,8 @@ const ImageGenerator = () => {
         credits={credits}
         activeView={activeView}
         setActiveView={setActiveView}
+        proMode={proMode}
+        setProMode={setProMode}
       />
       <ImageDetailsDialog
         open={detailsDialogOpen}
@@ -177,7 +179,7 @@ const ImageGenerator = () => {
         isOwner={selectedImage?.user_id === session?.user?.id}
       />
     </div>
-  )
-}
+  );
+};
 
-export default ImageGenerator
+export default ImageGenerator;

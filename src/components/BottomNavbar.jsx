@@ -1,9 +1,9 @@
 import React from 'react';
-import { Image, Plus, User, Sparkles } from 'lucide-react';
+import { Image, Plus, Sparkles } from 'lucide-react';
 import MobileProfileMenu from './MobileProfileMenu';
 import { cn } from "@/lib/utils";
 
-const BottomNavbar = ({ activeTab, setActiveTab, session, credits, activeView, setActiveView }) => {
+const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits, activeView, setActiveView, proMode, setProMode }) => {
   const NavButton = ({ icon: Icon, label, isActive, onClick }) => (
     <button
       onClick={onClick}
@@ -53,7 +53,13 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, activeView, s
           onClick={() => setActiveTab('input')}
         />
         <div className="flex flex-col items-center justify-center w-14 h-12">
-          <MobileProfileMenu user={session?.user} credits={credits} />
+          <MobileProfileMenu 
+            user={session?.user} 
+            credits={credits}
+            bonusCredits={bonusCredits}
+            proMode={proMode}
+            setProMode={setProMode}
+          />
         </div>
       </div>
       <div className="h-safe-area-bottom bg-background/70 backdrop-blur-xl" />
