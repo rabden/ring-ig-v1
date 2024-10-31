@@ -5,25 +5,41 @@ CREATE OR REPLACE FUNCTION public.update_user_credits(
 RETURNS INTEGER AS $$
 DECLARE
     v_current_credits INTEGER;
+    v_bonus_credits INTEGER;
+    v_remaining_cost INTEGER;
     v_new_credits INTEGER;
+    v_new_bonus_credits INTEGER;
 BEGIN
-    -- Get current credit count
-    SELECT credit_count INTO v_current_credits
+    -- Get current credit counts
+    SELECT credit_count, bonus_credits 
+    INTO v_current_credits, v_bonus_credits
     FROM public.user_credits
     WHERE user_id = p_user_id;
 
-    -- Check if user has enough credits
-    IF v_current_credits < p_credit_cost THEN
+    -- Check if user has enough total credits
+    IF (v_current_credits + v_bonus_credits) < p_credit_cost THEN
         RETURN -1; -- Indicate insufficient credits
     END IF;
 
+    -- First use regular credits
+    IF v_current_credits >= p_credit_cost THEN
+        -- Only regular credits are needed
+        v_new_credits := v_current_credits - p_credit_cost;
+        v_new_bonus_credits := v_bonus_credits;
+    ELSE
+        -- Use all regular credits and some bonus credits
+        v_remaining_cost := p_credit_cost - v_current_credits;
+        v_new_credits := 0;
+        v_new_bonus_credits := v_bonus_credits - v_remaining_cost;
+    END IF;
+
     -- Update credits
-    v_new_credits := v_current_credits - p_credit_cost;
-    
     UPDATE public.user_credits
-    SET credit_count = v_new_credits
+    SET credit_count = v_new_credits,
+        bonus_credits = v_new_bonus_credits
     WHERE user_id = p_user_id;
 
-    RETURN v_new_credits;
+    -- Return total remaining credits
+    RETURN v_new_credits + v_new_bonus_credits;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
