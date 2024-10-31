@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MoreVertical } from "lucide-react"
@@ -10,6 +10,7 @@ import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import LikeButton from './LikeButton'
 import { useQuery } from '@tanstack/react-query'
+import { Skeleton } from "@/components/ui/skeleton"
 
 const ImageCard = ({ 
   image, 
@@ -24,6 +25,7 @@ const ImageCard = ({
   isLiked,
   onToggleLike
 }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   
@@ -60,12 +62,18 @@ const ImageCard = ({
             isTrending={image.is_trending} 
             isHot={image.is_hot} 
           />
+          {!imageLoaded && (
+            <div className="absolute inset-0 bg-muted animate-pulse">
+              <Skeleton className="w-full h-full" />
+            </div>
+          )}
           <img 
             src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
             alt={image.prompt} 
-            className="absolute inset-0 w-full h-full object-cover cursor-pointer"
+            className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
             onClick={() => onImageClick(image)}
             onDoubleClick={handleDoubleClick}
+            onLoad={() => setImageLoaded(true)}
             loading="lazy"
           />
           <div className="absolute bottom-2 left-2 flex gap-1">
@@ -119,7 +127,7 @@ const ImageCard = ({
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ImageCard
+export default ImageCard;
