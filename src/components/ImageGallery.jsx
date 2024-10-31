@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
 import Masonry from 'react-masonry-css'
 import SkeletonImageCard from './SkeletonImageCard'
-import { useModelConfigs } from '@/hooks/useModelConfigs'
 import MobileImageDrawer from './MobileImageDrawer'
 import ImageCard from './ImageCard'
 import { useLikes } from '@/hooks/useLikes'
@@ -35,7 +34,7 @@ const ImageGallery = ({
   const { handleImageLoad, isImageLoaded } = useImageLoadManager(5) // 5MB limit
   const [unloadedImages, setUnloadedImages] = useState(new Set())
 
-  const { data: images, isLoading, refetch } = useQuery({
+  const { data: images, isLoading } = useQuery({
     queryKey: ['images', userId, activeView, nsfwEnabled],
     queryFn: async () => {
       if (!userId) return []
@@ -76,6 +75,25 @@ const ImageGallery = ({
     setUnloadedImages(imagesToUnload)
   }
 
+  const handleImageClick = (image) => {
+    if (window.innerWidth <= 768) {
+      setSelectedImage(image)
+      setShowImageInDrawer(true)
+      setDrawerOpen(true)
+    } else {
+      onImageClick(image)
+    }
+  }
+
+  const handleMoreClick = (image, e) => {
+    e.stopPropagation()
+    if (window.innerWidth <= 768) {
+      setSelectedImage(image)
+      setShowImageInDrawer(false)
+      setDrawerOpen(true)
+    }
+  }
+
   const renderContent = () => {
     const content = []
 
@@ -90,11 +108,11 @@ const ImageGallery = ({
         <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
       )))
     } else if (images && images.length > 0) {
-      content.push(...images.map((image, index) => (
+      content.push(...images.map((image) => (
         <ImageCard
           key={image.id}
           image={image}
-          onImageClick={() => onImageClick(image, index)}
+          onImageClick={() => handleImageClick(image)}
           onMoreClick={handleMoreClick}
           onDownload={onDownload}
           onDiscard={onDiscard}
