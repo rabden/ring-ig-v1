@@ -6,10 +6,27 @@ import { Switch } from "@/components/ui/switch";
 import SignInDialog from '@/components/SignInDialog';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { User } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/supabase';
 
 const MobileProfileMenu = ({ user, credits, bonusCredits, proMode, setProMode }) => {
   const { logout } = useSupabaseAuth();
   const [snapPoint, setSnapPoint] = React.useState(1);
+
+  const { data: totalLikes = 0 } = useQuery({
+    queryKey: ['totalLikes', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return 0;
+      const { count, error } = await supabase
+        .from('user_image_likes')
+        .select('*', { count: 'exact' })
+        .eq('created_by', user.id);
+      
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!user?.id
+  });
 
   const handleLogout = () => {
     logout();
@@ -51,6 +68,9 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, proMode, setProMode })
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                   <p className="text-sm font-medium">
                     Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
+                  </p>
+                  <p className="text-sm font-medium">
+                    Total Likes: {totalLikes}
                   </p>
                   <div className="flex items-center justify-between w-full px-4 py-2">
                     <span className="text-sm font-medium">Pro Mode</span>
