@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { supabase } from '../supabase';
 import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 export const AuthContext = createContext();
 
@@ -13,34 +14,54 @@ export const AuthProvider = ({ children }) => {
     // Handle initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      if (session) {
+        toast.success('Successfully signed in!');
+      }
       setLoading(false);
     });
 
     // Handle auth state changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth event:', event);
       setSession(session);
       queryClient.invalidateQueries('user');
+
+      if (event === 'SIGNED_IN') {
+        toast.success('Successfully signed in!');
+      } else if (event === 'SIGNED_OUT') {
+        toast.success('Successfully signed out!');
+      }
+
+      // Handle email verification and OAuth redirects
+      if (window.location.hash) {
+        const params = new URLSearchParams(window.location.hash.substring(1));
+        if (params.has('access_token') || params.has('error')) {
+          // Clear the URL hash after processing
+          window.history.replaceState(null, null, window.location.pathname);
+        }
+      }
+
       setLoading(false);
     });
 
-    // Handle URL hash for OAuth redirects
-    const handleHashChange = async () => {
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      if (hashParams.has('access_token')) {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (!error && session) {
-          setSession(session);
-          queryClient.invalidateQueries('user');
-          // Clear the URL hash
+    // Check for email confirmation success
+    const checkEmailConfirmation = async () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('email_confirm') && params.get('email_confirm') === 'true') {
+        // Get the latest session
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (currentSession) {
+          setSession(currentSession);
+          toast.success('Email verified successfully!');
+          // Clear the URL parameters
           window.history.replaceState(null, null, window.location.pathname);
         }
       }
     };
 
-    // Check for hash params on mount
-    handleHashChange();
+    checkEmailConfirmation();
 
     return () => {
       subscription?.unsubscribe();
@@ -55,6 +76,7 @@ export const AuthProvider = ({ children }) => {
       window.localStorage.removeItem('supabase.auth.token');
     } catch (error) {
       console.error('Error signing out:', error);
+      toast.error('Error signing out');
     }
     setLoading(false);
   };
