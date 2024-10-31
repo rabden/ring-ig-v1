@@ -28,7 +28,6 @@ const ImageCard = ({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [shouldLoad, setShouldLoad] = useState(false);
   const imageRef = useRef(null);
-  const timeoutRef = useRef(null);
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   
@@ -53,7 +52,6 @@ const ImageCard = ({
       const windowHeight = window.innerHeight;
       const verticalMargin = windowHeight; // One viewport height margin
       
-      // Check if element is within viewport plus margin
       const isVisible = (
         rect.top <= windowHeight + verticalMargin &&
         rect.bottom >= -verticalMargin
@@ -61,17 +59,10 @@ const ImageCard = ({
 
       if (isVisible) {
         setShouldLoad(true);
-        if (timeoutRef.current) {
-          clearTimeout(timeoutRef.current);
-        }
-      } else {
-        // Start unload timer only if completely out of view plus margin
-        if (rect.bottom < -verticalMargin || rect.top > windowHeight + verticalMargin) {
-          timeoutRef.current = setTimeout(() => {
-            setShouldLoad(false);
-            setImageLoaded(false);
-          }, 10000);
-        }
+      } else if (rect.bottom < -verticalMargin || rect.top > windowHeight + verticalMargin) {
+        // Only unload if completely out of view plus margin
+        setShouldLoad(false);
+        setImageLoaded(false);
       }
     };
 
@@ -85,9 +76,6 @@ const ImageCard = ({
     return () => {
       window.removeEventListener('scroll', checkVisibility);
       window.removeEventListener('resize', checkVisibility);
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
     };
   }, []);
 
