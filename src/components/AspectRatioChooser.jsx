@@ -32,22 +32,54 @@ const AspectRatioVisualizer = ({ ratio, isPremium }) => {
 const AspectRatioChooser = ({ aspectRatio, setAspectRatio, proMode }) => {
   const [isOpen, setIsOpen] = useState(false)
   
-  const premiumRatios = ['9:21', '21:9', '3:2', '2:3', '4:5', '5:4'];
+  const premiumRatios = ['9:21', '21:9', '3:2', '2:3', '4:5', '5:4', '10:16', '16:10'];
   
+  // Organize ratios from portrait to square to landscape
   const ratios = [
     "9:21", "9:16", "2:3", "3:4", "4:5", "10:16", "1:2", 
-    "1:1", 
-    "5:4", "4:3", "3:2", "16:10", "16:9", "2:1", "21:9"
+    "1:1", // Center point
+    "2:1", "5:4", "4:3", "3:2", "16:10", "16:9", "21:9"
   ].filter(ratio => proMode || !premiumRatios.includes(ratio));
 
   const handleSliderChange = (value) => {
-    const index = Math.floor((value[0] / 100) * (ratios.length - 1))
-    setAspectRatio(ratios[index])
+    const centerIndex = ratios.indexOf("1:1");
+    const totalSteps = ratios.length - 1;
+    const sliderValue = value[0];
+    
+    // Calculate index based on slider position relative to center
+    let index;
+    if (sliderValue === 50) {
+      index = centerIndex;
+    } else if (sliderValue < 50) {
+      // Map 0-49 to indices before center
+      const beforeCenterSteps = centerIndex;
+      const normalizedValue = (sliderValue / 50) * beforeCenterSteps;
+      index = Math.floor(normalizedValue);
+    } else {
+      // Map 51-100 to indices after center
+      const afterCenterSteps = totalSteps - centerIndex;
+      const normalizedValue = ((sliderValue - 50) / 50) * afterCenterSteps;
+      index = centerIndex + Math.ceil(normalizedValue);
+    }
+    
+    setAspectRatio(ratios[index]);
   }
 
   const getCurrentRatioIndex = () => {
-    const index = ratios.indexOf(aspectRatio);
-    return index >= 0 ? (index / (ratios.length - 1)) * 100 : 0;
+    const centerIndex = ratios.indexOf("1:1");
+    const currentIndex = ratios.indexOf(aspectRatio);
+    
+    if (currentIndex === centerIndex) return 50;
+    
+    if (currentIndex < centerIndex) {
+      // Before center: map to 0-49
+      return (currentIndex / centerIndex) * 50;
+    } else {
+      // After center: map to 51-100
+      const stepsAfterCenter = currentIndex - centerIndex;
+      const totalStepsAfterCenter = ratios.length - 1 - centerIndex;
+      return 50 + ((stepsAfterCenter / totalStepsAfterCenter) * 50);
+    }
   }
 
   return (
