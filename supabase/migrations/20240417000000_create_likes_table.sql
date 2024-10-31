@@ -1,3 +1,6 @@
+-- Drop existing table if it exists
+DROP TABLE IF EXISTS public.user_image_likes;
+
 -- Create likes table
 CREATE TABLE IF NOT EXISTS public.user_image_likes (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
