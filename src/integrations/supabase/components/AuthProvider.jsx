@@ -10,58 +10,64 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    // Handle initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) {
+  const handleAuthSession = async () => {
+    try {
+      // Check URL parameters for auth redirects
+      const params = new URLSearchParams(window.location.search);
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      
+      // Get current session
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      
+      // Handle email confirmation
+      if (params.has('access_token') || hashParams.has('access_token')) {
+        await supabase.auth.setSession({
+          access_token: params.get('access_token') || hashParams.get('access_token'),
+          refresh_token: params.get('refresh_token') || hashParams.get('refresh_token'),
+        });
+        
+        // Refresh session after setting tokens
+        const { data: { session: newSession } } = await supabase.auth.getSession();
+        if (newSession) {
+          setSession(newSession);
+          toast.success('Successfully signed in!');
+          // Clean up URL
+          window.history.replaceState(null, null, window.location.pathname);
+        }
+      } else if (currentSession) {
+        setSession(currentSession);
         toast.success('Successfully signed in!');
       }
+      
       setLoading(false);
-    });
+    } catch (error) {
+      console.error('Auth error:', error);
+      toast.error('Authentication error occurred');
+      setLoading(false);
+    }
+  };
 
-    // Handle auth state changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+  useEffect(() => {
+    // Initial session check and handle redirects
+    handleAuthSession();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth event:', event);
-      setSession(session);
-      queryClient.invalidateQueries('user');
-
+      
       if (event === 'SIGNED_IN') {
+        setSession(session);
+        queryClient.invalidateQueries('user');
         toast.success('Successfully signed in!');
       } else if (event === 'SIGNED_OUT') {
+        setSession(null);
+        queryClient.invalidateQueries('user');
         toast.success('Successfully signed out!');
+      } else if (event === 'TOKEN_REFRESHED') {
+        setSession(session);
+        queryClient.invalidateQueries('user');
       }
-
-      // Handle email verification and OAuth redirects
-      if (window.location.hash) {
-        const params = new URLSearchParams(window.location.hash.substring(1));
-        if (params.has('access_token') || params.has('error')) {
-          // Clear the URL hash after processing
-          window.history.replaceState(null, null, window.location.pathname);
-        }
-      }
-
-      setLoading(false);
     });
-
-    // Check for email confirmation success
-    const checkEmailConfirmation = async () => {
-      const params = new URLSearchParams(window.location.search);
-      if (params.has('email_confirm') && params.get('email_confirm') === 'true') {
-        // Get the latest session
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
-        if (currentSession) {
-          setSession(currentSession);
-          toast.success('Email verified successfully!');
-          // Clear the URL parameters
-          window.history.replaceState(null, null, window.location.pathname);
-        }
-      }
-    };
-
-    checkEmailConfirmation();
 
     return () => {
       subscription?.unsubscribe();
