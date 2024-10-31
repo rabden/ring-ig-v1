@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { cn } from "@/lib/utils";
-import { Send, X } from "lucide-react";
+import { Send, X, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const EnhancedPromptBox = ({ 
@@ -40,6 +40,13 @@ const EnhancedPromptBox = ({
   const handleClear = () => {
     if (onChange) {
       onChange({ target: { value: '' } });
+    }
+  };
+
+  const handleEnhance = () => {
+    if (value && onChange) {
+      const enhancedPrompt = `${value}, 8k, uhd, professional, masterpiece, high-quality, detailed`;
+      onChange({ target: { value: enhancedPrompt } });
     }
   };
 
@@ -90,6 +97,16 @@ const EnhancedPromptBox = ({
               className="h-6 w-6 mr-2"
             >
               <X className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleEnhance}
+              disabled={!value.trim() || disabled}
+              className="h-6 w-6 mr-2"
+              title="Enhance prompt"
+            >
+              <Wand2 className="h-4 w-4" />
             </Button>
             <Button
               variant="ghost"
