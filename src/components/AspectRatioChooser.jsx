@@ -35,8 +35,9 @@ const AspectRatioChooser = ({ aspectRatio, setAspectRatio, proMode }) => {
   const premiumRatios = ['9:21', '21:9', '3:2', '2:3', '4:5', '5:4'];
   
   const ratios = [
-    "9:21", "9:16", "2:3", "3:4", "4:5", "1:1", 
-    "5:4", "4:3", "3:2", "16:9", "21:9"
+    "9:21", "9:16", "2:3", "3:4", "4:5", "10:16", "1:2", 
+    "1:1", 
+    "5:4", "4:3", "3:2", "16:10", "16:9", "2:1", "21:9"
   ].filter(ratio => proMode || !premiumRatios.includes(ratio));
 
   const handleSliderChange = (value) => {
