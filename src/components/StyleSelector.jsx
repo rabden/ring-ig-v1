@@ -13,21 +13,27 @@ const StyleSelector = ({ style, setStyle }) => {
   const [open, setOpen] = React.useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
-  const handleSelect = (value) => {
+  const handleSelect = React.useCallback((value) => {
     setStyle(value === style ? null : value);
     setOpen(false);
-  };
+  }, [style, setStyle]);
 
   const stylesList = React.useMemo(() => {
+    if (!styleConfigs) return [];
     return Object.entries(styleConfigs).map(([key, config]) => ({
       value: key,
-      label: config.name
+      label: config?.name || key
     }));
   }, []);
 
-  const currentStyle = style ? styleConfigs[style]?.name : "Select style";
+  const currentStyle = React.useMemo(() => {
+    if (!style || !styleConfigs[style]) return "Select style";
+    return styleConfigs[style]?.name || "Select style";
+  }, [style]);
 
-  const renderStyleItems = (items) => {
+  const renderStyleItems = React.useCallback((items) => {
+    if (!items || items.length === 0) return null;
+    
     return items.map(({ value, label }) => (
       <CommandItem
         key={value}
@@ -39,7 +45,7 @@ const StyleSelector = ({ style, setStyle }) => {
         {value === style && <Check className="h-4 w-4" />}
       </CommandItem>
     ));
-  };
+  }, [style, handleSelect]);
 
   if (isDesktop) {
     return (
