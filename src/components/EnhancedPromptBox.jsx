@@ -1,130 +1,103 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { cn } from "@/lib/utils";
-import { Send, Wand2, X } from "lucide-react";
+import React, { useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { ArrowRight, X, Wand2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const EnhancedPromptBox = ({ 
   value, 
-  onChange,
+  onChange, 
   onSubmit,
   onKeyDown,
   className,
-  placeholder = "Imagine...",
+  placeholder = "Describe the image you want to generate...",
   disabled = false
 }) => {
   const textareaRef = useRef(null);
-  const [isFocused, setIsFocused] = useState(false);
-
-  const updateLayout = () => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = '24px';
-      const newHeight = Math.min(textareaRef.current.scrollHeight, 200);
-      textareaRef.current.style.height = `${newHeight}px`;
-    }
-  };
+  const [isFocused, setIsFocused] = React.useState(false);
 
   useEffect(() => {
-    updateLayout();
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      const scrollHeight = textareaRef.current.scrollHeight;
+      textareaRef.current.style.height = Math.min(scrollHeight, 200) + 'px';
+    }
   }, [value]);
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      if (value.trim() && !disabled) {
-        onSubmit();
-      }
-      // Remove the onKeyDown prop call to prevent double submission
-      return;
-    }
-    // Only call onKeyDown for non-Enter key presses
-    if (e.key !== 'Enter') {
-      onKeyDown?.(e);
-    }
-  };
-
   const handleClear = () => {
-    if (onChange) {
-      onChange({ target: { value: '' } });
-    }
-  };
-
-  const handleEnhance = () => {
-    if (onChange && value.trim()) {
-      const enhancedPrompt = `${value.trim()}, 8k, uhd, professional, masterpiece, high-quality, detailed`;
-      onChange({ target: { value: enhancedPrompt } });
-    }
+    onChange({ target: { value: '' } });
+    textareaRef.current?.focus();
   };
 
   return (
-    <div className="w-full">
-      <div className="max-w-[900px] mx-auto">
-        <div 
-          className={cn(
-            "bg-card border-border",
-            "border rounded-lg p-3",
-            "min-h-[48px] max-h-[300px]",
-            "transition-all duration-200 ease-out",
-            "flex flex-col gap-2",
-            (isFocused || value) && "min-h-[24px]",
-            className
-          )}
-        >
-          <div className="relative w-full">
-            <textarea
-              ref={textareaRef}
-              value={value}
-              onChange={onChange}
-              onKeyDown={handleKeyDown}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-              placeholder={placeholder}
-              disabled={disabled}
-              className={cn(
-                "w-full bg-transparent border-0 outline-none resize-none p-0 m-0",
-                "text-sm leading-relaxed placeholder:text-muted-foreground",
-                "scrollbar-thin scrollbar-thumb-accent scrollbar-track-transparent"
-              )}
-              style={{ height: '24px' }}
-            />
-          </div>
-          
-          <div 
-            className={cn(
-              "flex justify-end h-6 transition-all duration-200 gap-2",
-              value ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
-            )}
-          >
+    <Card className={cn(
+      "relative overflow-hidden transition-all duration-200",
+      isFocused ? "ring-2 ring-primary" : "",
+      className
+    )}>
+      <div className="flex items-start p-3 gap-2">
+        <div className="flex-grow relative">
+          <textarea
+            ref={textareaRef}
+            value={value}
+            onChange={onChange}
+            onKeyDown={onKeyDown}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            placeholder={placeholder}
+            disabled={disabled}
+            className="w-full min-h-[40px] max-h-[200px] resize-none bg-transparent border-0 p-0 focus:outline-none focus:ring-0 placeholder:text-muted-foreground text-sm"
+            rows={1}
+          />
+        </div>
+        
+        <div className="flex flex-col gap-2 pt-1">
+          {value && (
             <Button
-              variant="ghost"
               size="icon"
+              variant="ghost"
               onClick={handleClear}
-              disabled={!value.trim() || disabled}
               className="h-6 w-6"
+              type="button"
             >
-              <X className="w-4 h-4" />
+              <X className="h-4 w-4" />
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleEnhance}
-              disabled={!value.trim() || disabled}
-              className="h-6 w-6"
-            >
-              <Wand2 className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onSubmit}
-              disabled={!value.trim() || disabled}
-              className="h-6 w-6"
-            >
-              <Send className="w-4 h-4" />
-            </Button>
-          </div>
+          )}
+          <Button
+            size="icon"
+            onClick={onSubmit}
+            className="h-6 w-6"
+            disabled={!value.trim() || disabled}
+            type="submit"
+          >
+            <ArrowRight className="h-4 w-4" />
+          </Button>
         </div>
       </div>
-    </div>
+      
+      {value && (
+        <div className="px-3 pb-2 flex gap-2 flex-wrap">
+          <Button
+            variant="secondary"
+            size="sm"
+            className="h-6 text-xs"
+            onClick={() => onChange({ target: { value: value + ", high quality, 8k" } })}
+          >
+            <Wand2 className="h-3 w-3 mr-1" />
+            Enhance Quality
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="h-6 text-xs"
+            onClick={() => onChange({ target: { value: value + ", detailed, sharp focus" } })}
+          >
+            <Wand2 className="h-3 w-3 mr-1" />
+            Add Details
+          </Button>
+        </div>
+      )}
+    </Card>
   );
 };
 
