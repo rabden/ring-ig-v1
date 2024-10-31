@@ -159,6 +159,7 @@ const ImageGenerator = () => {
         setActiveTab={setActiveTab} 
         session={session} 
         credits={credits}
+        bonusCredits={bonusCredits}
         activeView={activeView}
         setActiveView={setActiveView}
         proMode={proMode}

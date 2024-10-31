@@ -88,6 +88,7 @@ const ImageGeneratorSettings = ({
   nsfwEnabled, setNsfwEnabled,
   style, setStyle,
   steps, setSteps,
+  proMode,
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const totalCredits = (credits || 0) + (bonusCredits || 0);
@@ -157,12 +158,12 @@ const ImageGeneratorSettings = ({
         setModel={handleModelChange}
         nsfwEnabled={nsfwEnabled} 
         quality={quality}
+        proMode={proMode}
       />
 
-      {/* Only show style section for non-NSFW models */}
       {!isNsfwModel && (
         <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
-          <StyleChooser style={style} setStyle={setStyle} />
+          <StyleChooser style={style} setStyle={setStyle} proMode={proMode} />
         </SettingSection>
       )}
 
@@ -177,7 +178,11 @@ const ImageGeneratorSettings = ({
       </SettingSection>
 
       <SettingSection label="Aspect Ratio" tooltip="Slide left for portrait, center for square, right for landscape">
-        <AspectRatioChooser aspectRatio={aspectRatio} setAspectRatio={setAspectRatio} />
+        <AspectRatioChooser 
+          aspectRatio={aspectRatio} 
+          setAspectRatio={setAspectRatio} 
+          proMode={proMode} 
+        />
       </SettingSection>
 
       <SettingSection label="Seed" tooltip="A seed is a number that initializes the random generation process. Using the same seed with the same settings will produce the same image.">

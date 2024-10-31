@@ -21,18 +21,23 @@ const StyleChooser = ({ style, setStyle, proMode }) => {
   return (
     <ScrollArea className="w-full whitespace-nowrap">
       <div className="flex space-x-2 pb-4">
-        {Object.entries(styleConfigs).map(([key, config]) => (
-          <Button
-            key={key}
-            variant={style === key ? "default" : "outline"}
-            onClick={() => handleStyleClick(key)}
-            className="flex-shrink-0 flex items-center gap-1"
-            disabled={!proMode && premiumStyles.includes(key)}
-          >
-            {config.name}
-            {premiumStyles.includes(key) && <Crown className="h-3 w-3" />}
-          </Button>
-        ))}
+        {Object.entries(styleConfigs).map(([key, config]) => {
+          const isPremium = premiumStyles.includes(key);
+          const isDisabled = !proMode && isPremium;
+          
+          return (
+            <Button
+              key={key}
+              variant={style === key ? "default" : "outline"}
+              onClick={() => handleStyleClick(key)}
+              className="flex-shrink-0 flex items-center gap-1"
+              disabled={isDisabled}
+            >
+              {config.name}
+              {isPremium && <Crown className="h-3 w-3" />}
+            </Button>
+          );
+        })}
       </div>
       <ScrollBar orientation="horizontal" />
     </ScrollArea>
