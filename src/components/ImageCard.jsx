@@ -44,6 +44,14 @@ const ImageCard = ({
   const modelName = modelConfigs?.[image.model]?.name || image.model;
   const styleName = styleConfigs?.[image.style]?.name || 'General';
 
+  const handleDoubleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isLiked) {
+      onToggleLike(image.id);
+    }
+  };
+
   return (
     <div className="mb-2">
       <Card className="overflow-hidden">
@@ -57,6 +65,7 @@ const ImageCard = ({
             alt={image.prompt} 
             className="absolute inset-0 w-full h-full object-cover cursor-pointer"
             onClick={() => onImageClick(image)}
+            onDoubleClick={handleDoubleClick}
             loading="lazy"
           />
           <div className="absolute bottom-2 left-2 flex gap-1">
