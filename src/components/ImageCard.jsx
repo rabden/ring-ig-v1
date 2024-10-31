@@ -46,38 +46,45 @@ const ImageCard = ({
   });
 
   useEffect(() => {
-    const options = {
-      threshold: 0.001, // Detect when even 0.1% of the element is visible
-      rootMargin: '100% 0px' // Load images that are one viewport height above and below
+    const checkVisibility = () => {
+      if (!imageRef.current) return;
+
+      const rect = imageRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const verticalMargin = windowHeight; // One viewport height margin
+      
+      // Check if element is within viewport plus margin
+      const isVisible = (
+        rect.top <= windowHeight + verticalMargin &&
+        rect.bottom >= -verticalMargin
+      );
+
+      if (isVisible) {
+        setShouldLoad(true);
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+      } else {
+        // Start unload timer only if completely out of view plus margin
+        if (rect.bottom < -verticalMargin || rect.top > windowHeight + verticalMargin) {
+          timeoutRef.current = setTimeout(() => {
+            setShouldLoad(false);
+            setImageLoaded(false);
+          }, 10000);
+        }
+      }
     };
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setShouldLoad(true);
-          if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-          }
-        } else {
-          // Only start unload timer if the element is completely out of view and margin
-          if (entry.intersectionRatio === 0) {
-            timeoutRef.current = setTimeout(() => {
-              setShouldLoad(false);
-              setImageLoaded(false);
-            }, 10000);
-          }
-        }
-      });
-    }, options);
+    // Initial check
+    checkVisibility();
 
-    if (imageRef.current) {
-      observer.observe(imageRef.current);
-    }
+    // Add scroll and resize listeners
+    window.addEventListener('scroll', checkVisibility, { passive: true });
+    window.addEventListener('resize', checkVisibility);
 
     return () => {
-      if (imageRef.current) {
-        observer.unobserve(imageRef.current);
-      }
+      window.removeEventListener('scroll', checkVisibility);
+      window.removeEventListener('resize', checkVisibility);
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
