@@ -19,7 +19,7 @@ const CustomPromptBox = ({ value, onChange, onKeyDown, onGenerate, className }) 
   };
 
   return (
-    <div className={cn("relative rounded-lg border bg-background", className)}>
+    <div className={cn("relative rounded-lg border bg-card shadow-sm transition-colors", className)}>
       <ScrollArea className="h-full max-h-[300px]">
         <div className="relative">
           <textarea
@@ -27,8 +27,8 @@ const CustomPromptBox = ({ value, onChange, onKeyDown, onGenerate, className }) 
             value={value}
             onChange={onChange}
             onKeyDown={onKeyDown}
-            placeholder="Enter your prompt here..."
-            className="min-h-[56px] w-full resize-none bg-transparent px-4 py-3 text-sm focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 pr-24"
+            placeholder="Describe the image you want to generate..."
+            className="min-h-[56px] w-full resize-none bg-transparent px-4 py-3 text-sm focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 pr-24 placeholder:text-muted-foreground"
             style={{ overflow: 'hidden' }}
           />
         </div>
@@ -40,7 +40,7 @@ const CustomPromptBox = ({ value, onChange, onKeyDown, onGenerate, className }) 
             size="icon"
             variant="ghost"
             onClick={handleClear}
-            className="h-8 w-8"
+            className="h-8 w-8 hover:bg-muted"
           >
             <X className="h-4 w-4" />
           </Button>
