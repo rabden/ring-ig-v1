@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { cn } from "@/lib/utils";
-import { Send, X } from "lucide-react";
+import { Send, Wand2, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const EnhancedPromptBox = ({ 
   value, 
@@ -8,7 +9,7 @@ const EnhancedPromptBox = ({
   onSubmit,
   onKeyDown,
   className,
-  placeholder = "Request a change...",
+  placeholder = "Imagine...",
   disabled = false
 }) => {
   const textareaRef = useRef(null);
@@ -39,6 +40,13 @@ const EnhancedPromptBox = ({
   const handleClear = () => {
     if (onChange) {
       onChange({ target: { value: '' } });
+    }
+  };
+
+  const handleEnhance = () => {
+    if (onChange && value.trim()) {
+      const enhancedPrompt = `${value.trim()}, 8k, uhd, professional, masterpiece, high-quality, detailed`;
+      onChange({ target: { value: enhancedPrompt } });
     }
   };
 
@@ -77,34 +85,37 @@ const EnhancedPromptBox = ({
           
           <div 
             className={cn(
-              "flex justify-end h-6 transition-all duration-200",
+              "flex justify-end h-6 transition-all duration-200 gap-2",
               value ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
             )}
           >
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={handleClear}
               disabled={!value.trim() || disabled}
-              className={cn(
-                "flex items-center justify-center w-8 h-6",
-                "bg-transparent border-none cursor-pointer p-0",
-                "opacity-70 hover:opacity-100 transition-opacity mr-2",
-                "disabled:opacity-50 disabled:cursor-not-allowed"
-              )}
+              className="h-6 w-6"
             >
-              <X className="w-5 h-5" />
-            </button>
-            <button
+              <X className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleEnhance}
+              disabled={!value.trim() || disabled}
+              className="h-6 w-6"
+            >
+              <Wand2 className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={onSubmit}
               disabled={!value.trim() || disabled}
-              className={cn(
-                "flex items-center justify-center w-8 h-6",
-                "bg-transparent border-none cursor-pointer p-0",
-                "opacity-70 hover:opacity-100 transition-opacity",
-                "disabled:opacity-50 disabled:cursor-not-allowed"
-              )}
+              className="h-6 w-6"
             >
-              <Send className="w-5 h-5" />
-            </button>
+              <Send className="w-4 h-4" />
+            </Button>
           </div>
         </div>
       </div>
