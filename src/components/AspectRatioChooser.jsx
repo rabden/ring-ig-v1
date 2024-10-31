@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
 import { Crown, ChevronDown, ChevronUp } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { aspectRatios } from '@/utils/imageConfigs'
 
 const AspectRatioVisualizer = ({ ratio, isPremium }) => {
   const [width, height] = ratio.split(':').map(Number)
