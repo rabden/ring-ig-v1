@@ -4,6 +4,30 @@ import { Slider } from "@/components/ui/slider"
 import { Crown, ChevronDown, ChevronUp } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 
+const AspectRatioVisualizer = ({ ratio, isPremium }) => {
+  const [width, height] = ratio.split(':').map(Number)
+  const maxHeight = 120
+  const scale = maxHeight / height
+  const scaledWidth = width * scale
+  
+  return (
+    <div className="flex flex-col items-center space-y-2 mb-2">
+      <div 
+        className="border-2 border-primary bg-muted flex items-center justify-center text-sm transition-all duration-300 ease-in-out"
+        style={{
+          width: `${scaledWidth}px`,
+          height: `${maxHeight}px`,
+        }}
+      >
+        <div className="flex items-center gap-1">
+          {ratio}
+          {isPremium && <Crown className="h-3 w-3" />}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const AspectRatioChooser = ({ aspectRatio, setAspectRatio, proMode }) => {
   const [isOpen, setIsOpen] = useState(false)
   
