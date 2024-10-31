@@ -63,7 +63,7 @@ export const useImageGeneration = ({
     }
 
     const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed;
-    const modifiedPrompt = getModifiedPrompt(prompt, style, model);
+    const modifiedPrompt = await getModifiedPrompt(prompt, style, model, modelConfigs);
     const maxDimension = qualityOptions[quality];
     const { width: finalWidth, height: finalHeight } = calculateDimensions(useAspectRatio, aspectRatio, width, height, maxDimension);
 
@@ -83,11 +83,13 @@ export const useImageGeneration = ({
         throw new Error('No active API key available');
       }
 
-      const parameters = { 
-        seed: actualSeed, 
-        width: finalWidth, 
-        height: finalHeight, 
-        num_inference_steps: modelConfigs[model]?.defaultStep || 30
+      const parameters = {
+        seed: actualSeed,
+        width: finalWidth,
+        height: finalHeight,
+        num_inference_steps: modelConfigs[model]?.defaultStep || 30,
+        guidance_scale: 7.5,
+        negative_prompt: "ugly, disfigured, low quality, blurry, nsfw"
       };
 
       const response = await fetch(modelConfigs[model]?.apiUrl, {
