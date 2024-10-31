@@ -1,13 +1,9 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import SettingSection from './SettingSection';
-import { Crown } from 'lucide-react';
+import { modelConfigs } from '@/utils/modelConfigs';
 
 const ModelSection = ({ model, setModel, nsfwEnabled, quality }) => {
-  const renderProBadge = () => (
-    <Crown className="w-4 h-4 ml-1 inline-block text-yellow-500" />
-  );
-
   return (
     <SettingSection 
       label="Model" 
@@ -25,16 +21,14 @@ const ModelSection = ({ model, setModel, nsfwEnabled, quality }) => {
             <Button
               variant={model === 'flux' ? 'default' : 'outline'}
               onClick={() => setModel('flux')}
-              className="flex items-center justify-center"
             >
-              Ring.1 {renderProBadge()}
+              Ring.1
             </Button>
             <Button
               variant={model === 'fluxDev' ? 'default' : 'outline'}
               onClick={() => setModel('fluxDev')}
-              className="flex items-center justify-center"
             >
-              Ring.1 hyper {renderProBadge()}
+              Ring.1 hyper
             </Button>
             <Button
               variant={model === 'preLar' ? 'default' : 'outline'}
@@ -60,9 +54,8 @@ const ModelSection = ({ model, setModel, nsfwEnabled, quality }) => {
             <Button
               variant={model === 'nsfwPro' ? 'default' : 'outline'}
               onClick={() => setModel('nsfwPro')}
-              className="flex items-center justify-center"
             >
-              Ring.1Npro {renderProBadge()}
+              Ring.1Npro
             </Button>
           </>
         )}
