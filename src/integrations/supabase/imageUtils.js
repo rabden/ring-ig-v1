@@ -38,19 +38,22 @@ export const deleteImageRecord = async (imageId) => {
 export const deleteImageCompletely = async (imageId) => {
   try {
     // First, fetch the image record to get the storage_path
-    const { data: imageRecord, error: fetchError } = await supabase
+    const { data: imageRecords, error: fetchError } = await supabase
       .from('user_images')
       .select('storage_path')
-      .eq('id', imageId)
-      .single();
+      .eq('id', imageId);
 
     if (fetchError) {
       throw new Error(`Failed to fetch image record: ${fetchError.message}`);
     }
 
-    if (!imageRecord) {
-      throw new Error('Image record not found');
+    // Check if we found any records
+    if (!imageRecords || imageRecords.length === 0) {
+      console.warn('Image record not found, skipping storage deletion');
+      return;
     }
+
+    const imageRecord = imageRecords[0];
 
     // Delete from storage
     await deleteImageFromStorage(imageRecord.storage_path);
