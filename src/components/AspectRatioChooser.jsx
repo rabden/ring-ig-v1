@@ -45,30 +45,33 @@ const AspectRatioChooser = ({ aspectRatio, setAspectRatio, proMode }) => {
     const centerIndex = ratios.indexOf("1:1");
     const sliderValue = value[0];
     
-    // Calculate index based on slider position relative to center
+    // Add a small threshold around the center point (50)
+    if (Math.abs(sliderValue - 50) < 1) {
+      setAspectRatio("1:1");
+      return;
+    }
+    
     let index;
-    if (sliderValue === 50) {
-      index = centerIndex;
-    } else if (sliderValue < 50) {
+    if (sliderValue < 50) {
       // Map 0-49 to indices before center (portrait)
       const beforeCenterSteps = centerIndex;
       const normalizedValue = (sliderValue / 50) * beforeCenterSteps;
-      index = Math.floor(normalizedValue);
+      index = Math.round(normalizedValue);
     } else {
       // Map 51-100 to indices after center (landscape)
       const afterCenterSteps = ratios.length - 1 - centerIndex;
       const normalizedValue = ((sliderValue - 50) / 50) * afterCenterSteps;
-      index = centerIndex + Math.ceil(normalizedValue);
+      index = centerIndex + Math.round(normalizedValue);
     }
     
-    setAspectRatio(ratios[index]);
+    setAspectRatio(ratios[index] || "1:1");
   }
 
   const getCurrentRatioIndex = () => {
     const centerIndex = ratios.indexOf("1:1");
     const currentIndex = ratios.indexOf(aspectRatio);
     
-    if (currentIndex === centerIndex) return 50;
+    if (currentIndex === centerIndex || !ratios.includes(aspectRatio)) return 50;
     
     if (currentIndex < centerIndex) {
       // Before center (portrait): map to 0-49
@@ -88,7 +91,7 @@ const AspectRatioChooser = ({ aspectRatio, setAspectRatio, proMode }) => {
         value={[getCurrentRatioIndex()]}
         onValueChange={handleSliderChange}
         max={100}
-        step={0.1}
+        step={1}
         className="w-full transition-all duration-300"
       />
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
