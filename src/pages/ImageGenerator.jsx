@@ -14,11 +14,10 @@ import ActionButtons from '@/components/ActionButtons'
 import { useImageGeneratorState } from '@/hooks/useImageGeneratorState'
 import { useImageHandlers } from '@/hooks/useImageHandlers'
 import { aspectRatios } from '@/utils/imageConfigs'
-import { useModelConfigs } from '@/hooks/useModelConfigs'
+import { modelConfigs } from '@/utils/modelConfigs'
 
 const ImageGenerator = () => {
   const [proMode, setProMode] = useState(false);
-  const { data: modelConfigs } = useModelConfigs();
   const {
     prompt, setPrompt, seed, setSeed, randomizeSeed, setRandomizeSeed,
     width, setWidth, height, setHeight, steps, setSteps,
@@ -50,8 +49,7 @@ const ImageGenerator = () => {
     aspectRatio,
     updateCredits,
     setGeneratingImages,
-    style,
-    modelConfigs
+    style
   })
 
   const {
@@ -115,7 +113,6 @@ const ImageGenerator = () => {
           activeView={activeView}
           generatingImages={generatingImages}
           nsfwEnabled={nsfwEnabled}
-          modelConfigs={modelConfigs}
         />
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-4 md:p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
@@ -155,7 +152,6 @@ const ImageGenerator = () => {
           steps={steps}
           setSteps={setSteps}
           proMode={proMode}
-          modelConfigs={modelConfigs}
         />
       </div>
       <BottomNavbar 

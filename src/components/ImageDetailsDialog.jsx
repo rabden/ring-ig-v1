@@ -12,27 +12,24 @@ import { Button } from "@/components/ui/button"
 import { Copy } from "lucide-react"
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { toast } from 'sonner'
-import { useStyleConfigs } from '@/hooks/useStyleConfigs'
-import { useModelConfigs } from '@/hooks/useModelConfigs'
+import { styleConfigs } from '@/utils/styleConfigs'
+import { modelConfigs } from '@/utils/modelConfigs'
 
 const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
-  const { data: styleConfigs } = useStyleConfigs();
-  const { data: modelConfigs } = useModelConfigs();
-  
-  if (!image) return null;
+  if (!image) return null
 
   const detailItems = [
-    { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
+    { label: "Model", value: modelConfigs[image.model]?.name || image.model },
     { label: "Seed", value: image.seed },
     { label: "Size", value: `${image.width}x${image.height}` },
     { label: "Aspect Ratio", value: image.aspect_ratio },
-    { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
+    { label: "Style", value: styleConfigs[image.style]?.name || 'General' },
     { label: "Quality", value: image.quality },
-  ];
+  ]
 
   const handleCopy = () => {
-    toast.success('Prompt copied to clipboard');
-  };
+    toast.success('Prompt copied to clipboard')
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -68,7 +65,7 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
         </ScrollArea>
       </DialogContent>
     </Dialog>
-  );
-};
+  )
+}
 
-export default ImageDetailsDialog;
+export default ImageDetailsDialog

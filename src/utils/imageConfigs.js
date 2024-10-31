@@ -21,3 +21,9 @@ export const qualityOptions = {
   "HD": 1024,
   "HD+": 1536,
 }
+
+// Import modelConfigs from the correct location
+import { modelConfigs } from '@/utils/modelConfigs'
+
+// Re-export modelConfigs
+export { modelConfigs }

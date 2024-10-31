@@ -1,4 +1,6 @@
 import { qualityOptions, aspectRatios } from '@/utils/imageConfigs';
+import { styleConfigs } from '@/utils/styleConfigs';
+import { modelConfigs } from '@/utils/modelConfigs';
 
 export const makeDivisibleBy16 = (num) => Math.floor(num / 16) * 16;
 
@@ -27,14 +29,11 @@ export const calculateDimensions = (useAspectRatio, aspectRatio, width, height, 
   };
 };
 
-export const getModifiedPrompt = async (prompt, style, model, styleConfigs, modelConfigs) => {
-  if (!styleConfigs || !modelConfigs) return prompt;
-  
+export const getModifiedPrompt = (prompt, style, model) => {
   const modelConfig = modelConfigs[model];
   if (modelConfig?.noStyleSuffix) {
     return prompt;
   }
-  
-  const styleSuffix = styleConfigs[style]?.suffix || styleConfigs.general?.suffix || '';
-  return `${prompt}, ${styleSuffix}${modelConfig?.promptSuffix || ''}`;
+  const styleSuffix = styleConfigs[style]?.suffix || styleConfigs.general.suffix;
+  return `${prompt}, ${styleSuffix}${modelConfigs[model]?.promptSuffix || ''}`;
 };

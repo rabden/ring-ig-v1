@@ -9,8 +9,8 @@ import StyleChooser from './StyleChooser';
 import AspectRatioChooser from './AspectRatioChooser';
 import SettingSection from './settings/SettingSection';
 import ModelSection from './settings/ModelSection';
-import { ArrowRight, X } from "lucide-react";
-import { useModelConfigs } from '@/hooks/useModelConfigs';
+import { ArrowRight, X } from 'lucide-react';
+import { modelConfigs } from '@/utils/modelConfigs';
 
 const PromptInput = ({ value, onChange, onKeyDown, onGenerate }) => {
   const [isFocused, setIsFocused] = React.useState(false);
@@ -89,13 +89,12 @@ const ImageGeneratorSettings = ({
   style, setStyle,
   steps, setSteps,
   proMode,
-  modelConfigs
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
   const showGuidanceScale = model === 'fluxDev';
-  const isNsfwModel = modelConfigs?.[model]?.category === "NSFW";
+  const isNsfwModel = modelConfigs[model]?.category === "NSFW";
 
   const handleModelChange = (newModel) => {
     if ((newModel === 'turbo' || newModel === 'preLar') && quality === 'HD+') {
@@ -114,6 +113,7 @@ const ImageGeneratorSettings = ({
   const handlePromptChange = (e) => {
     setPrompt(e.target.value);
     
+    // Update steps based on prompt length for turbo model
     if (model === 'turbo') {
       const promptLength = e.target.value.length;
       if (promptLength <= 100) {
@@ -156,10 +156,9 @@ const ImageGeneratorSettings = ({
       <ModelSection 
         model={model} 
         setModel={handleModelChange}
-        nsfwEnabled={nsfwEnabled}
+        nsfwEnabled={nsfwEnabled} 
         quality={quality}
         proMode={proMode}
-        modelConfigs={modelConfigs}
       />
 
       {!isNsfwModel && (
