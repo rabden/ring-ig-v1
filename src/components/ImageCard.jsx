@@ -42,12 +42,12 @@ const ImageCard = ({
             onClick={() => onImageClick(image)}
             loading="lazy"
           />
-          <div className="absolute bottom-2 left-2 flex gap-2">
-            <Badge variant="secondary" className="bg-black/50 text-white border-none text-[10px] md:text-xs">
+          <div className="absolute bottom-2 left-2 flex gap-1">
+            <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
               {modelName}
             </Badge>
             {!isNsfw && (
-              <Badge variant="secondary" className="bg-black/50 text-white border-none text-[10px] md:text-xs">
+              <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
                 {styleName}
               </Badge>
             )}
