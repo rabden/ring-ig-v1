@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
 import Masonry from 'react-masonry-css'
 import SkeletonImageCard from './SkeletonImageCard'
-import { modelConfigs } from '@/utils/modelConfigs'
+import { useModelConfigs } from '@/hooks/useModelConfigs'
 import MobileImageDrawer from './MobileImageDrawer'
 import ImageCard from './ImageCard'
 import { useLikes } from '@/hooks/useLikes'
@@ -29,7 +29,8 @@ const ImageGallery = ({
   const [selectedImage, setSelectedImage] = useState(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [showImageInDrawer, setShowImageInDrawer] = useState(false)
-  const { userLikes, toggleLike } = useLikes(userId);
+  const { userLikes, toggleLike } = useLikes(userId)
+  const { data: modelConfigs } = useModelConfigs()
 
   const { data: images, isLoading, refetch } = useQuery({
     queryKey: ['images', userId, activeView, nsfwEnabled],
@@ -44,7 +45,7 @@ const ImageGallery = ({
       if (error) throw error
 
       const filteredData = data.filter(img => {
-        const isNsfw = modelConfigs[img.model]?.category === "NSFW";
+        const isNsfw = modelConfigs?.[img.model]?.category === "NSFW";
         
         if (activeView === 'myImages') {
           if (nsfwEnabled) {
@@ -76,7 +77,7 @@ const ImageGallery = ({
 
       return filteredData;
     },
-    enabled: !!userId,
+    enabled: !!userId && !!modelConfigs,
   })
 
   useEffect(() => {
@@ -88,7 +89,7 @@ const ImageGallery = ({
       .channel('user_images_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'user_images' }, (payload) => {
         if (payload.eventType === 'INSERT') {
-          const isNsfw = modelConfigs[payload.new.model]?.category === "NSFW";
+          const isNsfw = modelConfigs?.[payload.new.model]?.category === "NSFW";
           if (activeView === 'myImages') {
             if (nsfwEnabled) {
               if (isNsfw && payload.new.user_id === userId) refetch();
@@ -111,7 +112,7 @@ const ImageGallery = ({
     return () => {
       subscription.unsubscribe()
     }
-  }, [userId, activeView, nsfwEnabled, refetch])
+  }, [userId, activeView, nsfwEnabled, refetch, modelConfigs])
 
   const handleImageClick = (image, index) => {
     if (window.innerWidth <= 768) {
