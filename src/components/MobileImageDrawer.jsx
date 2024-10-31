@@ -1,7 +1,7 @@
 import React from 'react';
 import { Drawer } from 'vaul';
 import { Button } from "@/components/ui/button";
-import { Download, Trash2, Wand2, Copy } from "lucide-react";
+import { Download, Trash2, Wand2, Copy, Crown } from "lucide-react";
 import { supabase } from '@/integrations/supabase/supabase';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -13,11 +13,23 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
   if (!image) return null;
 
   const detailItems = [
-    { label: "Model", value: modelConfigs[image.model]?.name || image.model },
+    { 
+      label: "Model", 
+      value: modelConfigs[image.model]?.name || image.model,
+      isPro: ['flux', 'fluxDev', 'nsfwPro'].includes(image.model)
+    },
     { label: "Seed", value: image.seed },
     { label: "Size", value: `${image.width}x${image.height}` },
-    { label: "Aspect Ratio", value: image.aspect_ratio },
-    { label: "Style", value: styleConfigs[image.style]?.name || 'General' },
+    { 
+      label: "Aspect Ratio", 
+      value: image.aspect_ratio,
+      isPro: ['21:9', '9:21', '1.91:1', '1:1.91'].includes(image.aspect_ratio)
+    },
+    { 
+      label: "Style", 
+      value: styleConfigs[image.style]?.name || 'General',
+      isPro: ['anime', '3d', 'realistic', 'illustration', 'concept', 'watercolor', 'comic', 'minimalist', 'cyberpunk', 'retro'].includes(image.style)
+    },
     { label: "Quality", value: image.quality },
   ];
 
@@ -34,11 +46,11 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
     <Drawer.Root open={open} onOpenChange={onOpenChange}>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[60]" />
-        <Drawer.Content className="bg-background flex flex-col fixed inset-0 z-[60]">
-          <div className="p-4 bg-muted/40 flex-1">
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-8" />
-            <ScrollArea className="h-[calc(100vh-80px)]">
-              <div className="max-w-md mx-auto space-y-4">
+        <Drawer.Content className="bg-background flex flex-col fixed bottom-0 left-0 right-0 z-[60] max-h-[95vh]">
+          <div className="p-4 bg-muted/40 overflow-hidden">
+            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-4" />
+            <ScrollArea className="h-[calc(95vh-80px)]">
+              <div className="max-w-md mx-auto space-y-4 px-2">
                 {showImage && (
                   <div className="relative rounded-lg overflow-hidden">
                     <img
@@ -49,7 +61,7 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                   </div>
                 )}
                 
-                <div className="flex gap-2 justify-between px-1">
+                <div className="flex gap-2 justify-between">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -89,7 +101,7 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                   </Button>
                 </div>
 
-                <div className="space-y-4 pt-2">
+                <div className="space-y-4">
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="text-lg font-semibold">Prompt</h3>
@@ -97,7 +109,7 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                         <Copy className="h-4 w-4" />
                       </Button>
                     </div>
-                    <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md">
+                    <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md break-words">
                       {image.prompt}
                     </p>
                   </div>
@@ -106,8 +118,9 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                     {detailItems.map((item, index) => (
                       <div key={index} className="space-y-1">
                         <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
-                        <Badge variant="outline" className="text-sm font-normal">
+                        <Badge variant="outline" className="text-sm font-normal flex items-center gap-1 w-fit">
                           {item.value}
+                          {item.isPro && <Crown className="h-3 w-3" />}
                         </Badge>
                       </div>
                     ))}
