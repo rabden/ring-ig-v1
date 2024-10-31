@@ -56,6 +56,13 @@ export const useImageGeneration = ({
       return;
     }
 
+    // Check if the quality is allowed for this model
+    const modelConfig = modelConfigs[model];
+    if (modelConfig?.qualityLimits && !modelConfig.qualityLimits.includes(quality)) {
+      console.error(`Quality ${quality} not supported for model ${model}`);
+      return;
+    }
+
     const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
     const totalCredits = session.credits + (session.bonusCredits || 0);
     if (totalCredits < creditCost) {
@@ -83,16 +90,18 @@ export const useImageGeneration = ({
         throw new Error('No active API key available');
       }
 
+      // Use the model's default inference steps from the database
       const parameters = {
         seed: actualSeed,
         width: finalWidth,
         height: finalHeight,
-        num_inference_steps: modelConfigs[model]?.defaultStep || 30,
+        num_inference_steps: modelConfig?.defaultStep || 30,
         guidance_scale: 7.5,
         negative_prompt: "ugly, disfigured, low quality, blurry, nsfw"
       };
 
-      const response = await fetch(modelConfigs[model]?.apiUrl, {
+      // Use the model's API URL from the database
+      const response = await fetch(modelConfig?.apiUrl, {
         headers: {
           Authorization: `Bearer ${apiKeyData}`,
           "Content-Type": "application/json",
