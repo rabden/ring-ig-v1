@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import { useUserCredits } from '@/hooks/useUserCredits'
 import { useImageGeneration } from '@/hooks/useImageGeneration'
@@ -12,6 +12,8 @@ import ProfileMenu from '@/components/ProfileMenu'
 import ActionButtons from '@/components/ActionButtons'
 import { useImageGeneratorState } from '@/hooks/useImageGeneratorState'
 import { useImageHandlers } from '@/hooks/useImageHandlers'
+import { aspectRatios } from '@/utils/imageConfigs'
+import { modelConfigs } from '@/utils/modelConfigs'
 
 const ImageGenerator = () => {
   const {
@@ -29,7 +31,7 @@ const ImageGenerator = () => {
   const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id)
   const queryClient = useQueryClient()
 
-  const [style, setStyle] = useState('general')
+  const [style, setStyle] = React.useState('general')
 
   const { generateImage } = useImageGeneration({
     session: { ...session, credits, bonusCredits },
