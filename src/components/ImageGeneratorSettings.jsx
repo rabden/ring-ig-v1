@@ -11,7 +11,7 @@ import SettingSection from './settings/SettingSection';
 import ModelSection from './settings/ModelSection';
 import { ArrowRight, X } from 'lucide-react';
 import { modelConfigs } from '@/utils/modelConfigs';
-import EnhancedPromptBox from './EnhancedPromptBox';
+import NewPromptBox from './NewPromptBox';
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -87,7 +87,7 @@ const ImageGeneratorSettings = ({
       </div>
 
       <SettingSection label="Prompt" tooltip="Enter a description of the image you want to generate. Be as specific as possible for best results.">
-        <EnhancedPromptBox
+        <NewPromptBox
           value={prompt}
           onChange={handlePromptChange}
           onKeyDown={handlePromptKeyDown}
