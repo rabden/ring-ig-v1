@@ -1,4 +1,5 @@
 import React from 'react';
+import EnhancedPromptBox from './EnhancedPromptBox';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -144,11 +145,12 @@ const ImageGeneratorSettings = ({
       </div>
 
       <SettingSection label="Prompt" tooltip="Enter a description of the image you want to generate. Be as specific as possible for best results.">
-        <PromptInput
+        <EnhancedPromptBox
           value={prompt}
           onChange={handlePromptChange}
           onKeyDown={handlePromptKeyDown}
           onGenerate={generateImage}
+          onClear={() => setPrompt('')}
         />
       </SettingSection>
 
