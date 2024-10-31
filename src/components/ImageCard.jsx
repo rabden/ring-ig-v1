@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MoreVertical } from "lucide-react"
@@ -26,6 +26,9 @@ const ImageCard = ({
   onToggleLike
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const imageRef = useRef(null);
+  const timeoutRef = useRef(null);
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   
@@ -41,6 +44,42 @@ const ImageCard = ({
       return count || 0;
     },
   });
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShouldLoad(true);
+            // Clear any existing timeout when image comes into view
+            if (timeoutRef.current) {
+              clearTimeout(timeoutRef.current);
+            }
+          } else {
+            // Start timer to unload image after 10 seconds out of view
+            timeoutRef.current = setTimeout(() => {
+              setShouldLoad(false);
+              setImageLoaded(false);
+            }, 10000);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+
+    if (imageRef.current) {
+      observer.observe(imageRef.current);
+    }
+
+    return () => {
+      if (imageRef.current) {
+        observer.unobserve(imageRef.current);
+      }
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
   const modelName = modelConfigs?.[image.model]?.name || image.model;
@@ -62,20 +101,24 @@ const ImageCard = ({
             isTrending={image.is_trending} 
             isHot={image.is_hot} 
           />
-          {!imageLoaded && (
-            <div className="absolute inset-0 bg-muted animate-pulse">
-              <Skeleton className="w-full h-full" />
-            </div>
-          )}
-          <img 
-            src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-            alt={image.prompt} 
-            className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-            onClick={() => onImageClick(image)}
-            onDoubleClick={handleDoubleClick}
-            onLoad={() => setImageLoaded(true)}
-            loading="lazy"
-          />
+          <div ref={imageRef}>
+            {(!imageLoaded || !shouldLoad) && (
+              <div className="absolute inset-0 bg-muted animate-pulse">
+                <Skeleton className="w-full h-full" />
+              </div>
+            )}
+            {shouldLoad && (
+              <img 
+                src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                alt={image.prompt} 
+                className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                onClick={() => onImageClick(image)}
+                onDoubleClick={handleDoubleClick}
+                onLoad={() => setImageLoaded(true)}
+                loading="lazy"
+              />
+            )}
+          </div>
           <div className="absolute bottom-2 left-2 flex gap-1">
             <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
               {modelName}
