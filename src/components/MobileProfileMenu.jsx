@@ -6,9 +6,8 @@ import SignInDialog from '@/components/SignInDialog';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { User } from 'lucide-react';
 
-const MobileProfileMenu = ({ user, credits = 0, bonusCredits = 0 }) => {
+const MobileProfileMenu = ({ user, credits, bonusCredits }) => {
   const { logout } = useSupabaseAuth();
-  const displayName = user?.user_metadata?.display_name || user?.email?.split('@')[0];
 
   return (
     <Drawer.Root>
@@ -16,8 +15,8 @@ const MobileProfileMenu = ({ user, credits = 0, bonusCredits = 0 }) => {
         <Button variant="ghost" size="icon" className="rounded-full">
           {user ? (
             <Avatar className="h-8 w-8">
-              <AvatarImage src={user?.user_metadata?.avatar_url} alt={displayName} />
-              <AvatarFallback>{displayName?.charAt(0).toUpperCase()}</AvatarFallback>
+              <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.email} />
+              <AvatarFallback>{user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
             </Avatar>
           ) : (
             <User size={20} />
@@ -33,14 +32,16 @@ const MobileProfileMenu = ({ user, credits = 0, bonusCredits = 0 }) => {
               {user ? (
                 <div className="flex flex-col items-center space-y-6">
                   <Avatar className="h-24 w-24">
-                    <AvatarImage src={user.user_metadata.avatar_url} alt={displayName} />
-                    <AvatarFallback>{displayName.charAt(0).toUpperCase()}</AvatarFallback>
+                    <AvatarImage src={user.user_metadata.avatar_url} alt={user.email} />
+                    <AvatarFallback>{user.email.charAt(0).toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div className="text-center space-y-2">
-                    <h3 className="text-xl font-semibold">{displayName}</h3>
+                    <h3 className="text-xl font-semibold">
+                      {user.user_metadata.display_name || user.email}
+                    </h3>
                     <p className="text-sm text-muted-foreground">{user.email}</p>
                     <p className="text-sm font-medium">
-                      Credits: {credits} + B{bonusCredits}
+                      Credits: {credits} + {bonusCredits}
                     </p>
                   </div>
                   <Button onClick={logout} variant="outline" className="w-full max-w-xs">

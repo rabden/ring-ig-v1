@@ -31,7 +31,7 @@ const DesktopProfileMenu = ({ user, credits, bonusCredits }) => {
               <p className="text-sm text-muted-foreground">{user.email}</p>
             </div>
             <div className="text-sm font-medium">
-              Credits: {credits} + B{bonusCredits}
+              Credits: {credits} + {bonusCredits}
             </div>
             <Button onClick={logout} variant="outline" className="w-full">
               Log out
