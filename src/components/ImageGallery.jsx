@@ -7,6 +7,7 @@ import { useModelConfigs } from '@/hooks/useModelConfigs'
 import MobileImageDrawer from './MobileImageDrawer'
 import ImageCard from './ImageCard'
 import { useLikes } from '@/hooks/useLikes'
+import { toast } from 'sonner'
 
 const breakpointColumnsObj = {
   default: 4,
@@ -85,34 +86,65 @@ const ImageGallery = ({
   }, [activeView, nsfwEnabled, refetch])
 
   useEffect(() => {
-    const subscription = supabase
-      .channel('user_images_changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_images' }, (payload) => {
-        if (payload.eventType === 'INSERT') {
-          const isNsfw = modelConfigs?.[payload.new.model]?.category === "NSFW";
-          if (activeView === 'myImages') {
-            if (nsfwEnabled) {
-              if (isNsfw && payload.new.user_id === userId) refetch();
-            } else {
-              if (!isNsfw && payload.new.user_id === userId) refetch();
-            }
-          } else if (activeView === 'inspiration') {
-            if (nsfwEnabled) {
-              if (isNsfw && payload.new.user_id !== userId) refetch();
-            } else {
-              if (!isNsfw && payload.new.user_id !== userId) refetch();
+    const channels = [
+      supabase
+        .channel('user_images_changes')
+        .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'user_images' }, 
+          (payload) => {
+            if (payload.eventType === 'INSERT') {
+              const isNsfw = modelConfigs?.[payload.new.model]?.category === "NSFW";
+              if (activeView === 'myImages') {
+                if (nsfwEnabled) {
+                  if (isNsfw && payload.new.user_id === userId) {
+                    refetch();
+                    toast.success('New image added');
+                  }
+                } else {
+                  if (!isNsfw && payload.new.user_id === userId) {
+                    refetch();
+                    toast.success('New image added');
+                  }
+                }
+              } else if (activeView === 'inspiration') {
+                if (nsfwEnabled) {
+                  if (isNsfw && payload.new.user_id !== userId) {
+                    refetch();
+                    toast.success('New inspiration added');
+                  }
+                } else {
+                  if (!isNsfw && payload.new.user_id !== userId) {
+                    refetch();
+                    toast.success('New inspiration added');
+                  }
+                }
+              }
+            } else if (payload.eventType === 'DELETE') {
+              refetch();
+              toast.success('Image deleted successfully');
             }
           }
-        } else if (payload.eventType === 'DELETE') {
-          refetch();
-        }
-      })
-      .subscribe()
+        ),
+      supabase
+        .channel('user_image_likes_changes')
+        .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'user_image_likes' },
+          () => {
+            refetch();
+          }
+        )
+    ];
 
+    // Subscribe to all channels
+    Promise.all(channels.map(channel => channel.subscribe()));
+
+    // Cleanup function to unsubscribe from all channels
     return () => {
-      subscription.unsubscribe()
-    }
-  }, [userId, activeView, nsfwEnabled, refetch, modelConfigs])
+      channels.forEach(channel => {
+        supabase.removeChannel(channel);
+      });
+    };
+  }, [userId, activeView, nsfwEnabled, refetch, modelConfigs]);
 
   const handleImageClick = (image, index) => {
     if (window.innerWidth <= 768) {

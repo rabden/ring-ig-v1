@@ -9,8 +9,6 @@ export const deleteImageFromStorage = async (storagePath) => {
     if (error) {
       throw new Error(`Failed to delete image from storage: ${error.message}`);
     }
-
-    console.log('Image deleted successfully from storage');
   } catch (error) {
     console.error('Error in deleteImageFromStorage:', error);
     throw error;
@@ -27,8 +25,6 @@ export const deleteImageRecord = async (imageId) => {
     if (error) {
       throw new Error(`Failed to delete image record from database: ${error.message}`);
     }
-
-    console.log('Image record deleted successfully from database');
   } catch (error) {
     console.error('Error in deleteImageRecord:', error);
     throw error;
@@ -49,19 +45,17 @@ export const deleteImageCompletely = async (imageId) => {
 
     // Check if we found any records
     if (!imageRecords || imageRecords.length === 0) {
-      console.warn('Image record not found, skipping storage deletion');
+      console.warn('Image record not found');
       return;
     }
 
     const imageRecord = imageRecords[0];
 
-    // Delete from storage
+    // Delete from storage first
     await deleteImageFromStorage(imageRecord.storage_path);
 
-    // Delete from database
+    // Then delete from database
     await deleteImageRecord(imageId);
-
-    console.log('Image deleted successfully from both storage and database');
   } catch (error) {
     console.error('Error in deleteImageCompletely:', error);
     throw error;
