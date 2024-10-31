@@ -5,9 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { ThemeProvider } from "@/components/theme-provider"
 import ImageGenerator from "./pages/ImageGenerator"
-import SignIn from "./pages/SignIn"
 import { SupabaseAuthProvider } from '@/integrations/supabase/auth'
-import ProtectedRoute from './components/ProtectedRoute'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,15 +24,7 @@ const App = () => (
           <Toaster />
           <BrowserRouter>
             <Routes>
-              <Route path="/sign-in" element={<SignIn />} />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <ImageGenerator />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/" element={<ImageGenerator />} />
             </Routes>
           </BrowserRouter>
         </SupabaseAuthProvider>

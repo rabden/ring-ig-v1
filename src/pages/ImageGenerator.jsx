@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useSupabaseAuth } from '@/integrations/supabase/auth'
 import { useUserCredits } from '@/hooks/useUserCredits'
 import { useImageGeneration } from '@/hooks/useImageGeneration'
 import { useQueryClient } from '@tanstack/react-query'
+import AuthOverlay from '@/components/AuthOverlay'
 import BottomNavbar from '@/components/BottomNavbar'
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings'
 import ImageGallery from '@/components/ImageGallery'
@@ -31,7 +32,7 @@ const ImageGenerator = () => {
   const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id)
   const queryClient = useQueryClient()
 
-  const [style, setStyle] = React.useState('general')
+  const [style, setStyle] = useState('general')
 
   const { generateImage } = useImageGeneration({
     session: { ...session, credits, bonusCredits },
@@ -108,6 +109,11 @@ const ImageGenerator = () => {
         />
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-4 md:p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
+        {!session && (
+          <div className="absolute inset-0 z-10">
+            <AuthOverlay />
+          </div>
+        )}
         <ImageGeneratorSettings
           prompt={prompt}
           setPrompt={setPrompt}
@@ -163,7 +169,7 @@ const ImageGenerator = () => {
         isOwner={selectedImage?.user_id === session?.user?.id}
       />
     </div>
-  );
-};
+  )
+}
 
 export default ImageGenerator
