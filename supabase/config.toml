@@ -40,5 +40,5 @@ enable_confirmations = false
 
 [auth.external.google]
 enabled = true
-client_id = "YOUR_GOOGLE_CLIENT_ID"
-secret = "YOUR_GOOGLE_CLIENT_SECRET"
+client_id = "229422397213-lqrek8a0jftrlvf178gi7mqlvc7pnj2o.apps.googleusercontent.com"
+secret = "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"
