@@ -1,13 +1,12 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
 import Masonry from 'react-masonry-css'
 import SkeletonImageCard from './SkeletonImageCard'
+import { useModelConfigs } from '@/hooks/useModelConfigs'
 import MobileImageDrawer from './MobileImageDrawer'
 import ImageCard from './ImageCard'
 import { useLikes } from '@/hooks/useLikes'
-import { useImageLoadManager } from '@/hooks/useImageLoadManager'
-import { useModelConfigs } from '@/hooks/useModelConfigs'
 
 const breakpointColumnsObj = {
   default: 4,
@@ -32,13 +31,12 @@ const ImageGallery = ({
   const [showImageInDrawer, setShowImageInDrawer] = useState(false)
   const { userLikes, toggleLike } = useLikes(userId)
   const { data: modelConfigs } = useModelConfigs()
-  const { handleImageLoad: handleImageLoadInternal } = useImageLoadManager(5) // 5MB limit
-  const [unloadedImages, setUnloadedImages] = useState(new Set())
 
-  const { data: images, isLoading } = useQuery({
+  const { data: images, isLoading, refetch } = useQuery({
     queryKey: ['images', userId, activeView, nsfwEnabled],
     queryFn: async () => {
       if (!userId) return []
+
       const { data, error } = await supabase
         .from('user_images')
         .select('*')
@@ -65,23 +63,64 @@ const ImageGallery = ({
         return false;
       });
 
+      if (activeView === 'inspiration') {
+        filteredData.sort((a, b) => {
+          if (a.is_hot && a.is_trending && (!b.is_hot || !b.is_trending)) return -1;
+          if (b.is_hot && b.is_trending && (!a.is_hot || !a.is_trending)) return 1;
+          if (a.is_hot && !b.is_hot) return -1;
+          if (b.is_hot && !a.is_hot) return 1;
+          if (a.is_trending && !b.is_trending) return -1;
+          if (b.is_trending && !a.is_trending) return 1;
+          return new Date(b.created_at) - new Date(a.created_at);
+        });
+      }
+
       return filteredData;
     },
     enabled: !!userId && !!modelConfigs,
   })
 
-  const handleImageLoadAndUnload = async (imageId, size) => {
-    const imagesToUnload = await handleImageLoadInternal(imageId, size)
-    setUnloadedImages(new Set(imagesToUnload))
-  }
+  useEffect(() => {
+    refetch()
+  }, [activeView, nsfwEnabled, refetch])
 
-  const handleImageClick = (image) => {
+  useEffect(() => {
+    const subscription = supabase
+      .channel('user_images_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_images' }, (payload) => {
+        if (payload.eventType === 'INSERT') {
+          const isNsfw = modelConfigs?.[payload.new.model]?.category === "NSFW";
+          if (activeView === 'myImages') {
+            if (nsfwEnabled) {
+              if (isNsfw && payload.new.user_id === userId) refetch();
+            } else {
+              if (!isNsfw && payload.new.user_id === userId) refetch();
+            }
+          } else if (activeView === 'inspiration') {
+            if (nsfwEnabled) {
+              if (isNsfw && payload.new.user_id !== userId) refetch();
+            } else {
+              if (!isNsfw && payload.new.user_id !== userId) refetch();
+            }
+          }
+        } else if (payload.eventType === 'DELETE') {
+          refetch();
+        }
+      })
+      .subscribe()
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [userId, activeView, nsfwEnabled, refetch, modelConfigs])
+
+  const handleImageClick = (image, index) => {
     if (window.innerWidth <= 768) {
       setSelectedImage(image)
       setShowImageInDrawer(true)
       setDrawerOpen(true)
     } else {
-      onImageClick(image)
+      onImageClick(image, index)
     }
   }
 
@@ -108,11 +147,11 @@ const ImageGallery = ({
         <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
       )))
     } else if (images && images.length > 0) {
-      content.push(...images.map((image) => (
+      content.push(...images.map((image, index) => (
         <ImageCard
           key={image.id}
           image={image}
-          onImageClick={() => handleImageClick(image)}
+          onImageClick={() => handleImageClick(image, index)}
           onMoreClick={handleMoreClick}
           onDownload={onDownload}
           onDiscard={onDiscard}
@@ -122,17 +161,6 @@ const ImageGallery = ({
           isMobile={window.innerWidth <= 768}
           isLiked={userLikes.includes(image.id)}
           onToggleLike={toggleLike}
-          onImageLoad={handleImageLoadAndUnload}
-          isUnloaded={unloadedImages.has(image.id)}
-          setIsUnloaded={(value) => {
-            if (!value) {
-              setUnloadedImages(prev => {
-                const newSet = new Set(prev)
-                newSet.delete(image.id)
-                return newSet
-              })
-            }
-          }}
         />
       )))
     }
