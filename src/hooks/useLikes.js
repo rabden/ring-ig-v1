@@ -20,7 +20,9 @@ export const useLikes = (userId) => {
   });
 
   const toggleLike = useMutation({
-    mutationFn: async ({ imageId, isLiked }) => {
+    mutationFn: async (imageId) => {
+      const isLiked = userLikes?.includes(imageId);
+      
       if (isLiked) {
         const { error } = await supabase
           .from('user_image_likes')
@@ -29,9 +31,22 @@ export const useLikes = (userId) => {
           .eq('image_id', imageId);
         if (error) throw error;
       } else {
+        // Get the created_by value from the user_images table
+        const { data: imageData, error: imageError } = await supabase
+          .from('user_images')
+          .select('user_id')
+          .eq('id', imageId)
+          .single();
+        
+        if (imageError) throw imageError;
+
         const { error } = await supabase
           .from('user_image_likes')
-          .insert([{ user_id: userId, image_id: imageId }]);
+          .insert([{ 
+            user_id: userId, 
+            image_id: imageId,
+            created_by: imageData.user_id 
+          }]);
         if (error) throw error;
       }
     },
