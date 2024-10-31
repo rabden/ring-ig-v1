@@ -2,9 +2,12 @@ import React from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MoreVertical } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ImageStatusIndicators from './ImageStatusIndicators'
 import { supabase } from '@/integrations/supabase/supabase'
+import { modelConfigs } from '@/utils/modelConfigs'
+import { styleConfigs } from '@/utils/styleConfigs'
 
 const ImageCard = ({ 
   image, 
@@ -17,6 +20,10 @@ const ImageCard = ({
   userId,
   isMobile 
 }) => {
+  const isNsfw = modelConfigs[image.model]?.category === "NSFW";
+  const modelName = modelConfigs[image.model]?.name || image.model;
+  const styleName = styleConfigs[image.style]?.name || 'General';
+
   return (
     <div className="mb-2">
       <Card className="overflow-hidden">
@@ -32,6 +39,16 @@ const ImageCard = ({
             onClick={() => onImageClick(image)}
             loading="lazy"
           />
+          <div className="absolute bottom-2 left-2 flex gap-2">
+            <Badge variant="secondary" className="bg-black/50 text-white border-none">
+              {modelName}
+            </Badge>
+            {!isNsfw && (
+              <Badge variant="secondary" className="bg-black/50 text-white border-none">
+                {styleName}
+              </Badge>
+            )}
+          </div>
         </CardContent>
       </Card>
       <div className="mt-1 flex items-center justify-between">
