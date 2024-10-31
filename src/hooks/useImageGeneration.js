@@ -1,6 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
-import { modelConfigs } from '@/utils/modelConfigs';
 import { qualityOptions } from '@/utils/imageConfigs';
 import { calculateDimensions, getModifiedPrompt } from '@/utils/imageUtils';
 import { handleApiResponse, MAX_RETRIES } from '@/utils/retryUtils';
@@ -19,6 +18,7 @@ export const useImageGeneration = ({
   updateCredits,
   setGeneratingImages,
   style,
+  modelConfigs
 }) => {
   const uploadImageMutation = useMutation({
     mutationFn: async ({ imageBlob, metadata }) => {
@@ -50,8 +50,9 @@ export const useImageGeneration = ({
   });
 
   const generateImage = async (retryCount = 0) => {
-    if (!session || !prompt) {
+    if (!session || !prompt || !modelConfigs) {
       !session && console.log('User not authenticated');
+      !modelConfigs && console.log('Model configs not loaded');
       return;
     }
 
@@ -86,7 +87,7 @@ export const useImageGeneration = ({
         seed: actualSeed, 
         width: finalWidth, 
         height: finalHeight, 
-        num_inference_steps: modelConfigs[model].defaultStep 
+        num_inference_steps: modelConfigs[model]?.defaultStep || 30
       };
 
       const response = await fetch(modelConfigs[model]?.apiUrl, {
