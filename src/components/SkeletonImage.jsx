@@ -3,9 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const SkeletonImage = ({ width, height }) => {
   return (
-    <div className="absolute inset-0">
-      <Skeleton className="w-full h-full" />
-    </div>
+    <Skeleton className="w-full h-full" style={{ paddingTop: `${(height / width) * 100}%` }} />
   );
 };
 
