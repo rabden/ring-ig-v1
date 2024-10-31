@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/supabase'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import LikeButton from './LikeButton'
+import { useQuery } from '@tanstack/react-query'
 
 const ImageCard = ({ 
   image, 
@@ -26,6 +27,19 @@ const ImageCard = ({
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   
+  const { data: likeCount = 0 } = useQuery({
+    queryKey: ['imageLikes', image.id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('user_image_likes')
+        .select('*', { count: 'exact' })
+        .eq('image_id', image.id);
+      
+      if (error) throw error;
+      return count || 0;
+    },
+  });
+
   const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
   const modelName = modelConfigs?.[image.model]?.name || image.model;
   const styleName = styleConfigs?.[image.style]?.name || 'General';
@@ -60,7 +74,10 @@ const ImageCard = ({
       <div className="mt-1 flex items-center justify-between">
         <p className="text-sm truncate w-[70%]">{image.prompt}</p>
         <div className="flex items-center gap-1">
-          <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
+          <div className="flex items-center gap-1">
+            <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
+            <span className="text-xs text-muted-foreground">{likeCount}</span>
+          </div>
           {isMobile ? (
             <Button variant="ghost" className="h-6 w-6 p-0" onClick={(e) => onMoreClick(image, e)}>
               <MoreVertical className="h-4 w-4" />
