@@ -1,9 +1,23 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
+import { Crown } from "lucide-react";
 import SettingSection from './SettingSection';
 import { modelConfigs } from '@/utils/modelConfigs';
 
 const ModelSection = ({ model, setModel, nsfwEnabled, quality }) => {
+  const premiumModels = ['flux', 'fluxDev', 'nsfwPro'];
+
+  const renderModelButton = (modelKey, label) => (
+    <Button
+      variant={model === modelKey ? 'default' : 'outline'}
+      onClick={() => setModel(modelKey)}
+      className="flex items-center justify-center gap-1"
+    >
+      {label}
+      {premiumModels.includes(modelKey) && <Crown className="h-4 w-4" />}
+    </Button>
+  );
+
   return (
     <SettingSection 
       label="Model" 
@@ -12,51 +26,16 @@ const ModelSection = ({ model, setModel, nsfwEnabled, quality }) => {
       <div className="grid grid-cols-2 gap-2">
         {!nsfwEnabled ? (
           <>
-            <Button
-              variant={model === 'turbo' ? 'default' : 'outline'}
-              onClick={() => setModel('turbo')}
-            >
-              Ring.1 turbo
-            </Button>
-            <Button
-              variant={model === 'flux' ? 'default' : 'outline'}
-              onClick={() => setModel('flux')}
-            >
-              Ring.1
-            </Button>
-            <Button
-              variant={model === 'fluxDev' ? 'default' : 'outline'}
-              onClick={() => setModel('fluxDev')}
-            >
-              Ring.1 hyper
-            </Button>
-            <Button
-              variant={model === 'preLar' ? 'default' : 'outline'}
-              onClick={() => setModel('preLar')}
-            >
-              Ring.1 Pre-lar
-            </Button>
+            {renderModelButton('turbo', 'Ring.1 turbo')}
+            {renderModelButton('flux', 'Ring.1')}
+            {renderModelButton('fluxDev', 'Ring.1 hyper')}
+            {renderModelButton('preLar', 'Ring.1 Pre-lar')}
           </>
         ) : (
           <>
-            <Button
-              variant={model === 'nsfwMaster' ? 'default' : 'outline'}
-              onClick={() => setModel('nsfwMaster')}
-            >
-              Ring.1N
-            </Button>
-            <Button
-              variant={model === 'animeNsfw' ? 'default' : 'outline'}
-              onClick={() => setModel('animeNsfw')}
-            >
-              Ring.1 Anime
-            </Button>
-            <Button
-              variant={model === 'nsfwPro' ? 'default' : 'outline'}
-              onClick={() => setModel('nsfwPro')}
-            >
-              Ring.1Npro
-            </Button>
+            {renderModelButton('nsfwMaster', 'Ring.1N')}
+            {renderModelButton('animeNsfw', 'Ring.1 Anime')}
+            {renderModelButton('nsfwPro', 'Ring.1Npro')}
           </>
         )}
       </div>

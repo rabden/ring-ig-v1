@@ -1,11 +1,17 @@
 import React from 'react'
 import { Button } from "@/components/ui/button"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { Crown } from "lucide-react"
 import { styleConfigs } from '@/utils/styleConfigs'
 
 const StyleChooser = ({ style, setStyle }) => {
+  const premiumStyles = [
+    'anime', '3d', 'realistic', 'illustration', 
+    'concept', 'watercolor', 'comic', 'minimalist', 
+    'cyberpunk', 'retro'
+  ];
+
   const handleStyleClick = (key) => {
-    // If clicking the active style, deselect it
     if (style === key) {
       setStyle(null)
     } else {
@@ -21,9 +27,10 @@ const StyleChooser = ({ style, setStyle }) => {
             key={key}
             variant={style === key ? "default" : "outline"}
             onClick={() => handleStyleClick(key)}
-            className="flex-shrink-0"
+            className="flex-shrink-0 flex items-center gap-1"
           >
             {config.name}
+            {premiumStyles.includes(key) && <Crown className="h-3 w-3" />}
           </Button>
         ))}
       </div>
