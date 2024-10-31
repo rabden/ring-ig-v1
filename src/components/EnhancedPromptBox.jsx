@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { cn } from "@/lib/utils";
-import { Send } from "lucide-react";
+import { Send, X } from "lucide-react";
 
 const EnhancedPromptBox = ({ 
   value, 
@@ -36,8 +36,14 @@ const EnhancedPromptBox = ({
     onKeyDown?.(e);
   };
 
+  const handleClear = () => {
+    if (onChange) {
+      onChange({ target: { value: '' } });
+    }
+  };
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 p-4 z-50">
+    <div className="w-full">
       <div className="max-w-[900px] mx-auto">
         <div 
           className={cn(
@@ -75,6 +81,18 @@ const EnhancedPromptBox = ({
               value ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
             )}
           >
+            <button
+              onClick={handleClear}
+              disabled={!value.trim() || disabled}
+              className={cn(
+                "flex items-center justify-center w-8 h-6",
+                "bg-transparent border-none cursor-pointer p-0",
+                "opacity-70 hover:opacity-100 transition-opacity mr-2",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
+              )}
+            >
+              <X className="w-5 h-5" />
+            </button>
             <button
               onClick={onSubmit}
               disabled={!value.trim() || disabled}
