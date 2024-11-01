@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { ThemeProvider } from "@/components/theme-provider"
 import ImageGenerator from "./pages/ImageGenerator"
+import SingleImageView from "./components/SingleImageView"
 import { SupabaseAuthProvider } from '@/integrations/supabase/auth'
 import { NotificationProvider } from './contexts/NotificationContext'
 import '@/styles/shadcn-overrides.css'
@@ -28,6 +29,7 @@ const App = () => (
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<ImageGenerator />} />
+                <Route path="/image/:imageId" element={<SingleImageView />} />
               </Routes>
             </BrowserRouter>
           </NotificationProvider>
