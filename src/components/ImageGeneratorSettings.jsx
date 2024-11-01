@@ -9,24 +9,41 @@ import StyleChooser from './StyleChooser';
 import AspectRatioChooser from './AspectRatioChooser';
 import SettingSection from './settings/SettingSection';
 import ModelSection from './settings/ModelSection';
-import { ArrowRight } from "lucide-react";
-import { useModelConfigs } from '@/hooks/useModelConfigs';
+import { ArrowRight, X } from "lucide-react";
 
-const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits }) => {
+const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits, onClear }) => {
   return (
     <div className="relative mb-8">
-      <div className="relative border-y border-border/20">
-        <textarea
-          value={value}
-          onChange={onChange}
-          onKeyDown={onKeyDown}
-          placeholder="A 4D HDR immersive 3D image..."
-          className="w-full min-h-[180px] resize-none bg-transparent text-lg focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none"
-          style={{ 
-            caretColor: 'currentColor',
-          }}
-        />
-        <div className="absolute bottom-4 right-4">
+      <div className="relative">
+        {/* Fading edges container */}
+        <div className="relative">
+          <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-background to-transparent pointer-events-none z-10" />
+          <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-background to-transparent pointer-events-none z-10" />
+          
+          <textarea
+            value={value}
+            onChange={onChange}
+            onKeyDown={onKeyDown}
+            placeholder="A 4D HDR immersive 3D image..."
+            className="w-full min-h-[180px] md:min-h-[220px] resize-none bg-transparent text-lg focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-8 px-4"
+            style={{ 
+              caretColor: 'currentColor',
+            }}
+          />
+        </div>
+        
+        {/* Action buttons */}
+        <div className="flex justify-end gap-2 mt-4">
+          {value.length > 0 && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="rounded-full"
+              onClick={onClear}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
           <Button
             size="sm"
             className="rounded-full"
@@ -100,6 +117,10 @@ const ImageGeneratorSettings = ({
     }
   };
 
+  const handleClearPrompt = () => {
+    setPrompt('');
+  };
+
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className="flex justify-between items-center mb-4">
@@ -122,6 +143,7 @@ const ImageGeneratorSettings = ({
         onKeyDown={handlePromptKeyDown}
         onGenerate={generateImage}
         hasEnoughCredits={hasEnoughCredits}
+        onClear={handleClearPrompt}
       />
 
       <ModelSection 
