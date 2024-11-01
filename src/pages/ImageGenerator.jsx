@@ -89,9 +89,9 @@ const ImageGenerator = () => {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
-      <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6 pt-[60px] md:pt-[76px]`}>
+      <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
         <div className="fixed top-0 left-0 right-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border/30">
-          <div className="flex justify-between items-center p-2 md:p-6 md:max-w-[calc(100%-350px)] md:ml-auto">
+          <div className="flex justify-between items-center py-2 md:py-4 px-2 md:px-6 max-w-[100%] md:max-w-[calc(100%-350px)] mx-auto md:ml-[16px]">
             {session && (
               <>
                 <div className="hidden md:block">
@@ -110,18 +110,20 @@ const ImageGenerator = () => {
             )}
           </div>
         </div>
-        <ImageGallery
-          userId={session?.user?.id}
-          onImageClick={handleImageClick}
-          onDownload={handleDownload}
-          onDiscard={handleDiscard}
-          onRemix={handleRemix}
-          onViewDetails={handleViewDetails}
-          activeView={activeView}
-          generatingImages={generatingImages}
-          nsfwEnabled={nsfwEnabled}
-          modelConfigs={modelConfigs}
-        />
+        <div className="mt-[56px]">
+          <ImageGallery
+            userId={session?.user?.id}
+            onImageClick={handleImageClick}
+            onDownload={handleDownload}
+            onDiscard={handleDiscard}
+            onRemix={handleRemix}
+            onViewDetails={handleViewDetails}
+            activeView={activeView}
+            generatingImages={generatingImages}
+            nsfwEnabled={nsfwEnabled}
+            modelConfigs={modelConfigs}
+          />
+        </div>
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-4 md:p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
         {!session && (
