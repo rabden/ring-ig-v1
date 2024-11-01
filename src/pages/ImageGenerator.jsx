@@ -89,9 +89,9 @@ const ImageGenerator = () => {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
-      <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
-        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm py-2 md:py-4 -mx-2 md:-mx-6 px-2 md:px-6 border-b border-border/30">
-          <div className="flex justify-between items-center">
+      <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6 pt-[60px] md:pt-[76px]`}>
+        <div className="fixed top-0 left-0 right-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border/30">
+          <div className="flex justify-between items-center p-2 md:p-6 md:max-w-[calc(100%-350px)] md:ml-auto">
             {session && (
               <>
                 <div className="hidden md:block">
