@@ -1,5 +1,5 @@
 import React from 'react'
-import { Label } from "lucide-react"
+import { Tag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
@@ -11,7 +11,7 @@ const GeneratingImagesDropdown = ({ generatingImages }) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="h-8">
-          <Label className="w-4 h-4 mr-2" />
+          <Tag className="w-4 h-4 mr-2" />
           Generating-{generatingImages.length}
         </Button>
       </DropdownMenuTrigger>
