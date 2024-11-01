@@ -6,7 +6,7 @@ import { Drawer } from 'vaul';
 import NotificationList from './notifications/NotificationList';
 import { useNotifications } from '@/contexts/NotificationContext';
 
-const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits, activeView, setActiveView, proMode, setProMode }) => {
+const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits, activeView, setActiveView }) => {
   const [notificationDrawerOpen, setNotificationDrawerOpen] = React.useState(false);
   const { unreadCount } = useNotifications();
 
@@ -62,7 +62,7 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
                 isActive={false}
               />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -70,10 +70,12 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
           </Drawer.Trigger>
           <Drawer.Portal>
             <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[60]" />
-            <Drawer.Content className="bg-background flex flex-col fixed bottom-0 left-0 right-0 h-[100dvh] z-[60]">
-              <div className="p-4 bg-muted/40 flex-1">
-                <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-8" />
-                <NotificationList />
+            <Drawer.Content className="bg-background fixed inset-x-0 bottom-0 z-[60] rounded-t-[10px]">
+              <div className="h-full max-h-[96vh] overflow-hidden">
+                <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 my-4" />
+                <div className="px-4 pb-8">
+                  <NotificationList />
+                </div>
               </div>
             </Drawer.Content>
           </Drawer.Portal>

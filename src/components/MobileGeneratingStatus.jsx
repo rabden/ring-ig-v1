@@ -13,7 +13,7 @@ const MobileGeneratingStatus = ({ generatingImages }) => {
   if (!generatingImages?.length) return null;
 
   return (
-    <div className="fixed bottom-[56px] left-0 right-0 bg-background border-t border-border/30 md:hidden z-40 -mb-[1px]">
+    <div className="fixed bottom-[56px] left-0 right-0 bg-background border-t border-border/30 md:hidden z-40">
       <button 
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full px-4 py-1.5 flex items-center justify-between text-sm"

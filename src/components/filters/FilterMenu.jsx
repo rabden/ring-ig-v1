@@ -35,6 +35,13 @@ const FilterMenu = ({ activeFilters, onFilterChange, onRemoveFilter, nsfwEnabled
 
   const { styles, models } = getFilteredConfigs();
 
+  // If NSFW is enabled and there's a style filter, remove it
+  React.useEffect(() => {
+    if (nsfwEnabled && activeFilters.style) {
+      onRemoveFilter('style');
+    }
+  }, [nsfwEnabled]);
+
   const renderActiveFilters = () => (
     <div className="hidden md:flex flex-wrap gap-2">
       {Object.entries(activeFilters).map(([type, value]) => {
@@ -116,7 +123,7 @@ const FilterMenu = ({ activeFilters, onFilterChange, onRemoveFilter, nsfwEnabled
                     {Object.entries(styles).map(([key, config]) => (
                       <Button
                         key={`style-${key}`}
-                        variant="outline"
+                        variant={activeFilters.style === key ? 'default' : 'outline'}
                         className="h-auto py-2 px-3 text-xs justify-start font-normal"
                         onClick={() => onFilterChange('style', key)}
                       >
@@ -133,7 +140,7 @@ const FilterMenu = ({ activeFilters, onFilterChange, onRemoveFilter, nsfwEnabled
                 {Object.entries(models).map(([key, config]) => (
                   <Button
                     key={`model-${key}`}
-                    variant="outline"
+                    variant={activeFilters.model === key ? 'default' : 'outline'}
                     className="h-auto py-2 px-3 text-xs justify-start font-normal"
                     onClick={() => onFilterChange('model', key)}
                   >

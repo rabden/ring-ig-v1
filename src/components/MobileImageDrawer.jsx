@@ -53,12 +53,12 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
     <Drawer.Root open={open} onOpenChange={onOpenChange}>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[60]" />
-        <Drawer.Content className="bg-background flex flex-col fixed bottom-0 left-0 right-0 h-[100dvh] z-[60]">
-          <div className="p-4 bg-muted/40 overflow-hidden h-full">
-            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-4" />
-            <ScrollArea className="h-[calc(100dvh-32px)]">
+        <Drawer.Content className="bg-background fixed inset-x-0 bottom-0 z-[60] rounded-t-[10px]">
+          <div className="h-full max-h-[96vh] overflow-hidden">
+            <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 my-4" />
+            <ScrollArea className="h-[calc(96vh-32px)] px-4 pb-8">
               {showImage && (
-                <div className="relative rounded-lg overflow-hidden">
+                <div className="relative rounded-lg overflow-hidden mb-4">
                   <img
                     src={supabase.storage.from('user-images').getPublicUrl(image?.storage_path).data.publicUrl}
                     alt={image?.prompt}
@@ -67,11 +67,11 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                 </div>
               )}
               
-              <div className="flex gap-2 justify-between">
+              <div className="flex gap-2 justify-between mb-6">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="flex-1 text-xs sm:text-sm"
+                  className="flex-1"
                   onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image?.storage_path).data.publicUrl, image?.prompt)}
                 >
                   <Download className="mr-2 h-4 w-4" />
@@ -82,7 +82,7 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="flex-1 text-destructive hover:text-destructive text-xs sm:text-sm"
+                    className="flex-1 text-destructive hover:text-destructive"
                     onClick={() => {
                       onDiscard(image);
                       onOpenChange(false);
@@ -96,7 +96,7 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="flex-1 text-xs sm:text-sm"
+                  className="flex-1"
                   onClick={() => {
                     onRemix(image);
                     onOpenChange(false);
@@ -107,7 +107,7 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                 </Button>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-lg font-semibold">Prompt</h3>
