@@ -13,10 +13,10 @@ const MobileGeneratingStatus = ({ generatingImages }) => {
   if (!generatingImages?.length) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-background/70 backdrop-blur-xl border-t border-border/30 md:hidden">
+    <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/30 md:hidden z-50">
       <button 
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full px-4 py-2 flex items-center justify-between text-sm"
+        className="w-full px-4 py-1.5 flex items-center justify-between text-sm"
       >
         <div className="flex items-center gap-2">
           <Loader className="w-4 h-4 animate-spin" />

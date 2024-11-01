@@ -26,7 +26,7 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
   );
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-background/70 backdrop-blur-xl border-t border-border/30 md:hidden z-50">
+    <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/30 md:hidden z-50">
       <div className="flex items-center justify-around px-2 max-w-md mx-auto">
         <NavButton
           icon={Image}
@@ -62,7 +62,7 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
           />
         </div>
       </div>
-      <div className="h-safe-area-bottom bg-background/70 backdrop-blur-xl" />
+      <div className="h-safe-area-bottom bg-background" />
     </div>
   );
 };
