@@ -111,9 +111,9 @@ const ImageGenerator = () => {
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
         {session && (
-          <div className="hidden md:block fixed top-0 left-0 right-[350px] bg-background/80 backdrop-blur-sm z-10 px-6 py-4">
+          <div className="hidden md:block fixed top-0 left-0 right-[350px] bg-background z-10 px-6 py-4">
             <div className="flex justify-between items-center max-w-full">
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center gap-4">
                 <ProfileMenu 
                   user={session.user} 
                   credits={credits} 
@@ -134,7 +134,22 @@ const ImageGenerator = () => {
             </div>
           </div>
         )}
-        <div className="md:mt-16">
+        
+        {/* Mobile Header */}
+        {session && (
+          <div className="md:hidden fixed top-0 left-0 right-0 bg-background z-10 px-4 py-2">
+            <div className="flex items-center justify-end gap-4">
+              <FilterMenu
+                activeFilters={activeFilters}
+                onFilterChange={handleFilterChange}
+                onRemoveFilter={handleRemoveFilter}
+              />
+              <SearchBar onSearch={handleSearch} />
+            </div>
+          </div>
+        )}
+
+        <div className="md:mt-16 mt-12">
           <ImageGallery
             userId={session?.user?.id}
             onImageClick={handleImageClick}
