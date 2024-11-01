@@ -90,16 +90,19 @@ export const useImageGeneration = ({
         throw new Error('No active API key available');
       }
 
-      // Use only the required parameters for the API call
+      // Base parameters that all models support
       const parameters = {
         seed: actualSeed,
         width: finalWidth,
         height: finalHeight,
         num_inference_steps: modelConfig?.defaultStep || 30,
-        negative_prompt: "ugly, disfigured, low quality, blurry, nsfw"
       };
 
-      // Use the model's API URL from the database
+      // Add negative_prompt only for models that support it (not FLUX models)
+      if (!model.toLowerCase().includes('flux')) {
+        parameters.negative_prompt = "ugly, disfigured, low quality, blurry, nsfw";
+      }
+
       const response = await fetch(modelConfig?.apiUrl, {
         headers: {
           Authorization: `Bearer ${apiKeyData}`,
