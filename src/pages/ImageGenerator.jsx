@@ -65,7 +65,7 @@ const ImageGenerator = () => {
     handleDiscard,
     handleViewDetails,
   } = useImageHandlers({
-    generateImage: (improvedPrompt) => generateImage(improvedPrompt),
+    generateImage,
     setSelectedImage,
     setFullScreenViewOpen,
     setModel,
