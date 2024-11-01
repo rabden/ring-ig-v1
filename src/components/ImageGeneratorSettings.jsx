@@ -77,7 +77,7 @@ const ImageGeneratorSettings = ({
   };
 
   const handleGenerateClick = async () => {
-    if (generateImage) {
+    if (generateImage && prompt.trim()) {
       await generateImage();
     }
   };

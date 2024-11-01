@@ -16,14 +16,17 @@ import MobileHeader from '@/components/header/MobileHeader';
 import { useImageGeneratorState } from '@/hooks/useImageGeneratorState';
 import { useImageHandlers } from '@/hooks/useImageHandlers';
 import { useProUser } from '@/hooks/useProUser';
+import { useModelConfigs } from '@/hooks/useModelConfigs';
+import { toast } from 'sonner';
 
 const ImageGenerator = () => {
   const [activeFilters, setActiveFilters] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const isHeaderVisible = useScrollDirection();
   const { session } = useSupabaseAuth();
-  const { credits, bonusCredits } = useUserCredits(session?.user?.id);
+  const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id);
   const { data: isPro } = useProUser(session?.user?.id);
+  const { data: modelConfigs } = useModelConfigs();
   const queryClient = useQueryClient();
 
   const {
@@ -34,11 +37,40 @@ const ImageGenerator = () => {
     selectedImage, setSelectedImage,
     detailsDialogOpen, setDetailsDialogOpen, fullScreenViewOpen, setFullScreenViewOpen,
     fullScreenImageIndex, setFullScreenImageIndex, generatingImages, setGeneratingImages,
-    activeView, setActiveView, nsfwEnabled, setNsfwEnabled
+    activeView, setActiveView, nsfwEnabled, setNsfwEnabled, style, setStyle
   } = useImageGeneratorState();
 
+  const { generateImage } = useImageGeneration({
+    session,
+    prompt,
+    seed,
+    randomizeSeed,
+    width,
+    height,
+    model,
+    quality,
+    useAspectRatio,
+    aspectRatio,
+    updateCredits,
+    setGeneratingImages,
+    style,
+    modelConfigs,
+    steps
+  });
+
+  const handleGenerateImage = async () => {
+    if (!prompt.trim()) {
+      toast.error('Please enter a prompt');
+      return;
+    }
+    if (!session) {
+      toast.error('Please sign in to generate images');
+      return;
+    }
+    await generateImage();
+  };
+
   const {
-    handleGenerateImage,
     handleImageClick,
     handleModelChange,
     handlePromptKeyDown,
@@ -47,7 +79,7 @@ const ImageGenerator = () => {
     handleDiscard,
     handleViewDetails,
   } = useImageHandlers({
-    generateImage: () => {},
+    generateImage: handleGenerateImage,
     setSelectedImage,
     setFullScreenViewOpen,
     setModel,
@@ -123,7 +155,7 @@ const ImageGenerator = () => {
             activeView={activeView}
             generatingImages={generatingImages}
             nsfwEnabled={nsfwEnabled}
-            modelConfigs={[]}
+            modelConfigs={modelConfigs}
             activeFilters={activeFilters}
             searchQuery={searchQuery}
           />
@@ -161,12 +193,12 @@ const ImageGenerator = () => {
           bonusCredits={bonusCredits}
           nsfwEnabled={nsfwEnabled}
           setNsfwEnabled={setNsfwEnabled}
-          style={''}
-          setStyle={() => {}}
+          style={style}
+          setStyle={setStyle}
           steps={steps}
           setSteps={setSteps}
           proMode={isPro}
-          modelConfigs={[]}
+          modelConfigs={modelConfigs}
         />
       </div>
       <BottomNavbar 
