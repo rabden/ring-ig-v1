@@ -15,7 +15,8 @@ const DesktopHeader = ({
   onFilterChange,
   onRemoveFilter,
   onSearch,
-  isVisible
+  isVisible,
+  nsfwEnabled
 }) => {
   return (
     <div className={`hidden md:block fixed top-0 left-0 right-[350px] bg-background z-10 px-4 py-3 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
