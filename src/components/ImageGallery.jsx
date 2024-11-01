@@ -8,6 +8,7 @@ import MobileImageDrawer from './MobileImageDrawer'
 import ImageCard from './ImageCard'
 import { useLikes } from '@/hooks/useLikes'
 import { toast } from 'sonner'
+import MobileGeneratingStatus from './MobileGeneratingStatus'
 
 const breakpointColumnsObj = {
   default: 4,
@@ -169,12 +170,6 @@ const ImageGallery = ({
   const renderContent = () => {
     const content = []
 
-    if (activeView === 'myImages' && generatingImages && generatingImages.length > 0 && isMobile) {
-      content.push(...generatingImages.map((img) => (
-        <SkeletonImageCard key={img.id} width={img.width} height={img.height} />
-      )))
-    }
-
     if (isLoading) {
       content.push(...Array.from({ length: 8 }).map((_, index) => (
         <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
@@ -221,6 +216,8 @@ const ImageGallery = ({
         onRemix={onRemix}
         isOwner={selectedImage?.user_id === userId}
       />
+
+      <MobileGeneratingStatus generatingImages={generatingImages} />
     </>
   )
 }
