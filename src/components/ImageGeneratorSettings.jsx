@@ -12,7 +12,7 @@ import ModelSection from './settings/ModelSection';
 import { ArrowRight } from "lucide-react";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 
-const PromptInput = ({ value, onChange, onKeyDown, onGenerate }) => {
+const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits }) => {
   return (
     <div className="relative mb-8">
       <textarea
@@ -20,21 +20,20 @@ const PromptInput = ({ value, onChange, onKeyDown, onGenerate }) => {
         onChange={onChange}
         onKeyDown={onKeyDown}
         placeholder="A 4D HDR immersive 3D image..."
-        className="w-full min-h-[180px] resize-none bg-transparent text-lg focus:outline-none placeholder:text-muted-foreground/50 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
+        className="w-full min-h-[180px] resize-none bg-transparent text-lg focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto"
         style={{ 
           caretColor: 'currentColor',
         }}
       />
-      {value.length > 0 && (
-        <Button
-          size="sm"
-          className="mt-2 rounded-full"
-          onClick={onGenerate}
-        >
-          Generate
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
-      )}
+      <Button
+        size="sm"
+        className="mt-2 rounded-full"
+        onClick={onGenerate}
+        disabled={!value.length || !hasEnoughCredits}
+      >
+        Generate
+        <ArrowRight className="ml-2 h-4 w-4" />
+      </Button>
     </div>
   );
 };
@@ -71,13 +70,6 @@ const ImageGeneratorSettings = ({
       setQuality('HD');
     }
     setModel(newModel);
-  };
-
-  const getAvailableQualities = () => {
-    if (model === 'turbo' || model === 'preLar') {
-      return ["SD", "HD"];
-    }
-    return Object.keys(qualityOptions);
   };
 
   const handlePromptChange = (e) => {
@@ -118,6 +110,7 @@ const ImageGeneratorSettings = ({
         onChange={handlePromptChange}
         onKeyDown={handlePromptKeyDown}
         onGenerate={generateImage}
+        hasEnoughCredits={hasEnoughCredits}
       />
 
       <ModelSection 
