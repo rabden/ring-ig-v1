@@ -1,63 +1,14 @@
 import React from 'react';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { qualityOptions } from '@/utils/imageConfigs';
+import { Input } from "@/components/ui/input";
 import StyleChooser from './StyleChooser';
 import AspectRatioChooser from './AspectRatioChooser';
 import SettingSection from './settings/SettingSection';
 import ModelSection from './settings/ModelSection';
-import { ArrowRight, X } from "lucide-react";
-
-const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits, onClear }) => {
-  return (
-    <div className="relative mb-8">
-      <div className="relative">
-        {/* Fading edges container */}
-        <div className="relative">
-          <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-background to-transparent pointer-events-none z-10" />
-          <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-background to-transparent pointer-events-none z-10" />
-          
-          <textarea
-            value={value}
-            onChange={onChange}
-            onKeyDown={onKeyDown}
-            placeholder="A 4D HDR immersive 3D image..."
-            className="w-full min-h-[180px] md:min-h-[220px] resize-none bg-transparent text-lg focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-8 px-4"
-            style={{ 
-              caretColor: 'currentColor',
-            }}
-          />
-        </div>
-        
-        {/* Action buttons */}
-        <div className="flex justify-end gap-2 mt-4">
-          {value.length > 0 && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="rounded-full"
-              onClick={onClear}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-          <Button
-            size="sm"
-            className="rounded-full"
-            onClick={onGenerate}
-            disabled={!value.length || !hasEnoughCredits}
-          >
-            Generate
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
+import PromptInput from './prompt/PromptInput';
+import StyledScrollArea from './style/StyledScrollArea';
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -158,7 +109,9 @@ const ImageGeneratorSettings = ({
       {!isNsfwModel && (
         <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
           <div className="border-x border-border/20">
-            <StyleChooser style={style} setStyle={setStyle} proMode={proMode} />
+            <StyledScrollArea>
+              <StyleChooser style={style} setStyle={setStyle} proMode={proMode} />
+            </StyledScrollArea>
           </div>
         </SettingSection>
       )}
