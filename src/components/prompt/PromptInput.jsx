@@ -1,8 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight, Wand2 } from "lucide-react";
+import { improvePrompt } from '@/utils/promptUtils';
+import { toast } from 'sonner';
 
 const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits, onClear }) => {
+  const [isImproveEnabled, setIsImproveEnabled] = useState(false);
+  const [isImproving, setIsImproving] = useState(false);
+
+  const handleGenerate = async () => {
+    if (isImproveEnabled && value) {
+      try {
+        setIsImproving(true);
+        const improvedPrompt = await improvePrompt(value);
+        onChange({ target: { value: improvedPrompt } });
+        toast.success('Prompt improved successfully');
+        onGenerate();
+      } catch (error) {
+        toast.error('Failed to improve prompt');
+      } finally {
+        setIsImproving(false);
+      }
+    } else {
+      onGenerate();
+    }
+  };
+
   return (
     <div className="relative mb-8">
       <div className="relative">
@@ -35,8 +58,9 @@ const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits,
               </Button>
               <Button
                 size="sm"
-                variant="outline"
+                variant={isImproveEnabled ? 'default' : 'outline'}
                 className="rounded-full"
+                onClick={() => setIsImproveEnabled(!isImproveEnabled)}
               >
                 <Wand2 className="mr-2 h-4 w-4" />
                 Improve
@@ -46,10 +70,10 @@ const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits,
           <Button
             size="sm"
             className="rounded-full"
-            onClick={onGenerate}
-            disabled={!value.length || !hasEnoughCredits}
+            onClick={handleGenerate}
+            disabled={!value.length || !hasEnoughCredits || isImproving}
           >
-            Generate
+            {isImproving ? 'Improving...' : 'Generate'}
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
