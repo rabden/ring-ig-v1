@@ -15,25 +15,29 @@ import { useModelConfigs } from '@/hooks/useModelConfigs';
 const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits }) => {
   return (
     <div className="relative mb-8">
-      <textarea
-        value={value}
-        onChange={onChange}
-        onKeyDown={onKeyDown}
-        placeholder="A 4D HDR immersive 3D image..."
-        className="w-full min-h-[180px] resize-none bg-transparent text-lg focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto"
-        style={{ 
-          caretColor: 'currentColor',
-        }}
-      />
-      <Button
-        size="sm"
-        className="mt-2 rounded-full"
-        onClick={onGenerate}
-        disabled={!value.length || !hasEnoughCredits}
-      >
-        Generate
-        <ArrowRight className="ml-2 h-4 w-4" />
-      </Button>
+      <div className="relative border-y border-border/20">
+        <textarea
+          value={value}
+          onChange={onChange}
+          onKeyDown={onKeyDown}
+          placeholder="A 4D HDR immersive 3D image..."
+          className="w-full min-h-[180px] resize-none bg-transparent text-lg focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none"
+          style={{ 
+            caretColor: 'currentColor',
+          }}
+        />
+        <div className="absolute bottom-4 right-4">
+          <Button
+            size="sm"
+            className="rounded-full"
+            onClick={onGenerate}
+            disabled={!value.length || !hasEnoughCredits}
+          >
+            Generate
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };
@@ -131,7 +135,9 @@ const ImageGeneratorSettings = ({
 
       {!isNsfwModel && (
         <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
-          <StyleChooser style={style} setStyle={setStyle} proMode={proMode} />
+          <div className="border-x border-border/20">
+            <StyleChooser style={style} setStyle={setStyle} proMode={proMode} />
+          </div>
         </SettingSection>
       )}
 
