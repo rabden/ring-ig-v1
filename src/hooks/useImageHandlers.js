@@ -3,9 +3,7 @@ import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 
 export const useImageHandlers = ({
-  setActiveTab,
   generateImage,
-  images,
   setSelectedImage,
   setFullScreenViewOpen,
   setModel,
@@ -28,8 +26,6 @@ export const useImageHandlers = ({
   const { data: modelConfigs } = useModelConfigs();
 
   const handleGenerateImage = async () => {
-    setActiveTab('images')
-    setActiveView('myImages')
     await generateImage()
   }
 
@@ -66,7 +62,6 @@ export const useImageHandlers = ({
     setQuality(image.quality)
     setAspectRatio(image.aspect_ratio)
     setUseAspectRatio(image.aspect_ratio in aspectRatios)
-    setActiveTab('input')
   }
 
   const handleDownload = async (imageUrl, prompt) => {

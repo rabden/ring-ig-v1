@@ -15,6 +15,7 @@ import { useImageGeneratorState } from '@/hooks/useImageGeneratorState'
 import { useImageHandlers } from '@/hooks/useImageHandlers'
 import { aspectRatios } from '@/utils/imageConfigs'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
+import MobileGeneratingStatus from '@/components/MobileGeneratingStatus'
 
 const ImageGenerator = () => {
   const [proMode, setProMode] = useState(false);
@@ -64,7 +65,6 @@ const ImageGenerator = () => {
     handleDiscard,
     handleViewDetails,
   } = useImageHandlers({
-    setActiveTab,
     generateImage,
     setSelectedImage,
     setFullScreenViewOpen,
@@ -187,6 +187,9 @@ const ImageGenerator = () => {
         onRemix={handleRemix}
         isOwner={selectedImage?.user_id === session?.user?.id}
       />
+      {generatingImages.length > 0 && (
+        <MobileGeneratingStatus generatingImages={generatingImages} />
+      )}
     </div>
   );
 };
