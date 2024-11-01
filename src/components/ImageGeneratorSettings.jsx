@@ -9,6 +9,7 @@ import SettingSection from './settings/SettingSection';
 import ModelSection from './settings/ModelSection';
 import PromptInput from './prompt/PromptInput';
 import StyledScrollArea from './style/StyledScrollArea';
+import { qualityOptions } from '@/utils/imageConfigs';
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
