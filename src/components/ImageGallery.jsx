@@ -9,6 +9,7 @@ import ImageCard from './ImageCard'
 import { useLikes } from '@/hooks/useLikes'
 import MobileGeneratingStatus from './MobileGeneratingStatus'
 import { useImageFilter } from '@/hooks/useImageFilter'
+import NoResults from './NoResults'
 
 const breakpointColumnsObj = {
   default: 4,
@@ -166,6 +167,8 @@ const ImageGallery = ({
           onToggleLike={toggleLike}
         />
       )));
+    } else if (!isLoading) {
+      return <NoResults />;
     }
 
     return content;
@@ -173,13 +176,19 @@ const ImageGallery = ({
 
   return (
     <>
-      <Masonry
-        breakpointCols={breakpointColumnsObj}
-        className="flex w-auto md:px-2 -mx-1 md:mx-0"
-        columnClassName="bg-clip-padding px-1 md:px-2"
-      >
-        {renderContent()}
-      </Masonry>
+      {images && images.length > 0 ? (
+        <Masonry
+          breakpointCols={breakpointColumnsObj}
+          className="flex w-auto md:px-2 -mx-1 md:mx-0"
+          columnClassName="bg-clip-padding px-1 md:px-2"
+        >
+          {renderContent()}
+        </Masonry>
+      ) : (
+        <div className="w-full flex justify-center">
+          {renderContent()}
+        </div>
+      )}
 
       <MobileImageDrawer
         open={drawerOpen}
