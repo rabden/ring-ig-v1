@@ -90,40 +90,36 @@ const ImageGenerator = () => {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
-        <div className="fixed top-0 left-0 right-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-          <div className="flex justify-between items-center p-4 md:p-6 max-w-screen-2xl mx-auto">
-            {session && (
-              <>
-                <div className="hidden md:block">
-                  <ProfileMenu 
-                    user={session.user} 
-                    credits={credits} 
-                    bonusCredits={bonusCredits}
-                  />
-                </div>
-                <ActionButtons 
-                  activeView={activeView} 
-                  setActiveView={setActiveView} 
-                  generatingImages={generatingImages}
+        <div className="flex justify-between items-center mb-4 md:mb-6">
+          {session && (
+            <>
+              <div className="hidden md:block">
+                <ProfileMenu 
+                  user={session.user} 
+                  credits={credits} 
+                  bonusCredits={bonusCredits}
                 />
-              </>
-            )}
-          </div>
+              </div>
+              <ActionButtons 
+                activeView={activeView} 
+                setActiveView={setActiveView} 
+                generatingImages={generatingImages}
+              />
+            </>
+          )}
         </div>
-        <div className="mt-[72px] md:mt-[88px]">
-          <ImageGallery
-            userId={session?.user?.id}
-            onImageClick={handleImageClick}
-            onDownload={handleDownload}
-            onDiscard={handleDiscard}
-            onRemix={handleRemix}
-            onViewDetails={handleViewDetails}
-            activeView={activeView}
-            generatingImages={generatingImages}
-            nsfwEnabled={nsfwEnabled}
-            modelConfigs={modelConfigs}
-          />
-        </div>
+        <ImageGallery
+          userId={session?.user?.id}
+          onImageClick={handleImageClick}
+          onDownload={handleDownload}
+          onDiscard={handleDiscard}
+          onRemix={handleRemix}
+          onViewDetails={handleViewDetails}
+          activeView={activeView}
+          generatingImages={generatingImages}
+          nsfwEnabled={nsfwEnabled}
+          modelConfigs={modelConfigs}
+        />
       </div>
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-4 md:p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
         {!session && (
