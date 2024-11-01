@@ -1,8 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight, Wand2 } from "lucide-react";
+import { improvePrompt } from '@/utils/promptUtils';
+import { toast } from 'sonner';
 
 const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits, onClear }) => {
+  const [isImproveEnabled, setIsImproveEnabled] = useState(false);
+  const [isImproving, setIsImproving] = useState(false);
+
+  const handleGenerate = async () => {
+    if (!value) return;
+
+    try {
+      if (isImproveEnabled) {
+        setIsImproving(true);
+        const improvedPrompt = await improvePrompt(value);
+        onChange({ target: { value: improvedPrompt } });
+        await onGenerate(improvedPrompt);
+      } else {
+        await onGenerate(value);
+      }
+    } catch (error) {
+      toast.error("Failed to generate image");
+    } finally {
+      setIsImproving(false);
+    }
+  };
+
   return (
     <div className="relative mb-8">
       <div className="relative">
@@ -35,19 +59,21 @@ const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits,
               </Button>
               <Button
                 size="sm"
-                variant="outline"
+                variant={isImproveEnabled ? "default" : "outline"}
                 className="rounded-full"
+                onClick={() => setIsImproveEnabled(!isImproveEnabled)}
+                disabled={isImproving}
               >
                 <Wand2 className="mr-2 h-4 w-4" />
-                Improve
+                {isImproving ? "Improving..." : "Improve"}
               </Button>
             </>
           )}
           <Button
             size="sm"
             className="rounded-full"
-            onClick={onGenerate}
-            disabled={!value.length || !hasEnoughCredits}
+            onClick={handleGenerate}
+            disabled={!value.length || !hasEnoughCredits || isImproving}
           >
             Generate
             <ArrowRight className="ml-2 h-4 w-4" />
