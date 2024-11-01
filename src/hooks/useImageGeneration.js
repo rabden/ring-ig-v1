@@ -56,7 +56,6 @@ export const useImageGeneration = ({
       return;
     }
 
-    // Check if the quality is allowed for this model
     const modelConfig = modelConfigs[model];
     if (modelConfig?.qualityLimits && !modelConfig.qualityLimits.includes(quality)) {
       console.error(`Quality ${quality} not supported for model ${model}`);
@@ -76,7 +75,14 @@ export const useImageGeneration = ({
 
     const generationId = Date.now().toString();
     if (retryCount === 0) {
-      setGeneratingImages(prev => [...prev, { id: generationId, width: finalWidth, height: finalHeight }]);
+      setGeneratingImages(prev => [...prev, { 
+        id: generationId, 
+        width: finalWidth, 
+        height: finalHeight,
+        prompt,
+        model,
+        style: modelConfigs[model]?.category === "NSFW" ? null : style
+      }]);
     }
 
     try {
