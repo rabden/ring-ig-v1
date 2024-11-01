@@ -15,7 +15,7 @@ CREATE POLICY "Allow authenticated users to read pro_users" ON public.pro_users
     TO authenticated
     USING (true);
 
--- Allow admins to manage pro users (you'll need to set up admin roles separately)
+-- Allow admins to manage pro users
 CREATE POLICY "Allow admins to manage pro_users" ON public.pro_users
     FOR ALL
     TO authenticated

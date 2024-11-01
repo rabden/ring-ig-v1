@@ -6,18 +6,24 @@ export const useProUser = (userId) => {
     queryKey: ['proUser', userId],
     queryFn: async () => {
       if (!userId) return false;
-      const { data, error } = await supabase
-        .from('pro_users')
-        .select('id')
-        .eq('user_id', userId)
-        .single();
       
-      if (error) {
-        console.error('Error checking pro status:', error);
+      try {
+        const { data, error } = await supabase
+          .from('pro_users')
+          .select('id')
+          .eq('user_id', userId)
+          .maybeSingle(); // Use maybeSingle instead of single to handle no rows gracefully
+        
+        if (error) {
+          console.error('Error checking pro status:', error);
+          return false;
+        }
+        
+        return !!data;
+      } catch (error) {
+        console.error('Error in useProUser:', error);
         return false;
       }
-      
-      return !!data;
     },
     enabled: !!userId
   });
