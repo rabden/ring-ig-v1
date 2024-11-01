@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import ImageCard from './ImageCard';
 
 const ImageCardWrapper = ({ image, onImageClick, onMoreClick, onDownload, onDiscard, onRemix, onViewDetails, userId, isMobile, isLiked, onToggleLike }) => {
