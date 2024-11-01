@@ -49,7 +49,7 @@ export const useImageGeneration = ({
     },
   });
 
-  const generateImage = async (retryCount = 0) => {
+  const generateImage = async (improvedPrompt = null) => {
     if (!session || !prompt || !modelConfigs) {
       !session && console.log('User not authenticated');
       !modelConfigs && console.log('Model configs not loaded');
@@ -69,7 +69,7 @@ export const useImageGeneration = ({
     }
 
     const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed;
-    const modifiedPrompt = await getModifiedPrompt(prompt, style, model, modelConfigs);
+    const modifiedPrompt = await getModifiedPrompt(improvedPrompt || prompt, style, model, modelConfigs);
     const maxDimension = qualityOptions[quality];
     const { width: finalWidth, height: finalHeight } = calculateDimensions(useAspectRatio, aspectRatio, width, height, maxDimension);
 

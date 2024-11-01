@@ -2,27 +2,27 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight, Wand2 } from "lucide-react";
 import { improvePrompt } from '@/utils/promptUtils';
-import { toast } from 'sonner';
 
 const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits, onClear }) => {
   const [isImproveEnabled, setIsImproveEnabled] = useState(false);
   const [isImproving, setIsImproving] = useState(false);
 
   const handleGenerate = async () => {
-    if (isImproveEnabled && value) {
+    if (!value) return;
+    
+    if (isImproveEnabled) {
       try {
         setIsImproving(true);
         const improvedPrompt = await improvePrompt(value);
-        onChange({ target: { value: improvedPrompt } });
-        toast.success('Prompt improved successfully');
-        onGenerate();
+        onGenerate(improvedPrompt);
       } catch (error) {
-        toast.error('Failed to improve prompt');
+        console.error('Failed to improve prompt:', error);
+        onGenerate(value);
       } finally {
         setIsImproving(false);
       }
     } else {
-      onGenerate();
+      onGenerate(value);
     }
   };
 
@@ -47,26 +47,24 @@ const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits,
         
         <div className="flex justify-end gap-2 mt-4">
           {value.length > 0 && (
-            <>
-              <Button
-                size="sm"
-                variant="outline"
-                className="rounded-full"
-                onClick={onClear}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-              <Button
-                size="sm"
-                variant={isImproveEnabled ? 'default' : 'outline'}
-                className="rounded-full"
-                onClick={() => setIsImproveEnabled(!isImproveEnabled)}
-              >
-                <Wand2 className="mr-2 h-4 w-4" />
-                Improve
-              </Button>
-            </>
+            <Button
+              size="sm"
+              variant="outline"
+              className="rounded-full"
+              onClick={onClear}
+            >
+              <X className="h-4 w-4" />
+            </Button>
           )}
+          <Button
+            size="sm"
+            variant={isImproveEnabled ? 'default' : 'outline'}
+            className="rounded-full"
+            onClick={() => setIsImproveEnabled(!isImproveEnabled)}
+          >
+            <Wand2 className="mr-2 h-4 w-4" />
+            Improve
+          </Button>
           <Button
             size="sm"
             className="rounded-full"
