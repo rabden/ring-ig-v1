@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Filter, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 
@@ -25,26 +26,40 @@ const FilterMenu = ({ activeFilters, onFilterChange, onRemoveFilter }) => {
             <Filter className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56">
-          <DropdownMenuLabel>Filter by Style</DropdownMenuLabel>
-          {Object.entries(styleConfigs || {}).map(([key, config]) => (
-            <DropdownMenuItem
-              key={`style-${key}`}
-              onClick={() => onFilterChange('style', key)}
-            >
-              {config.name}
-            </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator />
-          <DropdownMenuLabel>Filter by Model</DropdownMenuLabel>
-          {Object.entries(modelConfigs || {}).map(([key, config]) => (
-            <DropdownMenuItem
-              key={`model-${key}`}
-              onClick={() => onFilterChange('model', key)}
-            >
-              {config.name}
-            </DropdownMenuItem>
-          ))}
+        <DropdownMenuContent className="w-[300px]">
+          <ScrollArea className="h-[400px] rounded-md">
+            <div className="p-4">
+              <DropdownMenuLabel className="text-sm font-semibold mb-3">Styles</DropdownMenuLabel>
+              <div className="grid grid-cols-2 gap-2 mb-6">
+                {Object.entries(styleConfigs || {}).map(([key, config]) => (
+                  <Button
+                    key={`style-${key}`}
+                    variant="outline"
+                    className="h-auto py-2 px-3 text-xs justify-start font-normal"
+                    onClick={() => onFilterChange('style', key)}
+                  >
+                    {config.name}
+                  </Button>
+                ))}
+              </div>
+              
+              <DropdownMenuSeparator className="my-4" />
+              
+              <DropdownMenuLabel className="text-sm font-semibold mb-3">Models</DropdownMenuLabel>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.entries(modelConfigs || {}).map(([key, config]) => (
+                  <Button
+                    key={`model-${key}`}
+                    variant="outline"
+                    className="h-auto py-2 px-3 text-xs justify-start font-normal"
+                    onClick={() => onFilterChange('model', key)}
+                  >
+                    {config.name}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </ScrollArea>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -60,13 +75,13 @@ const FilterMenu = ({ activeFilters, onFilterChange, onRemoveFilter }) => {
             <Badge
               key={`${type}-${value}`}
               variant="secondary"
-              className="flex items-center gap-1"
+              className="flex items-center gap-1 px-3 py-1"
             >
               {label}
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-4 w-4 p-0 hover:bg-transparent"
+                className="h-4 w-4 p-0 hover:bg-transparent ml-1"
                 onClick={() => onRemoveFilter(type)}
               >
                 <X className="h-3 w-3" />
