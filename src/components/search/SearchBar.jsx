@@ -9,7 +9,7 @@ const SearchBar = ({ onSearch }) => {
 
   const handleSearch = (value) => {
     setQuery(value);
-    onSearch(value); // Directly call onSearch without debouncing
+    onSearch(value);
   };
 
   const toggleSearch = () => {

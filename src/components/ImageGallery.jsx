@@ -9,6 +9,7 @@ import ImageCard from './ImageCard'
 import { useLikes } from '@/hooks/useLikes'
 import MobileGeneratingStatus from './MobileGeneratingStatus'
 import { useImageFilter } from '@/hooks/useImageFilter'
+import NoResults from './NoResults'
 
 const breakpointColumnsObj = {
   default: 4,
@@ -143,32 +144,32 @@ const ImageGallery = ({
   };
 
   const renderContent = () => {
-    const content = [];
-
     if (isLoading) {
-      content.push(...Array.from({ length: 8 }).map((_, index) => (
+      return Array.from({ length: 8 }).map((_, index) => (
         <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
-      )));
-    } else if (images && images.length > 0) {
-      content.push(...images.map((image, index) => (
-        <ImageCard
-          key={image.id}
-          image={image}
-          onImageClick={() => handleImageClick(image, index)}
-          onMoreClick={handleMoreClick}
-          onDownload={onDownload}
-          onDiscard={onDiscard}
-          onRemix={onRemix}
-          onViewDetails={onViewDetails}
-          userId={userId}
-          isMobile={isMobile}
-          isLiked={userLikes.includes(image.id)}
-          onToggleLike={toggleLike}
-        />
-      )));
+      ));
     }
-
-    return content;
+    
+    if (!images || images.length === 0) {
+      return [<NoResults key="no-results" />];
+    }
+    
+    return images.map((image, index) => (
+      <ImageCard
+        key={image.id}
+        image={image}
+        onImageClick={() => handleImageClick(image, index)}
+        onMoreClick={handleMoreClick}
+        onDownload={onDownload}
+        onDiscard={onDiscard}
+        onRemix={onRemix}
+        onViewDetails={onViewDetails}
+        userId={userId}
+        isMobile={isMobile}
+        isLiked={userLikes.includes(image.id)}
+        onToggleLike={toggleLike}
+      />
+    ));
   };
 
   return (

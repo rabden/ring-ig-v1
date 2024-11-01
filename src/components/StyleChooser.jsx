@@ -4,10 +4,10 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { Crown } from "lucide-react"
 import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 
-const StyleChooser = ({ style, setStyle, proMode }) => {
+const StyleChooser = ({ style, setStyle, proMode, isNsfwMode }) => {
   const { data: styleConfigs, isLoading } = useStyleConfigs();
 
-  if (isLoading || !styleConfigs) {
+  if (isLoading || !styleConfigs || isNsfwMode) {
     return null;
   }
 
@@ -44,4 +44,4 @@ const StyleChooser = ({ style, setStyle, proMode }) => {
   )
 }
 
-export default StyleChooser
+export default StyleChooser;
