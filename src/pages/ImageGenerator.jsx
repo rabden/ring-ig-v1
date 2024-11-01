@@ -89,24 +89,26 @@ const ImageGenerator = () => {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
-      <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
-        <div className="flex justify-between items-center mb-4 md:mb-6">
-          {session && (
-            <>
-              <div className="hidden md:block">
-                <ProfileMenu 
-                  user={session.user} 
-                  credits={credits} 
-                  bonusCredits={bonusCredits}
+      <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6 pt-[60px] md:pt-[76px]`}>
+        <div className="fixed top-0 left-0 right-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border/30">
+          <div className="flex justify-between items-center p-2 md:p-6 max-w-[calc(100%-350px)] ml-auto">
+            {session && (
+              <>
+                <div className="hidden md:block">
+                  <ProfileMenu 
+                    user={session.user} 
+                    credits={credits} 
+                    bonusCredits={bonusCredits}
+                  />
+                </div>
+                <ActionButtons 
+                  activeView={activeView} 
+                  setActiveView={setActiveView} 
+                  generatingImages={generatingImages}
                 />
-              </div>
-              <ActionButtons 
-                activeView={activeView} 
-                setActiveView={setActiveView} 
-                generatingImages={generatingImages}
-              />
-            </>
-          )}
+              </>
+            )}
+          </div>
         </div>
         <ImageGallery
           userId={session?.user?.id}
