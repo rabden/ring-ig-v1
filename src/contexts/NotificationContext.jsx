@@ -33,13 +33,12 @@ export const NotificationProvider = ({ children }) => {
         return;
       }
 
-      setNotifications(data);
-      setUnreadCount(data.filter(n => !n.is_read).length);
+      setNotifications(data || []);
+      setUnreadCount((data || []).filter(n => !n.is_read).length);
     };
 
     fetchNotifications();
 
-    // Subscribe to new notifications
     const channel = supabase
       .channel('notifications_changes')
       .on('postgres_changes', 
@@ -52,7 +51,7 @@ export const NotificationProvider = ({ children }) => {
           } else if (payload.eventType === 'DELETE') {
             setNotifications(prev => prev.filter(n => n.id !== payload.old.id));
             if (!payload.old.is_read) {
-              setUnreadCount(prev => prev - 1);
+              setUnreadCount(prev => Math.max(0, prev - 1));
             }
           }
         }
@@ -65,37 +64,41 @@ export const NotificationProvider = ({ children }) => {
   }, [session?.user?.id]);
 
   const markAsRead = async (notificationId) => {
-    const { error } = await supabase
-      .from('notifications')
-      .update({ is_read: true })
-      .eq('id', notificationId);
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ is_read: true })
+        .eq('id', notificationId);
 
-    if (error) {
+      if (error) throw error;
+
+      setNotifications(prev => 
+        prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
+      );
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (error) {
       console.error('Error marking notification as read:', error);
-      return;
+      toast.error('Failed to mark notification as read');
     }
-
-    setNotifications(prev => 
-      prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
-    );
-    setUnreadCount(prev => prev - 1);
   };
 
   const deleteNotification = async (notificationId) => {
-    const { error } = await supabase
-      .from('notifications')
-      .delete()
-      .eq('id', notificationId);
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('id', notificationId);
 
-    if (error) {
+      if (error) throw error;
+
+      const notification = notifications.find(n => n.id === notificationId);
+      setNotifications(prev => prev.filter(n => n.id !== notificationId));
+      if (!notification.is_read) {
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
+    } catch (error) {
       console.error('Error deleting notification:', error);
-      return;
-    }
-
-    const notification = notifications.find(n => n.id === notificationId);
-    setNotifications(prev => prev.filter(n => n.id !== notificationId));
-    if (!notification.is_read) {
-      setUnreadCount(prev => prev - 1);
+      toast.error('Failed to delete notification');
     }
   };
 

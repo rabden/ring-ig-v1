@@ -8,10 +8,17 @@ import { Link } from 'react-router-dom';
 const NotificationItem = ({ notification }) => {
   const { markAsRead, deleteNotification } = useNotifications();
 
-  const handleClick = () => {
+  const handleClick = (e) => {
+    e.preventDefault();
     if (!notification.is_read) {
       markAsRead(notification.id);
     }
+  };
+
+  const handleDelete = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    deleteNotification(notification.id);
   };
 
   const content = (
@@ -39,7 +46,7 @@ const NotificationItem = ({ notification }) => {
         variant="ghost"
         size="icon"
         className="absolute top-4 right-4 h-6 w-6"
-        onClick={() => deleteNotification(notification.id)}
+        onClick={handleDelete}
       >
         <X className="h-4 w-4" />
       </Button>
