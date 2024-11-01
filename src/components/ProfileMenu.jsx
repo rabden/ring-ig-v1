@@ -35,9 +35,9 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
+        <Button variant="ghost" className="relative h-7 w-7 rounded-full p-0">
           <div className={`rounded-full ${isPro ? 'p-[2px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500' : ''}`}>
-            <Avatar className={`h-8 w-8 ${isPro ? 'border-2 border-background rounded-full' : ''}`}>
+            <Avatar className={`h-7 w-7 ${isPro ? 'border-2 border-background rounded-full' : ''}`}>
               <AvatarImage src={user.user_metadata.avatar_url} alt={displayName} />
               <AvatarFallback>{displayName.charAt(0).toUpperCase()}</AvatarFallback>
             </Avatar>
