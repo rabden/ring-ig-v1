@@ -8,7 +8,7 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
     <button
       onClick={onClick}
       className={cn(
-        "flex flex-col items-center justify-center w-14 h-12 transition-all",
+        "flex flex-col items-center justify-center w-12 h-10 transition-all",
         isActive ? "text-primary" : "text-muted-foreground",
         "relative group"
       )}
@@ -17,17 +17,17 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
         "absolute inset-x-2 h-0.5 -top-1 rounded-full transition-all",
         isActive ? "bg-primary" : "bg-transparent"
       )} />
-      <Icon size={16} className={cn(
+      <Icon size={14} className={cn(
         "transition-transform duration-200",
         isActive ? "scale-100" : "scale-90 group-hover:scale-100"
       )} />
-      <span className="text-[9px] mt-0.5 font-medium">{label}</span>
+      <span className="text-[8px] mt-0.5 font-medium">{label}</span>
     </button>
   );
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/30 md:hidden z-50">
-      <div className="flex items-center justify-around px-2 max-w-md mx-auto">
+      <div className="flex items-center justify-around px-2 max-w-md mx-auto h-12">
         <NavButton
           icon={Image}
           label="My Images"
@@ -52,7 +52,7 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
           isActive={activeTab === 'input'}
           onClick={() => setActiveTab('input')}
         />
-        <div className="flex flex-col items-center justify-center w-14 h-12">
+        <div className="flex flex-col items-center justify-center w-12 h-10">
           <MobileProfileMenu 
             user={session?.user} 
             credits={credits}
