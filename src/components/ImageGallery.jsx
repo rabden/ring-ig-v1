@@ -8,6 +8,7 @@ import MobileImageDrawer from './MobileImageDrawer'
 import ImageCard from './ImageCard'
 import { useLikes } from '@/hooks/useLikes'
 import MobileGeneratingStatus from './MobileGeneratingStatus'
+import { useImageFilter } from '@/hooks/useImageFilter'
 
 const breakpointColumnsObj = {
   default: 4,
@@ -26,7 +27,8 @@ const ImageGallery = ({
   activeView, 
   generatingImages = [], 
   nsfwEnabled,
-  activeFilters = {} 
+  activeFilters = {},
+  searchQuery = ''
 }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -34,9 +36,10 @@ const ImageGallery = ({
   const { userLikes, toggleLike } = useLikes(userId);
   const { data: modelConfigs } = useModelConfigs();
   const isMobile = window.innerWidth <= 768;
+  const { filterImages } = useImageFilter();
 
   const { data: images, isLoading, refetch } = useQuery({
-    queryKey: ['images', userId, activeView, nsfwEnabled, activeFilters],
+    queryKey: ['images', userId, activeView, nsfwEnabled, activeFilters, searchQuery],
     queryFn: async () => {
       if (!userId) return []
 
@@ -47,46 +50,15 @@ const ImageGallery = ({
 
       if (error) throw error
 
-      let filteredData = data.filter(img => {
-        const isNsfw = modelConfigs?.[img.model]?.category === "NSFW";
-        
-        if (activeView === 'myImages') {
-          if (nsfwEnabled) {
-            return img.user_id === userId && isNsfw;
-          } else {
-            return img.user_id === userId && !isNsfw;
-          }
-        } else if (activeView === 'inspiration') {
-          if (nsfwEnabled) {
-            return img.user_id !== userId && isNsfw;
-          } else {
-            return img.user_id !== userId && !isNsfw;
-          }
-        }
-        return false;
+      // Filter images based on all criteria including search query
+      return filterImages(data, {
+        userId,
+        activeView,
+        nsfwEnabled,
+        modelConfigs,
+        activeFilters,
+        searchQuery
       });
-
-      // Apply active filters
-      if (activeFilters.style) {
-        filteredData = filteredData.filter(img => img.style === activeFilters.style);
-      }
-      if (activeFilters.model) {
-        filteredData = filteredData.filter(img => img.model === activeFilters.model);
-      }
-
-      if (activeView === 'inspiration') {
-        filteredData.sort((a, b) => {
-          if (a.is_hot && a.is_trending && (!b.is_hot || !b.is_trending)) return -1;
-          if (b.is_hot && b.is_trending && (!a.is_hot || !a.is_trending)) return 1;
-          if (a.is_hot && !b.is_hot) return -1;
-          if (b.is_hot && !a.is_hot) return 1;
-          if (a.is_trending && !b.is_trending) return -1;
-          if (b.is_trending && !a.is_trending) return 1;
-          return new Date(b.created_at) - new Date(a.created_at);
-        });
-      }
-
-      return filteredData;
     },
     enabled: !!userId && !!modelConfigs,
   });

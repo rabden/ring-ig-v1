@@ -22,6 +22,7 @@ import SearchBar from '@/components/search/SearchBar'
 
 const ImageGenerator = () => {
   const [activeFilters, setActiveFilters] = useState({});
+  const [searchQuery, setSearchQuery] = useState('');
   const { data: modelConfigs } = useModelConfigs();
   const {
     prompt, setPrompt, seed, setSeed, randomizeSeed, setRandomizeSeed,
@@ -103,8 +104,7 @@ const ImageGenerator = () => {
   };
 
   const handleSearch = (query) => {
-    // TODO: Implement search functionality
-    console.log('Searching for:', query);
+    setSearchQuery(query);
   };
 
   return (
@@ -147,6 +147,7 @@ const ImageGenerator = () => {
             nsfwEnabled={nsfwEnabled}
             modelConfigs={modelConfigs}
             activeFilters={activeFilters}
+            searchQuery={searchQuery}
           />
         </div>
       </div>

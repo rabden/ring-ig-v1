@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
@@ -12,10 +12,14 @@ const SearchBar = ({ onSearch }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    onSearch(query);
-  };
+  // Debounce search to avoid too many updates
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onSearch(query);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [query, onSearch]);
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
@@ -29,7 +33,7 @@ const SearchBar = ({ onSearch }) => {
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 p-2">
-        <form onSubmit={handleSearch} className="flex gap-2">
+        <div className="flex gap-2">
           <Input
             placeholder="Search image prompts..."
             value={query}
@@ -47,10 +51,7 @@ const SearchBar = ({ onSearch }) => {
               <X className="h-4 w-4" />
             </Button>
           )}
-          <Button type="submit" size="sm">
-            Search
-          </Button>
-        </form>
+        </div>
       </PopoverContent>
     </Popover>
   );
