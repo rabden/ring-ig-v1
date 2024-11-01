@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { X, ArrowRight } from "lucide-react";
+import { X, ArrowRight, PenLine } from "lucide-react";
 
 const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits, onClear }) => {
   return (
@@ -15,7 +15,7 @@ const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits,
             onChange={onChange}
             onKeyDown={onKeyDown}
             placeholder="A 4D HDR immersive 3D image..."
-            className="w-full min-h-[360px] md:min-h-[180px] resize-none bg-transparent text-lg focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-8 px-4"
+            className="w-full min-h-[360px] md:min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-8 px-4"
             style={{ 
               caretColor: 'currentColor',
             }}
@@ -24,14 +24,24 @@ const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits,
         
         <div className="flex justify-end gap-2 mt-4">
           {value.length > 0 && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="rounded-full"
-              onClick={onClear}
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                className="rounded-full"
+                onClick={onClear}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                className="rounded-full"
+              >
+                <PenLine className="h-4 w-4 mr-2" />
+                Improve
+              </Button>
+            </>
           )}
           <Button
             size="sm"
