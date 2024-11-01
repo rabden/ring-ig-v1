@@ -14,13 +14,13 @@ import { useModelConfigs } from '@/hooks/useModelConfigs';
 
 const PromptInput = ({ value, onChange, onKeyDown, onGenerate }) => {
   return (
-    <div className="relative mb-6">
+    <div className="relative mb-8">
       <textarea
         value={value}
         onChange={onChange}
         onKeyDown={onKeyDown}
         placeholder="A 4D HDR immersive 3D image..."
-        className="w-full min-h-[120px] resize-none bg-transparent text-lg focus:outline-none placeholder:text-muted-foreground/50 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
+        className="w-full min-h-[180px] resize-none bg-transparent text-lg focus:outline-none placeholder:text-muted-foreground/50 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent"
         style={{ 
           caretColor: 'currentColor',
         }}
@@ -28,7 +28,7 @@ const PromptInput = ({ value, onChange, onKeyDown, onGenerate }) => {
       {value.length > 0 && (
         <Button
           size="sm"
-          className="absolute right-0 bottom-0 rounded-full"
+          className="mt-2 rounded-full"
           onClick={onGenerate}
         >
           Generate
@@ -120,16 +120,14 @@ const ImageGeneratorSettings = ({
         onGenerate={generateImage}
       />
 
-      <SettingSection label="Model" tooltip="Select the model to use for generating images">
-        <ModelSection 
-          model={model} 
-          setModel={handleModelChange}
-          nsfwEnabled={nsfwEnabled}
-          quality={quality}
-          proMode={proMode}
-          modelConfigs={modelConfigs}
-        />
-      </SettingSection>
+      <ModelSection 
+        model={model} 
+        setModel={handleModelChange}
+        nsfwEnabled={nsfwEnabled}
+        quality={quality}
+        proMode={proMode}
+        modelConfigs={modelConfigs}
+      />
 
       {!isNsfwModel && (
         <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
