@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { ThemeProvider } from "@/components/theme-provider"
 import ImageGenerator from "./pages/ImageGenerator"
 import SingleImageView from "./components/SingleImageView"
+import Documentation from "./pages/Documentation"
 import { SupabaseAuthProvider } from '@/integrations/supabase/auth'
 import { NotificationProvider } from './contexts/NotificationContext'
 import '@/styles/shadcn-overrides.css'
@@ -30,6 +31,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<ImageGenerator />} />
                 <Route path="/image/:imageId" element={<SingleImageView />} />
+                <Route path="/docs" element={<Documentation />} />
               </Routes>
             </BrowserRouter>
           </NotificationProvider>
