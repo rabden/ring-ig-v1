@@ -26,17 +26,12 @@ const ImageGallery = ({
   onViewDetails, 
   activeView, 
   generatingImages = [], 
-  nsfwEnabled 
+  nsfwEnabled,
+  activeFilters = {} 
 }) => {
-  const [selectedImage, setSelectedImage] = useState(null)
-  const [drawerOpen, setDrawerOpen] = useState(false)
-  const [showImageInDrawer, setShowImageInDrawer] = useState(false)
-  const { userLikes, toggleLike } = useLikes(userId)
   const { data: modelConfigs } = useModelConfigs()
-  const isMobile = window.innerWidth <= 768
-
   const { data: images, isLoading, refetch } = useQuery({
-    queryKey: ['images', userId, activeView, nsfwEnabled],
+    queryKey: ['images', userId, activeView, nsfwEnabled, activeFilters],
     queryFn: async () => {
       if (!userId) return []
 
@@ -47,7 +42,7 @@ const ImageGallery = ({
 
       if (error) throw error
 
-      const filteredData = data.filter(img => {
+      let filteredData = data.filter(img => {
         const isNsfw = modelConfigs?.[img.model]?.category === "NSFW";
         
         if (activeView === 'myImages') {
@@ -65,6 +60,14 @@ const ImageGallery = ({
         }
         return false;
       });
+
+      // Apply active filters
+      if (activeFilters.style) {
+        filteredData = filteredData.filter(img => img.style === activeFilters.style);
+      }
+      if (activeFilters.model) {
+        filteredData = filteredData.filter(img => img.model === activeFilters.model);
+      }
 
       if (activeView === 'inspiration') {
         filteredData.sort((a, b) => {

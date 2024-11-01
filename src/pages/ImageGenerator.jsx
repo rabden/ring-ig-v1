@@ -11,6 +11,7 @@ import ImageDetailsDialog from '@/components/ImageDetailsDialog'
 import FullScreenImageView from '@/components/FullScreenImageView'
 import ProfileMenu from '@/components/ProfileMenu'
 import ActionButtons from '@/components/ActionButtons'
+import FilterMenu from '@/components/filters/FilterMenu'
 import { useImageGeneratorState } from '@/hooks/useImageGeneratorState'
 import { useImageHandlers } from '@/hooks/useImageHandlers'
 import { aspectRatios } from '@/utils/imageConfigs'
@@ -19,6 +20,7 @@ import MobileGeneratingStatus from '@/components/MobileGeneratingStatus'
 import { useProUser } from '@/hooks/useProUser'
 
 const ImageGenerator = () => {
+  const [activeFilters, setActiveFilters] = useState({});
   const { data: modelConfigs } = useModelConfigs();
   const {
     prompt, setPrompt, seed, setSeed, randomizeSeed, setRandomizeSeed,
@@ -87,6 +89,18 @@ const ImageGenerator = () => {
     setActiveView,
   })
 
+  const handleFilterChange = (type, value) => {
+    setActiveFilters(prev => ({ ...prev, [type]: value }));
+  };
+
+  const handleRemoveFilter = (type) => {
+    setActiveFilters(prev => {
+      const newFilters = { ...prev };
+      delete newFilters[type];
+      return newFilters;
+    });
+  };
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
@@ -104,6 +118,11 @@ const ImageGenerator = () => {
                   setActiveView={setActiveView} 
                   generatingImages={generatingImages}
                 />
+                <FilterMenu
+                  activeFilters={activeFilters}
+                  onFilterChange={handleFilterChange}
+                  onRemoveFilter={handleRemoveFilter}
+                />
               </div>
             </div>
           </div>
@@ -120,6 +139,7 @@ const ImageGenerator = () => {
             generatingImages={generatingImages}
             nsfwEnabled={nsfwEnabled}
             modelConfigs={modelConfigs}
+            activeFilters={activeFilters}
           />
         </div>
       </div>
