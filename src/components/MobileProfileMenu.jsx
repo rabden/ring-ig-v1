@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import SignInDialog from '@/components/SignInDialog';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { User, Crown } from 'lucide-react';
+import { User } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
@@ -40,17 +40,14 @@ const MobileProfileMenu = ({ user, credits, bonusCredits }) => {
       setActiveSnapPoint={setSnapPoint}
     >
       <Drawer.Trigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full relative">
+        <Button variant="ghost" size="icon" className="rounded-full p-0">
           {user ? (
-            <>
-              {isPro && (
-                <Crown className="absolute -top-2 -right-2 h-4 w-4 text-primary" />
-              )}
-              <Avatar className="h-8 w-8">
+            <div className={`rounded-full ${isPro ? 'p-[2px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500' : ''}`}>
+              <Avatar className={`h-8 w-8 ${isPro ? 'border-2 border-background rounded-full' : ''}`}>
                 <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.email} />
                 <AvatarFallback>{user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
               </Avatar>
-            </>
+            </div>
           ) : (
             <User size={20} />
           )}
@@ -64,11 +61,8 @@ const MobileProfileMenu = ({ user, credits, bonusCredits }) => {
             <div className="max-w-md mx-auto">
               {user ? (
                 <div className="flex flex-col items-center space-y-4">
-                  <div className="relative">
-                    {isPro && (
-                      <Crown className="absolute -top-4 left-1/2 -translate-x-1/2 h-6 w-6 text-primary" />
-                    )}
-                    <Avatar className="h-20 w-20">
+                  <div className={`rounded-full ${isPro ? 'p-[3px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500' : ''}`}>
+                    <Avatar className={`h-20 w-20 ${isPro ? 'border-2 border-background rounded-full' : ''}`}>
                       <AvatarImage src={user.user_metadata.avatar_url} alt={user.email} />
                       <AvatarFallback>{user.email.charAt(0).toUpperCase()}</AvatarFallback>
                     </Avatar>
