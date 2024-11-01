@@ -2,7 +2,6 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,10 +12,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { supabase } from '@/integrations/supabase/supabase';
+import { useProUser } from '@/hooks/useProUser';
 
-const ProfileMenu = ({ user, credits, bonusCredits, proMode, setProMode }) => {
+const ProfileMenu = ({ user, credits, bonusCredits }) => {
   const { logout } = useSupabaseAuth();
   const displayName = user.user_metadata.display_name || user.email.split('@')[0];
+  const { data: isPro } = useProUser(user.id);
 
   const { data: totalLikes = 0 } = useQuery({
     queryKey: ['totalLikes', user.id],
@@ -46,6 +47,7 @@ const ProfileMenu = ({ user, credits, bonusCredits, proMode, setProMode }) => {
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{displayName}</p>
             <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+            {isPro && <p className="text-xs text-primary">Pro User</p>}
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -54,12 +56,6 @@ const ProfileMenu = ({ user, credits, bonusCredits, proMode, setProMode }) => {
         </DropdownMenuItem>
         <DropdownMenuItem>
           Total Likes: {totalLikes}
-        </DropdownMenuItem>
-        <DropdownMenuItem>
-          <div className="flex items-center justify-between w-full">
-            <span>Pro Mode</span>
-            <Switch checked={proMode} onCheckedChange={setProMode} />
-          </div>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={logout}>

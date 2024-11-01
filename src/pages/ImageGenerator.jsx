@@ -16,9 +16,9 @@ import { useImageHandlers } from '@/hooks/useImageHandlers'
 import { aspectRatios } from '@/utils/imageConfigs'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import MobileGeneratingStatus from '@/components/MobileGeneratingStatus'
+import { useProUser } from '@/hooks/useProUser'
 
 const ImageGenerator = () => {
-  const [proMode, setProMode] = useState(false);
   const { data: modelConfigs } = useModelConfigs();
   const {
     prompt, setPrompt, seed, setSeed, randomizeSeed, setRandomizeSeed,
@@ -33,6 +33,7 @@ const ImageGenerator = () => {
 
   const { session } = useSupabaseAuth()
   const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id)
+  const { data: isPro } = useProUser(session?.user?.id);
   const queryClient = useQueryClient()
 
   const [style, setStyle] = useState('general')
@@ -97,8 +98,6 @@ const ImageGenerator = () => {
                   user={session.user} 
                   credits={credits} 
                   bonusCredits={bonusCredits}
-                  proMode={proMode}
-                  setProMode={setProMode}
                 />
               </div>
               <ActionButtons 
@@ -158,7 +157,7 @@ const ImageGenerator = () => {
           setStyle={setStyle}
           steps={steps}
           setSteps={setSteps}
-          proMode={proMode}
+          proMode={isPro}
           modelConfigs={modelConfigs}
         />
       </div>
@@ -170,8 +169,6 @@ const ImageGenerator = () => {
         bonusCredits={bonusCredits}
         activeView={activeView}
         setActiveView={setActiveView}
-        proMode={proMode}
-        setProMode={setProMode}
       />
       <ImageDetailsDialog
         open={detailsDialogOpen}

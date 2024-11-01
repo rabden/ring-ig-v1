@@ -2,16 +2,17 @@ import React from 'react';
 import { Drawer } from 'vaul';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import SignInDialog from '@/components/SignInDialog';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { User } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
+import { useProUser } from '@/hooks/useProUser';
 
-const MobileProfileMenu = ({ user, credits, bonusCredits, proMode, setProMode }) => {
+const MobileProfileMenu = ({ user, credits, bonusCredits }) => {
   const { logout } = useSupabaseAuth();
   const [snapPoint, setSnapPoint] = React.useState(1);
+  const { data: isPro } = useProUser(user?.id);
 
   const { data: totalLikes = 0 } = useQuery({
     queryKey: ['totalLikes', user?.id],
@@ -66,16 +67,13 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, proMode, setProMode })
                     {user.user_metadata.display_name || user.email}
                   </h3>
                   <p className="text-sm text-muted-foreground">{user.email}</p>
+                  {isPro && <p className="text-sm text-primary">Pro User</p>}
                   <p className="text-sm font-medium">
                     Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
                   </p>
                   <p className="text-sm font-medium">
                     Total Likes: {totalLikes}
                   </p>
-                  <div className="flex items-center justify-between w-full px-4 py-2">
-                    <span className="text-sm font-medium">Pro Mode</span>
-                    <Switch checked={proMode} onCheckedChange={setProMode} />
-                  </div>
                   <Button onClick={handleLogout} variant="outline" className="w-full">
                     Log out
                   </Button>
