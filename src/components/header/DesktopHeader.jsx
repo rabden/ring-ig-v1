@@ -3,6 +3,7 @@ import ProfileMenu from '../ProfileMenu';
 import ActionButtons from '../ActionButtons';
 import FilterMenu from '../filters/FilterMenu';
 import SearchBar from '../search/SearchBar';
+import NotificationBell from '../notifications/NotificationBell';
 
 const DesktopHeader = ({ 
   user, 
@@ -27,6 +28,7 @@ const DesktopHeader = ({
             credits={credits} 
             bonusCredits={bonusCredits}
           />
+          <NotificationBell />
           <ActionButtons 
             activeView={activeView} 
             setActiveView={setActiveView} 

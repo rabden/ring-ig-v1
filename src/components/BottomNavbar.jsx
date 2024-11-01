@@ -1,7 +1,9 @@
 import React from 'react';
-import { Image, Plus, Sparkles } from 'lucide-react';
+import { Image, Plus, Sparkles, Bell } from 'lucide-react';
 import MobileProfileMenu from './MobileProfileMenu';
 import { cn } from "@/lib/utils";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import NotificationList from './notifications/NotificationList';
 
 const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits, activeView, setActiveView, proMode, setProMode }) => {
   const NavButton = ({ icon: Icon, label, isActive, onClick }) => (
@@ -52,6 +54,18 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
           isActive={activeTab === 'input'}
           onClick={() => setActiveTab('input')}
         />
+        <Sheet>
+          <SheetTrigger asChild>
+            <NavButton
+              icon={Bell}
+              label="Notifications"
+              isActive={false}
+            />
+          </SheetTrigger>
+          <SheetContent side="bottom" className="h-[80vh]">
+            <NotificationList />
+          </SheetContent>
+        </Sheet>
         <div className="flex flex-col items-center justify-center w-14 h-12">
           <MobileProfileMenu 
             user={session?.user} 
