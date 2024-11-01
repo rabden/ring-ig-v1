@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Loader } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
@@ -13,13 +13,13 @@ const MobileGeneratingStatus = ({ generatingImages }) => {
   if (!generatingImages?.length) return null;
 
   return (
-    <div className="fixed bottom-[56px] left-0 right-0 bg-background/70 backdrop-blur-xl border-t border-border/30 md:hidden">
+    <div className="fixed bottom-0 left-0 right-0 bg-background/70 backdrop-blur-xl border-t border-border/30 md:hidden">
       <button 
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full px-4 py-2 flex items-center justify-between text-sm"
       >
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-primary animate-pulse" />
+          <Loader className="w-4 h-4 animate-spin" />
           <span>Generating-{generatingImages.length}</span>
         </div>
         <ChevronDown className={cn(
@@ -56,6 +56,7 @@ const MobileGeneratingStatus = ({ generatingImages }) => {
           ))}
         </div>
       )}
+      <div className="h-[56px]" />
     </div>
   );
 };
