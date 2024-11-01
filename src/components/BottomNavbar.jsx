@@ -8,18 +8,26 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
     <button
       onClick={onClick}
       className={cn(
-        "relative flex items-center gap-2 px-3 py-1.5 rounded-full transition-all",
-        isActive ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-primary hover:bg-primary/5",
+        "flex flex-col items-center justify-center w-14 h-12 transition-all",
+        isActive ? "text-primary" : "text-muted-foreground",
+        "relative group"
       )}
     >
-      <Icon size={16} className="shrink-0" />
-      <span className="text-xs font-medium hidden sm:block">{label}</span>
+      <div className={cn(
+        "absolute inset-x-2 h-0.5 -top-1 rounded-full transition-all",
+        isActive ? "bg-primary" : "bg-transparent"
+      )} />
+      <Icon size={16} className={cn(
+        "transition-transform duration-200",
+        isActive ? "scale-100" : "scale-90 group-hover:scale-100"
+      )} />
+      <span className="text-[9px] mt-0.5 font-medium">{label}</span>
     </button>
   );
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-sm border-t border-border/30 md:hidden z-50">
-      <div className="flex items-center justify-around gap-1 px-3 py-2 max-w-md mx-auto">
+    <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/30 md:hidden z-50">
+      <div className="flex items-center justify-around px-2 max-w-md mx-auto">
         <NavButton
           icon={Image}
           label="My Images"
@@ -38,20 +46,13 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
             setActiveView('inspiration');
           }}
         />
-        <div className="flex-shrink-0">
-          <button
-            onClick={() => setActiveTab('input')}
-            className={cn(
-              "flex items-center justify-center w-10 h-10 rounded-full transition-all",
-              activeTab === 'input' 
-                ? "bg-primary text-primary-foreground shadow-md" 
-                : "bg-muted hover:bg-muted/80"
-            )}
-          >
-            <Plus size={20} />
-          </button>
-        </div>
-        <div className="flex items-center">
+        <NavButton
+          icon={Plus}
+          label="Create"
+          isActive={activeTab === 'input'}
+          onClick={() => setActiveTab('input')}
+        />
+        <div className="flex flex-col items-center justify-center w-14 h-12">
           <MobileProfileMenu 
             user={session?.user} 
             credits={credits}
