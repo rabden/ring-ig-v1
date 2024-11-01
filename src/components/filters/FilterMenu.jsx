@@ -22,7 +22,11 @@ const FilterMenu = ({ activeFilters, onFilterChange, onRemoveFilter }) => {
     <div className="flex items-center gap-2">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="h-8 px-3"
+          >
             <Filter className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
@@ -75,7 +79,7 @@ const FilterMenu = ({ activeFilters, onFilterChange, onRemoveFilter }) => {
             <Badge
               key={`${type}-${value}`}
               variant="secondary"
-              className="flex items-center gap-1 px-3 py-1"
+              className="flex items-center gap-1 px-3 py-1 h-8"
             >
               {label}
               <Button

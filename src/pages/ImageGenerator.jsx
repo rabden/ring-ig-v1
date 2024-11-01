@@ -18,6 +18,7 @@ import { aspectRatios } from '@/utils/imageConfigs'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import MobileGeneratingStatus from '@/components/MobileGeneratingStatus'
 import { useProUser } from '@/hooks/useProUser'
+import SearchBar from '@/components/search/SearchBar'
 
 const ImageGenerator = () => {
   const [activeFilters, setActiveFilters] = useState({});
@@ -101,11 +102,16 @@ const ImageGenerator = () => {
     });
   };
 
+  const handleSearch = (query) => {
+    // TODO: Implement search functionality
+    console.log('Searching for:', query);
+  };
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
         {session && (
-          <div className="hidden md:block fixed top-0 left-0 right-[350px] bg-background z-10 px-6 py-4 border-b">
+          <div className="hidden md:block fixed top-0 left-0 right-[350px] bg-background/80 backdrop-blur-sm z-10 px-6 py-4">
             <div className="flex justify-between items-center max-w-full">
               <div className="flex items-center space-x-4">
                 <ProfileMenu 
@@ -123,6 +129,7 @@ const ImageGenerator = () => {
                   onFilterChange={handleFilterChange}
                   onRemoveFilter={handleRemoveFilter}
                 />
+                <SearchBar onSearch={handleSearch} />
               </div>
             </div>
           </div>
