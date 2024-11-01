@@ -138,13 +138,15 @@ const ImageGenerator = () => {
         {/* Mobile Header */}
         {session && (
           <div className="md:hidden fixed top-0 left-0 right-0 bg-background z-10 px-4 py-2">
-            <div className="flex items-center justify-end gap-4">
-              <FilterMenu
-                activeFilters={activeFilters}
-                onFilterChange={handleFilterChange}
-                onRemoveFilter={handleRemoveFilter}
-              />
-              <SearchBar onSearch={handleSearch} />
+            <div className="flex items-center justify-end gap-2 overflow-x-hidden">
+              <div className="flex items-center gap-2 flex-nowrap">
+                <FilterMenu
+                  activeFilters={activeFilters}
+                  onFilterChange={handleFilterChange}
+                  onRemoveFilter={handleRemoveFilter}
+                />
+                <SearchBar onSearch={handleSearch} />
+              </div>
             </div>
           </div>
         )}
