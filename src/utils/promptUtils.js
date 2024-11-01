@@ -8,28 +8,19 @@ export const improvePrompt = async (prompt) => {
     if (!apiKey) throw new Error('No active API key available');
 
     const client = new HfInference(apiKey);
-    let improvedPrompt = "";
-
-    const stream = await client.chatCompletionStream({
-      model: "meta-llama/Llama-3.1-8B-Instruct",
-      messages: [
-        { 
-          role: "system", 
-          content: "You are an expert prompt maker for image generation, you will be given a prompt for image generation and you have to provide a better bigger and more detailed version of it." 
-        },
-        { role: "user", content: prompt }
-      ],
-      max_tokens: 500
+    
+    const response = await client.textGeneration({
+      model: "tiiuae/falcon-7b-instruct",
+      inputs: `You are an expert prompt maker for image generation. Make this prompt better, bigger and more detailed: "${prompt}"`,
+      parameters: {
+        max_new_tokens: 200,
+        temperature: 0.7,
+        top_p: 0.95,
+        return_full_text: false
+      }
     });
 
-    for await (const chunk of stream) {
-      if (chunk.choices && chunk.choices.length > 0) {
-        const newContent = chunk.choices[0].delta.content;
-        improvedPrompt += newContent;
-      }
-    }
-
-    return improvedPrompt.trim();
+    return response.generated_text.trim();
   } catch (error) {
     console.error('Error improving prompt:', error);
     throw error;
