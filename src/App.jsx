@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import ImageGenerator from "./pages/ImageGenerator"
 import { SupabaseAuthProvider } from '@/integrations/supabase/auth'
 import { NotificationProvider } from './contexts/NotificationContext'
+import '@/styles/shadcn-overrides.css'
 
 const queryClient = new QueryClient({
   defaultOptions: {

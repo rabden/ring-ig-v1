@@ -31,15 +31,25 @@ export const useLikes = (userId) => {
           .eq('image_id', imageId);
         if (error) throw error;
       } else {
-        // Get the created_by value from the user_images table
+        // Get the image and user details
         const { data: imageData, error: imageError } = await supabase
           .from('user_images')
-          .select('user_id')
+          .select('*, profiles:user_id(full_name, avatar_url)')
           .eq('id', imageId)
           .single();
         
         if (imageError) throw imageError;
 
+        // Get current user's profile
+        const { data: userProfile, error: profileError } = await supabase
+          .from('profiles')
+          .select('full_name, avatar_url')
+          .eq('id', userId)
+          .single();
+
+        if (profileError) throw profileError;
+
+        // Insert the like
         const { error } = await supabase
           .from('user_image_likes')
           .insert([{ 
@@ -48,6 +58,19 @@ export const useLikes = (userId) => {
             created_by: imageData.user_id 
           }]);
         if (error) throw error;
+
+        // Create notification for the image owner
+        const { error: notificationError } = await supabase
+          .from('notifications')
+          .insert([{
+            user_id: imageData.user_id,
+            title: 'New Like',
+            message: `${userProfile.full_name || 'Someone'} liked your image`,
+            image_url: supabase.storage.from('user-images').getPublicUrl(imageData.storage_path).data.publicUrl,
+            link: `/image/${imageId}`
+          }]);
+        
+        if (notificationError) throw notificationError;
       }
     },
     onSuccess: () => {
