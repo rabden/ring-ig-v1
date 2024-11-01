@@ -31,10 +31,10 @@ export const useLikes = (userId) => {
           .eq('image_id', imageId);
         if (error) throw error;
       } else {
-        // Get the image and user details
+        // Get the image details
         const { data: imageData, error: imageError } = await supabase
           .from('user_images')
-          .select('*, profiles:user_id(full_name, avatar_url)')
+          .select('*')
           .eq('id', imageId)
           .single();
         
@@ -48,6 +48,15 @@ export const useLikes = (userId) => {
           .single();
 
         if (profileError) throw profileError;
+
+        // Get image owner's profile
+        const { data: ownerProfile, error: ownerProfileError } = await supabase
+          .from('profiles')
+          .select('full_name, avatar_url')
+          .eq('id', imageData.user_id)
+          .single();
+
+        if (ownerProfileError) throw ownerProfileError;
 
         // Insert the like
         const { error } = await supabase
