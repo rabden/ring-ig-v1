@@ -27,6 +27,7 @@ const ImageCard = ({
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [shouldLoad, setShouldLoad] = useState(false);
+  const [imageSrc, setImageSrc] = useState('');
   const imageRef = useRef(null);
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
@@ -57,12 +58,14 @@ const ImageCard = ({
         rect.bottom >= -verticalMargin
       );
 
-      if (isVisible) {
+      if (isVisible && !shouldLoad) {
         setShouldLoad(true);
-      } else if (rect.bottom < -verticalMargin || rect.top > windowHeight + verticalMargin) {
-        // Only unload if completely out of view plus margin
+        setImageSrc(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl);
+      } else if (!isVisible && shouldLoad) {
+        // Unload image when it's out of view
         setShouldLoad(false);
         setImageLoaded(false);
+        setImageSrc(''); // Clear the src to free up memory
       }
     };
 
@@ -77,7 +80,7 @@ const ImageCard = ({
       window.removeEventListener('scroll', checkVisibility);
       window.removeEventListener('resize', checkVisibility);
     };
-  }, []);
+  }, [shouldLoad, image.storage_path]);
 
   const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
   const modelName = modelConfigs?.[image.model]?.name || image.model;
@@ -107,7 +110,7 @@ const ImageCard = ({
             )}
             {shouldLoad && (
               <img 
-                src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                src={imageSrc}
                 alt={image.prompt} 
                 className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                 onClick={() => onImageClick(image)}
@@ -148,7 +151,7 @@ const ImageCard = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
+                <DropdownMenuItem onClick={() => onDownload(imageSrc, image.prompt)}>
                   Download
                 </DropdownMenuItem>
                 {image.user_id === userId && (
