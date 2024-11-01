@@ -2,10 +2,12 @@ import React from 'react';
 import { Image, Plus, Sparkles, Bell } from 'lucide-react';
 import MobileProfileMenu from './MobileProfileMenu';
 import { cn } from "@/lib/utils";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Drawer } from 'vaul';
 import NotificationList from './notifications/NotificationList';
 
 const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits, activeView, setActiveView, proMode, setProMode }) => {
+  const [notificationDrawerOpen, setNotificationDrawerOpen] = React.useState(false);
+
   const NavButton = ({ icon: Icon, label, isActive, onClick }) => (
     <button
       onClick={onClick}
@@ -54,18 +56,24 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
           isActive={activeTab === 'input'}
           onClick={() => setActiveTab('input')}
         />
-        <Sheet>
-          <SheetTrigger asChild>
+        <Drawer.Root open={notificationDrawerOpen} onOpenChange={setNotificationDrawerOpen}>
+          <Drawer.Trigger asChild>
             <NavButton
               icon={Bell}
               label="Notifications"
               isActive={false}
             />
-          </SheetTrigger>
-          <SheetContent side="bottom" className="h-[80vh]">
-            <NotificationList />
-          </SheetContent>
-        </Sheet>
+          </Drawer.Trigger>
+          <Drawer.Portal>
+            <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[60]" />
+            <Drawer.Content className="bg-background flex flex-col rounded-t-[20px] fixed bottom-0 left-0 right-0 max-h-[85vh] z-[60]">
+              <div className="p-4 bg-muted/40 rounded-t-[20px] flex-1">
+                <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-8" />
+                <NotificationList />
+              </div>
+            </Drawer.Content>
+          </Drawer.Portal>
+        </Drawer.Root>
         <div className="flex flex-col items-center justify-center w-14 h-12">
           <MobileProfileMenu 
             user={session?.user} 

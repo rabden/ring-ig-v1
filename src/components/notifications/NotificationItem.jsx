@@ -24,6 +24,7 @@ const NotificationItem = ({ notification }) => {
 
   const images = notification.image_url ? notification.image_url.split(',').map(url => url.trim()) : [];
   const links = notification.link ? notification.link.split(',').map(link => link.trim()) : [];
+  const linkNames = notification.link_names ? notification.link_names.split(',').map(name => name.trim()) : [];
 
   return (
     <div
@@ -75,7 +76,7 @@ const NotificationItem = ({ notification }) => {
               className="text-sm text-primary hover:underline"
               onClick={(e) => e.stopPropagation()}
             >
-              {`Link ${index + 1}`}
+              {linkNames[index] || `Link ${index + 1}`}
             </Link>
           ))}
         </div>
