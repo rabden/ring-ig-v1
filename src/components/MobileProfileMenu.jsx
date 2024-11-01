@@ -52,8 +52,8 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, proMode, setProMode })
       </Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[60]" />
-        <Drawer.Content className="bg-background flex flex-col rounded-t-[10px] fixed bottom-0 left-0 right-0 max-h-[100dvh] z-[60]">
-          <div className="p-4 bg-muted/40 rounded-t-[10px] flex-1">
+        <Drawer.Content className="bg-background flex flex-col rounded-t-[20px] fixed bottom-0 left-0 right-0 max-h-[100dvh] z-[60]">
+          <div className="p-4 bg-muted/40 rounded-t-[20px] flex-1">
             <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 mb-8" />
             <div className="max-w-md mx-auto">
               {user ? (
