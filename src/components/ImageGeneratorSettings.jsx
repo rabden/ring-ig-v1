@@ -72,6 +72,13 @@ const ImageGeneratorSettings = ({
     setModel(newModel);
   };
 
+  const getAvailableQualities = () => {
+    if (model === 'turbo' || model === 'preLar') {
+      return ["SD", "HD"];
+    }
+    return Object.keys(qualityOptions);
+  };
+
   const handlePromptChange = (e) => {
     setPrompt(e.target.value);
     
