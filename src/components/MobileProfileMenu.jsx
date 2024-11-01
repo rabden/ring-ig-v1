@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import SignInDialog from '@/components/SignInDialog';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { User } from 'lucide-react';
+import { User, Crown } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
@@ -40,12 +40,17 @@ const MobileProfileMenu = ({ user, credits, bonusCredits }) => {
       setActiveSnapPoint={setSnapPoint}
     >
       <Drawer.Trigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full">
+        <Button variant="ghost" size="icon" className="rounded-full relative">
           {user ? (
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.email} />
-              <AvatarFallback>{user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
-            </Avatar>
+            <>
+              {isPro && (
+                <Crown className="absolute -top-2 -right-2 h-4 w-4 text-primary" />
+              )}
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={user?.user_metadata?.avatar_url} alt={user?.email} />
+                <AvatarFallback>{user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
+              </Avatar>
+            </>
           ) : (
             <User size={20} />
           )}
@@ -59,10 +64,15 @@ const MobileProfileMenu = ({ user, credits, bonusCredits }) => {
             <div className="max-w-md mx-auto">
               {user ? (
                 <div className="flex flex-col items-center space-y-4">
-                  <Avatar className="h-20 w-20">
-                    <AvatarImage src={user.user_metadata.avatar_url} alt={user.email} />
-                    <AvatarFallback>{user.email.charAt(0).toUpperCase()}</AvatarFallback>
-                  </Avatar>
+                  <div className="relative">
+                    {isPro && (
+                      <Crown className="absolute -top-4 left-1/2 -translate-x-1/2 h-6 w-6 text-primary" />
+                    )}
+                    <Avatar className="h-20 w-20">
+                      <AvatarImage src={user.user_metadata.avatar_url} alt={user.email} />
+                      <AvatarFallback>{user.email.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                  </div>
                   <h3 className="text-lg font-semibold">
                     {user.user_metadata.display_name || user.email}
                   </h3>

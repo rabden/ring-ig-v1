@@ -13,6 +13,7 @@ import {
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
+import { Crown } from 'lucide-react';
 
 const ProfileMenu = ({ user, credits, bonusCredits }) => {
   const { logout } = useSupabaseAuth();
@@ -36,6 +37,9 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+          {isPro && (
+            <Crown className="absolute -top-2 -right-2 h-4 w-4 text-primary" />
+          )}
           <Avatar className="h-8 w-8">
             <AvatarImage src={user.user_metadata.avatar_url} alt={displayName} />
             <AvatarFallback>{displayName.charAt(0).toUpperCase()}</AvatarFallback>
