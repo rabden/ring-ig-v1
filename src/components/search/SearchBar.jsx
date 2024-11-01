@@ -9,7 +9,7 @@ const SearchBar = ({ onSearch }) => {
 
   const handleSearch = (value) => {
     setQuery(value);
-    onSearch(value);
+    onSearch(value); // Directly call onSearch without debouncing
   };
 
   const toggleSearch = () => {
@@ -27,13 +27,13 @@ const SearchBar = ({ onSearch }) => {
             placeholder="Search..."
             value={query}
             onChange={(e) => handleSearch(e.target.value)}
-            className="h-6 md:h-7 w-full min-w-[100px] bg-transparent text-xs md:text-sm"
+            className="h-7 md:h-8 w-full min-w-[100px] bg-transparent text-xs md:text-sm"
             autoFocus
           />
           <Button
             variant="ghost"
             size="sm"
-            className="h-6 md:h-7 w-6 md:w-7 p-0 flex-shrink-0"
+            className="h-7 md:h-8 w-7 md:w-8 p-0 flex-shrink-0"
             onClick={toggleSearch}
           >
             <X className="h-3 md:h-4 w-3 md:w-4" />
@@ -43,7 +43,7 @@ const SearchBar = ({ onSearch }) => {
         <Button
           variant="ghost"
           size="sm"
-          className="h-6 md:h-7 w-6 md:w-7 p-0"
+          className="h-7 md:h-8 w-7 md:w-8 p-0"
           onClick={toggleSearch}
         >
           <Search className="h-3 md:h-4 w-3 md:w-4" />
