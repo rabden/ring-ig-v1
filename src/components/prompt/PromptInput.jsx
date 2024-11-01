@@ -14,7 +14,11 @@ const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits,
       try {
         setIsImproving(true);
         const improvedPrompt = await improvePrompt(value);
-        onGenerate(improvedPrompt);
+        if (improvedPrompt) {
+          onGenerate(improvedPrompt);
+        } else {
+          onGenerate(value);
+        }
       } catch (error) {
         console.error('Failed to improve prompt:', error);
         onGenerate(value);

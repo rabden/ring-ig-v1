@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { qualityOptions } from '@/utils/imageConfigs';
 import { calculateDimensions, getModifiedPrompt } from '@/utils/imageUtils';
-import { handleApiResponse, MAX_RETRIES } from '@/utils/retryUtils';
+import { handleApiResponse } from '@/utils/retryUtils';
 
 export const useImageGeneration = ({
   session,
@@ -49,7 +49,7 @@ export const useImageGeneration = ({
     },
   });
 
-  const generateImage = async (improvedPrompt = null) => {
+  const generateImage = async (improvedPrompt = null, retryCount = 0) => {
     if (!session || !prompt || !modelConfigs) {
       !session && console.log('User not authenticated');
       !modelConfigs && console.log('Model configs not loaded');
@@ -69,7 +69,8 @@ export const useImageGeneration = ({
     }
 
     const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed;
-    const modifiedPrompt = await getModifiedPrompt(improvedPrompt || prompt, style, model, modelConfigs);
+    const finalPrompt = improvedPrompt || prompt;
+    const modifiedPrompt = await getModifiedPrompt(finalPrompt, style, model, modelConfigs);
     const maxDimension = qualityOptions[quality];
     const { width: finalWidth, height: finalHeight } = calculateDimensions(useAspectRatio, aspectRatio, width, height, maxDimension);
 
@@ -79,7 +80,7 @@ export const useImageGeneration = ({
         id: generationId, 
         width: finalWidth, 
         height: finalHeight,
-        prompt,
+        prompt: finalPrompt,
         model,
         style: modelConfigs[model]?.category === "NSFW" ? null : style
       }]);
@@ -96,7 +97,6 @@ export const useImageGeneration = ({
         throw new Error('No active API key available');
       }
 
-      // Base parameters that all models support
       const parameters = {
         seed: actualSeed,
         width: finalWidth,
@@ -104,7 +104,6 @@ export const useImageGeneration = ({
         num_inference_steps: modelConfig?.defaultStep || 30,
       };
 
-      // Add negative_prompt only for models that support it (not FLUX models)
       if (!model.toLowerCase().includes('flux')) {
         parameters.negative_prompt = "ugly, disfigured, low quality, blurry, nsfw";
       }
@@ -122,22 +121,17 @@ export const useImageGeneration = ({
         }),
       });
 
-      const imageBlob = await handleApiResponse(response, retryCount, () => generateImage(retryCount + 1));
+      const imageBlob = await handleApiResponse(response, retryCount, () => generateImage(improvedPrompt, retryCount + 1));
       if (!imageBlob) {
         setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
         return;
-      }
-
-      if (!imageBlob || imageBlob.size === 0) {
-        setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-        throw new Error('Generated image is empty or invalid');
       }
 
       await updateCredits(quality);
       await uploadImageMutation.mutateAsync({ 
         imageBlob, 
         metadata: {
-          prompt,
+          prompt: finalPrompt,
           seed: actualSeed,
           width: finalWidth,
           height: finalHeight,
