@@ -41,22 +41,11 @@ export const useLikes = (userId) => {
         if (imageError) throw imageError;
 
         // Get current user's profile
-        const { data: userProfile, error: profileError } = await supabase
+        const { data: userProfile } = await supabase
           .from('profiles')
           .select('full_name, avatar_url')
           .eq('id', userId)
           .single();
-
-        if (profileError) throw profileError;
-
-        // Get image owner's profile
-        const { data: ownerProfile, error: ownerProfileError } = await supabase
-          .from('profiles')
-          .select('full_name, avatar_url')
-          .eq('id', imageData.user_id)
-          .single();
-
-        if (ownerProfileError) throw ownerProfileError;
 
         // Insert the like
         const { error } = await supabase
@@ -74,7 +63,7 @@ export const useLikes = (userId) => {
           .insert([{
             user_id: imageData.user_id,
             title: 'New Like',
-            message: `${userProfile.full_name || 'Someone'} liked your image`,
+            message: `${userProfile?.full_name || 'Someone'} liked your image`,
             image_url: supabase.storage.from('user-images').getPublicUrl(imageData.storage_path).data.publicUrl,
             link: `/image/${imageId}`
           }]);
