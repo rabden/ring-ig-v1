@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { X, ArrowRight, Wand2 } from "lucide-react";
+import { X, ArrowRight } from "lucide-react";
 
 const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits, onClear }) => {
   return (
@@ -24,24 +24,14 @@ const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits,
         
         <div className="flex justify-end gap-2 mt-4">
           {value.length > 0 && (
-            <>
-              <Button
-                size="sm"
-                variant="outline"
-                className="rounded-full"
-                onClick={onClear}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="rounded-full"
-              >
-                <Wand2 className="mr-2 h-4 w-4" />
-                Improve
-              </Button>
-            </>
+            <Button
+              size="sm"
+              variant="outline"
+              className="rounded-full"
+              onClick={onClear}
+            >
+              <X className="h-4 w-4" />
+            </Button>
           )}
           <Button
             size="sm"
