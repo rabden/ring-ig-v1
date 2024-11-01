@@ -12,12 +12,17 @@ const StyleChooser = ({ style, setStyle, proMode, isNsfwMode }) => {
   }
 
   const handleStyleClick = (key) => {
-    if (style === key) {
-      setStyle(null)
-    } else {
-      setStyle(key)
+    if (typeof setStyle !== 'function') {
+      console.error('setStyle is not a function');
+      return;
     }
-  }
+    
+    if (style === key) {
+      setStyle(null);
+    } else {
+      setStyle(key);
+    }
+  };
 
   return (
     <ScrollArea className="w-full whitespace-nowrap">
@@ -41,7 +46,7 @@ const StyleChooser = ({ style, setStyle, proMode, isNsfwMode }) => {
       </div>
       <ScrollBar orientation="horizontal" />
     </ScrollArea>
-  )
-}
+  );
+};
 
 export default StyleChooser;
