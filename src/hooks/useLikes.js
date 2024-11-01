@@ -43,7 +43,7 @@ export const useLikes = (userId) => {
         // Get current user's profile
         const { data: userProfile } = await supabase
           .from('profiles')
-          .select('display_name, avatar_url')
+          .select('full_name, avatar_url')
           .eq('id', userId)
           .single();
 
@@ -63,7 +63,7 @@ export const useLikes = (userId) => {
           .insert([{
             user_id: imageData.user_id,
             title: 'New Like',
-            message: `${userProfile?.display_name || 'Someone'} liked your image`,
+            message: `${userProfile?.full_name || 'Someone'} liked your image`,
             image_url: supabase.storage.from('user-images').getPublicUrl(imageData.storage_path).data.publicUrl,
             link: `/image/${imageId}`
           }]);
