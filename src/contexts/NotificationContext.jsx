@@ -72,8 +72,10 @@ export const NotificationProvider = ({ children }) => {
 
       if (error) throw error;
 
-      setNotifications(prev => 
-        prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
+      setNotifications(prev =>
+        prev.map(n =>
+          n.id === notificationId ? { ...n, is_read: true } : n
+        )
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
@@ -93,7 +95,7 @@ export const NotificationProvider = ({ children }) => {
 
       const notification = notifications.find(n => n.id === notificationId);
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
-      if (!notification.is_read) {
+      if (notification && !notification.is_read) {
         setUnreadCount(prev => Math.max(0, prev - 1));
       }
     } catch (error) {
