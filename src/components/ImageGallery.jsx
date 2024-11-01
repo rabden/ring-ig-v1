@@ -5,10 +5,11 @@ import Masonry from 'react-masonry-css'
 import SkeletonImageCard from './SkeletonImageCard'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import MobileImageDrawer from './MobileImageDrawer'
-import ImageCard from './ImageCard'
 import { useLikes } from '@/hooks/useLikes'
 import { toast } from 'sonner'
 import MobileGeneratingStatus from './MobileGeneratingStatus'
+import { AnimatePresence } from 'framer-motion'
+import ImageCardWrapper from './ImageCard/ImageCardWrapper'
 
 const breakpointColumnsObj = {
   default: 4,
@@ -176,7 +177,7 @@ const ImageGallery = ({
       )))
     } else if (images && images.length > 0) {
       content.push(...images.map((image, index) => (
-        <ImageCard
+        <ImageCardWrapper
           key={image.id}
           image={image}
           onImageClick={() => handleImageClick(image, index)}
@@ -203,7 +204,9 @@ const ImageGallery = ({
         className="flex w-auto md:px-2 -mx-1 md:mx-0"
         columnClassName="bg-clip-padding px-1 md:px-2"
       >
-        {renderContent()}
+        <AnimatePresence mode="popLayout">
+          {renderContent()}
+        </AnimatePresence>
       </Masonry>
 
       <MobileImageDrawer
