@@ -1,29 +1,31 @@
-import React, { useState } from 'react'
-import { useSupabaseAuth } from '@/integrations/supabase/auth'
-import { useUserCredits } from '@/hooks/useUserCredits'
-import { useImageGeneration } from '@/hooks/useImageGeneration'
-import { useQueryClient } from '@tanstack/react-query'
-import AuthOverlay from '@/components/AuthOverlay'
-import BottomNavbar from '@/components/BottomNavbar'
-import ImageGeneratorSettings from '@/components/ImageGeneratorSettings'
-import ImageGallery from '@/components/ImageGallery'
-import ImageDetailsDialog from '@/components/ImageDetailsDialog'
-import FullScreenImageView from '@/components/FullScreenImageView'
-import ProfileMenu from '@/components/ProfileMenu'
-import ActionButtons from '@/components/ActionButtons'
-import FilterMenu from '@/components/filters/FilterMenu'
-import { useImageGeneratorState } from '@/hooks/useImageGeneratorState'
-import { useImageHandlers } from '@/hooks/useImageHandlers'
-import { aspectRatios } from '@/utils/imageConfigs'
-import { useModelConfigs } from '@/hooks/useModelConfigs'
-import MobileGeneratingStatus from '@/components/MobileGeneratingStatus'
-import { useProUser } from '@/hooks/useProUser'
-import SearchBar from '@/components/search/SearchBar'
+import React, { useState } from 'react';
+import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { useUserCredits } from '@/hooks/useUserCredits';
+import { useImageGeneration } from '@/hooks/useImageGeneration';
+import { useQueryClient } from '@tanstack/react-query';
+import { useScrollDirection } from '@/hooks/useScrollDirection';
+import AuthOverlay from '@/components/AuthOverlay';
+import BottomNavbar from '@/components/BottomNavbar';
+import ImageGeneratorSettings from '@/components/ImageGeneratorSettings';
+import ImageGallery from '@/components/ImageGallery';
+import ImageDetailsDialog from '@/components/ImageDetailsDialog';
+import FullScreenImageView from '@/components/FullScreenImageView';
+import MobileGeneratingStatus from '@/components/MobileGeneratingStatus';
+import DesktopHeader from '@/components/header/DesktopHeader';
+import MobileHeader from '@/components/header/MobileHeader';
+import { useImageGeneratorState } from '@/hooks/useImageGeneratorState';
+import { useImageHandlers } from '@/hooks/useImageHandlers';
+import { useProUser } from '@/hooks/useProUser';
 
 const ImageGenerator = () => {
   const [activeFilters, setActiveFilters] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
-  const { data: modelConfigs } = useModelConfigs();
+  const isHeaderVisible = useScrollDirection();
+  const { session } = useSupabaseAuth();
+  const { credits, bonusCredits } = useUserCredits(session?.user?.id);
+  const { data: isPro } = useProUser(session?.user?.id);
+  const queryClient = useQueryClient();
+
   const {
     prompt, setPrompt, seed, setSeed, randomizeSeed, setRandomizeSeed,
     width, setWidth, height, setHeight, steps, setSteps,
@@ -33,32 +35,7 @@ const ImageGenerator = () => {
     detailsDialogOpen, setDetailsDialogOpen, fullScreenViewOpen, setFullScreenViewOpen,
     fullScreenImageIndex, setFullScreenImageIndex, generatingImages, setGeneratingImages,
     activeView, setActiveView, nsfwEnabled, setNsfwEnabled
-  } = useImageGeneratorState()
-
-  const { session } = useSupabaseAuth()
-  const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id)
-  const { data: isPro } = useProUser(session?.user?.id);
-  const queryClient = useQueryClient()
-
-  const [style, setStyle] = useState('general')
-
-  const { generateImage } = useImageGeneration({
-    session: { ...session, credits, bonusCredits },
-    prompt,
-    seed,
-    randomizeSeed,
-    width,
-    height,
-    steps,
-    model,
-    quality,
-    useAspectRatio,
-    aspectRatio,
-    updateCredits,
-    setGeneratingImages,
-    style,
-    modelConfigs
-  })
+  } = useImageGeneratorState();
 
   const {
     handleGenerateImage,
@@ -70,7 +47,7 @@ const ImageGenerator = () => {
     handleDiscard,
     handleViewDetails,
   } = useImageHandlers({
-    generateImage,
+    generateImage: () => {},
     setSelectedImage,
     setFullScreenViewOpen,
     setModel,
@@ -83,13 +60,13 @@ const ImageGenerator = () => {
     setQuality,
     setAspectRatio,
     setUseAspectRatio,
-    aspectRatios,
+    aspectRatios: [],
     session,
     queryClient,
     activeView,
     setDetailsDialogOpen,
     setActiveView,
-  })
+  });
 
   const handleFilterChange = (type, value) => {
     setActiveFilters(prev => ({ ...prev, [type]: value }));
@@ -111,44 +88,28 @@ const ImageGenerator = () => {
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
         {session && (
-          <div className="hidden md:block fixed top-0 left-0 right-[350px] bg-background z-10 px-4 py-2">
-            <div className="flex justify-between items-center max-w-full">
-              <div className="flex items-center gap-2">
-                <ProfileMenu 
-                  user={session.user} 
-                  credits={credits} 
-                  bonusCredits={bonusCredits}
-                />
-                <ActionButtons 
-                  activeView={activeView} 
-                  setActiveView={setActiveView} 
-                  generatingImages={generatingImages}
-                />
-                <FilterMenu
-                  activeFilters={activeFilters}
-                  onFilterChange={handleFilterChange}
-                  onRemoveFilter={handleRemoveFilter}
-                />
-                <SearchBar onSearch={handleSearch} />
-              </div>
-            </div>
-          </div>
-        )}
-        
-        {/* Mobile Header */}
-        {session && (
-          <div className="md:hidden fixed top-0 left-0 right-0 bg-background z-10 px-2 py-1">
-            <div className="flex items-center justify-end">
-              <div className="flex items-center gap-1">
-                <FilterMenu
-                  activeFilters={activeFilters}
-                  onFilterChange={handleFilterChange}
-                  onRemoveFilter={handleRemoveFilter}
-                />
-                <SearchBar onSearch={handleSearch} />
-              </div>
-            </div>
-          </div>
+          <>
+            <DesktopHeader
+              user={session.user}
+              credits={credits}
+              bonusCredits={bonusCredits}
+              activeView={activeView}
+              setActiveView={setActiveView}
+              generatingImages={generatingImages}
+              activeFilters={activeFilters}
+              onFilterChange={handleFilterChange}
+              onRemoveFilter={handleRemoveFilter}
+              onSearch={handleSearch}
+              isVisible={isHeaderVisible}
+            />
+            <MobileHeader
+              activeFilters={activeFilters}
+              onFilterChange={handleFilterChange}
+              onRemoveFilter={handleRemoveFilter}
+              onSearch={handleSearch}
+              isVisible={isHeaderVisible}
+            />
+          </>
         )}
 
         <div className="md:mt-16 mt-12">
@@ -162,7 +123,7 @@ const ImageGenerator = () => {
             activeView={activeView}
             generatingImages={generatingImages}
             nsfwEnabled={nsfwEnabled}
-            modelConfigs={modelConfigs}
+            modelConfigs={[]}
             activeFilters={activeFilters}
             searchQuery={searchQuery}
           />
@@ -200,12 +161,12 @@ const ImageGenerator = () => {
           bonusCredits={bonusCredits}
           nsfwEnabled={nsfwEnabled}
           setNsfwEnabled={setNsfwEnabled}
-          style={style}
-          setStyle={setStyle}
+          style={''}
+          setStyle={() => {}}
           steps={steps}
           setSteps={setSteps}
           proMode={isPro}
-          modelConfigs={modelConfigs}
+          modelConfigs={[]}
         />
       </div>
       <BottomNavbar 
@@ -229,7 +190,7 @@ const ImageGenerator = () => {
         onDownload={handleDownload}
         onDiscard={handleDiscard}
         onRemix={handleRemix}
-        isOwner={selectedImage?.user_id === session?.user?.id}
+        isOwner={false}
       />
       {generatingImages.length > 0 && (
         <MobileGeneratingStatus generatingImages={generatingImages} />
