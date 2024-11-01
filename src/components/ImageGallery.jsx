@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/supabase'
 import Masonry from 'react-masonry-css'
@@ -7,7 +7,6 @@ import { useModelConfigs } from '@/hooks/useModelConfigs'
 import MobileImageDrawer from './MobileImageDrawer'
 import ImageCard from './ImageCard'
 import { useLikes } from '@/hooks/useLikes'
-import { toast } from 'sonner'
 import MobileGeneratingStatus from './MobileGeneratingStatus'
 
 const breakpointColumnsObj = {
@@ -29,7 +28,13 @@ const ImageGallery = ({
   nsfwEnabled,
   activeFilters = {} 
 }) => {
-  const { data: modelConfigs } = useModelConfigs()
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [showImageInDrawer, setShowImageInDrawer] = useState(false);
+  const { userLikes, toggleLike } = useLikes(userId);
+  const { data: modelConfigs } = useModelConfigs();
+  const isMobile = window.innerWidth <= 768;
+
   const { data: images, isLoading, refetch } = useQuery({
     queryKey: ['images', userId, activeView, nsfwEnabled, activeFilters],
     queryFn: async () => {
@@ -84,11 +89,11 @@ const ImageGallery = ({
       return filteredData;
     },
     enabled: !!userId && !!modelConfigs,
-  })
+  });
 
   useEffect(() => {
     refetch()
-  }, [activeView, nsfwEnabled, refetch])
+  }, [activeView, nsfwEnabled, refetch]);
 
   useEffect(() => {
     const channels = [
@@ -103,30 +108,25 @@ const ImageGallery = ({
                 if (nsfwEnabled) {
                   if (isNsfw && payload.new.user_id === userId) {
                     refetch();
-                    toast.success('New image added');
                   }
                 } else {
                   if (!isNsfw && payload.new.user_id === userId) {
                     refetch();
-                    toast.success('New image added');
                   }
                 }
               } else if (activeView === 'inspiration') {
                 if (nsfwEnabled) {
                   if (isNsfw && payload.new.user_id !== userId) {
                     refetch();
-                    toast.success('New inspiration added');
                   }
                 } else {
                   if (!isNsfw && payload.new.user_id !== userId) {
                     refetch();
-                    toast.success('New inspiration added');
                   }
                 }
               }
             } else if (payload.eventType === 'DELETE') {
               refetch();
-              toast.success('Image deleted successfully');
             }
           }
         ),
@@ -153,30 +153,30 @@ const ImageGallery = ({
 
   const handleImageClick = (image, index) => {
     if (window.innerWidth <= 768) {
-      setSelectedImage(image)
-      setShowImageInDrawer(true)
-      setDrawerOpen(true)
+      setSelectedImage(image);
+      setShowImageInDrawer(true);
+      setDrawerOpen(true);
     } else {
-      onImageClick(image, index)
+      onImageClick(image, index);
     }
-  }
+  };
 
   const handleMoreClick = (image, e) => {
-    e.stopPropagation()
+    e.stopPropagation();
     if (window.innerWidth <= 768) {
-      setSelectedImage(image)
-      setShowImageInDrawer(false)
-      setDrawerOpen(true)
+      setSelectedImage(image);
+      setShowImageInDrawer(false);
+      setDrawerOpen(true);
     }
-  }
+  };
 
   const renderContent = () => {
-    const content = []
+    const content = [];
 
     if (isLoading) {
       content.push(...Array.from({ length: 8 }).map((_, index) => (
         <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
-      )))
+      )));
     } else if (images && images.length > 0) {
       content.push(...images.map((image, index) => (
         <ImageCard
@@ -193,11 +193,11 @@ const ImageGallery = ({
           isLiked={userLikes.includes(image.id)}
           onToggleLike={toggleLike}
         />
-      )))
+      )));
     }
 
-    return content
-  }
+    return content;
+  };
 
   return (
     <>
@@ -222,7 +222,7 @@ const ImageGallery = ({
 
       <MobileGeneratingStatus generatingImages={generatingImages} />
     </>
-  )
-}
+  );
+};
 
-export default ImageGallery
+export default ImageGallery;
