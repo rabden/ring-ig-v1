@@ -109,7 +109,7 @@ const FilterMenu = ({ activeFilters, onFilterChange, onRemoveFilter, nsfwEnabled
                 })}
               </div>
 
-              {Object.keys(styles).length > 0 && (
+              {!nsfwEnabled && Object.keys(styles).length > 0 && (
                 <>
                   <DropdownMenuLabel className="text-sm font-semibold mb-3">Styles</DropdownMenuLabel>
                   <div className="grid grid-cols-2 gap-2 mb-6">
