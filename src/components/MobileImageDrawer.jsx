@@ -1,7 +1,7 @@
 import React from 'react';
 import { Drawer } from 'vaul';
 import { Button } from "@/components/ui/button";
-import { Download, Trash2, Wand2, Copy, Crown } from "lucide-react";
+import { Download, Trash2, Wand2, Copy, Crown, Share2 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/supabase';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -15,31 +15,6 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
   
   if (!image) return null;
 
-  const premiumStyles = ['anime', '3d', 'realistic', 'illustration', 'concept', 'watercolor', 'comic', 'minimalist', 'cyberpunk', 'retro'];
-  const premiumAspectRatios = ['21:9', '9:21', '1.91:1', '1:1.91'];
-  const premiumModels = ['flux', 'fluxDev', 'nsfwPro'];
-
-  const detailItems = [
-    { 
-      label: "Model", 
-      value: modelConfigs?.[image.model]?.name || image.model,
-      isPro: premiumModels.includes(image.model)
-    },
-    { label: "Seed", value: image.seed },
-    { label: "Size", value: `${image.width}x${image.height}` },
-    { 
-      label: "Aspect Ratio", 
-      value: image.aspect_ratio,
-      isPro: premiumAspectRatios.includes(image.aspect_ratio)
-    },
-    { 
-      label: "Style", 
-      value: styleConfigs?.[image.style]?.name || 'General',
-      isPro: premiumStyles.includes(image.style)
-    },
-    { label: "Quality", value: image.quality },
-  ];
-
   const handleCopyPrompt = async () => {
     try {
       await navigator.clipboard.writeText(image.prompt);
@@ -48,6 +23,23 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
       toast.error('Failed to copy prompt');
     }
   };
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/image/${image.id}`);
+      toast.success('Share link copied to clipboard');
+    } catch (err) {
+      toast.error('Failed to copy share link');
+    }
+  };
+
+  const detailItems = [
+    { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
+    { label: "Seed", value: image.seed },
+    { label: "Size", value: `${image.width}x${image.height}` },
+    { label: "Quality", value: image.quality },
+    { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
+  ];
 
   return (
     <Drawer.Root open={open} onOpenChange={onOpenChange}>
@@ -60,8 +52,8 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
               {showImage && (
                 <div className="relative rounded-lg overflow-hidden mb-4">
                   <img
-                    src={supabase.storage.from('user-images').getPublicUrl(image?.storage_path).data.publicUrl}
-                    alt={image?.prompt}
+                    src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                    alt={image.prompt}
                     className="w-full h-auto"
                   />
                 </div>
@@ -72,7 +64,7 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                   variant="ghost"
                   size="sm"
                   className="flex-1"
-                  onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image?.storage_path).data.publicUrl, image?.prompt)}
+                  onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}
                 >
                   <Download className="mr-2 h-4 w-4" />
                   Download
@@ -111,9 +103,14 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-lg font-semibold">Prompt</h3>
-                    <Button variant="ghost" size="sm" onClick={handleCopyPrompt}>
-                      <Copy className="h-4 w-4" />
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button variant="ghost" size="sm" onClick={handleCopyPrompt}>
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={handleShare}>
+                        <Share2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                   <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md break-words">
                     {image.prompt}
@@ -126,7 +123,6 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                       <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
                       <Badge variant="outline" className="text-xs sm:text-sm font-normal flex items-center gap-1 w-fit">
                         {item.value}
-                        {item.isPro && <Crown className="h-3 w-3 ml-1" />}
                       </Badge>
                     </div>
                   ))}

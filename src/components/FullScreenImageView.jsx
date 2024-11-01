@@ -2,7 +2,7 @@ import React from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
-import { Download, Trash2, RefreshCw, Copy } from "lucide-react";
+import { Download, Trash2, RefreshCw, Copy, Share2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
@@ -48,6 +48,15 @@ const FullScreenImageView = ({
     }
   };
 
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}/image/${image.id}`);
+      toast.success('Share link copied to clipboard');
+    } catch (err) {
+      toast.error('Failed to copy share link');
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-background">
@@ -66,9 +75,14 @@ const FullScreenImageView = ({
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold">Image Details</h3>
-                    <Button variant="ghost" size="icon" onClick={handleCopyPrompt}>
-                      <Copy className="h-4 w-4" />
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button variant="ghost" size="icon" onClick={handleCopyPrompt}>
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={handleShare}>
+                        <Share2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                   <p className="text-sm text-muted-foreground">{image.prompt}</p>
                 </div>
