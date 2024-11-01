@@ -43,6 +43,9 @@ const ImageGeneratorSettings = ({
       setQuality('HD');
     }
     setModel(newModel);
+    if (modelConfigs?.[newModel]?.category === "NSFW") {
+      setStyle(null); // Reset style when switching to NSFW model
+    }
   };
 
   const getAvailableQualities = () => {
@@ -73,6 +76,12 @@ const ImageGeneratorSettings = ({
     setPrompt('');
   };
 
+  const handleGenerateClick = async () => {
+    if (generateImage) {
+      await generateImage();
+    }
+  };
+
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className="flex justify-between items-center mb-4">
@@ -93,7 +102,7 @@ const ImageGeneratorSettings = ({
         value={prompt}
         onChange={handlePromptChange}
         onKeyDown={handlePromptKeyDown}
-        onGenerate={generateImage}
+        onGenerate={handleGenerateClick}
         hasEnoughCredits={hasEnoughCredits}
         onClear={handleClearPrompt}
       />
@@ -111,7 +120,12 @@ const ImageGeneratorSettings = ({
         <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
           <div className="border-x border-border/20">
             <StyledScrollArea>
-              <StyleChooser style={style} setStyle={setStyle} proMode={proMode} />
+              <StyleChooser 
+                style={style} 
+                setStyle={setStyle} 
+                proMode={proMode} 
+                isNsfwMode={isNsfwModel}
+              />
             </StyledScrollArea>
           </div>
         </SettingSection>

@@ -18,7 +18,7 @@ const DesktopHeader = ({
   isVisible
 }) => {
   return (
-    <div className={`hidden md:block fixed top-0 left-0 right-[350px] bg-background z-10 px-4 py-2 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+    <div className={`hidden md:block fixed top-0 left-0 right-[350px] bg-background z-10 px-4 py-3 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
       <div className="flex justify-between items-center max-w-full">
         <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none">
           <ProfileMenu 
@@ -35,6 +35,7 @@ const DesktopHeader = ({
             activeFilters={activeFilters}
             onFilterChange={onFilterChange}
             onRemoveFilter={onRemoveFilter}
+            nsfwEnabled={nsfwEnabled}
           />
           <SearchBar onSearch={onSearch} />
         </div>
