@@ -36,7 +36,7 @@ const GeneratingImagesDropdown = ({ generatingImages }) => {
             )}
             <div className="flex gap-2 text-xs text-muted-foreground">
               <span>{modelConfigs?.[img.model]?.name || img.model}</span>
-              {img.style && !modelConfigs?.[img.model]?.category === "NSFW" && (
+              {img.style && modelConfigs?.[img.model]?.category !== "NSFW" && (
                 <>
                   <span>•</span>
                   <span>{styleConfigs?.[img.style]?.name || img.style}</span>
