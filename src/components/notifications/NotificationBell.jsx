@@ -1,20 +1,17 @@
 import React from 'react';
 import { Bell } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useNotifications } from '@/contexts/NotificationContext';
 import NotificationList from './NotificationList';
 
 const NotificationBell = () => {
   const { unreadCount } = useNotifications();
+  const [isOpen, setIsOpen] = React.useState(false);
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+      <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="h-7 w-7 p-0 relative">
           <Bell className="h-4 w-4" />
           {unreadCount > 0 && (
@@ -23,11 +20,13 @@ const NotificationBell = () => {
             </span>
           )}
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[380px]">
-        <NotificationList />
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </SheetTrigger>
+      <SheetContent side="right" className="w-[400px] sm:w-[540px] p-0">
+        <div className="h-full overflow-y-auto">
+          <NotificationList />
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 };
 
