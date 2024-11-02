@@ -15,16 +15,14 @@ const NotificationList = () => {
   }
 
   return (
-    <ScrollArea className="h-[400px] p-4">
-      <div className="space-y-4">
-        {notifications.map((notification) => (
-          <NotificationItem 
-            key={notification.id} 
-            notification={notification} 
-          />
-        ))}
-      </div>
-    </ScrollArea>
+    <div className="space-y-4 p-4">
+      {notifications.map((notification) => (
+        <NotificationItem 
+          key={notification.id} 
+          notification={notification} 
+        />
+      ))}
+    </div>
   );
 };
 

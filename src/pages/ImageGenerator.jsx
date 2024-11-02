@@ -13,11 +13,15 @@ import FullScreenImageView from '@/components/FullScreenImageView';
 import MobileGeneratingStatus from '@/components/MobileGeneratingStatus';
 import DesktopHeader from '@/components/header/DesktopHeader';
 import MobileHeader from '@/components/header/MobileHeader';
+import MobileNotificationsMenu from '@/components/MobileNotificationsMenu';
+import MobileProfileMenu from '@/components/MobileProfileMenu';
 import { useImageGeneratorState } from '@/hooks/useImageGeneratorState';
 import { useImageHandlers } from '@/hooks/useImageHandlers';
 import { useProUser } from '@/hooks/useProUser';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { toast } from 'sonner';
+
+// ... keep existing code (imports and hook definitions)
 
 const ImageGenerator = () => {
   const [activeFilters, setActiveFilters] = useState({});
@@ -132,7 +136,7 @@ const ImageGenerator = () => {
               onFilterChange={handleFilterChange}
               onRemoveFilter={handleRemoveFilter}
               onSearch={handleSearch}
-              isVisible={isHeaderVisible}
+              nsfwEnabled={nsfwEnabled}
             />
             <MobileHeader
               activeFilters={activeFilters}
@@ -140,6 +144,7 @@ const ImageGenerator = () => {
               onRemoveFilter={handleRemoveFilter}
               onSearch={handleSearch}
               isVisible={isHeaderVisible}
+              nsfwEnabled={nsfwEnabled}
             />
           </>
         )}
@@ -161,6 +166,7 @@ const ImageGenerator = () => {
           />
         </div>
       </div>
+
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-4 md:p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
         {!session && (
           <div className="absolute inset-0 z-10">
@@ -201,6 +207,15 @@ const ImageGenerator = () => {
           modelConfigs={modelConfigs}
         />
       </div>
+
+      <MobileNotificationsMenu activeTab={activeTab} />
+      <MobileProfileMenu 
+        user={session?.user}
+        credits={credits}
+        bonusCredits={bonusCredits}
+        activeTab={activeTab}
+      />
+
       <BottomNavbar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
@@ -210,6 +225,7 @@ const ImageGenerator = () => {
         activeView={activeView}
         setActiveView={setActiveView}
       />
+      
       <ImageDetailsDialog
         open={detailsDialogOpen}
         onOpenChange={setDetailsDialogOpen}
