@@ -9,7 +9,17 @@ import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { toast } from 'sonner';
 
-const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, onDiscard, onRemix, isOwner }) => {
+const MobileImageDrawer = ({ 
+  open, 
+  onOpenChange, 
+  image, 
+  showImage, 
+  onDownload, 
+  onDiscard, 
+  onRemix, 
+  isOwner,
+  setActiveTab 
+}) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   
@@ -31,6 +41,12 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
     } catch (err) {
       toast.error('Failed to copy share link');
     }
+  };
+
+  const handleRemixClick = () => {
+    onRemix(image);
+    setActiveTab('input');
+    onOpenChange(false);
   };
 
   const detailItems = [
@@ -89,10 +105,7 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                   variant="ghost"
                   size="sm"
                   className="flex-1"
-                  onClick={() => {
-                    onRemix(image);
-                    onOpenChange(false);
-                  }}
+                  onClick={handleRemixClick}
                 >
                   <Wand2 className="mr-2 h-4 w-4" />
                   Remix

@@ -29,7 +29,8 @@ const ImageGallery = ({
   generatingImages = [], 
   nsfwEnabled,
   activeFilters = {},
-  searchQuery = ''
+  searchQuery = '',
+  setActiveTab
 }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -51,7 +52,6 @@ const ImageGallery = ({
 
       if (error) throw error
 
-      // Filter images based on all criteria including search query
       return filterImages(data, {
         userId,
         activeView,
@@ -191,6 +191,7 @@ const ImageGallery = ({
         onDiscard={onDiscard}
         onRemix={onRemix}
         isOwner={selectedImage?.user_id === userId}
+        setActiveTab={setActiveTab}
       />
 
       <MobileGeneratingStatus generatingImages={generatingImages} />
