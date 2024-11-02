@@ -1,6 +1,7 @@
 import { toast } from 'sonner'
 import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
+import { useProUser } from '@/hooks/useProUser'
 
 export const useImageHandlers = ({
   generateImage,
@@ -24,6 +25,7 @@ export const useImageHandlers = ({
   setActiveView,
 }) => {
   const { data: modelConfigs } = useModelConfigs();
+  const { data: isPro } = useProUser(session?.user?.id);
 
   const handleGenerateImage = async () => {
     await generateImage()
@@ -57,11 +59,37 @@ export const useImageHandlers = ({
     setRandomizeSeed(false)
     setWidth(image.width)
     setHeight(image.height)
-    setSteps(image.steps)
-    setModel(image.model)
-    setQuality(image.quality)
-    setAspectRatio(image.aspect_ratio)
-    setUseAspectRatio(image.aspect_ratio in aspectRatios)
+
+    // Handle model selection based on user's pro status
+    const isProModel = modelConfigs?.[image.model]?.is_premium;
+    if (isProModel && !isPro) {
+      // If it's a pro model and user is not pro, set to default non-pro model
+      setModel('turbo');
+      setSteps(modelConfigs['turbo']?.defaultStep || 4);
+      toast.info('Some settings were adjusted as they require a pro account');
+    } else {
+      setModel(image.model)
+      setSteps(image.steps)
+    }
+
+    // Handle quality settings
+    if (image.quality === 'HD+' && !isPro) {
+      setQuality('HD');
+      toast.info('Quality adjusted to HD as HD+ requires a pro account');
+    } else {
+      setQuality(image.quality)
+    }
+
+    // Handle aspect ratio
+    const isPremiumRatio = ['9:21', '21:9', '3:2', '2:3', '4:5', '5:4', '10:16', '16:10'].includes(image.aspect_ratio);
+    if (isPremiumRatio && !isPro) {
+      setAspectRatio('1:1');
+      setUseAspectRatio(true);
+      toast.info('Aspect ratio adjusted as the original requires a pro account');
+    } else {
+      setAspectRatio(image.aspect_ratio)
+      setUseAspectRatio(image.aspect_ratio in aspectRatios)
+    }
   }
 
   const handleDownload = async (imageUrl, prompt) => {
