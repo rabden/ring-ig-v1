@@ -10,7 +10,7 @@ const MobileHeader = ({
   nsfwEnabled
 }) => {
   return (
-    <div className="md:hidden fixed top-2 left-2 right-2 z-10">
+    <div className="md:hidden fixed top-2 left-4 right-4 z-10">
       <div className="bg-muted rounded-lg px-2 py-2 border border-border/40 shadow-lg">
         <div className="flex items-center justify-end gap-2 overflow-x-auto whitespace-nowrap scrollbar-none">
           {!nsfwEnabled && (

@@ -19,7 +19,7 @@ const DesktopHeader = ({
   nsfwEnabled
 }) => {
   return (
-    <div className="hidden md:block fixed top-4 left-4 right-[350px] z-10">
+    <div className="hidden md:block fixed top-4 left-6 right-[350px] z-10">
       <div className="bg-muted rounded-lg px-4 py-3 border border-border/40 shadow-lg">
         <div className="flex justify-between items-center max-w-full">
           <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none">
