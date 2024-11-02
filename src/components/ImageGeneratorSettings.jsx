@@ -24,8 +24,8 @@ const ImageGeneratorSettings = ({
   width, setWidth,
   height, setHeight,
   session,
-  credits,
-  bonusCredits,
+  credits = 0,
+  bonusCredits = 0,
   nsfwEnabled, setNsfwEnabled,
   style, setStyle,
   steps, setSteps,
@@ -33,7 +33,7 @@ const ImageGeneratorSettings = ({
   modelConfigs
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
-  const totalCredits = (credits || 0) + (bonusCredits || 0);
+  const totalCredits = credits + bonusCredits;
   const hasEnoughCredits = totalCredits >= creditCost;
   const showGuidanceScale = model === 'fluxDev';
   const isNsfwModel = modelConfigs?.[model]?.category === "NSFW";
