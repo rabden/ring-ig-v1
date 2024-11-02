@@ -29,16 +29,11 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   if (activeTab !== 'profile') return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-background md:hidden pt-16 pb-20">
-      <div className="sticky top-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50 border-b border-border/40">
-        <div className="px-4 py-3">
-          <h2 className="text-lg font-semibold tracking-tight">Profile</h2>
-        </div>
-      </div>
-      <div className="h-[calc(100vh-9rem)] overflow-y-auto">
-        <div className="p-4">
+    <div className="fixed inset-0 z-50 bg-background md:hidden pt-14 pb-20">
+      <div className="h-[calc(100vh-8.5rem)] overflow-y-auto">
+        <div className="p-6">
           {user ? (
-            <div className="flex flex-col items-center space-y-6">
+            <div className="flex flex-col items-center space-y-8">
               <div className={`rounded-full ${isPro ? 'p-[3px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500' : ''}`}>
                 <Avatar className={`h-24 w-24 ${isPro ? 'border-3 border-background rounded-full' : ''}`}>
                   <AvatarImage src={user.user_metadata?.avatar_url} alt={user.email} />
@@ -51,19 +46,19 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
                 </h3>
                 <p className="text-sm text-muted-foreground">{user.email}</p>
                 {isPro && (
-                  <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-primary text-primary-foreground hover:bg-primary/80">
+                  <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-primary text-primary-foreground">
                     Pro User
                   </div>
                 )}
               </div>
-              <div className="w-full space-y-4">
-                <div className="grid grid-cols-2 gap-4 p-4 rounded-lg bg-muted/50">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">Credits</p>
+              <div className="w-full space-y-6">
+                <div className="grid grid-cols-2 gap-6 p-4 rounded-lg bg-muted/50">
+                  <div className="space-y-1.5 text-center">
+                    <p className="text-sm font-medium text-muted-foreground">Credits</p>
                     <p className="text-2xl font-bold">{credits}+B{bonusCredits}</p>
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium">Total Likes</p>
+                  <div className="space-y-1.5 text-center">
+                    <p className="text-sm font-medium text-muted-foreground">Total Likes</p>
                     <p className="text-2xl font-bold">{totalLikes}</p>
                   </div>
                 </div>
