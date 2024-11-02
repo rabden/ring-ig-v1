@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useUserCredits } from '@/hooks/useUserCredits';
 import { useImageGeneration } from '@/hooks/useImageGeneration';
@@ -19,11 +20,14 @@ import { useImageGeneratorState } from '@/hooks/useImageGeneratorState';
 import { useImageHandlers } from '@/hooks/useImageHandlers';
 import { useProUser } from '@/hooks/useProUser';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
-import { toast } from 'sonner';
-
-// ... keep existing code (imports and hook definitions)
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/supabase';
 
 const ImageGenerator = () => {
+  const { imageId } = useParams();
+  const location = useLocation();
+  const isRemixRoute = location.pathname.startsWith('/remix/');
+
   const [activeFilters, setActiveFilters] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const isHeaderVisible = useScrollDirection();
@@ -119,6 +123,40 @@ const ImageGenerator = () => {
   const handleSearch = (query) => {
     setSearchQuery(query);
   };
+
+  // Add remix image loading
+  const { data: remixImage } = useQuery({
+    queryKey: ['remixImage', imageId],
+    queryFn: async () => {
+      if (!imageId) return null;
+      const { data, error } = await supabase
+        .from('user_images')
+        .select('*')
+        .eq('id', imageId)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!imageId && isRemixRoute,
+  });
+
+  // Handle remix image loading
+  useEffect(() => {
+    if (remixImage && isRemixRoute) {
+      setPrompt(remixImage.prompt);
+      setSeed(remixImage.seed);
+      setRandomizeSeed(false);
+      setWidth(remixImage.width);
+      setHeight(remixImage.height);
+      setModel(remixImage.model);
+      setQuality(remixImage.quality);
+      setStyle(remixImage.style);
+      if (remixImage.aspect_ratio) {
+        setAspectRatio(remixImage.aspect_ratio);
+        setUseAspectRatio(true);
+      }
+    }
+  }, [remixImage, isRemixRoute]);
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
