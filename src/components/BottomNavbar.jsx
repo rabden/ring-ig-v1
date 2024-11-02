@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Image, Plus, Sparkles, Bell, User } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import NotificationList from './notifications/NotificationList';
@@ -6,29 +6,44 @@ import { useNotifications } from '@/contexts/NotificationContext';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useProUser } from '@/hooks/useProUser';
 
+// Memoize the Avatar component to prevent unnecessary re-renders
+const UserAvatar = memo(({ session, isPro }) => (
+  <div className={`rounded-full ${isPro ? 'p-[2px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500' : ''}`}>
+    <Avatar className={`h-8 w-8 ${isPro ? 'border-2 border-background rounded-full' : ''}`}>
+      <AvatarImage src={session?.user?.user_metadata?.avatar_url} alt={session?.user?.email} />
+      <AvatarFallback>{session?.user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
+    </Avatar>
+  </div>
+));
+
+UserAvatar.displayName = 'UserAvatar';
+
+// Memoize the NavButton component
+const NavButton = memo(({ icon: Icon, isActive, onClick, children }) => (
+  <button
+    onClick={onClick}
+    className={cn(
+      "flex items-center justify-center w-14 h-12 transition-all",
+      isActive ? "text-primary" : "text-muted-foreground",
+      "relative group"
+    )}
+  >
+    <div className={cn(
+      "absolute inset-x-2 h-0.5 -top-1 rounded-full transition-all",
+      isActive ? "bg-primary" : "bg-transparent"
+    )} />
+    {children || <Icon size={20} className={cn(
+      "transition-transform duration-200",
+      isActive ? "scale-100" : "scale-90 group-hover:scale-100"
+    )} />}
+  </button>
+));
+
+NavButton.displayName = 'NavButton';
+
 const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits, activeView, setActiveView }) => {
   const { unreadCount } = useNotifications();
   const { data: isPro } = useProUser(session?.user?.id);
-
-  const NavButton = ({ icon: Icon, isActive, onClick, children }) => (
-    <button
-      onClick={onClick}
-      className={cn(
-        "flex items-center justify-center w-14 h-12 transition-all",
-        isActive ? "text-primary" : "text-muted-foreground",
-        "relative group"
-      )}
-    >
-      <div className={cn(
-        "absolute inset-x-2 h-0.5 -top-1 rounded-full transition-all",
-        isActive ? "bg-primary" : "bg-transparent"
-      )} />
-      {children || <Icon size={20} className={cn(
-        "transition-transform duration-200",
-        isActive ? "scale-100" : "scale-90 group-hover:scale-100"
-      )} />}
-    </button>
-  );
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/30 md:hidden z-50">
@@ -77,12 +92,7 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
           onClick={() => setActiveTab('profile')}
         >
           {session ? (
-            <div className={`rounded-full ${isPro ? 'p-[2px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500' : ''}`}>
-              <Avatar className={`h-8 w-8 ${isPro ? 'border-2 border-background rounded-full' : ''}`}>
-                <AvatarImage src={session.user?.user_metadata?.avatar_url} alt={session.user?.email} />
-                <AvatarFallback>{session.user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
-              </Avatar>
-            </div>
+            <UserAvatar session={session} isPro={isPro} />
           ) : (
             <User size={20} className={cn(
               "transition-transform duration-200",
@@ -96,4 +106,4 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
   );
 };
 
-export default BottomNavbar;
+export default memo(BottomNavbar);
