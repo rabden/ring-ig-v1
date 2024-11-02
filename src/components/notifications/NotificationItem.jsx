@@ -5,6 +5,7 @@ import { useNotifications } from '@/contexts/NotificationContext';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { supabase } from '@/integrations/supabase/supabase';
 
 const NotificationItem = ({ notification, isGlobal = false }) => {
   const { markAsRead, deleteNotification, hideGlobalNotification } = useNotifications();
@@ -21,9 +22,9 @@ const NotificationItem = ({ notification, isGlobal = false }) => {
     e.stopPropagation();
     
     if (isGlobal) {
-      await hideGlobalNotification(notification.id);
+      hideGlobalNotification(notification.id);
     } else {
-      await deleteNotification(notification.id);
+      deleteNotification(notification.id);
     }
   };
 

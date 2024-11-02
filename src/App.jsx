@@ -26,6 +26,7 @@ const App = () => (
       <TooltipProvider>
         <SupabaseAuthProvider>
           <NotificationProvider>
+            <Toaster />
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<ImageGenerator />} />

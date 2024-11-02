@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { supabase } from '@/integrations/supabase/supabase';
+import { toast } from 'sonner';
 
 const ProUpgradeForm = ({ open, onOpenChange }) => {
   const { register, handleSubmit, formState: { isSubmitting } } = useForm();
@@ -20,8 +21,11 @@ const ProUpgradeForm = ({ open, onOpenChange }) => {
         }]);
 
       if (error) throw error;
+
+      toast.success('Your pro upgrade request has been submitted');
       onOpenChange(false);
 
+      // Create notification for the user
       await supabase
         .from('notifications')
         .insert([{
@@ -32,6 +36,7 @@ const ProUpgradeForm = ({ open, onOpenChange }) => {
         }]);
     } catch (error) {
       console.error('Error submitting pro request:', error);
+      toast.error('Failed to submit pro upgrade request');
     }
   };
 

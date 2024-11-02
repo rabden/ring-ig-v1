@@ -5,7 +5,7 @@ import { Lock, ChevronDown, ChevronUp } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { aspectRatios } from '@/utils/imageConfigs'
 
-const AspectRatioVisualizer = ({ ratio }) => {
+const AspectRatioVisualizer = ({ ratio, isPremium }) => {
   const [width, height] = ratio.split(':').map(Number)
   const maxHeight = 120
   const scale = maxHeight / height
@@ -20,7 +20,10 @@ const AspectRatioVisualizer = ({ ratio }) => {
           height: `${maxHeight}px`,
         }}
       >
-        {ratio}
+        <div className="flex items-center gap-1">
+          {ratio}
+          {isPremium ? null : <Lock className="h-3 w-3" />}
+        </div>
       </div>
     </div>
   )
@@ -83,7 +86,7 @@ const AspectRatioChooser = ({ aspectRatio, setAspectRatio, proMode }) => {
 
   return (
     <div className="space-y-4">
-      <AspectRatioVisualizer ratio={aspectRatio} />
+      <AspectRatioVisualizer ratio={aspectRatio} isPremium={premiumRatios.includes(aspectRatio)} />
       <Slider
         value={[getCurrentRatioIndex()]}
         onValueChange={handleSliderChange}
