@@ -1,4 +1,3 @@
-import { toast } from 'sonner'
 import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useProUser } from '@/hooks/useProUser'
@@ -50,7 +49,6 @@ export const useImageHandlers = ({
 
   const handleRemix = (image) => {
     if (!session) {
-      toast.error('Please sign in to remix images');
       return;
     }
 
@@ -65,7 +63,6 @@ export const useImageHandlers = ({
     if (isProModel && !isPro) {
       setModel('turbo');
       setSteps(modelConfigs['turbo']?.defaultStep || 4);
-      toast.info('Some settings were adjusted as they require a pro account');
     } else {
       setModel(image.model);
       setSteps(image.steps);
@@ -74,7 +71,6 @@ export const useImageHandlers = ({
     // Handle quality settings
     if (image.quality === 'HD+' && !isPro) {
       setQuality('HD');
-      toast.info('Quality adjusted to HD as HD+ requires a pro account');
     } else {
       setQuality(image.quality);
     }
@@ -85,9 +81,6 @@ export const useImageHandlers = ({
       setStyle?.(null);
     } else if (image.style) {
       setStyle?.(isPro ? image.style : null);
-      if (!isPro && image.style) {
-        toast.info('Style was removed as it requires a pro account');
-      }
     } else {
       setStyle?.(null);
     }
@@ -97,7 +90,6 @@ export const useImageHandlers = ({
     if (isPremiumRatio && !isPro) {
       setAspectRatio('1:1');
       setUseAspectRatio(true);
-      toast.info('Aspect ratio adjusted as the original requires a pro account');
     } else {
       setAspectRatio(image.aspect_ratio);
       setUseAspectRatio(image.aspect_ratio in aspectRatios);
@@ -116,7 +108,6 @@ export const useImageHandlers = ({
   const handleDiscard = async (image) => {
     if (confirm('Are you sure you want to delete this image?')) {
       await deleteImageCompletely(image.id);
-      toast.success('Image deleted successfully');
       queryClient.invalidateQueries(['userImages']);
     }
   }

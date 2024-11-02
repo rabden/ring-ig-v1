@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { toast } from 'sonner';
 
 const NotificationContext = createContext();
 
@@ -74,7 +73,6 @@ export const NotificationProvider = ({ children }) => {
           if (payload.eventType === 'INSERT') {
             setNotifications(prev => [payload.new, ...prev]);
             setUnreadCount(prev => prev + 1);
-            toast.info(payload.new.title);
           } else if (payload.eventType === 'DELETE') {
             setNotifications(prev => prev.filter(n => n.id !== payload.old.id));
             if (!payload.old.is_read) {
@@ -107,7 +105,6 @@ export const NotificationProvider = ({ children }) => {
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
       console.error('Error marking notification as read:', error);
-      toast.error('Failed to mark notification as read');
     }
   };
 
@@ -127,7 +124,6 @@ export const NotificationProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Error deleting notification:', error);
-      toast.error('Failed to delete notification');
     }
   };
 
@@ -148,7 +144,6 @@ export const NotificationProvider = ({ children }) => {
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
       console.error('Error hiding global notification:', error);
-      toast.error('Failed to hide notification');
     }
   };
 

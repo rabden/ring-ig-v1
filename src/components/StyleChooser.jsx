@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { Lock } from "lucide-react"
 import { useStyleConfigs } from '@/hooks/useStyleConfigs'
-import { toast } from 'sonner'
 
 const StyleChooser = ({ style, setStyle, proMode, isNsfwMode }) => {
   const { data: styleConfigs, isLoading } = useStyleConfigs();
@@ -15,7 +14,6 @@ const StyleChooser = ({ style, setStyle, proMode, isNsfwMode }) => {
   const handleStyleClick = (key) => {
     if (typeof setStyle !== 'function') {
       console.error('setStyle is not a function');
-      toast.error('There was an error selecting the style');
       return;
     }
     
