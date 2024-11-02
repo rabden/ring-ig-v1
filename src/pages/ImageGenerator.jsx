@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useUserCredits } from '@/hooks/useUserCredits';
@@ -10,6 +10,8 @@ import { useImageHandlers } from '@/hooks/useImageHandlers';
 import { useProUser } from '@/hooks/useProUser';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useRemixImage } from '@/hooks/useRemixImage';
+import { useRemixEffect } from '@/hooks/useRemixEffect';
+import { toast } from 'sonner';
 import ImageGeneratorContent from '@/components/image-generator/ImageGeneratorContent';
 import BottomNavbar from '@/components/BottomNavbar';
 import ImageDetailsDialog from '@/components/ImageDetailsDialog';
@@ -36,30 +38,18 @@ const ImageGenerator = () => {
     width, setWidth, height, setHeight, steps, setSteps,
     model, setModel, activeTab, setActiveTab, aspectRatio, setAspectRatio,
     useAspectRatio, setUseAspectRatio, quality, setQuality,
-    selectedImage, setSelectedImage,
-    detailsDialogOpen, setDetailsDialogOpen, fullScreenViewOpen, setFullScreenViewOpen,
-    fullScreenImageIndex, setFullScreenImageIndex, generatingImages, setGeneratingImages,
-    activeView, setActiveView, nsfwEnabled, setNsfwEnabled, style, setStyle
+    selectedImage, setSelectedImage, detailsDialogOpen, setDetailsDialogOpen,
+    fullScreenViewOpen, setFullScreenViewOpen, fullScreenImageIndex, setFullScreenImageIndex,
+    generatingImages, setGeneratingImages, activeView, setActiveView,
+    nsfwEnabled, setNsfwEnabled, style, setStyle
   } = useImageGeneratorState();
 
   const { data: remixImage } = useRemixImage(imageId, isRemixRoute);
 
   const { generateImage } = useImageGeneration({
-    session,
-    prompt,
-    seed,
-    randomizeSeed,
-    width,
-    height,
-    model,
-    quality,
-    useAspectRatio,
-    aspectRatio,
-    updateCredits,
-    setGeneratingImages,
-    style,
-    modelConfigs,
-    steps
+    session, prompt, seed, randomizeSeed, width, height, model,
+    quality, useAspectRatio, aspectRatio, updateCredits,
+    setGeneratingImages, style, modelConfigs, steps
   });
 
   const handleGenerateImage = async () => {
@@ -75,33 +65,14 @@ const ImageGenerator = () => {
   };
 
   const {
-    handleImageClick,
-    handleModelChange,
-    handlePromptKeyDown,
-    handleRemix,
-    handleDownload,
-    handleDiscard,
-    handleViewDetails,
+    handleImageClick, handleModelChange, handlePromptKeyDown,
+    handleRemix, handleDownload, handleDiscard, handleViewDetails
   } = useImageHandlers({
     generateImage: handleGenerateImage,
-    setSelectedImage,
-    setFullScreenViewOpen,
-    setModel,
-    setSteps,
-    setPrompt,
-    setSeed,
-    setRandomizeSeed,
-    setWidth,
-    setHeight,
-    setQuality,
-    setAspectRatio,
-    setUseAspectRatio,
-    setStyle,
-    session,
-    queryClient,
-    activeView,
-    setDetailsDialogOpen,
-    setActiveTab,
+    setSelectedImage, setFullScreenViewOpen, setModel, setSteps,
+    setPrompt, setSeed, setRandomizeSeed, setWidth, setHeight,
+    setQuality, setAspectRatio, setUseAspectRatio, setStyle,
+    session, queryClient, activeView, setDetailsDialogOpen, setActiveTab
   });
 
   const handleFilterChange = (type, value) => {
@@ -120,22 +91,24 @@ const ImageGenerator = () => {
     setSearchQuery(query);
   };
 
-  useEffect(() => {
-    if (remixImage && isRemixRoute) {
-      setPrompt(remixImage.prompt);
-      setSeed(remixImage.seed);
-      setRandomizeSeed(false);
-      setWidth(remixImage.width);
-      setHeight(remixImage.height);
-      setModel(remixImage.model);
-      setQuality(remixImage.quality);
-      setStyle(remixImage.style);
-      if (remixImage.aspect_ratio) {
-        setAspectRatio(remixImage.aspect_ratio);
-        setUseAspectRatio(true);
-      }
-    }
-  }, [remixImage, isRemixRoute]);
+  // Use the new remix effect hook
+  useRemixEffect({
+    remixImage,
+    isRemixRoute,
+    isPro,
+    modelConfigs,
+    setPrompt,
+    setSeed,
+    setRandomizeSeed,
+    setWidth,
+    setHeight,
+    setModel,
+    setQuality,
+    setStyle,
+    setAspectRatio,
+    setUseAspectRatio,
+    setSteps
+  });
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
