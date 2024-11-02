@@ -17,6 +17,7 @@ export const useImageHandlers = ({
   setQuality,
   setAspectRatio,
   setUseAspectRatio,
+  setStyle,
   aspectRatios,
   session,
   queryClient,
@@ -49,25 +50,25 @@ export const useImageHandlers = ({
 
   const handleRemix = (image) => {
     if (!session) {
-      toast.error('Please sign in to remix images')
-      return
+      toast.error('Please sign in to remix images');
+      return;
     }
-    setPrompt(image.prompt)
-    setSeed(image.seed)
-    setRandomizeSeed(false)
-    setWidth(image.width)
-    setHeight(image.height)
+
+    setPrompt(image.prompt);
+    setSeed(image.seed);
+    setRandomizeSeed(false);
+    setWidth(image.width);
+    setHeight(image.height);
 
     // Handle model selection based on user's pro status
-    const isProModel = modelConfigs?.[image.model]?.is_premium;
+    const isProModel = modelConfigs?.[image.model]?.isPremium;
     if (isProModel && !isPro) {
-      // If it's a pro model and user is not pro, set to default non-pro model
       setModel('turbo');
       setSteps(modelConfigs['turbo']?.defaultStep || 4);
       toast.info('Some settings were adjusted as they require a pro account');
     } else {
-      setModel(image.model)
-      setSteps(image.steps)
+      setModel(image.model);
+      setSteps(image.steps);
     }
 
     // Handle quality settings
@@ -75,7 +76,20 @@ export const useImageHandlers = ({
       setQuality('HD');
       toast.info('Quality adjusted to HD as HD+ requires a pro account');
     } else {
-      setQuality(image.quality)
+      setQuality(image.quality);
+    }
+
+    // Handle style
+    const styleConfig = modelConfigs?.[image.model];
+    if (styleConfig?.noStyleSuffix) {
+      setStyle(null);
+    } else if (image.style) {
+      setStyle(isPro ? image.style : null);
+      if (!isPro && image.style) {
+        toast.info('Style was removed as it requires a pro account');
+      }
+    } else {
+      setStyle(null);
     }
 
     // Handle aspect ratio
@@ -85,8 +99,8 @@ export const useImageHandlers = ({
       setUseAspectRatio(true);
       toast.info('Aspect ratio adjusted as the original requires a pro account');
     } else {
-      setAspectRatio(image.aspect_ratio)
-      setUseAspectRatio(image.aspect_ratio in aspectRatios)
+      setAspectRatio(image.aspect_ratio);
+      setUseAspectRatio(image.aspect_ratio in aspectRatios);
     }
   }
 

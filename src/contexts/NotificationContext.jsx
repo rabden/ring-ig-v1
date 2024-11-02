@@ -57,7 +57,11 @@ export const NotificationProvider = ({ children }) => {
 
       setNotifications(userNotifications || []);
       setGlobalNotifications(visibleGlobalNotifications || []);
-      setUnreadCount((userNotifications || []).filter(n => !n.is_read).length);
+      
+      // Update unread count to include both user notifications and global notifications
+      const unreadUserNotifications = (userNotifications || []).filter(n => !n.is_read).length;
+      const unreadGlobalNotifications = visibleGlobalNotifications.length;
+      setUnreadCount(unreadUserNotifications + unreadGlobalNotifications);
     };
 
     fetchNotifications();
@@ -141,6 +145,7 @@ export const NotificationProvider = ({ children }) => {
       setGlobalNotifications(prev => 
         prev.filter(n => n.id !== notificationId)
       );
+      setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
       console.error('Error hiding global notification:', error);
       toast.error('Failed to hide notification');
