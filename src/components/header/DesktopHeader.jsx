@@ -16,38 +16,37 @@ const DesktopHeader = ({
   onFilterChange,
   onRemoveFilter,
   onSearch,
+  isVisible,
   nsfwEnabled
 }) => {
   return (
-    <div className="hidden md:block fixed top-4 left-6 right-[350px] z-10">
-      <div className="bg-muted rounded-lg px-4 py-3 border border-border/40 shadow-lg">
-        <div className="flex justify-between items-center max-w-full">
-          <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none">
-            <div className="h-8">
-              <ProfileMenu 
-                user={user} 
-                credits={credits} 
-                bonusCredits={bonusCredits}
-              />
-            </div>
-            <div className="h-8">
-              <NotificationBell />
-            </div>
-            <ActionButtons 
-              activeView={activeView} 
-              setActiveView={setActiveView} 
-              generatingImages={generatingImages}
+    <div className={`hidden md:block fixed top-0 left-0 right-[350px] bg-background z-10 px-4 py-3 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
+      <div className="flex justify-between items-center max-w-full">
+        <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none">
+          <div className="h-8">
+            <ProfileMenu 
+              user={user} 
+              credits={credits} 
+              bonusCredits={bonusCredits}
             />
-            {!nsfwEnabled && (
-              <FilterMenu
-                activeFilters={activeFilters}
-                onFilterChange={onFilterChange}
-                onRemoveFilter={onRemoveFilter}
-                nsfwEnabled={nsfwEnabled}
-              />
-            )}
-            <SearchBar onSearch={onSearch} />
           </div>
+          <div className="h-8">
+            <NotificationBell />
+          </div>
+          <ActionButtons 
+            activeView={activeView} 
+            setActiveView={setActiveView} 
+            generatingImages={generatingImages}
+          />
+          {!nsfwEnabled && (
+            <FilterMenu
+              activeFilters={activeFilters}
+              onFilterChange={onFilterChange}
+              onRemoveFilter={onRemoveFilter}
+              nsfwEnabled={nsfwEnabled}
+            />
+          )}
+          <SearchBar onSearch={onSearch} />
         </div>
       </div>
     </div>

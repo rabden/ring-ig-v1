@@ -3,6 +3,7 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useUserCredits } from '@/hooks/useUserCredits';
 import { useImageGeneration } from '@/hooks/useImageGeneration';
 import { useQueryClient } from '@tanstack/react-query';
+import { useScrollDirection } from '@/hooks/useScrollDirection';
 import AuthOverlay from '@/components/AuthOverlay';
 import BottomNavbar from '@/components/BottomNavbar';
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings';
@@ -21,11 +22,13 @@ import { toast } from 'sonner';
 const ImageGenerator = () => {
   const [activeFilters, setActiveFilters] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
+  const isHeaderVisible = useScrollDirection();
   const { session } = useSupabaseAuth();
   const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id);
   const { data: isPro } = useProUser(session?.user?.id);
   const { data: modelConfigs } = useModelConfigs();
   const queryClient = useQueryClient();
+
   const {
     prompt, setPrompt, seed, setSeed, randomizeSeed, setRandomizeSeed,
     width, setWidth, height, setHeight, steps, setSteps,
@@ -129,14 +132,14 @@ const ImageGenerator = () => {
               onFilterChange={handleFilterChange}
               onRemoveFilter={handleRemoveFilter}
               onSearch={handleSearch}
-              nsfwEnabled={nsfwEnabled}
+              isVisible={isHeaderVisible}
             />
             <MobileHeader
               activeFilters={activeFilters}
               onFilterChange={handleFilterChange}
               onRemoveFilter={handleRemoveFilter}
               onSearch={handleSearch}
-              nsfwEnabled={nsfwEnabled}
+              isVisible={isHeaderVisible}
             />
           </>
         )}
