@@ -132,6 +132,8 @@ export const NotificationProvider = ({ children }) => {
   };
 
   const hideGlobalNotification = async (notificationId) => {
+    if (!session?.user?.id) return;
+    
     try {
       const { error } = await supabase
         .from('hidden_global_notifications')

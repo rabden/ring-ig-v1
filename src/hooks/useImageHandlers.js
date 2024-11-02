@@ -54,6 +54,7 @@ export const useImageHandlers = ({
       return;
     }
 
+    // Set all image properties
     setPrompt(image.prompt);
     setSeed(image.seed);
     setRandomizeSeed(false);
@@ -83,26 +84,30 @@ export const useImageHandlers = ({
     const modelConfig = modelConfigs?.[image.model];
     if (modelConfig?.category === "NSFW") {
       setStyle(null); // Reset style for NSFW models
-    } else if (image.style) {
-      if (isPro) {
-        setStyle(image.style);
-      } else {
-        setStyle(null);
-        toast.info('Style was removed as it requires a pro account');
-      }
     } else {
-      setStyle(null);
+      setStyle(image.style || null);
     }
 
     // Handle aspect ratio
+    const [width, height] = (image.aspect_ratio || '1:1').split(':').map(Number);
     const isPremiumRatio = ['9:21', '21:9', '3:2', '2:3', '4:5', '5:4', '10:16', '16:10'].includes(image.aspect_ratio);
+    
     if (isPremiumRatio && !isPro) {
       setAspectRatio('1:1');
       setUseAspectRatio(true);
       toast.info('Aspect ratio adjusted as the original requires a pro account');
     } else {
       setAspectRatio(image.aspect_ratio);
-      setUseAspectRatio(image.aspect_ratio in aspectRatios);
+      setUseAspectRatio(true);
+    }
+
+    // Close any open dialogs/drawers
+    setFullScreenViewOpen(false);
+    setDetailsDialogOpen(false);
+
+    // Switch to input tab on mobile
+    if (window.innerWidth <= 768) {
+      setActiveTab('input');
     }
   }
 
