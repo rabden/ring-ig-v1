@@ -16,12 +16,11 @@ const DesktopHeader = ({
   onFilterChange,
   onRemoveFilter,
   onSearch,
-  isVisible,
   nsfwEnabled
 }) => {
   return (
-    <div className={`hidden md:block fixed top-4 left-4 right-[350px] z-10 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-      <div className="bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/75 shadow-lg border border-border/40 rounded-lg px-4 py-3">
+    <div className="hidden md:block fixed top-4 left-4 right-[350px] z-10">
+      <div className="bg-muted rounded-lg px-4 py-3 border border-border/40 shadow-lg">
         <div className="flex justify-between items-center max-w-full">
           <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none">
             <div className="h-8">
