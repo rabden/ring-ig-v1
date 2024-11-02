@@ -6,10 +6,12 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
+import ProUpgradeForm from './pro/ProUpgradeForm';
 
 const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const { logout } = useSupabaseAuth();
   const { data: isPro } = useProUser(user?.id);
+  const [upgradeFormOpen, setUpgradeFormOpen] = React.useState(false);
 
   const { data: totalLikes = 0 } = useQuery({
     queryKey: ['totalLikes', user?.id],
@@ -62,6 +64,15 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
                     <p className="text-2xl font-bold">{totalLikes}</p>
                   </div>
                 </div>
+                {!isPro && (
+                  <Button 
+                    variant="default" 
+                    className="w-full bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 hover:from-yellow-400 hover:via-yellow-600 hover:to-amber-600"
+                    onClick={() => setUpgradeFormOpen(true)}
+                  >
+                    Upgrade to Pro
+                  </Button>
+                )}
                 <Button onClick={() => logout()} variant="outline" className="w-full">
                   Log out
                 </Button>
@@ -74,6 +85,11 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
           )}
         </div>
       </div>
+
+      <ProUpgradeForm 
+        open={upgradeFormOpen}
+        onOpenChange={setUpgradeFormOpen}
+      />
     </div>
   );
 };
