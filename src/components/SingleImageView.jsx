@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
@@ -9,7 +9,7 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useImageViewHandlers } from './image-view/ImageViewHandlers';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Download, RefreshCw, Copy, Share2 } from "lucide-react";
+import { ArrowLeft, Download, RefreshCw, Copy, Share2, Check } from "lucide-react";
 
 const SingleImageView = () => {
   const { imageId } = useParams();
@@ -17,6 +17,8 @@ const SingleImageView = () => {
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
+  const [copyPromptIcon, setCopyPromptIcon] = useState(<Copy className="h-4 w-4" />);
+  const [copyShareIcon, setCopyShareIcon] = useState(<Share2 className="h-4 w-4" />);
 
   const { data: image, isLoading } = useQuery({
     queryKey: ['singleImage', imageId],
@@ -33,6 +35,22 @@ const SingleImageView = () => {
   });
 
   const { handleDownload, handleRemix, handleCopyPrompt, handleShare } = useImageViewHandlers(image, session, navigate);
+
+  const handleCopyPromptWithIcon = async () => {
+    await handleCopyPrompt();
+    setCopyPromptIcon(<Check className="h-4 w-4" />);
+    setTimeout(() => {
+      setCopyPromptIcon(<Copy className="h-4 w-4" />);
+    }, 2000);
+  };
+
+  const handleShareWithIcon = async () => {
+    await handleShare();
+    setCopyShareIcon(<Check className="h-4 w-4" />);
+    setTimeout(() => {
+      setCopyShareIcon(<Share2 className="h-4 w-4" />);
+    }, 2000);
+  };
 
   if (isLoading) {
     return (
@@ -86,11 +104,11 @@ const SingleImageView = () => {
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Image Details</h3>
                 <div className="flex gap-2">
-                  <Button variant="ghost" size="icon" onClick={handleCopyPrompt}>
-                    <Copy className="h-4 w-4" />
+                  <Button variant="ghost" size="icon" onClick={handleCopyPromptWithIcon}>
+                    {copyPromptIcon}
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={handleShare}>
-                    <Share2 className="h-4 w-4" />
+                  <Button variant="ghost" size="icon" onClick={handleShareWithIcon}>
+                    {copyShareIcon}
                   </Button>
                 </div>
               </div>
