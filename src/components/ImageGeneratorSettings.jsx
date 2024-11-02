@@ -33,7 +33,7 @@ const ImageGeneratorSettings = ({
   modelConfigs
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
-  const totalCredits = credits + bonusCredits;
+  const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
   const showGuidanceScale = model === 'fluxDev';
   const isNsfwModel = modelConfigs?.[model]?.category === "NSFW";
@@ -87,7 +87,7 @@ const ImageGeneratorSettings = ({
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Settings</h2>
         <div className="text-sm font-medium">
-          Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
+          Credits: {credits || 0}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
           {!hasEnoughCredits && (
             <span className="text-destructive ml-2">
               Need {creditCost} credits for {quality}
