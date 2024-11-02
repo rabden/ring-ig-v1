@@ -127,8 +127,8 @@ export const useImageHandlers = ({
     setFullScreenViewOpen(false);
     setDetailsDialogOpen(false);
 
-    // Switch to input tab on mobile
-    if (window.innerWidth <= 768) {
+    // Switch to input tab on mobile if setActiveTab is available
+    if (typeof setActiveTab === 'function' && window.innerWidth <= 768) {
       setActiveTab('input');
     }
   };
