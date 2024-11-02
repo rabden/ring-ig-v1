@@ -3,6 +3,7 @@ import { deleteImageCompletely } from '@/integrations/supabase/imageUtils';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useProUser } from '@/hooks/useProUser';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
+import { useNavigate } from 'react-router-dom';
 
 export const useImageHandlers = ({
   generateImage,
@@ -28,6 +29,7 @@ export const useImageHandlers = ({
   const { data: modelConfigs } = useModelConfigs() || {};
   const { data: styleConfigs } = useStyleConfigs() || {};
   const { data: isPro = false } = useProUser(session?.user?.id) || {};
+  const navigate = useNavigate();
 
   const handleGenerateImage = async () => {
     await generateImage();
@@ -86,24 +88,19 @@ export const useImageHandlers = ({
       const modelConfig = modelConfigs?.[image.model];
       
       if (modelConfig?.category === "NSFW") {
-        // NSFW models don't support styles
         setStyle(null);
       } else {
-        // Check if the style exists in styleConfigs and is valid
         const styleExists = image.style && styleConfigs?.[image.style];
         const isPremiumStyle = styleExists && styleConfigs?.[image.style]?.isPremium;
         
         if (styleExists) {
           if (isPremiumStyle && !isPro) {
-            // If it's a premium style and user is not pro, reset to null
             setStyle(null);
             toast.info('Style adjusted as it requires a pro account');
           } else {
-            // Set the style if it exists and user has access
             setStyle(image.style);
           }
         } else {
-          // Reset style if it doesn't exist in configs
           setStyle(null);
         }
       }
@@ -127,9 +124,12 @@ export const useImageHandlers = ({
     setFullScreenViewOpen(false);
     setDetailsDialogOpen(false);
 
-    // Switch to input tab on mobile if setActiveTab is available
-    if (typeof setActiveTab === 'function' && window.innerWidth <= 768) {
-      setActiveTab('input');
+    // On mobile, navigate to remix route and switch to input tab
+    if (window.innerWidth <= 768) {
+      navigate(`/remix/${image.id}`);
+      if (typeof setActiveTab === 'function') {
+        setActiveTab('input');
+      }
     }
   };
 
