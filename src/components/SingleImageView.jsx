@@ -4,16 +4,13 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
-import { Skeleton } from "@/components/ui/skeleton";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useImageViewHandlers } from './image-view/ImageViewHandlers';
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Copy, Share2, Check } from "lucide-react";
+import { Copy, Share2, Check } from "lucide-react";
 import { toast } from 'sonner';
-import ImageDetails from './image-view/ImageDetails';
-import ImageSettings from './image-view/ImageSettings';
-import ImageActions from './image-view/ImageActions';
+import { Skeleton } from "@/components/ui/skeleton";
+import DesktopSingleImageView from './image-view/DesktopSingleImageView';
+import MobileSingleImageView from './image-view/MobileSingleImageView';
 
 const SingleImageView = () => {
   const { imageId } = useParams();
@@ -46,16 +43,14 @@ const SingleImageView = () => {
     },
   });
 
-  const { handleDownload, handleRemix, handleCopyPrompt, handleShare } = useImageViewHandlers(image, session, navigate);
+  const { handleDownload, handleRemix } = useImageViewHandlers(image, session, navigate);
 
   const handleCopyPromptWithIcon = async () => {
     try {
-      await handleCopyPrompt();
+      await navigator.clipboard.writeText(image.prompt);
       setCopyPromptIcon(<Check className="h-4 w-4" />);
       toast.success('Prompt copied to clipboard');
-      setTimeout(() => {
-        setCopyPromptIcon(<Copy className="h-4 w-4" />);
-      }, 2000);
+      setTimeout(() => setCopyPromptIcon(<Copy className="h-4 w-4" />), 2000);
     } catch (err) {
       const textArea = document.createElement('textarea');
       textArea.value = image.prompt;
@@ -65,9 +60,7 @@ const SingleImageView = () => {
         document.execCommand('copy');
         setCopyPromptIcon(<Check className="h-4 w-4" />);
         toast.success('Prompt copied to clipboard');
-        setTimeout(() => {
-          setCopyPromptIcon(<Copy className="h-4 w-4" />);
-        }, 2000);
+        setTimeout(() => setCopyPromptIcon(<Copy className="h-4 w-4" />), 2000);
       } catch (err) {
         toast.error('Failed to copy prompt');
       }
@@ -76,25 +69,22 @@ const SingleImageView = () => {
   };
 
   const handleShareWithIcon = async () => {
+    const shareUrl = window.location.href;
     try {
-      await handleShare();
+      await navigator.clipboard.writeText(shareUrl);
       setCopyShareIcon(<Check className="h-4 w-4" />);
       toast.success('Share link copied to clipboard');
-      setTimeout(() => {
-        setCopyShareIcon(<Share2 className="h-4 w-4" />);
-      }, 2000);
+      setTimeout(() => setCopyShareIcon(<Share2 className="h-4 w-4" />), 2000);
     } catch (err) {
       const textArea = document.createElement('textarea');
-      textArea.value = window.location.href;
+      textArea.value = shareUrl;
       document.body.appendChild(textArea);
       textArea.select();
       try {
         document.execCommand('copy');
         setCopyShareIcon(<Check className="h-4 w-4" />);
         toast.success('Share link copied to clipboard');
-        setTimeout(() => {
-          setCopyShareIcon(<Share2 className="h-4 w-4" />);
-        }, 2000);
+        setTimeout(() => setCopyShareIcon(<Share2 className="h-4 w-4" />), 2000);
       } catch (err) {
         toast.error('Failed to copy share link');
       }
@@ -118,92 +108,29 @@ const SingleImageView = () => {
     );
   }
 
+  const sharedProps = {
+    image,
+    session,
+    modelConfigs,
+    styleConfigs,
+    copyPromptIcon,
+    copyShareIcon,
+    handleBack,
+    handleCopyPromptWithIcon,
+    handleShareWithIcon,
+    handleDownload,
+    handleRemix
+  };
+
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <div className="hidden md:block">
+        <DesktopSingleImageView {...sharedProps} />
+      </div>
       <div className="md:hidden">
-        <Button 
-          variant="ghost" 
-          className="absolute top-4 left-4 z-10" 
-          onClick={handleBack}
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
-        <div className="relative">
-          <img
-            src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-            alt={image.prompt}
-            className="w-full h-auto"
-          />
-        </div>
-        <div className="px-4">
-          <ScrollArea className="h-[calc(100vh-50vh)] mt-4">
-            <div className="space-y-6 pb-8">
-              {session && (
-                <ImageActions 
-                  handleDownload={handleDownload}
-                  handleRemix={handleRemix}
-                />
-              )}
-              <ImageDetails 
-                image={image}
-                copyPromptIcon={copyPromptIcon}
-                copyShareIcon={copyShareIcon}
-                handleCopyPromptWithIcon={handleCopyPromptWithIcon}
-                handleShareWithIcon={handleShareWithIcon}
-              />
-              <ImageSettings 
-                modelConfigs={modelConfigs}
-                styleConfigs={styleConfigs}
-                image={image}
-              />
-            </div>
-          </ScrollArea>
-        </div>
+        <MobileSingleImageView {...sharedProps} />
       </div>
-
-      <div className="hidden md:flex min-h-screen bg-background">
-        <div className="container mx-auto p-4">
-          <Button variant="ghost" className="mb-4" onClick={handleBack}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-
-          <div className="grid md:grid-cols-[2fr,1fr] gap-6">
-            <div className="relative bg-black/10 dark:bg-black/30 rounded-lg overflow-hidden">
-              <img
-                src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                alt={image.prompt}
-                className="w-full h-auto object-contain"
-              />
-            </div>
-
-            <ScrollArea className="h-[calc(100vh-200px)]">
-              <div className="space-y-6 p-4">
-                <ImageDetails 
-                  image={image}
-                  copyPromptIcon={copyPromptIcon}
-                  copyShareIcon={copyShareIcon}
-                  handleCopyPromptWithIcon={handleCopyPromptWithIcon}
-                  handleShareWithIcon={handleShareWithIcon}
-                />
-                <ImageSettings 
-                  modelConfigs={modelConfigs}
-                  styleConfigs={styleConfigs}
-                  image={image}
-                />
-                {session && (
-                  <ImageActions 
-                    handleDownload={handleDownload}
-                    handleRemix={handleRemix}
-                  />
-                )}
-              </div>
-            </ScrollArea>
-          </div>
-        </div>
-      </div>
-    </div>
+    </>
   );
 };
 
