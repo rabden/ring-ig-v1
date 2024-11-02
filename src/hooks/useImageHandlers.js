@@ -2,6 +2,7 @@ import { toast } from 'sonner'
 import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useProUser } from '@/hooks/useProUser'
+import { useNavigate } from 'react-router-dom'
 
 export const useImageHandlers = ({
   generateImage,
@@ -27,6 +28,7 @@ export const useImageHandlers = ({
 }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: isPro } = useProUser(session?.user?.id);
+  const navigate = useNavigate();
 
   const handleGenerateImage = async () => {
     await generateImage()
@@ -102,6 +104,9 @@ export const useImageHandlers = ({
       setAspectRatio(image.aspect_ratio);
       setUseAspectRatio(image.aspect_ratio in aspectRatios);
     }
+
+    // Navigate to home page
+    navigate('/');
   }
 
   const handleDownload = async (imageUrl, prompt) => {
