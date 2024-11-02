@@ -13,11 +13,7 @@ export const useUserCredits = (userId) => {
       .eq('user_id', userId)
       .single();
 
-    if (error) {
-      console.error('Error fetching credits:', error);
-      throw error;
-    }
-    
+    if (error) throw error;
     return data;
   };
 
@@ -54,9 +50,7 @@ export const useUserCredits = (userId) => {
     queryKey: ['userCredits', userId],
     queryFn: fetchCredits,
     enabled: Boolean(userId),
-    refetchInterval: 60000, // Refetch every minute
-    staleTime: 30000, // Consider data stale after 30 seconds
-    retry: 3, // Retry failed requests 3 times
+    refetchInterval: 60000, // Refetch every minute to check for updates
   });
 
   const updateCreditsMutation = useMutation({

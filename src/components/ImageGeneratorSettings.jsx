@@ -10,8 +10,6 @@ import ModelSection from './settings/ModelSection';
 import PromptInput from './prompt/PromptInput';
 import StyledScrollArea from './style/StyledScrollArea';
 import { qualityOptions } from '@/utils/imageConfigs';
-import CreditsDisplay from './settings/CreditsDisplay';
-import { useUserCredits } from '@/hooks/useUserCredits';
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -26,15 +24,16 @@ const ImageGeneratorSettings = ({
   width, setWidth,
   height, setHeight,
   session,
+  credits,
+  bonusCredits,
   nsfwEnabled, setNsfwEnabled,
   style, setStyle,
   steps, setSteps,
   proMode,
   modelConfigs
 }) => {
-  const { credits = 0, bonusCredits = 0 } = useUserCredits(session?.user?.id);
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
-  const totalCredits = credits + bonusCredits;
+  const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
   const showGuidanceScale = model === 'fluxDev';
   const isNsfwModel = modelConfigs?.[model]?.category === "NSFW";
@@ -45,7 +44,7 @@ const ImageGeneratorSettings = ({
     }
     setModel(newModel);
     if (modelConfigs?.[newModel]?.category === "NSFW") {
-      setStyle(null);
+      setStyle(null); // Reset style when switching to NSFW model
     }
   };
 
@@ -87,7 +86,16 @@ const ImageGeneratorSettings = ({
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Settings</h2>
-        <CreditsDisplay session={session} quality={quality} />
+        {session && (
+          <div className="text-sm font-medium">
+            Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
+            {!hasEnoughCredits && (
+              <span className="text-destructive ml-2">
+                Need {creditCost} credits for {quality}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       <PromptInput
