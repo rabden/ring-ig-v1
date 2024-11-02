@@ -1,8 +1,8 @@
-import { toast } from 'sonner'
-import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
-import { useModelConfigs } from '@/hooks/useModelConfigs'
-import { useProUser } from '@/hooks/useProUser'
-import { useStyleConfigs } from '@/hooks/useStyleConfigs'
+import { toast } from 'sonner';
+import { deleteImageCompletely } from '@/integrations/supabase/imageUtils';
+import { useModelConfigs } from '@/hooks/useModelConfigs';
+import { useProUser } from '@/hooks/useProUser';
+import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 
 export const useImageHandlers = ({
   generateImage,
@@ -19,36 +19,35 @@ export const useImageHandlers = ({
   setAspectRatio,
   setUseAspectRatio,
   setStyle,
-  aspectRatios,
   session,
   queryClient,
   activeView,
   setDetailsDialogOpen,
   setActiveTab,
 }) => {
-  const { data: modelConfigs } = useModelConfigs();
-  const { data: styleConfigs } = useStyleConfigs();
-  const { data: isPro } = useProUser(session?.user?.id);
+  const { data: modelConfigs } = useModelConfigs() || {};
+  const { data: styleConfigs } = useStyleConfigs() || {};
+  const { data: isPro = false } = useProUser(session?.user?.id) || {};
 
   const handleGenerateImage = async () => {
-    await generateImage()
-  }
+    await generateImage();
+  };
 
   const handleImageClick = (image) => {
-    setSelectedImage(image)
-    setFullScreenViewOpen(true)
-  }
+    setSelectedImage(image);
+    setFullScreenViewOpen(true);
+  };
 
   const handleModelChange = (newModel) => {
-    setModel(newModel)
-  }
+    setModel(newModel);
+  };
 
   const handlePromptKeyDown = async (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      await handleGenerateImage()
+      e.preventDefault();
+      await handleGenerateImage();
     }
-  }
+  };
 
   const handleRemix = (image) => {
     if (!session) {
@@ -67,11 +66,11 @@ export const useImageHandlers = ({
     const isProModel = modelConfigs?.[image.model]?.isPremium;
     if (isProModel && !isPro) {
       setModel('turbo');
-      setSteps(modelConfigs['turbo']?.defaultStep || 4);
+      setSteps(modelConfigs?.['turbo']?.defaultStep || 4);
       toast.info('Some settings were adjusted as they require a pro account');
     } else {
       setModel(image.model);
-      setSteps(modelConfigs[image.model]?.defaultStep || 30);
+      setSteps(modelConfigs?.[image.model]?.defaultStep || 30);
     }
 
     // Handle quality settings
@@ -92,7 +91,7 @@ export const useImageHandlers = ({
       } else {
         // Check if the style exists in styleConfigs and is valid
         const styleExists = image.style && styleConfigs?.[image.style];
-        const isPremiumStyle = styleExists && styleConfigs[image.style].isPremium;
+        const isPremiumStyle = styleExists && styleConfigs?.[image.style]?.isPremium;
         
         if (styleExists) {
           if (isPremiumStyle && !isPro) {
@@ -132,7 +131,7 @@ export const useImageHandlers = ({
     if (window.innerWidth <= 768) {
       setActiveTab('input');
     }
-  }
+  };
 
   const handleDownload = async (imageUrl, prompt) => {
     const a = document.createElement('a');
@@ -141,7 +140,7 @@ export const useImageHandlers = ({
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-  }
+  };
 
   const handleDiscard = async (image) => {
     if (confirm('Are you sure you want to delete this image?')) {
@@ -149,12 +148,12 @@ export const useImageHandlers = ({
       toast.success('Image deleted successfully');
       queryClient.invalidateQueries(['userImages']);
     }
-  }
+  };
 
   const handleViewDetails = (image) => {
     setSelectedImage(image);
     setDetailsDialogOpen(true);
-  }
+  };
 
   return {
     handleImageClick,
@@ -164,5 +163,5 @@ export const useImageHandlers = ({
     handleDownload,
     handleDiscard,
     handleViewDetails,
-  }
-}
+  };
+};
