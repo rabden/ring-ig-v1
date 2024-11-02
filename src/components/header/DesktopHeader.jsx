@@ -21,7 +21,7 @@ const DesktopHeader = ({
   return (
     <div className="hidden md:block fixed top-0 left-0 right-[350px] bg-background z-10 px-10 py-3">
       <div className="flex justify-between items-center max-w-full">
-        <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap scrollbar-none">
+        <div className="flex items-center gap-2 whitespace-nowrap">
           <div className="h-8">
             <ProfileMenu 
               user={user} 
