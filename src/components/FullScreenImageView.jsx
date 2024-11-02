@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
-import { Download, Trash2, RefreshCw, Copy, Share2 } from "lucide-react";
+import { Download, Trash2, RefreshCw, Copy, Share2, Check } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
+import { toast } from 'sonner';
 
 const FullScreenImageView = ({ 
   image, 
@@ -18,6 +19,8 @@ const FullScreenImageView = ({
 }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
+  const [copyPromptIcon, setCopyPromptIcon] = useState(<Copy className="h-4 w-4" />);
+  const [copyShareIcon, setCopyShareIcon] = useState(<Share2 className="h-4 w-4" />);
 
   if (!isOpen || !image) {
     return null;
@@ -39,11 +42,50 @@ const FullScreenImageView = ({
   };
 
   const handleCopyPrompt = async () => {
-    await navigator.clipboard.writeText(image.prompt);
+    try {
+      await navigator.clipboard.writeText(image.prompt);
+      setCopyPromptIcon(<Check className="h-4 w-4" />);
+      toast.success('Prompt copied to clipboard');
+      setTimeout(() => setCopyPromptIcon(<Copy className="h-4 w-4" />), 2000);
+    } catch (err) {
+      const textArea = document.createElement('textarea');
+      textArea.value = image.prompt;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopyPromptIcon(<Check className="h-4 w-4" />);
+        toast.success('Prompt copied to clipboard');
+        setTimeout(() => setCopyPromptIcon(<Copy className="h-4 w-4" />), 2000);
+      } catch (err) {
+        toast.error('Failed to copy prompt');
+      }
+      document.body.removeChild(textArea);
+    }
   };
 
   const handleShare = async () => {
-    await navigator.clipboard.writeText(`${window.location.origin}/image/${image.id}`);
+    const shareUrl = `${window.location.origin}/image/${image.id}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopyShareIcon(<Check className="h-4 w-4" />);
+      toast.success('Share link copied to clipboard');
+      setTimeout(() => setCopyShareIcon(<Share2 className="h-4 w-4" />), 2000);
+    } catch (err) {
+      const textArea = document.createElement('textarea');
+      textArea.value = shareUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopyShareIcon(<Check className="h-4 w-4" />);
+        toast.success('Share link copied to clipboard');
+        setTimeout(() => setCopyShareIcon(<Share2 className="h-4 w-4" />), 2000);
+      } catch (err) {
+        toast.error('Failed to copy share link');
+      }
+      document.body.removeChild(textArea);
+    }
   };
 
   return (

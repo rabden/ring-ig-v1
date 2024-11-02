@@ -10,6 +10,7 @@ import { useImageViewHandlers } from './image-view/ImageViewHandlers';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, RefreshCw, Copy, Share2, Check } from "lucide-react";
+import { toast } from 'sonner';
 
 const SingleImageView = () => {
   const { imageId } = useParams();
@@ -45,19 +46,57 @@ const SingleImageView = () => {
   const { handleDownload, handleRemix, handleCopyPrompt, handleShare } = useImageViewHandlers(image, session, navigate);
 
   const handleCopyPromptWithIcon = async () => {
-    await handleCopyPrompt();
-    setCopyPromptIcon(<Check className="h-4 w-4" />);
-    setTimeout(() => {
-      setCopyPromptIcon(<Copy className="h-4 w-4" />);
-    }, 2000);
+    try {
+      await handleCopyPrompt();
+      setCopyPromptIcon(<Check className="h-4 w-4" />);
+      toast.success('Prompt copied to clipboard');
+      setTimeout(() => {
+        setCopyPromptIcon(<Copy className="h-4 w-4" />);
+      }, 2000);
+    } catch (err) {
+      const textArea = document.createElement('textarea');
+      textArea.value = image.prompt;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopyPromptIcon(<Check className="h-4 w-4" />);
+        toast.success('Prompt copied to clipboard');
+        setTimeout(() => {
+          setCopyPromptIcon(<Copy className="h-4 w-4" />);
+        }, 2000);
+      } catch (err) {
+        toast.error('Failed to copy prompt');
+      }
+      document.body.removeChild(textArea);
+    }
   };
 
   const handleShareWithIcon = async () => {
-    await handleShare();
-    setCopyShareIcon(<Check className="h-4 w-4" />);
-    setTimeout(() => {
-      setCopyShareIcon(<Share2 className="h-4 w-4" />);
-    }, 2000);
+    try {
+      await handleShare();
+      setCopyShareIcon(<Check className="h-4 w-4" />);
+      toast.success('Share link copied to clipboard');
+      setTimeout(() => {
+        setCopyShareIcon(<Share2 className="h-4 w-4" />);
+      }, 2000);
+    } catch (err) {
+      const textArea = document.createElement('textarea');
+      textArea.value = window.location.href;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopyShareIcon(<Check className="h-4 w-4" />);
+        toast.success('Share link copied to clipboard');
+        setTimeout(() => {
+          setCopyShareIcon(<Share2 className="h-4 w-4" />);
+        }, 2000);
+      } catch (err) {
+        toast.error('Failed to copy share link');
+      }
+      document.body.removeChild(textArea);
+    }
   };
 
   if (isLoading) {
