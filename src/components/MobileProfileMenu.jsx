@@ -62,7 +62,7 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
                     <p className="text-2xl font-bold">{totalLikes}</p>
                   </div>
                 </div>
-                <Button onClick={logout} variant="outline" className="w-full">
+                <Button onClick={() => logout()} variant="outline" className="w-full">
                   Log out
                 </Button>
               </div>

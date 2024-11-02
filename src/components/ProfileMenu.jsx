@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
 
 const ProfileMenu = ({ user, credits, bonusCredits }) => {
-  const { signOut } = useSupabaseAuth();
+  const { logout } = useSupabaseAuth();
   const [isOpen, setIsOpen] = React.useState(false);
   const { data: isPro } = useProUser(user?.id);
 
@@ -74,7 +74,7 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
               </div>
             </div>
             
-            <Button variant="outline" className="w-full" onClick={() => signOut()}>
+            <Button variant="outline" className="w-full" onClick={() => logout()}>
               Sign Out
             </Button>
           </div>
