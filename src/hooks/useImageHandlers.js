@@ -23,7 +23,7 @@ export const useImageHandlers = ({
   queryClient,
   activeView,
   setDetailsDialogOpen,
-  setActiveView,
+  setActiveTab,
 }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: isPro } = useProUser(session?.user?.id);
@@ -83,9 +83,13 @@ export const useImageHandlers = ({
     // Handle style
     const modelConfig = modelConfigs?.[image.model];
     if (modelConfig?.category === "NSFW") {
-      setStyle(null); // Reset style for NSFW models
+      if (typeof setStyle === 'function') {
+        setStyle(null); // Reset style for NSFW models
+      }
     } else {
-      setStyle(image.style || null);
+      if (typeof setStyle === 'function') {
+        setStyle(image.style || null);
+      }
     }
 
     // Handle aspect ratio
