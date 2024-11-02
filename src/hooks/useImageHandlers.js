@@ -67,8 +67,10 @@ export const useImageHandlers = ({
     // Handle model selection based on user's pro status
     const isProModel = modelConfigs?.[image.model]?.isPremium;
     if (isProModel && !isPro) {
-      setModel('turbo');
-      setSteps(modelConfigs?.['turbo']?.defaultStep || 4);
+      // If the original model is pro and user is not pro, set to appropriate default model
+      const defaultModel = modelConfigs?.[image.model]?.category === "NSFW" ? 'nsfwMaster' : 'turbo';
+      setModel(defaultModel);
+      setSteps(modelConfigs?.[defaultModel]?.defaultStep || 4);
       toast.info('Some settings were adjusted as they require a pro account');
     } else {
       setModel(image.model);
