@@ -1,3 +1,9 @@
+-- Drop existing objects if they exist
+DROP TRIGGER IF EXISTS on_pro_user_created ON public.pro_users;
+DROP FUNCTION IF EXISTS public.notify_pro_user();
+DROP TABLE IF EXISTS public.hidden_global_notifications;
+DROP TABLE IF EXISTS public.global_notifications;
+
 -- Create global notifications table
 CREATE TABLE IF NOT EXISTS public.global_notifications (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -23,14 +29,21 @@ ALTER TABLE public.global_notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.hidden_global_notifications ENABLE ROW LEVEL SECURITY;
 
 -- Create policies
-CREATE POLICY "Everyone can view global notifications" ON public.global_notifications
-    FOR SELECT USING (true);
+DO $$ 
+BEGIN
+    DROP POLICY IF EXISTS "Everyone can view global notifications" ON public.global_notifications;
+    DROP POLICY IF EXISTS "Users can hide global notifications" ON public.hidden_global_notifications;
+    DROP POLICY IF EXISTS "Users can view their hidden notifications" ON public.hidden_global_notifications;
+    
+    CREATE POLICY "Everyone can view global notifications" ON public.global_notifications
+        FOR SELECT USING (true);
 
-CREATE POLICY "Users can hide global notifications" ON public.hidden_global_notifications
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
+    CREATE POLICY "Users can hide global notifications" ON public.hidden_global_notifications
+        FOR INSERT WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "Users can view their hidden notifications" ON public.hidden_global_notifications
-    FOR SELECT USING (auth.uid() = user_id);
+    CREATE POLICY "Users can view their hidden notifications" ON public.hidden_global_notifications
+        FOR SELECT USING (auth.uid() = user_id);
+END $$;
 
 -- Create function to send notification when user becomes pro
 CREATE OR REPLACE FUNCTION public.notify_pro_user()
@@ -51,3 +64,8 @@ CREATE TRIGGER on_pro_user_created
 -- Grant necessary permissions
 GRANT SELECT ON public.global_notifications TO authenticated;
 GRANT ALL ON public.hidden_global_notifications TO authenticated;
+
+-- Insert a test notification to verify the setup
+INSERT INTO public.global_notifications (title, message)
+VALUES ('Welcome to our platform!', 'Thank you for joining our community. We hope you enjoy using our services!')
+ON CONFLICT DO NOTHING;
