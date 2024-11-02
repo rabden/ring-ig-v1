@@ -10,6 +10,7 @@ import ModelSection from './settings/ModelSection';
 import PromptInput from './prompt/PromptInput';
 import StyledScrollArea from './style/StyledScrollArea';
 import { qualityOptions } from '@/utils/imageConfigs';
+import { useUserCredits } from '@/hooks/useUserCredits';
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -24,14 +25,13 @@ const ImageGeneratorSettings = ({
   width, setWidth,
   height, setHeight,
   session,
-  credits = 0,
-  bonusCredits = 0,
   nsfwEnabled, setNsfwEnabled,
   style, setStyle,
   steps, setSteps,
   proMode,
   modelConfigs
 }) => {
+  const { credits = 0, bonusCredits = 0 } = useUserCredits(session?.user?.id) || {};
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const totalCredits = credits + bonusCredits;
   const hasEnoughCredits = totalCredits >= creditCost;
