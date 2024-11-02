@@ -21,7 +21,7 @@ const NotificationBell = () => {
           )}
         </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="w-[400px] sm:w-[540px] p-0">
+      <SheetContent side="left" className="w-[400px] sm:w-[540px] p-0 m-4 rounded-lg border">
         <div className="h-full overflow-y-auto">
           <NotificationList />
         </div>
