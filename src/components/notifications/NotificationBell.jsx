@@ -12,7 +12,7 @@ const NotificationBell = () => {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-7 w-7 p-0 relative">
+        <Button variant="ghost" size="icon" className="h-7 w-7 p-0 relative md:flex hidden">
           <Bell className="h-4 w-4" />
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center">

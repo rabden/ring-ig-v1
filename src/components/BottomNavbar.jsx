@@ -1,16 +1,16 @@
 import React from 'react';
-import { Image, Plus, Sparkles, Bell } from 'lucide-react';
-import MobileProfileMenu from './MobileProfileMenu';
+import { Image, Plus, Sparkles, Bell, User } from 'lucide-react';
 import { cn } from "@/lib/utils";
-import { Drawer } from 'vaul';
 import NotificationList from './notifications/NotificationList';
 import { useNotifications } from '@/contexts/NotificationContext';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useProUser } from '@/hooks/useProUser';
 
 const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits, activeView, setActiveView }) => {
-  const [notificationDrawerOpen, setNotificationDrawerOpen] = React.useState(false);
   const { unreadCount } = useNotifications();
+  const { data: isPro } = useProUser(session?.user?.id);
 
-  const NavButton = ({ icon: Icon, isActive, onClick }) => (
+  const NavButton = ({ icon: Icon, isActive, onClick, children }) => (
     <button
       onClick={onClick}
       className={cn(
@@ -23,10 +23,10 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
         "absolute inset-x-2 h-0.5 -top-1 rounded-full transition-all",
         isActive ? "bg-primary" : "bg-transparent"
       )} />
-      <Icon size={20} className={cn(
+      {children || <Icon size={20} className={cn(
         "transition-transform duration-200",
         isActive ? "scale-100" : "scale-90 group-hover:scale-100"
-      )} />
+      )} />}
     </button>
   );
 
@@ -54,39 +54,42 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
           isActive={activeTab === 'input'}
           onClick={() => setActiveTab('input')}
         />
-        <Drawer.Root open={notificationDrawerOpen} onOpenChange={setNotificationDrawerOpen}>
-          <Drawer.Trigger asChild>
-            <div className="relative">
-              <NavButton
-                icon={Bell}
-                isActive={false}
-              />
-              {unreadCount > 0 && (
-                <span className="absolute top-1.5 right-2.5 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
+        <NavButton
+          icon={Bell}
+          isActive={activeTab === 'notifications'}
+          onClick={() => setActiveTab('notifications')}
+        >
+          <div className="relative">
+            <Bell size={20} className={cn(
+              "transition-transform duration-200",
+              activeTab === 'notifications' ? "scale-100" : "scale-90 group-hover:scale-100"
+            )} />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </div>
+        </NavButton>
+        <NavButton
+          icon={User}
+          isActive={activeTab === 'profile'}
+          onClick={() => setActiveTab('profile')}
+        >
+          {session ? (
+            <div className={`rounded-full ${isPro ? 'p-[2px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500' : ''}`}>
+              <Avatar className={`h-8 w-8 ${isPro ? 'border-2 border-background rounded-full' : ''}`}>
+                <AvatarImage src={session.user?.user_metadata?.avatar_url} alt={session.user?.email} />
+                <AvatarFallback>{session.user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
+              </Avatar>
             </div>
-          </Drawer.Trigger>
-          <Drawer.Portal>
-            <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[60]" />
-            <Drawer.Content className="bg-background fixed inset-x-0 bottom-0 z-[60] rounded-t-[10px]">
-              <div className="h-full max-h-[96vh] overflow-hidden">
-                <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 my-4" />
-                <div className="px-4 pb-8">
-                  <NotificationList />
-                </div>
-              </div>
-            </Drawer.Content>
-          </Drawer.Portal>
-        </Drawer.Root>
-        <div className="flex items-center justify-center w-14 h-12">
-          <MobileProfileMenu 
-            user={session?.user} 
-            credits={credits}
-            bonusCredits={bonusCredits}
-          />
-        </div>
+          ) : (
+            <User size={20} className={cn(
+              "transition-transform duration-200",
+              activeTab === 'profile' ? "scale-100" : "scale-90 group-hover:scale-100"
+            )} />
+          )}
+        </NavButton>
       </div>
       <div className="h-safe-area-bottom bg-background" />
     </div>

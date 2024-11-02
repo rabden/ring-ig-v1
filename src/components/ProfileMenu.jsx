@@ -41,7 +41,7 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
           </div>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[400px] sm:w-[540px] p-6 m-4 rounded-lg border">
+      <SheetContent side="left" className="w-[400px] sm:w-[540px] p-6 m-4 rounded-lg border max-h-[calc(100vh-2rem)] overflow-y-auto">
         <div className="space-y-6">
           <div className="flex flex-col items-center space-y-4">
             <div className={`rounded-full ${isPro ? 'p-[3px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500' : ''}`}>
@@ -62,7 +62,6 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
           <div className="space-y-4">
             <div className="bg-muted/50 p-4 rounded-lg">
               <div className="space-y-2">
-
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium">Credits</span>
                   <span className="text-sm">{credits}+ B{bonusCredits}</span>
