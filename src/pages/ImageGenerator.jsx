@@ -201,6 +201,8 @@ const ImageGenerator = () => {
             modelConfigs={modelConfigs}
             activeFilters={activeFilters}
             searchQuery={searchQuery}
+            setActiveTab={setActiveTab}
+            setStyle={setStyle}
           />
         </div>
       </div>

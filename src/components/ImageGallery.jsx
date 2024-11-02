@@ -30,7 +30,8 @@ const ImageGallery = ({
   nsfwEnabled,
   activeFilters = {},
   searchQuery = '',
-  setActiveTab
+  setActiveTab,
+  setStyle
 }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -192,6 +193,7 @@ const ImageGallery = ({
         onRemix={onRemix}
         isOwner={selectedImage?.user_id === userId}
         setActiveTab={setActiveTab}
+        setStyle={setStyle}
       />
 
       <MobileGeneratingStatus generatingImages={generatingImages} />

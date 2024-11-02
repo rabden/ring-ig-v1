@@ -18,7 +18,8 @@ const MobileImageDrawer = ({
   onDiscard, 
   onRemix, 
   isOwner,
-  setActiveTab 
+  setActiveTab,
+  setStyle 
 }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
@@ -45,6 +46,7 @@ const MobileImageDrawer = ({
 
   const handleRemixClick = () => {
     onRemix(image);
+    setStyle(image.style);
     setActiveTab('input');
     onOpenChange(false);
   };
