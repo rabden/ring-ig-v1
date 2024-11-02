@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { toast } from 'sonner';
 
 export const useRemixEffect = ({
   remixImage,
@@ -34,7 +33,6 @@ export const useRemixEffect = ({
         const defaultModel = modelConfigs?.[remixImage.model]?.category === "NSFW" ? 'nsfwMaster' : 'turbo';
         setModel(defaultModel);
         setSteps(modelConfigs?.[defaultModel]?.defaultStep || 4);
-        toast.info('Using default model as the original requires a pro account');
       } else {
         setModel(remixImage.model);
         setSteps(modelConfigs?.[remixImage.model]?.defaultStep || 30);
@@ -43,7 +41,6 @@ export const useRemixEffect = ({
       // Handle quality settings
       if (remixImage.quality === 'HD+' && !isPro) {
         setQuality('HD');
-        toast.info('Quality adjusted to HD as HD+ requires a pro account');
       } else {
         setQuality(remixImage.quality);
       }
@@ -58,7 +55,6 @@ export const useRemixEffect = ({
         if (styleExists) {
           if (isPremiumStyle && !isPro) {
             setStyle(null);
-            toast.info('Style removed as it requires a pro account');
           } else {
             setStyle(remixImage.style);
           }
@@ -75,7 +71,6 @@ export const useRemixEffect = ({
         if (isPremiumRatio && !isPro) {
           setAspectRatio('1:1');
           setUseAspectRatio(true);
-          toast.info('Aspect ratio adjusted as the original requires a pro account');
         } else {
           setAspectRatio(remixImage.aspect_ratio);
           setUseAspectRatio(true);
