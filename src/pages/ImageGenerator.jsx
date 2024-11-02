@@ -4,17 +4,14 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { SupabaseAuthUI } from '@/integrations/supabase/auth';
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Textarea } from "@/components/ui/textarea";
+import { Card } from "@/components/ui/card";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useNotification } from '@/contexts/NotificationContext';
 import { toast } from 'sonner';
 import { generateImage } from '@/lib/api';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import GeneratorForm from '@/components/generator/GeneratorForm';
+import ImageGallery from '@/components/generator/ImageGallery';
 import FullScreenImageView from '@/components/FullScreenImageView';
 import MobileImageDrawer from '@/components/MobileImageDrawer';
 
@@ -25,7 +22,7 @@ const ImageGenerator = () => {
   const { showNotification } = useNotification();
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
-  
+
   const [prompt, setPrompt] = useState('');
   const [selectedModel, setSelectedModel] = useState('sdxl');
   const [selectedStyle, setSelectedStyle] = useState('');
@@ -45,7 +42,6 @@ const ImageGenerator = () => {
         .select('*')
         .eq('id', imageId)
         .single();
-
       if (error) throw error;
       return data;
     },
@@ -61,7 +57,6 @@ const ImageGenerator = () => {
         .select('*')
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
-
       if (error) throw error;
       return data;
     },
@@ -143,7 +138,6 @@ const ImageGenerator = () => {
         .from('user_images')
         .delete()
         .eq('id', image.id);
-
       if (error) throw error;
       toast.success('Image discarded');
     } catch (error) {
@@ -174,90 +168,27 @@ const ImageGenerator = () => {
   return (
     <div className="container mx-auto p-4">
       <div className="grid lg:grid-cols-[1fr,400px] gap-6">
-        <div className="space-y-4">
-          <Textarea
-            placeholder="Describe the image you want to generate..."
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            className="min-h-[120px] text-lg"
-          />
+        <GeneratorForm
+          prompt={prompt}
+          setPrompt={setPrompt}
+          selectedModel={selectedModel}
+          setSelectedModel={setSelectedModel}
+          selectedStyle={selectedStyle}
+          setSelectedStyle={setSelectedStyle}
+          quality={quality}
+          setQuality={setQuality}
+          size={size}
+          setSize={setSize}
+          isGenerating={isGenerating}
+          handleGenerate={handleGenerate}
+          modelConfigs={modelConfigs}
+          styleConfigs={styleConfigs}
+        />
 
-          <div className="grid sm:grid-cols-2 gap-4">
-            <Select value={selectedModel} onValueChange={setSelectedModel}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select model" />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.entries(modelConfigs || {}).map(([id, config]) => (
-                  <SelectItem key={id} value={id}>{config.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedStyle} onValueChange={setSelectedStyle}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select style" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">General</SelectItem>
-                {Object.entries(styleConfigs || {}).map(([id, config]) => (
-                  <SelectItem key={id} value={id}>{config.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select value={quality} onValueChange={setQuality}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select quality" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="standard">Standard</SelectItem>
-                <SelectItem value="hd">HD</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={size} onValueChange={setSize}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select size" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1024x1024">1024x1024</SelectItem>
-                <SelectItem value="1024x1792">1024x1792</SelectItem>
-                <SelectItem value="1792x1024">1792x1024</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <Button 
-              onClick={handleGenerate} 
-              className="w-full" 
-              disabled={isGenerating}
-            >
-              {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isGenerating ? 'Generating...' : 'Generate'}
-            </Button>
-          </div>
-        </div>
-
-        <ScrollArea className="h-[calc(100vh-2rem)]">
-          <div className="grid grid-cols-1 gap-4 pr-4">
-            {userImages.map((image) => (
-              <div
-                key={image.id}
-                className="relative group cursor-pointer"
-                onClick={() => handleImageClick(image)}
-              >
-                <img
-                  src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                  alt={image.prompt}
-                  className="w-full h-auto rounded-lg"
-                />
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" />
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
+        <ImageGallery 
+          images={userImages}
+          onImageClick={handleImageClick}
+        />
       </div>
 
       {selectedImage && (
