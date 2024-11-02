@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }) => {
       } else if (event === 'SIGNED_OUT') {
         setSession(null);
         queryClient.invalidateQueries('user');
-        localStorage.removeItem('supabase.auth.token');
+        window.localStorage.removeItem('sb-auth-token');
       } else if (event === 'TOKEN_REFRESHED') {
         setSession(session);
         queryClient.invalidateQueries('user');
@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }) => {
       await supabase.auth.signOut();
       setSession(null);
       queryClient.invalidateQueries('user');
-      localStorage.removeItem('supabase.auth.token');
+      window.localStorage.removeItem('sb-auth-token');
     } catch (error) {
       console.error('Error signing out:', error);
     }
