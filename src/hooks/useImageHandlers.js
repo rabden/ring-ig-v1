@@ -82,14 +82,14 @@ export const useImageHandlers = ({
     // Handle style
     const styleConfig = modelConfigs?.[image.model];
     if (styleConfig?.noStyleSuffix) {
-      setStyle(null);
+      setStyle?.(null);
     } else if (image.style) {
-      setStyle(isPro ? image.style : null);
+      setStyle?.(isPro ? image.style : null);
       if (!isPro && image.style) {
         toast.info('Style was removed as it requires a pro account');
       }
     } else {
-      setStyle(null);
+      setStyle?.(null);
     }
 
     // Handle aspect ratio
