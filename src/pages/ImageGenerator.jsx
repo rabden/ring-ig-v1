@@ -1,247 +1,295 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/supabase';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { useUserCredits } from '@/hooks/useUserCredits';
-import { useImageGeneration } from '@/hooks/useImageGeneration';
-import { useQueryClient } from '@tanstack/react-query';
-import { useScrollDirection } from '@/hooks/useScrollDirection';
-import AuthOverlay from '@/components/AuthOverlay';
-import BottomNavbar from '@/components/BottomNavbar';
-import ImageGeneratorSettings from '@/components/ImageGeneratorSettings';
-import ImageGallery from '@/components/ImageGallery';
-import ImageDetailsDialog from '@/components/ImageDetailsDialog';
-import FullScreenImageView from '@/components/FullScreenImageView';
-import MobileGeneratingStatus from '@/components/MobileGeneratingStatus';
-import DesktopHeader from '@/components/header/DesktopHeader';
-import MobileHeader from '@/components/header/MobileHeader';
-import MobileNotificationsMenu from '@/components/MobileNotificationsMenu';
-import MobileProfileMenu from '@/components/MobileProfileMenu';
-import { useImageGeneratorState } from '@/hooks/useImageGeneratorState';
-import { useImageHandlers } from '@/hooks/useImageHandlers';
-import { useProUser } from '@/hooks/useProUser';
+import { SupabaseAuthUI } from '@/integrations/supabase/auth';
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Textarea } from "@/components/ui/textarea";
+import { Slider } from "@/components/ui/slider";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
+import { useStyleConfigs } from '@/hooks/useStyleConfigs';
+import { useNotification } from '@/contexts/NotificationContext';
 import { toast } from 'sonner';
-
-// ... keep existing code (imports and hook definitions)
+import { generateImage } from '@/lib/api';
+import { cn } from '@/lib/utils';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
+import FullScreenImageView from '@/components/FullScreenImageView';
+import MobileImageDrawer from '@/components/MobileImageDrawer';
 
 const ImageGenerator = () => {
-  const [activeFilters, setActiveFilters] = useState({});
-  const [searchQuery, setSearchQuery] = useState('');
-  const isHeaderVisible = useScrollDirection();
+  const { imageId } = useParams();
+  const location = useLocation();
   const { session } = useSupabaseAuth();
-  const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id);
-  const { data: isPro } = useProUser(session?.user?.id);
+  const { showNotification } = useNotification();
   const { data: modelConfigs } = useModelConfigs();
-  const queryClient = useQueryClient();
+  const { data: styleConfigs } = useStyleConfigs();
+  
+  const [prompt, setPrompt] = useState('');
+  const [selectedModel, setSelectedModel] = useState('sdxl');
+  const [selectedStyle, setSelectedStyle] = useState('');
+  const [quality, setQuality] = useState('standard');
+  const [size, setSize] = useState('1024x1024');
+  const [seed, setSeed] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [showMobileDrawer, setShowMobileDrawer] = useState(false);
 
-  const {
-    prompt, setPrompt, seed, setSeed, randomizeSeed, setRandomizeSeed,
-    width, setWidth, height, setHeight, steps, setSteps,
-    model, setModel, activeTab, setActiveTab, aspectRatio, setAspectRatio,
-    useAspectRatio, setUseAspectRatio, quality, setQuality,
-    selectedImage, setSelectedImage,
-    detailsDialogOpen, setDetailsDialogOpen, fullScreenViewOpen, setFullScreenViewOpen,
-    fullScreenImageIndex, setFullScreenImageIndex, generatingImages, setGeneratingImages,
-    activeView, setActiveView, nsfwEnabled, setNsfwEnabled, style, setStyle
-  } = useImageGeneratorState();
+  const { data: remixImage } = useQuery({
+    queryKey: ['remixImage', imageId],
+    queryFn: async () => {
+      if (!imageId) return null;
+      const { data, error } = await supabase
+        .from('user_images')
+        .select('*')
+        .eq('id', imageId)
+        .single();
 
-  const { generateImage } = useImageGeneration({
-    session,
-    prompt,
-    seed,
-    randomizeSeed,
-    width,
-    height,
-    model,
-    quality,
-    useAspectRatio,
-    aspectRatio,
-    updateCredits,
-    setGeneratingImages,
-    style,
-    modelConfigs,
-    steps
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!imageId
   });
 
-  const handleGenerateImage = async () => {
+  const { data: userImages = [] } = useQuery({
+    queryKey: ['userImages'],
+    queryFn: async () => {
+      if (!session?.user?.id) return [];
+      const { data, error } = await supabase
+        .from('user_images')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!session?.user?.id
+  });
+
+  useEffect(() => {
+    if (remixImage) {
+      setPrompt(remixImage.prompt);
+      setSelectedModel(remixImage.model);
+      setSelectedStyle(remixImage.style);
+      setQuality(remixImage.quality);
+      setSize(`${remixImage.width}x${remixImage.height}`);
+      setSeed(remixImage.seed);
+    }
+  }, [remixImage]);
+
+  const handleGenerate = async () => {
+    if (!session) {
+      showNotification({
+        title: "Authentication Required",
+        message: "Please sign in to generate images",
+        type: "error"
+      });
+      return;
+    }
+
     if (!prompt.trim()) {
       toast.error('Please enter a prompt');
       return;
     }
-    if (!session) {
-      toast.error('Please sign in to generate images');
-      return;
+
+    setIsGenerating(true);
+    try {
+      const [width, height] = size.split('x').map(Number);
+      const response = await generateImage({
+        prompt,
+        model: selectedModel,
+        style: selectedStyle,
+        quality,
+        width,
+        height,
+        seed: seed || undefined
+      });
+
+      if (response.error) {
+        throw new Error(response.error);
+      }
+
+      toast.success('Image generated successfully!');
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setIsGenerating(false);
     }
-    await generateImage();
   };
 
-  const {
-    handleImageClick,
-    handleModelChange,
-    handlePromptKeyDown,
-    handleRemix,
-    handleDownload,
-    handleDiscard,
-    handleViewDetails,
-  } = useImageHandlers({
-    generateImage: handleGenerateImage,
-    setSelectedImage,
-    setFullScreenViewOpen,
-    setModel,
-    setSteps,
-    setPrompt,
-    setSeed,
-    setRandomizeSeed,
-    setWidth,
-    setHeight,
-    setQuality,
-    setAspectRatio,
-    setUseAspectRatio,
-    aspectRatios: [],
-    session,
-    queryClient,
-    activeView,
-    setDetailsDialogOpen,
-    setActiveView,
-  });
-
-  const handleFilterChange = (type, value) => {
-    setActiveFilters(prev => ({ ...prev, [type]: value }));
+  const handleImageClick = (image) => {
+    if (window.innerWidth < 768) {
+      setSelectedImage(image);
+      setShowMobileDrawer(true);
+    } else {
+      setSelectedImage(image);
+    }
   };
 
-  const handleRemoveFilter = (type) => {
-    setActiveFilters(prev => {
-      const newFilters = { ...prev };
-      delete newFilters[type];
-      return newFilters;
-    });
+  const handleDownload = async (imageUrl, prompt) => {
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = `${prompt.slice(0, 30)}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
-  const handleSearch = (query) => {
-    setSearchQuery(query);
+  const handleDiscard = async (image) => {
+    try {
+      const { error } = await supabase
+        .from('user_images')
+        .delete()
+        .eq('id', image.id);
+
+      if (error) throw error;
+      toast.success('Image discarded');
+    } catch (error) {
+      toast.error('Failed to discard image');
+    }
   };
+
+  const handleRemix = (image) => {
+    setPrompt(image.prompt);
+    setSelectedModel(image.model);
+    setSelectedStyle(image.style);
+    setQuality(image.quality);
+    setSize(`${image.width}x${image.height}`);
+    setSeed(image.seed);
+  };
+
+  if (!session) {
+    return (
+      <div className="container mx-auto p-4 min-h-screen flex items-center justify-center">
+        <Card className="w-full max-w-md p-6">
+          <h2 className="text-2xl font-bold text-center mb-6">Sign in to Generate Images</h2>
+          <SupabaseAuthUI />
+        </Card>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
-      <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
-        {session && (
-          <>
-            <DesktopHeader
-              user={session.user}
-              credits={credits}
-              bonusCredits={bonusCredits}
-              activeView={activeView}
-              setActiveView={setActiveView}
-              generatingImages={generatingImages}
-              activeFilters={activeFilters}
-              onFilterChange={handleFilterChange}
-              onRemoveFilter={handleRemoveFilter}
-              onSearch={handleSearch}
-              nsfwEnabled={nsfwEnabled}
-            />
-            <MobileHeader
-              activeFilters={activeFilters}
-              onFilterChange={handleFilterChange}
-              onRemoveFilter={handleRemoveFilter}
-              onSearch={handleSearch}
-              isVisible={isHeaderVisible}
-              nsfwEnabled={nsfwEnabled}
-            />
-          </>
-        )}
-
-        <div className="md:mt-16 mt-12">
-          <ImageGallery
-            userId={session?.user?.id}
-            onImageClick={handleImageClick}
-            onDownload={handleDownload}
-            onDiscard={handleDiscard}
-            onRemix={handleRemix}
-            onViewDetails={handleViewDetails}
-            activeView={activeView}
-            generatingImages={generatingImages}
-            nsfwEnabled={nsfwEnabled}
-            modelConfigs={modelConfigs}
-            activeFilters={activeFilters}
-            searchQuery={searchQuery}
+    <div className="container mx-auto p-4">
+      <div className="grid lg:grid-cols-[1fr,400px] gap-6">
+        <div className="space-y-4">
+          <Textarea
+            placeholder="Describe the image you want to generate..."
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            className="min-h-[120px] text-lg"
           />
-        </div>
-      </div>
 
-      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-4 md:p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
-        {!session && (
-          <div className="absolute inset-0 z-10">
-            <AuthOverlay />
+          <div className="grid sm:grid-cols-2 gap-4">
+            <Select value={selectedModel} onValueChange={setSelectedModel}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select model" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(modelConfigs || {}).map(([id, config]) => (
+                  <SelectItem key={id} value={id}>{config.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={selectedStyle} onValueChange={setSelectedStyle}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select style" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">General</SelectItem>
+                {Object.entries(styleConfigs || {}).map(([id, config]) => (
+                  <SelectItem key={id} value={id}>{config.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={quality} onValueChange={setQuality}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select quality" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="standard">Standard</SelectItem>
+                <SelectItem value="hd">HD</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={size} onValueChange={setSize}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select size" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1024x1024">1024x1024</SelectItem>
+                <SelectItem value="1024x1792">1024x1792</SelectItem>
+                <SelectItem value="1792x1024">1792x1024</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        )}
-        <ImageGeneratorSettings
-          prompt={prompt}
-          setPrompt={setPrompt}
-          handlePromptKeyDown={handlePromptKeyDown}
-          generateImage={handleGenerateImage}
-          model={model}
-          setModel={handleModelChange}
-          seed={seed}
-          setSeed={setSeed}
-          randomizeSeed={randomizeSeed}
-          setRandomizeSeed={setRandomizeSeed}
-          quality={quality}
-          setQuality={setQuality}
-          useAspectRatio={useAspectRatio}
-          setUseAspectRatio={setUseAspectRatio}
-          aspectRatio={aspectRatio}
-          setAspectRatio={setAspectRatio}
-          width={width}
-          setWidth={setWidth}
-          height={height}
-          setHeight={setHeight}
-          session={session}
-          credits={credits}
-          bonusCredits={bonusCredits}
-          nsfwEnabled={nsfwEnabled}
-          setNsfwEnabled={setNsfwEnabled}
-          style={style}
-          setStyle={setStyle}
-          steps={steps}
-          setSteps={setSteps}
-          proMode={isPro}
-          modelConfigs={modelConfigs}
-        />
+
+          <div className="flex items-center gap-4">
+            <Button 
+              onClick={handleGenerate} 
+              className="w-full" 
+              disabled={isGenerating}
+            >
+              {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isGenerating ? 'Generating...' : 'Generate'}
+            </Button>
+          </div>
+        </div>
+
+        <ScrollArea className="h-[calc(100vh-2rem)]">
+          <div className="grid grid-cols-1 gap-4 pr-4">
+            {userImages.map((image) => (
+              <div
+                key={image.id}
+                className="relative group cursor-pointer"
+                onClick={() => handleImageClick(image)}
+              >
+                <img
+                  src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                  alt={image.prompt}
+                  className="w-full h-auto rounded-lg"
+                />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg" />
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
       </div>
 
-      <MobileNotificationsMenu activeTab={activeTab} />
-      <MobileProfileMenu 
-        user={session?.user}
-        credits={credits}
-        bonusCredits={bonusCredits}
-        activeTab={activeTab}
-      />
-
-      <BottomNavbar 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        session={session} 
-        credits={credits}
-        bonusCredits={bonusCredits}
-        activeView={activeView}
-        setActiveView={setActiveView}
-      />
-      
-      <ImageDetailsDialog
-        open={detailsDialogOpen}
-        onOpenChange={setDetailsDialogOpen}
-        image={selectedImage}
-      />
-      <FullScreenImageView
-        image={selectedImage}
-        isOpen={fullScreenViewOpen}
-        onClose={() => setFullScreenViewOpen(false)}
-        onDownload={handleDownload}
-        onDiscard={handleDiscard}
-        onRemix={handleRemix}
-        isOwner={false}
-      />
-      {generatingImages.length > 0 && (
-        <MobileGeneratingStatus generatingImages={generatingImages} />
+      {selectedImage && (
+        <>
+          <div className="hidden md:block">
+            <FullScreenImageView
+              image={selectedImage}
+              isOpen={!!selectedImage}
+              onClose={() => setSelectedImage(null)}
+              onDownload={handleDownload}
+              onDiscard={handleDiscard}
+              onRemix={handleRemix}
+              isOwner={selectedImage?.user_id === session?.user?.id}
+            />
+          </div>
+          <div className="md:hidden">
+            <MobileImageDrawer
+              image={selectedImage}
+              open={showMobileDrawer}
+              onOpenChange={setShowMobileDrawer}
+              onDownload={handleDownload}
+              onDiscard={handleDiscard}
+              onRemix={handleRemix}
+              isOwner={selectedImage?.user_id === session?.user?.id}
+              showImage={false}
+            />
+          </div>
+        </>
       )}
     </div>
   );
