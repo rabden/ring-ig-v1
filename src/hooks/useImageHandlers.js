@@ -68,7 +68,7 @@ export const useImageHandlers = ({
       toast.info('Some settings were adjusted as they require a pro account');
     } else {
       setModel(image.model);
-      setSteps(image.steps);
+      setSteps(modelConfigs[image.model]?.defaultStep || 30);
     }
 
     // Handle quality settings
@@ -80,12 +80,14 @@ export const useImageHandlers = ({
     }
 
     // Handle style
-    const styleConfig = modelConfigs?.[image.model];
-    if (styleConfig?.noStyleSuffix) {
-      setStyle(null);
+    const modelConfig = modelConfigs?.[image.model];
+    if (modelConfig?.category === "NSFW") {
+      setStyle(null); // Reset style for NSFW models
     } else if (image.style) {
-      setStyle(isPro ? image.style : null);
-      if (!isPro && image.style) {
+      if (isPro) {
+        setStyle(image.style);
+      } else {
+        setStyle(null);
         toast.info('Style was removed as it requires a pro account');
       }
     } else {
