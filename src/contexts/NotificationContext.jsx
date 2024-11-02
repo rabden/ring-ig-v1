@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { toast } from 'sonner';
 
 const NotificationContext = createContext();
 
@@ -23,7 +22,6 @@ export const NotificationProvider = ({ children }) => {
     if (!session?.user?.id) return;
 
     const fetchNotifications = async () => {
-      // Fetch user-specific notifications
       const { data: userNotifications, error: userError } = await supabase
         .from('notifications')
         .select('*')
@@ -35,7 +33,6 @@ export const NotificationProvider = ({ children }) => {
         return;
       }
 
-      // Fetch global notifications
       const { data: allGlobalNotifications, error: globalError } = await supabase
         .from('global_notifications')
         .select('*')
@@ -46,7 +43,6 @@ export const NotificationProvider = ({ children }) => {
         return;
       }
 
-      // Fetch hidden notifications for the current user
       const { data: hiddenNotifications } = await supabase
         .from('hidden_global_notifications')
         .select('notification_id')
@@ -58,7 +54,6 @@ export const NotificationProvider = ({ children }) => {
       setNotifications(userNotifications || []);
       setGlobalNotifications(visibleGlobalNotifications || []);
       
-      // Update unread count to include both user notifications and global notifications
       const unreadUserNotifications = (userNotifications || []).filter(n => !n.is_read).length;
       const unreadGlobalNotifications = visibleGlobalNotifications.length;
       setUnreadCount(unreadUserNotifications + unreadGlobalNotifications);
@@ -74,7 +69,6 @@ export const NotificationProvider = ({ children }) => {
           if (payload.eventType === 'INSERT') {
             setNotifications(prev => [payload.new, ...prev]);
             setUnreadCount(prev => prev + 1);
-            toast.info(payload.new.title);
           } else if (payload.eventType === 'DELETE') {
             setNotifications(prev => prev.filter(n => n.id !== payload.old.id));
             if (!payload.old.is_read) {
@@ -107,7 +101,6 @@ export const NotificationProvider = ({ children }) => {
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
       console.error('Error marking notification as read:', error);
-      toast.error('Failed to mark notification as read');
     }
   };
 
@@ -127,7 +120,6 @@ export const NotificationProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Error deleting notification:', error);
-      toast.error('Failed to delete notification');
     }
   };
 
@@ -150,7 +142,6 @@ export const NotificationProvider = ({ children }) => {
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
       console.error('Error hiding global notification:', error);
-      toast.error('Failed to hide notification');
     }
   };
 

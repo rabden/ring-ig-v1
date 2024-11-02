@@ -7,7 +7,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
-import { toast } from 'sonner';
 
 const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, onDiscard, onRemix, isOwner }) => {
   const { data: modelConfigs } = useModelConfigs();
@@ -16,21 +15,11 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
   if (!image) return null;
 
   const handleCopyPrompt = async () => {
-    try {
-      await navigator.clipboard.writeText(image.prompt);
-      toast.success('Prompt copied to clipboard');
-    } catch (err) {
-      toast.error('Failed to copy prompt');
-    }
+    await navigator.clipboard.writeText(image.prompt);
   };
 
   const handleShare = async () => {
-    try {
-      await navigator.clipboard.writeText(`${window.location.origin}/image/${image.id}`);
-      toast.success('Share link copied to clipboard');
-    } catch (err) {
-      toast.error('Failed to copy share link');
-    }
+    await navigator.clipboard.writeText(`${window.location.origin}/image/${image.id}`);
   };
 
   const detailItems = [
