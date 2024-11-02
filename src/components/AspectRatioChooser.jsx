@@ -22,7 +22,7 @@ const AspectRatioVisualizer = ({ ratio, isPremium }) => {
       >
         <div className="flex items-center gap-1">
           {ratio}
-          {isPremium ? null : <Lock className="h-3 w-3" />}
+          {/* Removed the lock icon from here */}
         </div>
       </div>
     </div>
