@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button } from "@/components/ui/button"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
-import { Crown } from "lucide-react"
+import { Lock } from "lucide-react"
 import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import { toast } from 'sonner'
 
@@ -41,7 +41,7 @@ const StyleChooser = ({ style, setStyle, proMode, isNsfwMode }) => {
               disabled={isDisabled}
             >
               {config.name}
-              {config.isPremium && <Crown className="h-3 w-3" />}
+              {config.isPremium && !proMode && <Lock className="h-3 w-3" />}
             </Button>
           );
         })}

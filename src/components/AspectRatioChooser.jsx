@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Slider } from "@/components/ui/slider"
-import { Crown, ChevronDown, ChevronUp } from "lucide-react"
+import { Lock, ChevronDown, ChevronUp } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { aspectRatios } from '@/utils/imageConfigs'
 
@@ -22,7 +22,7 @@ const AspectRatioVisualizer = ({ ratio, isPremium }) => {
       >
         <div className="flex items-center gap-1">
           {ratio}
-          {isPremium && <Crown className="h-3 w-3" />}
+          {isPremium ? null : <Lock className="h-3 w-3" />}
         </div>
       </div>
     </div>
@@ -112,7 +112,7 @@ const AspectRatioChooser = ({ aspectRatio, setAspectRatio, proMode }) => {
                 disabled={!proMode && premiumRatios.includes(ratio)}
               >
                 {ratio}
-                {premiumRatios.includes(ratio) && <Crown className="h-3 w-3" />}
+                {!proMode && premiumRatios.includes(ratio) && <Lock className="h-3 w-3" />}
               </Button>
             ))}
           </div>

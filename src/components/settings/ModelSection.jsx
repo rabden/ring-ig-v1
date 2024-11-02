@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Crown } from "lucide-react";
+import { Lock } from "lucide-react";
 import SettingSection from './SettingSection';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 
@@ -20,7 +20,7 @@ const ModelSection = ({ model, setModel, nsfwEnabled, quality, proMode }) => {
       disabled={!proMode && modelConfig.isPremium}
     >
       {modelConfig.name}
-      {modelConfig.isPremium && <Crown className="h-4 w-4" />}
+      {modelConfig.isPremium && !proMode && <Lock className="h-4 w-4" />}
     </Button>
   );
 
