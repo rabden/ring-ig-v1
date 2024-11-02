@@ -1,17 +1,19 @@
 import React from 'react';
 import { Drawer } from 'vaul';
 import { Button } from "@/components/ui/button";
-import { Download, Trash2, Wand2, Copy, Share2 } from "lucide-react";
+import { Download, Trash2, Wand2, Copy, Crown, Share2 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/supabase';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, onDiscard, onRemix, isOwner }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
+  const navigate = useNavigate();
   
   if (!image) return null;
 
@@ -31,6 +33,12 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
     } catch (err) {
       toast.error('Failed to copy share link');
     }
+  };
+
+  const handleRemix = () => {
+    onRemix(image);
+    onOpenChange(false);
+    navigate('/');
   };
 
   const detailItems = [
@@ -89,10 +97,7 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                   variant="ghost"
                   size="sm"
                   className="flex-1"
-                  onClick={() => {
-                    onRemix(image);
-                    onOpenChange(false);
-                  }}
+                  onClick={handleRemix}
                 >
                   <Wand2 className="mr-2 h-4 w-4" />
                   Remix

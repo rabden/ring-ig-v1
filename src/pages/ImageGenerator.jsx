@@ -22,22 +22,20 @@ import { useProUser } from '@/hooks/useProUser';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
-import { toast } from 'sonner';
 
 const ImageGenerator = () => {
   const { imageId } = useParams();
   const location = useLocation();
   const isRemixRoute = location.pathname.startsWith('/remix/');
-  const { session } = useSupabaseAuth();
-  const queryClient = useQueryClient();
 
   const [activeFilters, setActiveFilters] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const isHeaderVisible = useScrollDirection();
-  
+  const { session } = useSupabaseAuth();
   const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id);
   const { data: isPro } = useProUser(session?.user?.id);
   const { data: modelConfigs } = useModelConfigs();
+  const queryClient = useQueryClient();
 
   const {
     prompt, setPrompt, seed, setSeed, randomizeSeed, setRandomizeSeed,
@@ -102,7 +100,6 @@ const ImageGenerator = () => {
     setQuality,
     setAspectRatio,
     setUseAspectRatio,
-    setStyle,
     aspectRatios: [],
     session,
     queryClient,
@@ -111,6 +108,23 @@ const ImageGenerator = () => {
     setActiveView,
   });
 
+  const handleFilterChange = (type, value) => {
+    setActiveFilters(prev => ({ ...prev, [type]: value }));
+  };
+
+  const handleRemoveFilter = (type) => {
+    setActiveFilters(prev => {
+      const newFilters = { ...prev };
+      delete newFilters[type];
+      return newFilters;
+    });
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
+
+  // Add remix image loading
   const { data: remixImage } = useQuery({
     queryKey: ['remixImage', imageId],
     queryFn: async () => {
@@ -123,9 +137,10 @@ const ImageGenerator = () => {
       if (error) throw error;
       return data;
     },
-    enabled: Boolean(imageId && isRemixRoute),
+    enabled: !!imageId && isRemixRoute,
   });
 
+  // Handle remix image loading
   useEffect(() => {
     if (remixImage && isRemixRoute) {
       setPrompt(remixImage.prompt);
@@ -261,7 +276,7 @@ const ImageGenerator = () => {
         onDownload={handleDownload}
         onDiscard={handleDiscard}
         onRemix={handleRemix}
-        isOwner={selectedImage?.user_id === session?.user?.id}
+        isOwner={false}
       />
       {generatingImages.length > 0 && (
         <MobileGeneratingStatus generatingImages={generatingImages} />
