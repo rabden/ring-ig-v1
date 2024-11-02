@@ -5,9 +5,10 @@ import { useNotifications } from '@/contexts/NotificationContext';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { supabase } from '@/integrations/supabase/supabase';
 
-const NotificationItem = ({ notification }) => {
-  const { markAsRead, deleteNotification } = useNotifications();
+const NotificationItem = ({ notification, isGlobal = false }) => {
+  const { markAsRead, deleteNotification, hideGlobalNotification } = useNotifications();
 
   const handleClick = (e) => {
     e.preventDefault();
@@ -16,10 +17,15 @@ const NotificationItem = ({ notification }) => {
     }
   };
 
-  const handleDelete = (e) => {
+  const handleHideOrDelete = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    deleteNotification(notification.id);
+    
+    if (isGlobal) {
+      hideGlobalNotification(notification.id);
+    } else {
+      deleteNotification(notification.id);
+    }
   };
 
   const images = notification.image_url ? notification.image_url.split(',').map(url => url.trim()) : [];
@@ -41,7 +47,7 @@ const NotificationItem = ({ notification }) => {
             variant="ghost"
             size="icon"
             className="h-6 w-6"
-            onClick={handleDelete}
+            onClick={handleHideOrDelete}
           >
             <X className="h-4 w-4" />
           </Button>

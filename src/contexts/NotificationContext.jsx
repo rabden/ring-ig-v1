@@ -15,6 +15,7 @@ export const useNotifications = () => {
 
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
+  const [globalNotifications, setGlobalNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const { session } = useSupabaseAuth();
 
@@ -22,19 +23,41 @@ export const NotificationProvider = ({ children }) => {
     if (!session?.user?.id) return;
 
     const fetchNotifications = async () => {
-      const { data, error } = await supabase
+      // Fetch user-specific notifications
+      const { data: userNotifications, error: userError } = await supabase
         .from('notifications')
         .select('*')
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('Error fetching notifications:', error);
+      if (userError) {
+        console.error('Error fetching notifications:', userError);
         return;
       }
 
-      setNotifications(data || []);
-      setUnreadCount((data || []).filter(n => !n.is_read).length);
+      // Fetch global notifications
+      const { data: allGlobalNotifications, error: globalError } = await supabase
+        .from('global_notifications')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (globalError) {
+        console.error('Error fetching global notifications:', globalError);
+        return;
+      }
+
+      // Fetch hidden notifications for the current user
+      const { data: hiddenNotifications } = await supabase
+        .from('hidden_global_notifications')
+        .select('notification_id')
+        .eq('user_id', session.user.id);
+
+      const hiddenIds = new Set(hiddenNotifications?.map(n => n.notification_id) || []);
+      const visibleGlobalNotifications = allGlobalNotifications.filter(n => !hiddenIds.has(n.id));
+
+      setNotifications(userNotifications || []);
+      setGlobalNotifications(visibleGlobalNotifications || []);
+      setUnreadCount((userNotifications || []).filter(n => !n.is_read).length);
     };
 
     fetchNotifications();
@@ -104,12 +127,33 @@ export const NotificationProvider = ({ children }) => {
     }
   };
 
+  const hideGlobalNotification = async (notificationId) => {
+    try {
+      const { error } = await supabase
+        .from('hidden_global_notifications')
+        .insert([{
+          user_id: session.user.id,
+          notification_id: notificationId
+        }]);
+
+      if (error) throw error;
+
+      setGlobalNotifications(prev => 
+        prev.filter(n => n.id !== notificationId)
+      );
+    } catch (error) {
+      console.error('Error hiding global notification:', error);
+      toast.error('Failed to hide notification');
+    }
+  };
+
   return (
     <NotificationContext.Provider value={{
-      notifications,
+      notifications: [...notifications, ...globalNotifications],
       unreadCount,
       markAsRead,
-      deleteNotification
+      deleteNotification,
+      hideGlobalNotification
     }}>
       {children}
     </NotificationContext.Provider>
