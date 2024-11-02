@@ -9,6 +9,7 @@ import { useImageGeneratorState } from '@/hooks/useImageGeneratorState';
 import { useImageHandlers } from '@/hooks/useImageHandlers';
 import { useProUser } from '@/hooks/useProUser';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
+import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useRemixImage } from '@/hooks/useRemixImage';
 import { useRemixEffect } from '@/hooks/useRemixEffect';
 import { toast } from 'sonner';
@@ -31,6 +32,7 @@ const ImageGenerator = () => {
   const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id);
   const { data: isPro } = useProUser(session?.user?.id);
   const { data: modelConfigs } = useModelConfigs();
+  const { data: styleConfigs } = useStyleConfigs();
   const queryClient = useQueryClient();
 
   const {
@@ -91,12 +93,12 @@ const ImageGenerator = () => {
     setSearchQuery(query);
   };
 
-  // Use the new remix effect hook
   useRemixEffect({
     remixImage,
     isRemixRoute,
     isPro,
     modelConfigs,
+    styleConfigs,
     setPrompt,
     setSeed,
     setRandomizeSeed,
