@@ -41,7 +41,7 @@ const GeneratorForm = ({
             <SelectValue placeholder="Select style" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">General</SelectItem>
+            <SelectItem value="general">General</SelectItem>
             {Object.entries(styleConfigs || {}).map(([id, config]) => (
               <SelectItem key={id} value={id}>{config.name}</SelectItem>
             ))}
