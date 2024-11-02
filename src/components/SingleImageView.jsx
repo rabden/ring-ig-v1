@@ -20,6 +20,14 @@ const SingleImageView = () => {
   const [copyPromptIcon, setCopyPromptIcon] = useState(<Copy className="h-4 w-4" />);
   const [copyShareIcon, setCopyShareIcon] = useState(<Share2 className="h-4 w-4" />);
 
+  const handleBack = () => {
+    if (!session) {
+      window.location.href = 'https://ring-ig.gptengineer.run';
+    } else {
+      navigate(-1);
+    }
+  };
+
   const { data: image, isLoading } = useQuery({
     queryKey: ['singleImage', imageId],
     queryFn: async () => {
@@ -70,12 +78,11 @@ const SingleImageView = () => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col md:flex-row">
-      {/* Main Image Display */}
       <div className="flex-1 relative flex items-center justify-center bg-black/10 dark:bg-black/30 h-[50vh] md:h-screen">
         <Button 
           variant="ghost" 
           className="absolute top-4 left-4 md:hidden" 
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
@@ -87,14 +94,13 @@ const SingleImageView = () => {
         />
       </div>
 
-      {/* Sidebar */}
       <div className="w-full md:w-[350px] bg-card text-card-foreground border-l">
         <ScrollArea className="h-[50vh] md:h-screen">
           <div className="p-6 space-y-6">
             <Button 
               variant="ghost" 
               className="hidden md:flex mb-4" 
-              onClick={() => navigate(-1)}
+              onClick={handleBack}
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back
