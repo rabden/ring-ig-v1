@@ -5,10 +5,10 @@ import { toast } from 'sonner';
 
 const NotificationContext = createContext();
 
-export const useNotification = () => {
+export const useNotifications = () => {
   const context = useContext(NotificationContext);
   if (!context) {
-    throw new Error('useNotification must be used within a NotificationProvider');
+    throw new Error('useNotifications must be used within a NotificationProvider');
   }
   return context;
 };

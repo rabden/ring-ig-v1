@@ -2,7 +2,7 @@ import React from 'react'
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom"
+import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { ThemeProvider } from "@/components/theme-provider"
 import ImageGenerator from "./pages/ImageGenerator"
 import Documentation from "./pages/Documentation"
@@ -32,7 +32,6 @@ const App = () => (
                 <Route path="/" element={<ImageGenerator />} />
                 <Route path="/docs" element={<Documentation />} />
                 <Route path="/image/:imageId" element={<SingleImageView />} />
-                <Route path="/remix/:imageId" element={<ImageGenerator />} />
               </Routes>
             </BrowserRouter>
           </NotificationProvider>
