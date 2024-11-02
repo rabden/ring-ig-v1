@@ -24,8 +24,8 @@ const ImageGeneratorSettings = ({
   width, setWidth,
   height, setHeight,
   session,
-  credits,
-  bonusCredits,
+  credits = 0,
+  bonusCredits = 0,
   nsfwEnabled, setNsfwEnabled,
   style, setStyle,
   steps, setSteps,
@@ -33,7 +33,7 @@ const ImageGeneratorSettings = ({
   modelConfigs
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
-  const totalCredits = (credits || 0) + (bonusCredits || 0);
+  const totalCredits = credits + bonusCredits;
   const hasEnoughCredits = totalCredits >= creditCost;
   const showGuidanceScale = model === 'fluxDev';
   const isNsfwModel = modelConfigs?.[model]?.category === "NSFW";
@@ -44,7 +44,7 @@ const ImageGeneratorSettings = ({
     }
     setModel(newModel);
     if (modelConfigs?.[newModel]?.category === "NSFW") {
-      setStyle(null); // Reset style when switching to NSFW model
+      setStyle(null);
     }
   };
 
@@ -77,7 +77,7 @@ const ImageGeneratorSettings = ({
   };
 
   const handleGenerateClick = async () => {
-    if (generateImage && prompt.trim()) {
+    if (generateImage && prompt.trim() && hasEnoughCredits) {
       await generateImage();
     }
   };
@@ -86,16 +86,14 @@ const ImageGeneratorSettings = ({
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Settings</h2>
-        {session && (
-          <div className="text-sm font-medium">
-            Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
-            {!hasEnoughCredits && (
-              <span className="text-destructive ml-2">
-                Need {creditCost} credits for {quality}
-              </span>
-            )}
-          </div>
-        )}
+        <div className="text-sm font-medium">
+          Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
+          {!hasEnoughCredits && (
+            <span className="text-destructive ml-2">
+              Need {creditCost} credits for {quality}
+            </span>
+          )}
+        </div>
       </div>
 
       <PromptInput
