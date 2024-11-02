@@ -136,10 +136,10 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                     <h3 className="text-lg font-semibold">Prompt</h3>
                     <div className="flex gap-2">
                       <Button variant="ghost" size="sm" onClick={handleCopyPrompt}>
-                        <Copy className="h-4 w-4" />
+                        {copyPromptIcon}
                       </Button>
                       <Button variant="ghost" size="sm" onClick={handleShare}>
-                        <Share2 className="h-4 w-4" />
+                        {copyShareIcon}
                       </Button>
                     </div>
                   </div>

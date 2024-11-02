@@ -108,10 +108,10 @@ const FullScreenImageView = ({
                     <h3 className="text-lg font-semibold">Image Details</h3>
                     <div className="flex gap-2">
                       <Button variant="ghost" size="icon" onClick={handleCopyPrompt}>
-                        <Copy className="h-4 w-4" />
+                        {copyPromptIcon}
                       </Button>
                       <Button variant="ghost" size="icon" onClick={handleShare}>
-                        <Share2 className="h-4 w-4" />
+                        {copyShareIcon}
                       </Button>
                     </div>
                   </div>
@@ -127,8 +127,6 @@ const FullScreenImageView = ({
                     <div className="text-muted-foreground">{image.quality}</div>
                     <div>Size:</div>
                     <div className="text-muted-foreground">{image.width}x{image.height}</div>
-                    <div>Seed:</div>
-                    <div className="text-muted-foreground">{image.seed}</div>
                     <div>Style:</div>
                     <div className="text-muted-foreground">{styleConfigs?.[image.style]?.name || "General"}</div>
                   </div>
