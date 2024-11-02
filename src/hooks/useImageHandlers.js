@@ -80,28 +80,32 @@ export const useImageHandlers = ({
       setQuality(image.quality);
     }
 
-    // Handle style
+    // Handle style based on model type and availability
     const modelConfig = modelConfigs?.[image.model];
     if (modelConfig?.category === "NSFW") {
       if (typeof setStyle === 'function') {
-        setStyle(null); // Reset style for NSFW models
+        setStyle(null);
       }
-    } else {
-      if (typeof setStyle === 'function') {
-        setStyle(image.style || null);
+    } else if (typeof setStyle === 'function') {
+      // Only set style if it exists in the image
+      if (image.style) {
+        setStyle(image.style);
+      } else {
+        setStyle(null);
       }
     }
 
     // Handle aspect ratio
-    const [width, height] = (image.aspect_ratio || '1:1').split(':').map(Number);
-    const isPremiumRatio = ['9:21', '21:9', '3:2', '2:3', '4:5', '5:4', '10:16', '16:10'].includes(image.aspect_ratio);
-    
+    const aspectRatio = image.aspect_ratio || '1:1';
+    const premiumRatios = ['9:21', '21:9', '3:2', '2:3', '4:5', '5:4', '10:16', '16:10'];
+    const isPremiumRatio = premiumRatios.includes(aspectRatio);
+
     if (isPremiumRatio && !isPro) {
       setAspectRatio('1:1');
       setUseAspectRatio(true);
       toast.info('Aspect ratio adjusted as the original requires a pro account');
     } else {
-      setAspectRatio(image.aspect_ratio);
+      setAspectRatio(aspectRatio);
       setUseAspectRatio(true);
     }
 
