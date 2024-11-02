@@ -19,7 +19,8 @@ const NotificationList = () => {
       {notifications.map((notification) => (
         <NotificationItem 
           key={notification.id} 
-          notification={notification} 
+          notification={notification}
+          isGlobal={!notification.user_id} // If there's no user_id, it's a global notification
         />
       ))}
     </div>
