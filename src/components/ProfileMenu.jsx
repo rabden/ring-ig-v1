@@ -62,10 +62,12 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
           <div className="space-y-4">
             <div className="bg-muted/50 p-4 rounded-lg">
               <div className="space-y-2">
+
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium">Credits</span>
-                  <span className="text-sm">{credits}X{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}</span>
+                  <span className="text-sm">{credits}+ B{bonusCredits}</span>
                 </div>
+
                 <div className="flex justify-between items-center">
                   <span className="text-sm font-medium">Total Likes</span>
                   <span className="text-sm">{totalLikes}</span>
