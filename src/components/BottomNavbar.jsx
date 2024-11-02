@@ -1,22 +1,10 @@
-import React, { memo } from 'react';
+import React from 'react';
 import { Image, Plus, Sparkles, Bell, User } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import NotificationList from './notifications/NotificationList';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useProUser } from '@/hooks/useProUser';
-
-// Memoize the Avatar component to prevent unnecessary re-renders
-const UserAvatar = memo(({ session, isPro }) => (
-  <div className={`rounded-full ${isPro ? 'p-[2px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500' : ''}`}>
-    <Avatar className={`h-8 w-8 ${isPro ? 'border-2 border-background rounded-full' : ''}`}>
-      <AvatarImage src={session.user?.user_metadata?.avatar_url} alt={session.user?.email} />
-      <AvatarFallback>{session.user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
-    </Avatar>
-  </div>
-));
-
-UserAvatar.displayName = 'UserAvatar';
 
 const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits, activeView, setActiveView }) => {
   const { unreadCount } = useNotifications();
@@ -89,7 +77,12 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
           onClick={() => setActiveTab('profile')}
         >
           {session ? (
-            <UserAvatar session={session} isPro={isPro} />
+            <div className={`rounded-full ${isPro ? 'p-[2px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500' : ''}`}>
+              <Avatar className={`h-8 w-8 ${isPro ? 'border-2 border-background rounded-full' : ''}`}>
+                <AvatarImage src={session.user?.user_metadata?.avatar_url} alt={session.user?.email} />
+                <AvatarFallback>{session.user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
+              </Avatar>
+            </div>
           ) : (
             <User size={20} className={cn(
               "transition-transform duration-200",
@@ -103,4 +96,4 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
   );
 };
 
-export default memo(BottomNavbar);
+export default BottomNavbar;

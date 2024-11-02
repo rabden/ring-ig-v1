@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import {
   Dialog,
   DialogContent,
@@ -9,40 +9,16 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
-import { Copy, Check } from "lucide-react"
-import { toast } from 'sonner'
+import { Copy } from "lucide-react"
+import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 
 const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
   const { data: styleConfigs } = useStyleConfigs();
   const { data: modelConfigs } = useModelConfigs();
-  const [copyIcon, setCopyIcon] = useState(<Copy className="h-4 w-4" />);
   
   if (!image) return null;
-
-  const handleCopyPrompt = async () => {
-    try {
-      await navigator.clipboard.writeText(image.prompt);
-      setCopyIcon(<Check className="h-4 w-4" />);
-      toast.success('Prompt copied to clipboard');
-      setTimeout(() => setCopyIcon(<Copy className="h-4 w-4" />), 2000);
-    } catch (err) {
-      const textArea = document.createElement('textarea');
-      textArea.value = image.prompt;
-      document.body.appendChild(textArea);
-      textArea.select();
-      try {
-        document.execCommand('copy');
-        setCopyIcon(<Check className="h-4 w-4" />);
-        toast.success('Prompt copied to clipboard');
-        setTimeout(() => setCopyIcon(<Copy className="h-4 w-4" />), 2000);
-      } catch (err) {
-        toast.error('Failed to copy prompt');
-      }
-      document.body.removeChild(textArea);
-    }
-  };
 
   const detailItems = [
     { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
@@ -64,9 +40,11 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
             <div>
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-lg font-semibold">Prompt</h3>
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleCopyPrompt}>
-                  {copyIcon}
-                </Button>
+                <CopyToClipboard text={image.prompt}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </CopyToClipboard>
               </div>
               <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md">{image.prompt}</p>
             </div>

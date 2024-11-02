@@ -1,67 +1,25 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Drawer } from 'vaul';
 import { Button } from "@/components/ui/button";
-import { Download, Trash2, Wand2, Copy, Crown, Share2, Check } from "lucide-react";
+import { Download, Trash2, Wand2, Copy, Crown, Share2 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/supabase';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
-import { toast } from 'sonner';
 
 const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, onDiscard, onRemix, isOwner }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
-  const [copyPromptIcon, setCopyPromptIcon] = useState(<Copy className="h-4 w-4" />);
-  const [copyShareIcon, setCopyShareIcon] = useState(<Share2 className="h-4 w-4" />);
   
   if (!image) return null;
 
   const handleCopyPrompt = async () => {
-    try {
-      await navigator.clipboard.writeText(image.prompt);
-      setCopyPromptIcon(<Check className="h-4 w-4" />);
-      toast.success('Prompt copied to clipboard');
-      setTimeout(() => setCopyPromptIcon(<Copy className="h-4 w-4" />), 2000);
-    } catch (err) {
-      const textArea = document.createElement('textarea');
-      textArea.value = image.prompt;
-      document.body.appendChild(textArea);
-      textArea.select();
-      try {
-        document.execCommand('copy');
-        setCopyPromptIcon(<Check className="h-4 w-4" />);
-        toast.success('Prompt copied to clipboard');
-        setTimeout(() => setCopyPromptIcon(<Copy className="h-4 w-4" />), 2000);
-      } catch (err) {
-        toast.error('Failed to copy prompt');
-      }
-      document.body.removeChild(textArea);
-    }
+    await navigator.clipboard.writeText(image.prompt);
   };
 
   const handleShare = async () => {
-    const shareUrl = `${window.location.origin}/image/${image.id}`;
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopyShareIcon(<Check className="h-4 w-4" />);
-      toast.success('Share link copied to clipboard');
-      setTimeout(() => setCopyShareIcon(<Share2 className="h-4 w-4" />), 2000);
-    } catch (err) {
-      const textArea = document.createElement('textarea');
-      textArea.value = shareUrl;
-      document.body.appendChild(textArea);
-      textArea.select();
-      try {
-        document.execCommand('copy');
-        setCopyShareIcon(<Check className="h-4 w-4" />);
-        toast.success('Share link copied to clipboard');
-        setTimeout(() => setCopyShareIcon(<Share2 className="h-4 w-4" />), 2000);
-      } catch (err) {
-        toast.error('Failed to copy share link');
-      }
-      document.body.removeChild(textArea);
-    }
+    await navigator.clipboard.writeText(`${window.location.origin}/image/${image.id}`);
   };
 
   const detailItems = [
@@ -136,10 +94,10 @@ const MobileImageDrawer = ({ open, onOpenChange, image, showImage, onDownload, o
                     <h3 className="text-lg font-semibold">Prompt</h3>
                     <div className="flex gap-2">
                       <Button variant="ghost" size="sm" onClick={handleCopyPrompt}>
-                        {copyPromptIcon}
+                        <Copy className="h-4 w-4" />
                       </Button>
                       <Button variant="ghost" size="sm" onClick={handleShare}>
-                        {copyShareIcon}
+                        <Share2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
