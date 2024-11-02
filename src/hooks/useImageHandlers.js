@@ -80,18 +80,15 @@ export const useImageHandlers = ({
       setQuality(image.quality);
     }
 
-    // Handle style based on model type and availability
+    // Handle style based on model type
     const modelConfig = modelConfigs?.[image.model];
-    if (modelConfig?.category === "NSFW") {
-      if (typeof setStyle === 'function') {
+    if (typeof setStyle === 'function') {
+      if (modelConfig?.category === "NSFW") {
         setStyle(null);
-      }
-    } else if (typeof setStyle === 'function') {
-      // Only set style if it exists in the image
-      if (image.style) {
-        setStyle(image.style);
       } else {
-        setStyle(null);
+        // Explicitly check if style exists and is not null/undefined/empty string
+        const validStyle = image.style && image.style !== 'general' ? image.style : null;
+        setStyle(validStyle);
       }
     }
 
