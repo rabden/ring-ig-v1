@@ -1,4 +1,5 @@
 import { qualityOptions, aspectRatios } from '@/utils/imageConfigs';
+import { supabase } from '@/integrations/supabase/supabase';
 
 export const makeDivisibleBy16 = (num) => Math.floor(num / 16) * 16;
 
