@@ -81,16 +81,16 @@ const UserProfilePopup = ({
         <ScrollArea className="h-[calc(90vh-150px)]">
           <div className="p-6">
             <ImageGallery
-              userId={userId}
-              authenticatedUserId={authenticatedUserId}
+              userId={authenticatedUserId}
               onImageClick={onImageClick}
               onDownload={onDownload}
               onRemix={onRemix}
               onViewDetails={onViewDetails}
-              activeView="userImages"
+              activeView="myImages"
               setActiveTab={setActiveTab}
               setStyle={setStyle}
               showDiscard={false}
+              activeFilters={{ userId: userId }}
             />
           </div>
         </ScrollArea>
