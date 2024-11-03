@@ -23,7 +23,9 @@ const ImageCard = ({
   userId,
   isMobile,
   isLiked,
-  onToggleLike
+  onToggleLike,
+  setActiveTab,
+  setStyle
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [shouldLoad, setShouldLoad] = useState(false);
@@ -51,7 +53,7 @@ const ImageCard = ({
 
       const rect = imageRef.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
-      const verticalMargin = windowHeight; // One viewport height margin
+      const verticalMargin = windowHeight;
       
       const isVisible = (
         rect.top <= windowHeight + verticalMargin &&
@@ -62,17 +64,14 @@ const ImageCard = ({
         setShouldLoad(true);
         setImageSrc(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl);
       } else if (!isVisible && shouldLoad) {
-        // Unload image when it's out of view
         setShouldLoad(false);
         setImageLoaded(false);
-        setImageSrc(''); // Clear the src to free up memory
+        setImageSrc('');
       }
     };
 
-    // Initial check
     checkVisibility();
 
-    // Add scroll and resize listeners
     window.addEventListener('scroll', checkVisibility, { passive: true });
     window.addEventListener('resize', checkVisibility);
 
@@ -92,6 +91,12 @@ const ImageCard = ({
     if (!isLiked) {
       onToggleLike(image.id);
     }
+  };
+
+  const handleRemixClick = () => {
+    onRemix(image);
+    setStyle?.(image.style);
+    setActiveTab?.('input');
   };
 
   return (
@@ -159,7 +164,7 @@ const ImageCard = ({
                     Discard
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={() => onRemix(image)}>
+                <DropdownMenuItem onClick={handleRemixClick}>
                   Remix
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onViewDetails(image)}>
