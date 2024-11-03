@@ -5,7 +5,6 @@ import { useNotifications } from '@/contexts/NotificationContext';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { supabase } from '@/integrations/supabase/supabase';
 
 const NotificationItem = ({ notification, isGlobal = false }) => {
   const { markAsRead, deleteNotification, hideGlobalNotification } = useNotifications();
@@ -59,15 +58,17 @@ const NotificationItem = ({ notification, isGlobal = false }) => {
       </div>
 
       {images.length > 0 && (
-        <ScrollArea className="flex gap-2 overflow-x-auto pb-2">
-          <div className="flex gap-2">
+        <ScrollArea className="w-full">
+          <div className="flex gap-2 pb-2">
             {images.map((url, index) => (
-              <img
-                key={index}
-                src={url}
-                alt=""
-                className="h-64 w-64 rounded-lg object-cover"
-              />
+              <div key={index} className="flex-shrink-0">
+                <img
+                  src={url}
+                  alt=""
+                  className="h-48 w-48 rounded-lg object-cover"
+                  loading="lazy"
+                />
+              </div>
             ))}
           </div>
         </ScrollArea>

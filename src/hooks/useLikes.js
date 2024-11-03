@@ -51,42 +51,47 @@ export const useLikes = (userId) => {
           .eq('image_id', imageId);
         if (error) throw error;
       } else {
-        // Get the image details
+        // Get the image details first
         const { data: imageData, error: imageError } = await supabase
           .from('user_images')
-          .select('*')
+          .select('user_id, storage_path, prompt')
           .eq('id', imageId)
           .single();
         
         if (imageError) throw imageError;
 
         // Get current user's profile
-        const { data: userProfile } = await supabase
+        const { data: userProfile, error: profileError } = await supabase
           .from('profiles')
           .select('display_name, avatar_url')
           .eq('id', userId)
           .single();
+        
+        if (profileError) throw profileError;
 
         // Insert the like
-        const { error } = await supabase
+        const { error: likeError } = await supabase
           .from('user_image_likes')
           .insert([{ 
             user_id: userId, 
             image_id: imageId,
             created_by: imageData.user_id 
           }]);
-        if (error) throw error;
+        if (likeError) throw likeError;
 
-        // Create notification for the image owner
+        // Create notification for the image owner if it's not the same user
         if (imageData.user_id !== userId) {
+          const imageUrl = supabase.storage.from('user-images').getPublicUrl(imageData.storage_path).data.publicUrl;
+          
           const { error: notificationError } = await supabase
             .from('notifications')
             .insert([{
               user_id: imageData.user_id,
               title: 'New Like',
-              message: `${userProfile?.display_name || 'Someone'} liked your image`,
-              image_url: supabase.storage.from('user-images').getPublicUrl(imageData.storage_path).data.publicUrl,
-              link: `/image/${imageId}`
+              message: `${userProfile?.display_name || 'Someone'} liked your image "${imageData.prompt.slice(0, 50)}${imageData.prompt.length > 50 ? '...' : ''}"`,
+              image_url: imageUrl,
+              link: `/image/${imageId}`,
+              link_names: 'View Image'
             }]);
           
           if (notificationError) throw notificationError;
@@ -94,7 +99,6 @@ export const useLikes = (userId) => {
       }
     },
     onMutate: async (imageId) => {
-      // Optimistically update the UI
       const previousLikes = queryClient.getQueryData(['likes', userId]);
       queryClient.setQueryData(['likes', userId], old => {
         const isLiked = old?.includes(imageId);
@@ -107,7 +111,6 @@ export const useLikes = (userId) => {
       return { previousLikes };
     },
     onError: (err, imageId, context) => {
-      // Revert optimistic update on error
       queryClient.setQueryData(['likes', userId], context.previousLikes);
     }
   });
