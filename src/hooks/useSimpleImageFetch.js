@@ -30,7 +30,8 @@ export const useSimpleImageFetch = ({ userId, activeView, nsfwEnabled, activeFil
     if (nsfwEnabled) {
       query = query.in('model', NSFW_MODELS);
     } else {
-      query = query.not('model', 'in', NSFW_MODELS);
+      // Using the correct Supabase syntax for not in
+      query = query.not('model', 'in', `(${NSFW_MODELS.map(m => `'${m}'`).join(',')})`);
     }
 
     // Apply additional filters
