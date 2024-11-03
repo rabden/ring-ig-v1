@@ -43,9 +43,9 @@ const FullScreenImageView = ({
   };
 
   const handleRemixClick = () => {
-    onRemix(image);
     setStyle?.(image.style);
     setActiveTab?.('input');
+    onRemix(image);
     onClose();
   };
 
