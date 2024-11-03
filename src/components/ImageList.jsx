@@ -23,7 +23,10 @@ const ImageList = ({
   onViewDetails, 
   userLikes, 
   onToggleLike, 
-  isMobile 
+  isMobile,
+  nsfwEnabled,
+  setActiveTab,
+  setStyle
 }) => {
   if (isLoading) {
     return (
@@ -65,6 +68,9 @@ const ImageList = ({
           isMobile={isMobile}
           isLiked={userLikes.includes(image.id)}
           onToggleLike={onToggleLike}
+          nsfwEnabled={nsfwEnabled}
+          setActiveTab={setActiveTab}
+          setStyle={setStyle}
         />
       ))}
     </Masonry>

@@ -30,7 +30,8 @@ const ImageCard = ({
   onToggleLike,
   showDiscard = true,
   setActiveTab,
-  setStyle
+  setStyle,
+  nsfwEnabled
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [showProfilePopup, setShowProfilePopup] = useState(false);
@@ -191,6 +192,7 @@ const ImageCard = ({
         onViewDetails={onViewDetails}
         setActiveTab={setActiveTab}
         setStyle={setStyle}
+        nsfwEnabled={nsfwEnabled}
       />
     </div>
   );

@@ -19,7 +19,8 @@ const UserProfilePopup = ({
   onRemix,
   onViewDetails,
   setActiveTab,
-  setStyle
+  setStyle,
+  nsfwEnabled // Add this prop
 }) => {
   const isMobile = window.innerWidth <= 768;
   const { data: modelConfigs } = useModelConfigs();
@@ -96,7 +97,7 @@ const UserProfilePopup = ({
             setStyle={setStyle}
             showDiscard={false}
             activeFilters={{ userId: userId }}
-            nsfwEnabled={false}
+            nsfwEnabled={nsfwEnabled}
           />
         </div>
       </ScrollArea>
