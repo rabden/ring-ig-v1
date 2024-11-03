@@ -14,21 +14,24 @@ export const useSimpleImageFetch = ({ userId, activeView, nsfwEnabled, activeFil
 
     let query = supabase
       .from('user_images')
-      .select('*')
-      .eq('is_private', false); // Always exclude private images in profile popup
+      .select('*');
 
-    // Apply view filters
-    if (activeView === 'myImages') {
-      query = query.eq('user_id', activeFilters?.userId || userId);
-    } else if (activeView === 'inspiration') {
-      query = query.neq('user_id', userId);
+    // Handle privacy - only show user's own private images
+    if (activeFilters?.userId === userId) {
+      // When viewing own profile, show all images
+      query = query.eq('user_id', userId);
+    } else {
+      // When viewing other profiles, only show public images
+      query = query
+        .eq('user_id', activeFilters?.userId || userId)
+        .eq('is_private', false);
     }
 
-    // Apply NSFW filtering based on model category
+    // Handle NSFW content
     if (nsfwEnabled) {
-      query = query.in('model', ['nsfwMaster', 'animeNsfw']); // Show only NSFW content when enabled
+      query = query.in('model', ['nsfwMaster', 'animeNsfw']);
     } else {
-      query = query.not('model', 'in', '(nsfwMaster,animeNsfw)'); // Exclude NSFW content when disabled
+      query = query.not('model', 'in', '(nsfwMaster,animeNsfw)');
     }
 
     // Apply additional filters
@@ -37,9 +40,6 @@ export const useSimpleImageFetch = ({ userId, activeView, nsfwEnabled, activeFil
     }
     if (activeFilters?.model) {
       query = query.eq('model', activeFilters.model);
-    }
-    if (activeFilters?.userId) {
-      query = query.eq('user_id', activeFilters.userId);
     }
 
     // Apply sorting
