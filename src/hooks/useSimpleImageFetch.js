@@ -2,7 +2,6 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 
 const ITEMS_PER_PAGE = 20;
-const NSFW_MODELS = ['nsfwMaster', 'animeNsfw'];
 
 export const useSimpleImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters = {} }) => {
   const fetchImages = async ({ pageParam = 0 }) => {
@@ -15,22 +14,21 @@ export const useSimpleImageFetch = ({ userId, activeView, nsfwEnabled, activeFil
 
     let query = supabase
       .from('user_images')
-      .select('*');
+      .select('*')
+      .eq('is_private', false); // Always exclude private images in profile popup
 
-    // Apply view filters and privacy
+    // Apply view filters
     if (activeView === 'myImages') {
       query = query.eq('user_id', activeFilters?.userId || userId);
     } else if (activeView === 'inspiration') {
-      query = query
-        .neq('user_id', userId)
-        .eq('is_private', false); // Only show public images in inspiration
+      query = query.neq('user_id', userId);
     }
 
     // Apply NSFW filtering based on model category
     if (nsfwEnabled) {
-      query = query.in('model', NSFW_MODELS);
+      query = query.in('model', ['nsfwMaster', 'animeNsfw']); // Show only NSFW content when enabled
     } else {
-      query = query.not('model', 'in', `(${NSFW_MODELS.join(',')})`);
+      query = query.not('model', 'in', '(nsfwMaster,animeNsfw)'); // Exclude NSFW content when disabled
     }
 
     // Apply additional filters
@@ -41,8 +39,7 @@ export const useSimpleImageFetch = ({ userId, activeView, nsfwEnabled, activeFil
       query = query.eq('model', activeFilters.model);
     }
     if (activeFilters?.userId) {
-      query = query.eq('user_id', activeFilters.userId)
-        .eq('is_private', false); // Exclude private images in user profile popup
+      query = query.eq('user_id', activeFilters.userId);
     }
 
     // Apply sorting
