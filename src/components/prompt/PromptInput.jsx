@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight } from "lucide-react";
 
-const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits, onClear }) => {
+const PromptInput = ({ value = '', onChange, onKeyDown, onGenerate, hasEnoughCredits, onClear }) => {
   return (
     <div className="relative mb-8">
       <div className="relative">
@@ -23,7 +23,7 @@ const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits,
         </div>
         
         <div className="flex justify-end gap-2 mt-4">
-          {value.length > 0 && (
+          {value && value.length > 0 && (
             <Button
               size="sm"
               variant="outline"
@@ -37,7 +37,7 @@ const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits,
             size="sm"
             className="rounded-full"
             onClick={onGenerate}
-            disabled={!value.length || !hasEnoughCredits}
+            disabled={!value || value.length === 0 || !hasEnoughCredits}
           >
             Generate
             <ArrowRight className="ml-2 h-4 w-4" />
