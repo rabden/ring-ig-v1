@@ -20,7 +20,7 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const [upgradeFormOpen, setUpgradeFormOpen] = React.useState(false);
   const [isEditing, setIsEditing] = React.useState(false);
   const [displayName, setDisplayName] = React.useState(
-    user?.user_metadata?.display_name || user.email?.split('@')[0] || ''
+    user?.user_metadata?.display_name || (user?.email ? user.email.split('@')[0] : '') || ''
   );
   const [showImageDialog, setShowImageDialog] = React.useState(false);
   const queryClient = useQueryClient();
@@ -66,7 +66,7 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
 
   const onAvatarUpload = async (event) => {
     const file = event.target.files?.[0];
-    const newAvatarUrl = await handleAvatarUpload(file, user.id);
+    const newAvatarUrl = await handleAvatarUpload(file, user?.id);
     if (newAvatarUrl) {
       queryClient.invalidateQueries(['user']);
       setShowImageDialog(false);
@@ -151,7 +151,7 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
               const input = document.createElement('input');
               input.type = 'file';
               input.accept = 'image/*';
-              input.onchange = handleAvatarUpload;
+              input.onchange = onAvatarUpload;
               input.click();
             }}>
               Upload
