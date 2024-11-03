@@ -1,6 +1,5 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
-import { toast } from 'sonner';
 
 const ITEMS_PER_PAGE = 20;
 
@@ -14,101 +13,94 @@ export const useImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters, 
       };
     }
 
-    try {
-      // First, get the total count
-      const countQuery = supabase
-        .from('user_images')
-        .select('id', { count: 'exact', head: true });
+    // First, get the total count
+    const countQuery = supabase
+      .from('user_images')
+      .select('id', { count: 'exact', head: true });
 
-      // Apply the same filters as the main query
-      if (activeView === 'myImages') {
-        countQuery.eq('user_id', userId);
-      } else if (activeView === 'inspiration') {
-        countQuery.neq('user_id', userId);
-      }
+    // Apply the same filters as the main query
+    if (activeView === 'myImages') {
+      countQuery.eq('user_id', userId);
+    } else if (activeView === 'inspiration') {
+      countQuery.neq('user_id', userId);
+    }
 
-      if (activeFilters?.style) {
-        countQuery.eq('style', activeFilters.style);
-      }
-      if (activeFilters?.model) {
-        countQuery.eq('model', activeFilters.model);
-      }
-      if (searchQuery) {
-        countQuery.ilike('prompt', `%${searchQuery}%`);
-      }
+    if (activeFilters?.style) {
+      countQuery.eq('style', activeFilters.style);
+    }
+    if (activeFilters?.model) {
+      countQuery.eq('model', activeFilters.model);
+    }
+    if (searchQuery) {
+      countQuery.ilike('prompt', `%${searchQuery}%`);
+    }
 
-      const { count, error: countError } = await countQuery;
-      if (countError) throw countError;
+    const { count } = await countQuery;
 
-      // Calculate the offset and check if it's beyond total records
-      const from = pageParam * ITEMS_PER_PAGE;
-      if (count && from >= count) {
-        return {
-          images: [],
-          nextPage: null,
-          totalCount: count
-        };
-      }
-
-      const to = from + ITEMS_PER_PAGE - 1;
-
-      let query = supabase
-        .from('user_images')
-        .select('*');
-
-      // Apply view filters and sorting
-      if (activeView === 'myImages') {
-        query = query
-          .eq('user_id', userId)
-          .order('created_at', { ascending: false });
-      } else if (activeView === 'inspiration') {
-        query = query
-          .neq('user_id', userId)
-          .order('is_hot', { ascending: false })
-          .order('is_trending', { ascending: false })
-          .order('created_at', { ascending: false });
-      } else {
-        // Default sorting by date for other views
-        query = query.order('created_at', { ascending: false });
-      }
-
-      // Apply style and model filters
-      if (activeFilters?.style) {
-        query = query.eq('style', activeFilters.style);
-      }
-      if (activeFilters?.model) {
-        query = query.eq('model', activeFilters.model);
-      }
-
-      // Apply search filter
-      if (searchQuery) {
-        query = query.ilike('prompt', `%${searchQuery}%`);
-      }
-
-      // Apply pagination after all filters
-      query = query.range(from, to);
-
-      const { data, error } = await query;
-      if (error) throw error;
-
-      // Filter NSFW content
-      const filteredData = data.filter(img => {
-        const isNsfw = modelConfigs?.[img.model]?.category === "NSFW";
-        return nsfwEnabled ? true : !isNsfw;
-      });
-
-      const hasMore = from + filteredData.length < count;
-      
+    // Calculate the offset and check if it's beyond total records
+    const from = pageParam * ITEMS_PER_PAGE;
+    if (count && from >= count) {
       return {
-        images: filteredData,
-        nextPage: hasMore ? pageParam + 1 : null,
+        images: [],
+        nextPage: null,
         totalCount: count
       };
-    } catch (error) {
-      console.error('Error fetching images:', error);
-      toast.error('Failed to load images. Please try again.');
-      throw error;
     }
+
+    const to = from + ITEMS_PER_PAGE - 1;
+
+    let query = supabase
+      .from('user_images')
+      .select('*');
+
+    // Apply view filters and sorting
+    if (activeView === 'myImages') {
+      query = query
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+    } else if (activeView === 'inspiration') {
+      query = query
+        .neq('user_id', userId)
+        .order('is_hot', { ascending: false })
+        .order('is_trending', { ascending: false })
+        .order('created_at', { ascending: false });
+    } else {
+      // Default sorting by date for other views
+      query = query.order('created_at', { ascending: false });
+    }
+
+    // Apply style and model filters
+    if (activeFilters?.style) {
+      query = query.eq('style', activeFilters.style);
+    }
+    if (activeFilters?.model) {
+      query = query.eq('model', activeFilters.model);
+    }
+
+    // Apply search filter
+    if (searchQuery) {
+      query = query.ilike('prompt', `%${searchQuery}%`);
+    }
+
+    // Apply pagination after all filters
+    query = query.range(from, to);
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    // Filter NSFW content
+    const filteredData = data.filter(img => {
+      const isNsfw = modelConfigs?.[img.model]?.category === "NSFW";
+      return nsfwEnabled ? true : !isNsfw;
+    });
+
+    const hasMore = from + filteredData.length < count;
+    
+    return {
+      images: filteredData,
+      nextPage: hasMore ? pageParam + 1 : null,
+      totalCount: count
+    };
   };
 
   return useInfiniteQuery({
@@ -116,7 +108,5 @@ export const useImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters, 
     queryFn: fetchImages,
     getNextPageParam: (lastPage) => lastPage.nextPage,
     enabled: !!userId && !!modelConfigs,
-    retry: 3,
-    retryDelay: (attemptIndex) => Math.min(1000 * (2 ** attemptIndex), 30000),
   });
 };
