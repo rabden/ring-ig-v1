@@ -4,6 +4,7 @@ import ActionButtons from '../ActionButtons';
 import FilterMenu from '../filters/FilterMenu';
 import SearchBar from '../search/SearchBar';
 import NotificationBell from '../notifications/NotificationBell';
+import { NotificationProvider } from '@/contexts/NotificationContext';
 
 const DesktopHeader = ({ 
   user, 
@@ -30,7 +31,9 @@ const DesktopHeader = ({
             />
           </div>
           <div className="h-8">
-            <NotificationBell />
+            <NotificationProvider>
+              <NotificationBell />
+            </NotificationProvider>
           </div>
           <ActionButtons 
             activeView={activeView} 

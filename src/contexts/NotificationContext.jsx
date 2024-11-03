@@ -65,8 +65,7 @@ export const NotificationProvider = ({ children }) => {
 
     fetchNotifications();
 
-    // Subscribe to notifications changes
-    const notificationsChannel = supabase
+    const channel = supabase
       .channel('notifications_changes')
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${session.user.id}` },
@@ -79,32 +78,13 @@ export const NotificationProvider = ({ children }) => {
             if (!payload.old.is_read) {
               setUnreadCount(prev => Math.max(0, prev - 1));
             }
-          } else if (payload.eventType === 'UPDATE') {
-            setNotifications(prev =>
-              prev.map(n => n.id === payload.new.id ? payload.new : n)
-            );
-            if (!payload.old.is_read && payload.new.is_read) {
-              setUnreadCount(prev => Math.max(0, prev - 1));
-            }
           }
         }
       )
       .subscribe();
 
-    // Subscribe to global notifications changes
-    const globalNotificationsChannel = supabase
-      .channel('global_notifications_changes')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'global_notifications' },
-        () => {
-          fetchNotifications(); // Refetch all notifications when global ones change
-        }
-      )
-      .subscribe();
-
     return () => {
-      supabase.removeChannel(notificationsChannel);
-      supabase.removeChannel(globalNotificationsChannel);
+      supabase.removeChannel(channel);
     };
   }, [session?.user?.id]);
 
