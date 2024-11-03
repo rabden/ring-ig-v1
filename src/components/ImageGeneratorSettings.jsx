@@ -3,6 +3,8 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Lock, Unlock } from "lucide-react";
 import StyleChooser from './StyleChooser';
 import AspectRatioChooser from './AspectRatioChooser';
 import SettingSection from './settings/SettingSection';
@@ -30,7 +32,8 @@ const ImageGeneratorSettings = ({
   style, setStyle,
   steps, setSteps,
   proMode,
-  modelConfigs
+  modelConfigs,
+  isPrivate, setIsPrivate
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const totalCredits = (credits || 0) + (bonusCredits || 0);
@@ -87,16 +90,36 @@ const ImageGeneratorSettings = ({
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-semibold">Settings</h2>
-        {session && (
-          <div className="text-sm font-medium">
-            Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
-            {!hasEnoughCredits && (
-              <span className="text-destructive ml-2">
-                Need {creditCost} credits for {quality}
-              </span>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsPrivate(!isPrivate)}
+            className="flex items-center gap-2"
+          >
+            {isPrivate ? (
+              <>
+                <Lock className="h-4 w-4" />
+                Private
+              </>
+            ) : (
+              <>
+                <Unlock className="h-4 w-4" />
+                Public
+              </>
             )}
-          </div>
-        )}
+          </Button>
+          {session && (
+            <div className="text-sm font-medium">
+              Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
+              {!hasEnoughCredits && (
+                <span className="text-destructive ml-2">
+                  Need {creditCost} credits for {quality}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       <PromptInput
