@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, User } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import ImageStatusIndicators from './ImageStatusIndicators';
@@ -10,10 +10,10 @@ import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import LikeButton from './LikeButton';
 import { useQuery } from '@tanstack/react-query';
-import { Skeleton } from "@/components/ui/skeleton";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import UserProfileMenu from './profile/UserProfileMenu';
 import { useProUser } from '@/hooks/useProUser';
+import CachedAvatar from './profile/CachedAvatar';
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ImageCard = ({ 
   image, 
@@ -61,40 +61,36 @@ const ImageCard = ({
       return profile;
     },
     enabled: !!image.user_id,
+    staleTime: Infinity,
+    cacheTime: 30 * 60 * 1000,
   });
 
   const { data: isOwnerPro } = useProUser(image.user_id);
 
   useEffect(() => {
-    const checkVisibility = () => {
-      if (!imageRef.current) return;
-
-      const rect = imageRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      const verticalMargin = windowHeight; // One viewport height margin
-      
-      const isVisible = (
-        rect.top <= windowHeight + verticalMargin &&
-        rect.bottom >= -verticalMargin
-      );
-
-      if (isVisible && !shouldLoad) {
-        setShouldLoad(true);
-        setImageSrc(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl);
-      } else if (!isVisible && shouldLoad) {
-        setShouldLoad(false);
-        setImageLoaded(false);
-        setImageSrc('');
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !shouldLoad) {
+            setShouldLoad(true);
+            setImageSrc(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl);
+          }
+        });
+      },
+      {
+        rootMargin: '100% 0px',
+        threshold: 0
       }
-    };
+    );
 
-    checkVisibility();
-    window.addEventListener('scroll', checkVisibility, { passive: true });
-    window.addEventListener('resize', checkVisibility);
+    if (imageRef.current) {
+      observer.observe(imageRef.current);
+    }
 
     return () => {
-      window.removeEventListener('scroll', checkVisibility);
-      window.removeEventListener('resize', checkVisibility);
+      if (imageRef.current) {
+        observer.unobserve(imageRef.current);
+      }
     };
   }, [shouldLoad, image.storage_path]);
 
@@ -105,16 +101,13 @@ const ImageCard = ({
   const displayName = imageOwner?.display_name || 'Anonymous';
   const truncatedName = displayName.length > 15 ? `${displayName.slice(0, 15)}...` : displayName;
 
-  const UserProfileTrigger = React.forwardRef(({ onClick }, ref) => (
-    <div className="flex items-center gap-2 min-w-0 cursor-pointer" onClick={onClick} ref={ref}>
-      <div className={`rounded-full ${isOwnerPro ? 'p-[2px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500' : ''}`}>
-        <Avatar className={`h-6 w-6 flex-shrink-0 ${isOwnerPro ? 'border-2 border-background rounded-full' : ''}`}>
-          <AvatarImage src={imageOwner?.avatar_url} />
-          <AvatarFallback>
-            <User className="h-4 w-4" />
-          </AvatarFallback>
-        </Avatar>
-      </div>
+  const UserProfileTrigger = React.memo(({ onClick, forwardedRef }) => (
+    <div className="flex items-center gap-2 min-w-0 cursor-pointer" onClick={onClick} ref={forwardedRef}>
+      <CachedAvatar
+        src={imageOwner?.avatar_url}
+        alt={displayName}
+        isPro={isOwnerPro}
+      />
       <span className="text-xs font-medium truncate">{truncatedName}</span>
     </div>
   ));
@@ -204,4 +197,4 @@ const ImageCard = ({
   );
 };
 
-export default ImageCard;
+export default React.memo(ImageCard);
