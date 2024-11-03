@@ -1,14 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Drawer } from 'vaul';
 import { Button } from "@/components/ui/button";
-import { Download, Trash2, Wand2, Copy, Share2, Check } from "lucide-react";
+import { Download, Trash2, Wand2 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/supabase';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
-import { toast } from 'sonner';
-import { downloadImage } from '@/utils/downloadUtils';
+import ImageDetails from './image-details/ImageDetails';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -24,24 +22,8 @@ const MobileImageDrawer = ({
 }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
-  const [copyIcon, setCopyIcon] = useState('copy');
-  const [shareIcon, setShareIcon] = useState('share');
   
   if (!image) return null;
-
-  const handleCopyPrompt = async () => {
-    await navigator.clipboard.writeText(image.prompt);
-    setCopyIcon('check');
-    toast.success('Prompt copied to clipboard');
-    setTimeout(() => setCopyIcon('copy'), 1500);
-  };
-
-  const handleShare = async () => {
-    await navigator.clipboard.writeText(`${window.location.origin}/image/${image.id}`);
-    setShareIcon('check');
-    toast.success('Share link copied to clipboard');
-    setTimeout(() => setShareIcon('share'), 1500);
-  };
 
   const handleRemixClick = () => {
     onRemix(image);
@@ -49,24 +31,6 @@ const MobileImageDrawer = ({
     setActiveTab('input');
     onOpenChange(false);
   };
-
-  const handleDownload = async () => {
-    try {
-      const imageSrc = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
-      await downloadImage(imageSrc, image.prompt);
-    } catch (error) {
-      toast.error('Failed to download image');
-    }
-  };
-
-  const detailItems = [
-    { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
-    { label: "Size", value: `${image.width}x${image.height}` },
-    { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
-    { label: "Quality", value: image.quality },
-    { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
-    { label: "Seed", value: image.seed },
-  ];
 
   return (
     <Drawer.Root open={open} onOpenChange={onOpenChange}>
@@ -91,7 +55,7 @@ const MobileImageDrawer = ({
                   variant="ghost"
                   size="sm"
                   className="flex-1"
-                  onClick={handleDownload}
+                  onClick={onDownload}
                 >
                   <Download className="mr-2 h-4 w-4" />
                   Download
@@ -123,35 +87,11 @@ const MobileImageDrawer = ({
                 </Button>
               </div>
 
-              <div className="space-y-6">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-lg font-semibold">Prompt</h3>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="sm" onClick={handleCopyPrompt}>
-                        {copyIcon === 'copy' ? <Copy className="h-4 w-4" /> : <Check className="h-4 w-4" />}
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={handleShare}>
-                        {shareIcon === 'share' ? <Share2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md break-words">
-                    {image.prompt}
-                  </p>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-3">
-                  {detailItems.map((item, index) => (
-                    <div key={index} className="space-y-1">
-                      <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
-                      <Badge variant="outline" className="text-xs sm:text-sm font-normal flex items-center gap-1 w-fit">
-                        {item.value}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <ImageDetails
+                image={image}
+                modelConfigs={modelConfigs}
+                styleConfigs={styleConfigs}
+              />
             </ScrollArea>
           </div>
         </Drawer.Content>
