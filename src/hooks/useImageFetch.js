@@ -88,10 +88,11 @@ export const useImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters, 
     const { data, error } = await query;
     if (error) throw error;
 
-    // Filter NSFW content
+    // Filter NSFW content based on model category
     const filteredData = data.filter(img => {
-      const isNsfw = modelConfigs?.[img.model]?.category === "NSFW";
-      return nsfwEnabled ? true : !isNsfw;
+      const modelConfig = modelConfigs?.[img.model];
+      const isNsfwModel = modelConfig?.category === "NSFW";
+      return nsfwEnabled ? isNsfwModel : !isNsfwModel;
     });
 
     const hasMore = from + filteredData.length < count;
