@@ -133,6 +133,7 @@ const ImageCard = ({
             modelName={modelName}
             styleName={styleName}
             isNsfw={isNsfw}
+            setImageLoaded={setImageLoaded}
           />
         </CardContent>
       </Card>

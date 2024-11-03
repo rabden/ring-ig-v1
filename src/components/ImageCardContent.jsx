@@ -13,7 +13,8 @@ const ImageCardContent = React.memo(({
   isLiked,
   modelName,
   styleName,
-  isNsfw
+  isNsfw,
+  setImageLoaded
 }) => {
   return (
     <>
