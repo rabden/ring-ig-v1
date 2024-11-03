@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useLikes } from '@/hooks/useLikes';
 import { useSimpleImageFetch } from '@/hooks/useSimpleImageFetch';
@@ -27,6 +27,8 @@ const ImageGallery = ({
   const [showImageInDrawer, setShowImageInDrawer] = useState(false);
   const { userLikes, toggleLike } = useLikes(userId);
   const isMobile = window.innerWidth <= 768;
+  const galleryRef = useRef(null);
+  const [scrollPosition, setScrollPosition] = useState(0);
 
   // Intersection Observer for infinite scroll
   const { ref, inView } = useInView();
@@ -44,6 +46,24 @@ const ImageGallery = ({
     nsfwEnabled,
     activeFilters
   });
+
+  // Save scroll position when switching views
+  useEffect(() => {
+    if (galleryRef.current) {
+      const handleScroll = () => {
+        setScrollPosition(window.scrollY);
+      };
+      window.addEventListener('scroll', handleScroll);
+      return () => window.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
+
+  // Restore scroll position when data changes
+  useEffect(() => {
+    if (!isLoading && scrollPosition > 0) {
+      window.scrollTo(0, scrollPosition);
+    }
+  }, [data, isLoading]);
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -103,7 +123,7 @@ const ImageGallery = ({
   };
 
   return (
-    <>
+    <div ref={galleryRef}>
       <ImageList
         data={data}
         isLoading={isLoading}
@@ -143,7 +163,7 @@ const ImageGallery = ({
       />
 
       <MobileGeneratingStatus generatingImages={generatingImages} />
-    </>
+    </div>
   );
 };
 
