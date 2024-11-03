@@ -60,7 +60,8 @@ const ImageCard = ({
       return profile;
     },
     enabled: !!image.user_id,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: Infinity, // Cache permanently until manually invalidated
+    cacheTime: 30 * 60 * 1000, // Cache for 30 minutes
   });
 
   const { data: isOwnerPro } = useProUser(image.user_id);
@@ -84,18 +85,31 @@ const ImageCard = ({
   }, [shouldLoad, image.storage_path]);
 
   useEffect(() => {
-    checkVisibility();
-    const scrollHandler = () => {
-      window.requestAnimationFrame(checkVisibility);
-    };
-    window.addEventListener('scroll', scrollHandler, { passive: true });
-    window.addEventListener('resize', checkVisibility);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && !shouldLoad) {
+            setShouldLoad(true);
+            setImageSrc(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl);
+          }
+        });
+      },
+      {
+        rootMargin: '100% 0px',
+        threshold: 0
+      }
+    );
+
+    if (imageRef.current) {
+      observer.observe(imageRef.current);
+    }
 
     return () => {
-      window.removeEventListener('scroll', scrollHandler);
-      window.removeEventListener('resize', checkVisibility);
+      if (imageRef.current) {
+        observer.unobserve(imageRef.current);
+      }
     };
-  }, [checkVisibility]);
+  }, [shouldLoad, image.storage_path]);
 
   const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
   const modelName = modelConfigs?.[image.model]?.name || image.model;
@@ -180,6 +194,6 @@ const ImageCard = ({
       </div>
     </div>
   );
-};
+});
 
 export default React.memo(ImageCard);
