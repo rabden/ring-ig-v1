@@ -27,14 +27,21 @@ export const calculateDimensions = (useAspectRatio, aspectRatio, width, height, 
   };
 };
 
-export const getModifiedPrompt = async (prompt, style, model, styleConfigs, modelConfigs) => {
-  if (!styleConfigs || !modelConfigs) return prompt;
+export const getModifiedPrompt = async (prompt, style, model, modelConfigs) => {
+  if (!modelConfigs) return prompt;
   
   const modelConfig = modelConfigs[model];
   if (modelConfig?.noStyleSuffix) {
     return prompt;
   }
+
+  // Get style config from the database
+  const { data: styleConfig } = await supabase
+    .from('style_configs')
+    .select('suffix')
+    .eq('key', style)
+    .single();
   
-  const styleSuffix = styleConfigs[style]?.suffix || styleConfigs.general?.suffix || '';
+  const styleSuffix = styleConfig?.suffix || '';
   return `${prompt}, ${styleSuffix}${modelConfig?.promptSuffix || ''}`;
 };
