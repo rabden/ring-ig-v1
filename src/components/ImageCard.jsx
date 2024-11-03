@@ -11,8 +11,8 @@ import { useQuery } from '@tanstack/react-query'
 import { Skeleton } from "@/components/ui/skeleton"
 import { downloadImage } from '@/utils/downloadUtils'
 import { useProUser } from '@/hooks/useProUser'
-import UserProfileMenu from './profile/UserProfileMenu'
 import LikeButton from './LikeButton'
+import { useNavigate } from 'react-router-dom'
 
 const ImageCard = ({ 
   image, 
@@ -27,7 +27,7 @@ const ImageCard = ({
   onToggleLike
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const navigate = useNavigate();
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   const imageSrc = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
@@ -69,6 +69,12 @@ const ImageCard = ({
     }
   };
 
+  const handleProfileClick = () => {
+    if (userProfile?.display_name) {
+      navigate(`/profile/${userProfile.display_name}`);
+    }
+  };
+
   return (
     <div className="mb-2">
       <Card className="overflow-hidden">
@@ -95,7 +101,7 @@ const ImageCard = ({
       <div className="mt-1 flex items-center justify-between">
         <button 
           className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity"
-          onClick={() => setShowProfileMenu(true)}
+          onClick={handleProfileClick}
         >
           <div className={`${isUserPro ? 'p-[2px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 rounded-full' : ''}`}>
             {userProfile?.avatar_url ? (
@@ -148,12 +154,6 @@ const ImageCard = ({
           )}
         </div>
       </div>
-
-      <UserProfileMenu 
-        userId={image.user_id}
-        open={showProfileMenu}
-        onOpenChange={setShowProfileMenu}
-      />
     </div>
   );
 };

@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import ImageGenerator from "./pages/ImageGenerator"
 import Documentation from "./pages/Documentation"
 import SingleImageView from "./components/SingleImageView"
+import UserProfile from "./pages/UserProfile"
 import { SupabaseAuthProvider, useSupabaseAuth } from '@/integrations/supabase/auth'
 import { NotificationProvider } from './contexts/NotificationContext'
 import LoadingScreen from './components/LoadingScreen'
@@ -48,6 +49,7 @@ const AppContent = () => {
           <Route path="/docs" element={<Documentation />} />
           <Route path="/image/:imageId" element={<SingleImageView />} />
           <Route path="/remix/:imageId" element={<ImageGenerator />} />
+          <Route path="/profile/:username" element={<UserProfile />} />
         </Routes>
       </BrowserRouter>
     </>
