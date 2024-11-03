@@ -65,6 +65,43 @@ const ImageCard = ({
 
   const { data: isOwnerPro } = useProUser(image.user_id);
 
+  useEffect(() => {
+    const checkVisibility = () => {
+      if (!imageRef.current) return;
+
+      const rect = imageRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const verticalMargin = windowHeight; // One viewport height margin
+      
+      const isVisible = (
+        rect.top <= windowHeight + verticalMargin &&
+        rect.bottom >= -verticalMargin
+      );
+
+      if (isVisible && !shouldLoad) {
+        setShouldLoad(true);
+        setImageSrc(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl);
+      } else if (!isVisible && shouldLoad) {
+        setShouldLoad(false);
+        setImageLoaded(false);
+        setImageSrc('');
+      }
+    };
+
+    checkVisibility();
+    window.addEventListener('scroll', checkVisibility, { passive: true });
+    window.addEventListener('resize', checkVisibility);
+
+    return () => {
+      window.removeEventListener('scroll', checkVisibility);
+      window.removeEventListener('resize', checkVisibility);
+    };
+  }, [shouldLoad, image.storage_path]);
+
+  const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
+  const modelName = modelConfigs?.[image.model]?.name || image.model;
+  const styleName = styleConfigs?.[image.style]?.name || 'General';
+
   const displayName = imageOwner?.display_name || 'Anonymous';
   const truncatedName = displayName.length > 15 ? `${displayName.slice(0, 15)}...` : displayName;
 
@@ -100,7 +137,7 @@ const ImageCard = ({
             )}
             {shouldLoad && (
               <img 
-                src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                src={imageSrc}
                 alt={image.prompt} 
                 className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                 onClick={() => onImageClick(image)}
@@ -108,6 +145,16 @@ const ImageCard = ({
                 onLoad={() => setImageLoaded(true)}
                 loading="lazy"
               />
+            )}
+          </div>
+          <div className="absolute bottom-2 left-2 flex gap-1">
+            <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
+              {modelName}
+            </Badge>
+            {!isNsfw && (
+              <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
+                {styleName}
+              </Badge>
             )}
           </div>
         </CardContent>
@@ -134,7 +181,7 @@ const ImageCard = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
+                <DropdownMenuItem onClick={() => onDownload(imageSrc, image.prompt)}>
                   Download
                 </DropdownMenuItem>
                 {image.user_id === userId && (
