@@ -32,7 +32,8 @@ const ImageGallery = ({
   activeFilters = {},
   searchQuery = '',
   setActiveTab,
-  setStyle
+  setStyle,
+  showTopFilter // Add this prop
 }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -59,7 +60,8 @@ const ImageGallery = ({
     nsfwEnabled,
     activeFilters,
     searchQuery,
-    modelConfigs
+    modelConfigs,
+    showTopFilter // Pass showTopFilter to useImagePagination
   );
 
   // Scroll to top when content changes
