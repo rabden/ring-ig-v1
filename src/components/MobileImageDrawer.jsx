@@ -54,6 +54,11 @@ const MobileImageDrawer = ({
     aspectRatios
   });
 
+  // Early return if no image is provided
+  if (!image) {
+    return null;
+  }
+
   const handleRemixClick = () => {
     handleRemix(image);
     setStyle(image.style);
@@ -76,11 +81,26 @@ const MobileImageDrawer = ({
   };
 
   const detailItems = [
-    { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
-    { label: "Size", value: `${image.width}x${image.height}` },
-    { label: "Quality", value: image.quality },
-    { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
-    { label: "Seed", value: image.seed },
+    { 
+      label: "Model", 
+      value: modelConfigs?.[image.model]?.name || image.model 
+    },
+    { 
+      label: "Size", 
+      value: `${image.width}x${image.height}` 
+    },
+    { 
+      label: "Quality", 
+      value: image.quality 
+    },
+    { 
+      label: "Style", 
+      value: styleConfigs?.[image.style]?.name || 'General' 
+    },
+    { 
+      label: "Seed", 
+      value: image.seed 
+    },
   ];
 
   return (
