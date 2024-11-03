@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
-import { Download, Trash2, RefreshCw, Copy, Share2, Check } from "lucide-react";
+import { Download, Trash2, RefreshCw, Copy, Share2, Check, ArrowLeft } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
@@ -62,6 +62,14 @@ const FullScreenImageView = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-background">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="absolute left-4 top-4 z-50" 
+          onClick={onClose}
+        >
+          <ArrowLeft className="h-6 w-6" />
+        </Button>
         <div className="flex h-full">
           <div className="flex-1 relative flex items-center justify-center bg-black/10 dark:bg-black/30">
             <img
