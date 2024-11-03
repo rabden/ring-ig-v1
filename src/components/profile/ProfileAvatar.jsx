@@ -2,7 +2,13 @@ import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera } from 'lucide-react';
 
-const ProfileAvatar = ({ user, isPro, size = 'md', onEditClick }) => {
+const ProfileAvatar = ({ 
+  user, 
+  isPro, 
+  size = 'md', 
+  onEditClick,
+  showEditOnHover = true 
+}) => {
   const sizeClasses = {
     sm: 'h-7 w-7',
     md: 'h-20 w-20',
@@ -23,12 +29,14 @@ const ProfileAvatar = ({ user, isPro, size = 'md', onEditClick }) => {
           <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
         </Avatar>
       </div>
-      <button 
-        onClick={onEditClick}
-        className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <Camera className={`${cameraSizeClasses[size]} text-white`} />
-      </button>
+      {showEditOnHover && onEditClick && (
+        <button 
+          onClick={onEditClick}
+          className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+        >
+          <Camera className={`${cameraSizeClasses[size]} text-white`} />
+        </button>
+      )}
     </div>
   );
 };

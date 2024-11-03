@@ -17,7 +17,9 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [upgradeFormOpen, setUpgradeFormOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [displayName, setDisplayName] = useState(user?.user_metadata?.display_name || '');
+  const [displayName, setDisplayName] = useState(
+    user?.user_metadata?.display_name || user.email?.split('@')[0] || ''
+  );
   const [showImageDialog, setShowImageDialog] = useState(false);
   const { data: isPro } = useProUser(user?.id);
 
@@ -115,7 +117,7 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
           <Button variant="ghost" size="icon" className="h-7 w-7 p-0">
-            <ProfileAvatar user={user} isPro={isPro} size="sm" />
+            <ProfileAvatar user={user} isPro={isPro} size="sm" showEditOnHover={false} />
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-[400px] sm:w-[540px] p-6 m-4 rounded-lg border max-h-[calc(100vh-2rem)] overflow-y-auto">
@@ -126,6 +128,7 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
                 isPro={isPro} 
                 size="md" 
                 onEditClick={() => setShowImageDialog(true)}
+                showEditOnHover={true}
               />
               <div className="text-center">
                 <DisplayNameEditor

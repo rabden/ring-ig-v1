@@ -17,7 +17,9 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const { data: isPro } = useProUser(user?.id);
   const [upgradeFormOpen, setUpgradeFormOpen] = React.useState(false);
   const [isEditing, setIsEditing] = React.useState(false);
-  const [displayName, setDisplayName] = React.useState(user?.user_metadata?.display_name || '');
+  const [displayName, setDisplayName] = React.useState(
+    user?.user_metadata?.display_name || user.email?.split('@')[0] || ''
+  );
   const [showImageDialog, setShowImageDialog] = React.useState(false);
 
   // Enable real-time updates
