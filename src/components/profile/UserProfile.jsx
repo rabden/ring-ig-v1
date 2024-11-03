@@ -1,15 +1,18 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
 import { Badge } from "@/components/ui/badge";
 import { UserCircle2 } from "lucide-react";
 import ImageGallery from '../ImageGallery';
+import { toast } from 'sonner';
+import { downloadImage } from '@/utils/downloadUtils';
 
 const UserProfile = () => {
   const { userId } = useParams();
   const { data: isPro } = useProUser(userId);
+  const navigate = useNavigate();
 
   const { data: profile } = useQuery({
     queryKey: ['profile', userId],
@@ -49,6 +52,41 @@ const UserProfile = () => {
     },
   });
 
+  const handleImageClick = (image) => {
+    navigate(`/image/${image.id}`);
+  };
+
+  const handleDownload = async (imageUrl, prompt) => {
+    try {
+      await downloadImage(imageUrl, prompt);
+      toast.success('Image downloaded successfully');
+    } catch (error) {
+      toast.error('Failed to download image');
+    }
+  };
+
+  const handleDiscard = async (image) => {
+    try {
+      const { error } = await supabase
+        .from('user_images')
+        .delete()
+        .eq('id', image.id);
+      
+      if (error) throw error;
+      toast.success('Image deleted successfully');
+    } catch (error) {
+      toast.error('Failed to delete image');
+    }
+  };
+
+  const handleRemix = (image) => {
+    navigate(`/remix/${image.id}`);
+  };
+
+  const handleViewDetails = (image) => {
+    navigate(`/image/${image.id}`);
+  };
+
   if (!profile) {
     return <div>Loading...</div>;
   }
@@ -83,6 +121,11 @@ const UserProfile = () => {
       <ImageGallery
         userId={userId}
         activeView="myImages"
+        onImageClick={handleImageClick}
+        onDownload={handleDownload}
+        onDiscard={handleDiscard}
+        onRemix={handleRemix}
+        onViewDetails={handleViewDetails}
       />
     </div>
   );
