@@ -5,7 +5,7 @@ import { useNotifications } from '@/contexts/NotificationContext';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { supabase } from '@/integrations/supabase/supabase';
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const NotificationItem = ({ notification, isGlobal = false }) => {
   const { markAsRead, deleteNotification, hideGlobalNotification } = useNotifications();
@@ -42,11 +42,11 @@ const NotificationItem = ({ notification, isGlobal = false }) => {
     >
       <div className="flex-1 space-y-2">
         <div className="flex justify-between items-start">
-          <p className="text-sm font-medium">{notification.title}</p>
+          <p className="text-sm font-medium leading-none">{notification.title}</p>
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6"
+            className="h-6 w-6 -mt-1 -mr-2"
             onClick={handleHideOrDelete}
           >
             <X className="h-4 w-4" />
@@ -59,15 +59,18 @@ const NotificationItem = ({ notification, isGlobal = false }) => {
       </div>
 
       {images.length > 0 && (
-        <ScrollArea className="flex gap-2 overflow-x-auto pb-2">
-          <div className="flex gap-2">
+        <ScrollArea className="w-full">
+          <div className="flex gap-2 pb-2">
             {images.map((url, index) => (
-              <img
-                key={index}
-                src={url}
-                alt=""
-                className="h-24 w-24 rounded-lg object-cover"
-              />
+              <div key={index} className="relative min-w-[120px] w-[120px]">
+                <AspectRatio ratio={1}>
+                  <img
+                    src={url}
+                    alt=""
+                    className="rounded-md object-cover w-full h-full hover:opacity-90 transition-opacity"
+                  />
+                </AspectRatio>
+              </div>
             ))}
           </div>
         </ScrollArea>
