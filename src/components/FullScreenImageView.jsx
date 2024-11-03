@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
-import { Download, Trash2, RefreshCw, Copy, Share2 } from "lucide-react";
+import { Download, Trash2, RefreshCw, Copy, Share2, Check } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
+import { toast } from 'sonner';
 
 const FullScreenImageView = ({ 
   image, 
@@ -18,6 +19,8 @@ const FullScreenImageView = ({
 }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
+  const [copyIcon, setCopyIcon] = useState('copy');
+  const [shareIcon, setShareIcon] = useState('share');
   
   if (!isOpen || !image) {
     return null;
@@ -25,10 +28,16 @@ const FullScreenImageView = ({
 
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(image.prompt);
+    setCopyIcon('check');
+    toast.success('Prompt copied to clipboard');
+    setTimeout(() => setCopyIcon('copy'), 1500);
   };
 
   const handleShare = async () => {
     await navigator.clipboard.writeText(`${window.location.origin}/image/${image.id}`);
+    setShareIcon('check');
+    toast.success('Share link copied to clipboard');
+    setTimeout(() => setShareIcon('share'), 1500);
   };
 
   const detailItems = [
@@ -60,10 +69,10 @@ const FullScreenImageView = ({
                     <h3 className="text-lg font-semibold">Image Details</h3>
                     <div className="flex gap-2">
                       <Button variant="ghost" size="icon" onClick={handleCopyPrompt}>
-                        <Copy className="h-4 w-4" />
+                        {copyIcon === 'copy' ? <Copy className="h-4 w-4" /> : <Check className="h-4 w-4" />}
                       </Button>
                       <Button variant="ghost" size="icon" onClick={handleShare}>
-                        <Share2 className="h-4 w-4" />
+                        {shareIcon === 'share' ? <Share2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
                       </Button>
                     </div>
                   </div>

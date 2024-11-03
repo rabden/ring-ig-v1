@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Drawer } from 'vaul';
 import { Button } from "@/components/ui/button";
-import { Download, Trash2, Wand2, Copy, Share2 } from "lucide-react";
+import { Download, Trash2, Wand2, Copy, Share2, Check } from "lucide-react";
 import { supabase } from '@/integrations/supabase/supabase';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
+import { toast } from 'sonner';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -22,15 +23,23 @@ const MobileImageDrawer = ({
 }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
+  const [copyIcon, setCopyIcon] = useState('copy');
+  const [shareIcon, setShareIcon] = useState('share');
   
   if (!image) return null;
 
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(image.prompt);
+    setCopyIcon('check');
+    toast.success('Prompt copied to clipboard');
+    setTimeout(() => setCopyIcon('copy'), 1500);
   };
 
   const handleShare = async () => {
     await navigator.clipboard.writeText(`${window.location.origin}/image/${image.id}`);
+    setShareIcon('check');
+    toast.success('Share link copied to clipboard');
+    setTimeout(() => setShareIcon('share'), 1500);
   };
 
   const handleRemixClick = () => {
@@ -46,7 +55,7 @@ const MobileImageDrawer = ({
     { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
     { label: "Quality", value: image.quality },
     { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
-    { label: "Seed", value: image.seed }, // Added seed detail
+    { label: "Seed", value: image.seed },
   ];
 
   return (
@@ -110,10 +119,10 @@ const MobileImageDrawer = ({
                     <h3 className="text-lg font-semibold">Prompt</h3>
                     <div className="flex gap-2">
                       <Button variant="ghost" size="sm" onClick={handleCopyPrompt}>
-                        <Copy className="h-4 w-4" />
+                        {copyIcon === 'copy' ? <Copy className="h-4 w-4" /> : <Check className="h-4 w-4" />}
                       </Button>
                       <Button variant="ghost" size="sm" onClick={handleShare}>
-                        <Share2 className="h-4 w-4" />
+                        {shareIcon === 'share' ? <Share2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
                       </Button>
                     </div>
                   </div>
