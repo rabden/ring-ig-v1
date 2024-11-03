@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Masonry from 'react-masonry-css'
 import SkeletonImageCard from './SkeletonImageCard'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
@@ -40,6 +40,7 @@ const ImageGallery = ({
   const { userLikes, toggleLike } = useLikes(userId);
   const { data: modelConfigs } = useModelConfigs();
   const isMobile = window.innerWidth <= 768;
+  const galleryRef = useRef(null);
 
   const { ref, inView } = useInView({
     threshold: 0,
@@ -60,6 +61,16 @@ const ImageGallery = ({
     searchQuery,
     modelConfigs
   );
+
+  // Scroll to top when content changes
+  useEffect(() => {
+    if (galleryRef.current) {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  }, [activeView, activeFilters, searchQuery, nsfwEnabled, generatingImages.length]);
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -121,32 +132,34 @@ const ImageGallery = ({
 
   return (
     <>
-      <Masonry
-        breakpointCols={breakpointColumnsObj}
-        className="flex w-auto md:px-2 -mx-1 md:mx-0"
-        columnClassName="bg-clip-padding px-1 md:px-2"
-      >
-        {renderContent()}
-      </Masonry>
+      <div ref={galleryRef}>
+        <Masonry
+          breakpointCols={breakpointColumnsObj}
+          className="flex w-auto md:px-2 -mx-1 md:mx-0"
+          columnClassName="bg-clip-padding px-1 md:px-2"
+        >
+          {renderContent()}
+        </Masonry>
 
-      {hasNextPage && (
-        <div ref={ref} className="flex justify-center mt-4 mb-8">
-          <Button 
-            variant="outline" 
-            onClick={() => fetchNextPage()}
-            disabled={isFetchingNextPage}
-          >
-            {isFetchingNextPage ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Loading...
-              </>
-            ) : (
-              'Load More'
-            )}
-          </Button>
-        </div>
-      )}
+        {hasNextPage && (
+          <div ref={ref} className="flex justify-center mt-4 mb-8">
+            <Button 
+              variant="outline" 
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+            >
+              {isFetchingNextPage ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                'Load More'
+              )}
+            </Button>
+          </div>
+        )}
+      </div>
 
       <MobileImageDrawer
         open={drawerOpen}
