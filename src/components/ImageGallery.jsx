@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { supabase } from '@/integrations/supabase/supabase'
 import Masonry from 'react-masonry-css'
 import SkeletonImageCard from './SkeletonImageCard'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
@@ -8,8 +6,11 @@ import MobileImageDrawer from './MobileImageDrawer'
 import ImageCard from './ImageCard'
 import { useLikes } from '@/hooks/useLikes'
 import MobileGeneratingStatus from './MobileGeneratingStatus'
-import { useImageFilter } from '@/hooks/useImageFilter'
 import NoResults from './NoResults'
+import { useImagePagination } from '@/hooks/useImagePagination'
+import { useInView } from 'react-intersection-observer'
+import { Button } from './ui/button'
+import { Loader2 } from 'lucide-react'
 
 const breakpointColumnsObj = {
   default: 4,
@@ -39,94 +40,39 @@ const ImageGallery = ({
   const { userLikes, toggleLike } = useLikes(userId);
   const { data: modelConfigs } = useModelConfigs();
   const isMobile = window.innerWidth <= 768;
-  const { filterImages } = useImageFilter();
 
-  const { data: images, isLoading, refetch } = useQuery({
-    queryKey: ['images', userId, activeView, nsfwEnabled, activeFilters, searchQuery],
-    queryFn: async () => {
-      if (!userId) return []
-
-      const { data, error } = await supabase
-        .from('user_images')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-
-      return filterImages(data, {
-        userId,
-        activeView,
-        nsfwEnabled,
-        modelConfigs,
-        activeFilters,
-        searchQuery
-      });
-    },
-    enabled: !!userId && !!modelConfigs,
+  const { ref, inView } = useInView({
+    threshold: 0,
   });
 
+  const {
+    images,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    refetch
+  } = useImagePagination(
+    userId,
+    activeView,
+    nsfwEnabled,
+    activeFilters,
+    searchQuery,
+    modelConfigs
+  );
+
   useEffect(() => {
-    refetch()
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  useEffect(() => {
+    refetch();
   }, [activeView, nsfwEnabled, refetch]);
 
-  useEffect(() => {
-    const channels = [
-      supabase
-        .channel('user_images_changes')
-        .on('postgres_changes', 
-          { event: '*', schema: 'public', table: 'user_images' }, 
-          (payload) => {
-            if (payload.eventType === 'INSERT') {
-              const isNsfw = modelConfigs?.[payload.new.model]?.category === "NSFW";
-              if (activeView === 'myImages') {
-                if (nsfwEnabled) {
-                  if (isNsfw && payload.new.user_id === userId) {
-                    refetch();
-                  }
-                } else {
-                  if (!isNsfw && payload.new.user_id === userId) {
-                    refetch();
-                  }
-                }
-              } else if (activeView === 'inspiration') {
-                if (nsfwEnabled) {
-                  if (isNsfw && payload.new.user_id !== userId) {
-                    refetch();
-                  }
-                } else {
-                  if (!isNsfw && payload.new.user_id !== userId) {
-                    refetch();
-                  }
-                }
-              }
-            } else if (payload.eventType === 'DELETE') {
-              refetch();
-            }
-          }
-        ),
-      supabase
-        .channel('user_image_likes_changes')
-        .on('postgres_changes', 
-          { event: '*', schema: 'public', table: 'user_image_likes' },
-          () => {
-            refetch();
-          }
-        )
-    ];
-
-    // Subscribe to all channels
-    Promise.all(channels.map(channel => channel.subscribe()));
-
-    // Cleanup function to unsubscribe from all channels
-    return () => {
-      channels.forEach(channel => {
-        supabase.removeChannel(channel);
-      });
-    };
-  }, [userId, activeView, nsfwEnabled, refetch, modelConfigs]);
-
   const handleImageClick = (image, index) => {
-    if (window.innerWidth <= 768) {
+    if (isMobile) {
       setSelectedImage(image);
       setShowImageInDrawer(true);
       setDrawerOpen(true);
@@ -137,7 +83,7 @@ const ImageGallery = ({
 
   const handleMoreClick = (image, e) => {
     e.stopPropagation();
-    if (window.innerWidth <= 768) {
+    if (isMobile) {
       setSelectedImage(image);
       setShowImageInDrawer(false);
       setDrawerOpen(true);
@@ -182,6 +128,25 @@ const ImageGallery = ({
       >
         {renderContent()}
       </Masonry>
+
+      {hasNextPage && (
+        <div ref={ref} className="flex justify-center mt-4 mb-8">
+          <Button 
+            variant="outline" 
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+          >
+            {isFetchingNextPage ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Loading...
+              </>
+            ) : (
+              'Load More'
+            )}
+          </Button>
+        </div>
+      )}
 
       <MobileImageDrawer
         open={drawerOpen}
