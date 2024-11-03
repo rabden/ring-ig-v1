@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -7,11 +7,13 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
 import ProUpgradeForm from './pro/ProUpgradeForm';
+import EditProfileForm from './profile/EditProfileForm';
 
 const ProfileMenu = ({ user, credits, bonusCredits }) => {
   const { logout } = useSupabaseAuth();
-  const [isOpen, setIsOpen] = React.useState(false);
-  const [upgradeFormOpen, setUpgradeFormOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [upgradeFormOpen, setUpgradeFormOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const { data: isPro } = useProUser(user?.id);
 
   const { data: totalLikes = 0 } = useQuery({
@@ -60,37 +62,48 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
                 <p className="text-sm text-muted-foreground">{user.email}</p>
                 {isPro && <p className="text-sm text-primary mt-1">Pro User</p>}
               </div>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="bg-muted/50 p-4 rounded-lg">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Credits</span>
-                    <span className="text-sm">{credits}+ B{bonusCredits}</span>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Total Likes</span>
-                    <span className="text-sm">{totalLikes}</span>
-                  </div>
-                </div>
-              </div>
-              
-              {!isPro && (
-                <Button 
-                  variant="default" 
-                  className="w-full bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 hover:from-yellow-400 hover:via-yellow-600 hover:to-amber-600"
-                  onClick={() => setUpgradeFormOpen(true)}
-                >
-                  Upgrade to Pro
-                </Button>
-              )}
-              
-              <Button variant="outline" className="w-full" onClick={() => logout()}>
-                Sign Out
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setIsEditing(!isEditing)}
+              >
+                {isEditing ? 'Cancel Editing' : 'Edit Profile'}
               </Button>
             </div>
+            
+            {isEditing ? (
+              <EditProfileForm user={user} onClose={() => setIsEditing(false)} />
+            ) : (
+              <div className="space-y-4">
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Credits</span>
+                      <span className="text-sm">{credits}+ B{bonusCredits}</span>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">Total Likes</span>
+                      <span className="text-sm">{totalLikes}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {!isPro && (
+                  <Button 
+                    variant="default" 
+                    className="w-full bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 hover:from-yellow-400 hover:via-yellow-600 hover:to-amber-600"
+                    onClick={() => setUpgradeFormOpen(true)}
+                  >
+                    Upgrade to Pro
+                  </Button>
+                )}
+                
+                <Button variant="outline" className="w-full" onClick={() => logout()}>
+                  Sign Out
+                </Button>
+              </div>
+            )}
           </div>
         </SheetContent>
       </Sheet>
