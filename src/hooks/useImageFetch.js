@@ -9,7 +9,7 @@ export const useImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters, 
     if (!userId) {
       return {
         images: [],
-        nextPage: undefined,
+        nextPage: null,
         totalCount: 0
       };
     }
@@ -49,9 +49,11 @@ export const useImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters, 
       return nsfwEnabled ? isNsfw : !isNsfw;
     });
 
+    const hasMore = from + filteredData.length < count;
+    
     return {
       images: filteredData,
-      nextPage: filteredData.length === ITEMS_PER_PAGE ? pageParam + 1 : undefined,
+      nextPage: hasMore ? pageParam + 1 : null,
       totalCount: count
     };
   };
