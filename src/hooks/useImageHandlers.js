@@ -1,6 +1,7 @@
 import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useProUser } from '@/hooks/useProUser'
+import { toast } from 'sonner'
 
 export const useImageHandlers = ({
   generateImage,
@@ -106,8 +107,15 @@ export const useImageHandlers = ({
   }
 
   const handleDiscard = async (image) => {
-    await deleteImageCompletely(image.id);
-    queryClient.invalidateQueries(['userImages']);
+    try {
+      await deleteImageCompletely(image.id);
+      queryClient.invalidateQueries(['userImages']);
+      toast.success('Image deleted successfully');
+      setFullScreenViewOpen(false); // Close the full screen view if open
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      toast.error('Failed to delete image');
+    }
   }
 
   const handleViewDetails = (image) => {
