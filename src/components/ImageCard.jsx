@@ -2,21 +2,21 @@ import React, { useState } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MoreVertical, UserCircle2 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ImageStatusIndicators from './ImageStatusIndicators'
 import { supabase } from '@/integrations/supabase/supabase'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useStyleConfigs } from '@/hooks/useStyleConfigs'
-import LikeButton from './LikeButton'
 import { useQuery } from '@tanstack/react-query'
 import { Skeleton } from "@/components/ui/skeleton"
 import { downloadImage } from '@/utils/downloadUtils'
+import { useProUser } from '@/hooks/useProUser'
+import UserProfileMenu from './profile/UserProfileMenu'
+import LikeButton from './LikeButton'
 
 const ImageCard = ({ 
   image, 
   onImageClick, 
-  onMoreClick, 
   onDownload, 
   onDiscard, 
   onRemix, 
@@ -27,23 +27,11 @@ const ImageCard = ({
   onToggleLike
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   const imageSrc = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
   
-  const { data: likeCount = 0 } = useQuery({
-    queryKey: ['imageLikes', image.id],
-    queryFn: async () => {
-      const { count, error } = await supabase
-        .from('user_image_likes')
-        .select('*', { count: 'exact' })
-        .eq('image_id', image.id);
-      
-      if (error) throw error;
-      return count || 0;
-    },
-  });
-
   const { data: userProfile } = useQuery({
     queryKey: ['userProfile', image.user_id],
     queryFn: async () => {
@@ -58,18 +46,20 @@ const ImageCard = ({
     },
   });
 
-  const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
-  const modelName = modelConfigs?.[image.model]?.name || image.model;
-  const styleName = styleConfigs?.[image.style]?.name || 'General';
-  const displayName = userProfile?.display_name || 'Anonymous';
-
-  const handleDoubleClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!isLiked) {
-      onToggleLike(image.id);
-    }
-  };
+  const { data: isUserPro } = useProUser(image.user_id);
+  
+  const { data: likeCount = 0 } = useQuery({
+    queryKey: ['imageLikes', image.id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('user_image_likes')
+        .select('*', { count: 'exact' })
+        .eq('image_id', image.id);
+      
+      if (error) throw error;
+      return count || 0;
+    },
+  });
 
   const handleDownload = async () => {
     try {
@@ -97,42 +87,38 @@ const ImageCard = ({
             alt={image.prompt} 
             className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
             onClick={() => onImageClick(image)}
-            onDoubleClick={handleDoubleClick}
             onLoad={() => setImageLoaded(true)}
             loading="lazy"
           />
-          <div className="absolute bottom-2 left-2 flex gap-1">
-            <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
-              {modelName}
-            </Badge>
-            {!isNsfw && (
-              <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
-                {styleName}
-              </Badge>
-            )}
-          </div>
         </CardContent>
       </Card>
       <div className="mt-1 flex items-center justify-between">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          {userProfile?.avatar_url ? (
-            <img 
-              src={userProfile.avatar_url} 
-              alt={displayName}
-              className="w-5 h-5 rounded-full"
-            />
-          ) : (
-            <UserCircle2 className="w-5 h-5 text-muted-foreground" />
-          )}
-          <p className="text-xs text-muted-foreground truncate">{displayName}</p>
-        </div>
+        <button 
+          className="flex items-center gap-2 flex-1 min-w-0 hover:opacity-80 transition-opacity"
+          onClick={() => setShowProfileMenu(true)}
+        >
+          <div className={`${isUserPro ? 'p-[2px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 rounded-full' : ''}`}>
+            {userProfile?.avatar_url ? (
+              <img 
+                src={userProfile.avatar_url} 
+                alt={userProfile?.display_name || 'Anonymous'}
+                className={`w-5 h-5 rounded-full ${isUserPro ? 'border border-background' : ''}`}
+              />
+            ) : (
+              <UserCircle2 className="w-5 h-5 text-muted-foreground" />
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground truncate">
+            {userProfile?.display_name || 'Anonymous'}
+          </p>
+        </button>
         <div className="flex items-center gap-1">
           <div className="flex items-center gap-1">
             <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
             <span className="text-xs text-muted-foreground">{likeCount}</span>
           </div>
           {isMobile ? (
-            <Button variant="ghost" className="h-6 w-6 p-0" onClick={(e) => onMoreClick(image, e)}>
+            <Button variant="ghost" className="h-6 w-6 p-0" onClick={() => onMoreClick(image)}>
               <MoreVertical className="h-4 w-4" />
             </Button>
           ) : (
@@ -162,6 +148,12 @@ const ImageCard = ({
           )}
         </div>
       </div>
+
+      <UserProfileMenu 
+        userId={image.user_id}
+        open={showProfileMenu}
+        onOpenChange={setShowProfileMenu}
+      />
     </div>
   );
 };
