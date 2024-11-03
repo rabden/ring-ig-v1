@@ -14,7 +14,7 @@ const UserProfile = () => {
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
   
-  const { data: profile } = useQuery({
+  const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: ['userProfile', username],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -60,6 +60,14 @@ const UserProfile = () => {
     },
     enabled: !!profile?.id
   });
+
+  if (isProfileLoading) {
+    return (
+      <div className="min-h-screen bg-background p-4">
+        <div className="text-center">Loading...</div>
+      </div>
+    );
+  }
 
   if (!profile) {
     return (
@@ -107,7 +115,7 @@ const UserProfile = () => {
           activeFilters={{ userId: profile.id }}
           nsfwEnabled={false}
           data={{ pages: [{ images: userImages || [] }], pageParams: [] }}
-          isLoading={false}
+          isLoading={isProfileLoading}
         />
       </div>
     </div>
