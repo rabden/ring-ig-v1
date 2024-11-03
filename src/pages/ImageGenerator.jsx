@@ -11,6 +11,7 @@ import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useRemixImage } from '@/hooks/useRemixImage';
+import { toast } from 'sonner';
 
 // Import components
 import AuthOverlay from '@/components/AuthOverlay';
@@ -97,34 +98,43 @@ const ImageGenerator = () => {
     await generateImage();
   };
 
-  const {
-    handleImageClick,
-    handleModelChange,
-    handlePromptKeyDown,
-    handleDownload,
-    handleDiscard,
-    handleViewDetails,
-  } = useImageHandlers({
-    generateImage: handleGenerateImage,
-    setSelectedImage,
-    setFullScreenViewOpen,
-    setModel,
-    setSteps,
-    setPrompt,
-    setSeed,
-    setRandomizeSeed,
-    setWidth,
-    setHeight,
-    setQuality,
-    setAspectRatio,
-    setUseAspectRatio,
-    aspectRatios: [],
-    session,
-    queryClient,
-    activeView,
-    setDetailsDialogOpen,
-    setActiveView,
-  });
+  // Image handling functions
+  const handleImageClick = (image) => {
+    setSelectedImage(image);
+    setFullScreenViewOpen(true);
+  };
+
+  const handleModelChange = (newModel) => {
+    setModel(newModel);
+  };
+
+  const handlePromptKeyDown = async (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      await handleGenerateImage();
+    }
+  };
+
+  const handleDownload = async (imageUrl, prompt) => {
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = `${prompt.slice(0, 30)}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleDiscard = async (image) => {
+    if (confirm('Are you sure you want to delete this image?')) {
+      await deleteImageCompletely(image.id);
+      queryClient.invalidateQueries(['userImages']);
+    }
+  };
+
+  const handleViewDetails = (image) => {
+    setSelectedImage(image);
+    setDetailsDialogOpen(true);
+  };
 
   const handleFilterChange = (type, value) => {
     setActiveFilters(prev => ({ ...prev, [type]: value }));
@@ -161,18 +171,7 @@ const ImageGenerator = () => {
   // Handle remix image loading
   useEffect(() => {
     if (remixImage && isRemixRoute) {
-      setPrompt(remixImage.prompt);
-      setSeed(remixImage.seed);
-      setRandomizeSeed(false);
-      setWidth(remixImage.width);
-      setHeight(remixImage.height);
-      setModel(remixImage.model);
-      setQuality(remixImage.quality);
-      setStyle(remixImage.style);
-      if (remixImage.aspect_ratio) {
-        setAspectRatio(remixImage.aspect_ratio);
-        setUseAspectRatio(true);
-      }
+      handleRemix(remixImage);
     }
   }, [remixImage, isRemixRoute]);
 
