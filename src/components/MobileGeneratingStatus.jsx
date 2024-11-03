@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { ChevronDown, Loader, CheckCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronDown, Loader } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
@@ -8,23 +8,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 const MobileGeneratingStatus = ({ generatingImages }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [showCheck, setShowCheck] = useState(false);
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
-  const prevLength = React.useRef(generatingImages?.length || 0);
-
-  useEffect(() => {
-    if (!generatingImages) return;
-    
-    // If the number of generating images decreased, show checkmark
-    if (generatingImages.length < prevLength.current) {
-      setShowCheck(true);
-      const timer = setTimeout(() => setShowCheck(false), 2000);
-      return () => clearTimeout(timer);
-    }
-    
-    prevLength.current = generatingImages.length;
-  }, [generatingImages?.length]);
 
   if (!generatingImages?.length) return null;
 
@@ -35,11 +20,7 @@ const MobileGeneratingStatus = ({ generatingImages }) => {
         className="w-full px-4 py-1.5 flex items-center justify-between text-sm"
       >
         <div className="flex items-center gap-2">
-          {showCheck ? (
-            <CheckCircle className="w-4 h-4 text-green-500" />
-          ) : (
-            <Loader className="w-4 h-4 animate-spin" />
-          )}
+          <Loader className="w-4 h-4 animate-spin" />
           <span>Generating-{generatingImages.length}</span>
         </div>
         <ChevronDown className={cn(

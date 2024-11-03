@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { Loader, CheckCircle } from "lucide-react"
+import React from 'react'
+import { Loader } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
@@ -9,33 +9,14 @@ import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 const GeneratingImagesDropdown = ({ generatingImages }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
-  const [showCheck, setShowCheck] = useState(false);
-  const prevLength = React.useRef(generatingImages?.length || 0);
   
-  useEffect(() => {
-    if (!generatingImages) return;
-    
-    // If the number of generating images decreased, show checkmark
-    if (generatingImages.length < prevLength.current) {
-      setShowCheck(true);
-      const timer = setTimeout(() => setShowCheck(false), 2000);
-      return () => clearTimeout(timer);
-    }
-    
-    prevLength.current = generatingImages.length;
-  }, [generatingImages?.length]);
-
   if (!generatingImages?.length) return null;
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="h-8">
-          {showCheck ? (
-            <CheckCircle className="w-4 h-4 mr-2 text-green-500" />
-          ) : (
-            <Loader className="w-4 h-4 mr-2 animate-spin" />
-          )}
+          <Loader className="w-4 h-4 mr-2 animate-spin" />
           Generating-{generatingImages.length}
         </Button>
       </DropdownMenuTrigger>
