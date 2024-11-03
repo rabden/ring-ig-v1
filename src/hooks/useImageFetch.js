@@ -89,11 +89,12 @@ export const useImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters, 
     if (error) throw error;
 
     // Filter NSFW content based on model category
-    const filteredData = data.filter(img => {
-      const modelConfig = modelConfigs?.[img.model];
+    const filteredData = data?.filter(img => {
+      if (!modelConfigs) return true;
+      const modelConfig = modelConfigs[img.model];
       const isNsfwModel = modelConfig?.category === "NSFW";
       return nsfwEnabled ? isNsfwModel : !isNsfwModel;
-    });
+    }) || [];
 
     const hasMore = from + filteredData.length < count;
     
