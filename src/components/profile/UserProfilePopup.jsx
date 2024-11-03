@@ -57,7 +57,7 @@ const UserProfilePopup = ({
   });
 
   // Get user's NSFW status
-  const { data: userNsfwStatus } = useQuery({
+  const { data: userNsfwStatus = false } = useQuery({
     queryKey: ['userNsfwStatus', userId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -66,7 +66,13 @@ const UserProfilePopup = ({
         .eq('user_id', userId)
         .single();
       
-      if (error) throw error;
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // No settings found, return default value
+          return false;
+        }
+        throw error;
+      }
       return data?.nsfw_enabled || false;
     },
     enabled: !!userId && isOpen,
