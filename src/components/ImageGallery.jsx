@@ -11,7 +11,6 @@ import { useImagePagination } from '@/hooks/useImagePagination'
 import { useInView } from 'react-intersection-observer'
 import { Button } from './ui/button'
 import { Loader2 } from 'lucide-react'
-import { useRemixImage } from '@/hooks/useRemixImage'
 
 const breakpointColumnsObj = {
   default: 4,
@@ -21,31 +20,20 @@ const breakpointColumnsObj = {
 }
 
 const ImageGallery = ({ 
-  userId,
-  onImageClick,
-  onDownload,
-  onDiscard,
-  onViewDetails,
-  activeView,
-  generatingImages = [],
+  userId, 
+  onImageClick, 
+  onDownload, 
+  onDiscard, 
+  onRemix, 
+  onViewDetails, 
+  activeView, 
+  generatingImages = [], 
   nsfwEnabled,
   activeFilters = {},
   searchQuery = '',
   setActiveTab,
   setStyle,
-  showTopFilter,
-  session,
-  setPrompt,
-  setSeed,
-  setRandomizeSeed,
-  setWidth,
-  setHeight,
-  setModel,
-  setSteps,
-  setQuality,
-  setAspectRatio,
-  setUseAspectRatio,
-  aspectRatios
+  showTopFilter // Add this prop
 }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -73,24 +61,8 @@ const ImageGallery = ({
     activeFilters,
     searchQuery,
     modelConfigs,
-    showTopFilter
+    showTopFilter // Pass showTopFilter to useImagePagination
   );
-
-  const handleRemix = useRemixImage({
-    setPrompt,
-    setSeed,
-    setRandomizeSeed,
-    setWidth,
-    setHeight,
-    setModel,
-    setSteps,
-    setQuality,
-    setStyle,
-    setAspectRatio,
-    setUseAspectRatio,
-    session,
-    aspectRatios
-  });
 
   // Scroll to top when content changes
   useEffect(() => {
@@ -150,11 +122,7 @@ const ImageGallery = ({
         onMoreClick={handleMoreClick}
         onDownload={onDownload}
         onDiscard={onDiscard}
-        onRemix={() => {
-          handleRemix(image);
-          setStyle(image.style);
-          setActiveTab('input');
-        }}
+        onRemix={onRemix}
         onViewDetails={onViewDetails}
         userId={userId}
         isMobile={isMobile}
@@ -202,7 +170,7 @@ const ImageGallery = ({
         showImage={showImageInDrawer}
         onDownload={onDownload}
         onDiscard={onDiscard}
-        onRemix={handleRemix}
+        onRemix={onRemix}
         isOwner={selectedImage?.user_id === userId}
         setActiveTab={setActiveTab}
         setStyle={setStyle}

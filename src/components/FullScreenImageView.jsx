@@ -6,7 +6,6 @@ import { Download, Trash2, RefreshCw, Copy, Share2, Check } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
-import { useRemixImage } from '@/hooks/useRemixImage';
 import { toast } from 'sonner';
 
 const FullScreenImageView = ({ 
@@ -15,50 +14,17 @@ const FullScreenImageView = ({
   onClose,
   onDownload,
   onDiscard,
-  isOwner,
-  // Add all the necessary props for remix functionality
-  session,
-  setPrompt,
-  setSeed,
-  setRandomizeSeed,
-  setWidth,
-  setHeight,
-  setModel,
-  setSteps,
-  setQuality,
-  setStyle,
-  setAspectRatio,
-  setUseAspectRatio,
-  aspectRatios,
-  setActiveTab
+  onRemix,
+  isOwner 
 }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   
-  const handleRemix = useRemixImage({
-    setPrompt,
-    setSeed,
-    setRandomizeSeed,
-    setWidth,
-    setHeight,
-    setModel,
-    setSteps,
-    setQuality,
-    setStyle,
-    setAspectRatio,
-    setUseAspectRatio,
-    session,
-    aspectRatios
-  });
-
-  const handleRemixClick = () => {
-    handleRemix(image);
-    setStyle(image.style);
-    setActiveTab('input');
-    onClose();
-  };
+  if (!isOpen || !image) {
+    return null;
+  }
 
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(image.prompt);
@@ -138,7 +104,7 @@ const FullScreenImageView = ({
                         Discard
                       </Button>
                     )}
-                    <Button onClick={handleRemixClick} className="w-full" variant="outline">
+                    <Button onClick={onRemix} className="w-full" variant="outline">
                       <RefreshCw className="mr-2 h-4 w-4" />
                       Remix
                     </Button>
