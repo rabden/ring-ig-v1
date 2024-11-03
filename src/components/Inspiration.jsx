@@ -14,17 +14,23 @@ const breakpointColumnsObj = {
   500: 2
 }
 
-const Inspiration = ({ userId, onImageClick, onDownload, onRemix, onViewDetails }) => {
+const Inspiration = ({ userId, onImageClick, onDownload, onRemix, onViewDetails, showTopFilter }) => {
   const { data: inspirationImages, isLoading } = useQuery({
-    queryKey: ['inspirationImages', userId],
+    queryKey: ['inspirationImages', userId, showTopFilter],
     queryFn: async () => {
       if (!userId) return []
-      const { data, error } = await supabase
+      let query = supabase
         .from('user_images')
         .select('*')
         .neq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(50)  // Limit to 50 images for performance
+
+      if (showTopFilter) {
+        query = query.eq('is_hot', true).eq('is_trending', true)
+      }
+
+      const { data, error } = await query
       if (error) throw error
       return data
     },

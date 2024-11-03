@@ -30,6 +30,7 @@ const ImageGenerator = () => {
 
   const [activeFilters, setActiveFilters] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
+  const [showTopFilter, setShowTopFilter] = useState(false);
   const isHeaderVisible = useScrollDirection();
   const { session } = useSupabaseAuth();
   const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id);
@@ -175,6 +176,8 @@ const ImageGenerator = () => {
               onRemoveFilter={handleRemoveFilter}
               onSearch={handleSearch}
               nsfwEnabled={nsfwEnabled}
+              showTopFilter={showTopFilter}
+              setShowTopFilter={setShowTopFilter}
             />
             <MobileHeader
               activeFilters={activeFilters}
@@ -203,6 +206,7 @@ const ImageGenerator = () => {
             searchQuery={searchQuery}
             setActiveTab={setActiveTab}
             setStyle={setStyle}
+            showTopFilter={showTopFilter}
           />
         </div>
       </div>
