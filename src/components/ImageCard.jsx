@@ -2,18 +2,17 @@ import React, { useState } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MoreVertical, UserCircle2 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ImageStatusIndicators from './ImageStatusIndicators'
 import { supabase } from '@/integrations/supabase/supabase'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useStyleConfigs } from '@/hooks/useStyleConfigs'
-import LikeButton from './LikeButton'
 import { useQuery } from '@tanstack/react-query'
 import { Skeleton } from "@/components/ui/skeleton"
 import { downloadImage } from '@/utils/downloadUtils'
 import { useProUser } from '@/hooks/useProUser'
 import UserProfileMenu from './profile/UserProfileMenu'
+import LikeButton from './LikeButton'
 
 const ImageCard = ({ 
   image, 
@@ -102,7 +101,7 @@ const ImageCard = ({
             {userProfile?.avatar_url ? (
               <img 
                 src={userProfile.avatar_url} 
-                alt={displayName}
+                alt={userProfile?.display_name || 'Anonymous'}
                 className={`w-5 h-5 rounded-full ${isUserPro ? 'border border-background' : ''}`}
               />
             ) : (
@@ -119,7 +118,7 @@ const ImageCard = ({
             <span className="text-xs text-muted-foreground">{likeCount}</span>
           </div>
           {isMobile ? (
-            <Button variant="ghost" className="h-6 w-6 p-0" onClick={(e) => onMoreClick(image, e)}>
+            <Button variant="ghost" className="h-6 w-6 p-0" onClick={() => onMoreClick(image)}>
               <MoreVertical className="h-4 w-4" />
             </Button>
           ) : (
