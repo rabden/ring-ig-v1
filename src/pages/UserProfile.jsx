@@ -87,8 +87,9 @@ const UserProfile = () => {
           onDiscard={() => {}}
           onRemix={(image) => navigate(`/remix/${image.id}`)}
           onViewDetails={(image) => navigate(`/image/${image.id}`)}
-          activeView="userImages"
+          activeView="myImages"
           activeFilters={{ userId: profile.id }}
+          nsfwEnabled={true}
         />
       </div>
     </div>
