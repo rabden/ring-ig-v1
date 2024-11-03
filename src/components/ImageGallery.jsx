@@ -5,7 +5,6 @@ import { useSimpleImageFetch } from '@/hooks/useSimpleImageFetch';
 import ImageList from './ImageList';
 import MobileImageDrawer from './MobileImageDrawer';
 import MobileGeneratingStatus from './MobileGeneratingStatus';
-import { supabase } from '@/integrations/supabase/supabase';
 
 const ImageGallery = ({ 
   userId, 

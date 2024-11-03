@@ -25,11 +25,13 @@ export const useSimpleImageFetch = ({ userId, activeView, nsfwEnabled, activeFil
       query = query.in('model', GENERAL_MODELS);
     }
 
-    // Apply view filters
+    // Apply view filters and privacy
     if (activeView === 'myImages') {
       query = query.eq('user_id', activeFilters?.userId || userId);
     } else if (activeView === 'inspiration') {
-      query = query.neq('user_id', userId);
+      query = query
+        .neq('user_id', userId)
+        .eq('is_private', false); // Only show public images in inspiration
     }
 
     // Apply additional filters
