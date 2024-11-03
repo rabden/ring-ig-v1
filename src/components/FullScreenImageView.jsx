@@ -7,12 +7,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { toast } from 'sonner';
+import { downloadImage } from '@/utils/downloadUtils';
 
 const FullScreenImageView = ({ 
   image, 
   isOpen, 
   onClose,
-  onDownload,
   onDiscard,
   onRemix,
   isOwner 
@@ -25,6 +25,16 @@ const FullScreenImageView = ({
   if (!isOpen || !image) {
     return null;
   }
+
+  const imageSrc = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
+
+  const handleDownload = async () => {
+    try {
+      await downloadImage(imageSrc, image.prompt);
+    } catch (error) {
+      toast.error('Failed to download image');
+    }
+  };
 
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(image.prompt);
@@ -55,7 +65,7 @@ const FullScreenImageView = ({
         <div className="flex h-full">
           <div className="flex-1 relative flex items-center justify-center bg-black/10 dark:bg-black/30">
             <img
-              src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+              src={imageSrc}
               alt={image.prompt}
               className="max-w-full max-h-[100vh] object-contain"
             />
@@ -94,7 +104,7 @@ const FullScreenImageView = ({
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium">Actions</h4>
                   <div className="grid grid-cols-1 gap-2">
-                    <Button onClick={onDownload} className="w-full" variant="outline">
+                    <Button onClick={handleDownload} className="w-full" variant="outline">
                       <Download className="mr-2 h-4 w-4" />
                       Download
                     </Button>

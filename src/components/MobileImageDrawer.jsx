@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { toast } from 'sonner';
+import { downloadImage } from '@/utils/downloadUtils';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -49,6 +50,15 @@ const MobileImageDrawer = ({
     onOpenChange(false);
   };
 
+  const handleDownload = async () => {
+    try {
+      const imageSrc = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
+      await downloadImage(imageSrc, image.prompt);
+    } catch (error) {
+      toast.error('Failed to download image');
+    }
+  };
+
   const detailItems = [
     { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
     { label: "Size", value: `${image.width}x${image.height}` },
@@ -81,7 +91,7 @@ const MobileImageDrawer = ({
                   variant="ghost"
                   size="sm"
                   className="flex-1"
-                  onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}
+                  onClick={handleDownload}
                 >
                   <Download className="mr-2 h-4 w-4" />
                   Download

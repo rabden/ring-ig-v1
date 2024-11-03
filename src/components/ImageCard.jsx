@@ -11,6 +11,7 @@ import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import LikeButton from './LikeButton'
 import { useQuery } from '@tanstack/react-query'
 import { Skeleton } from "@/components/ui/skeleton"
+import { downloadImage } from '@/utils/downloadUtils'
 
 const ImageCard = ({ 
   image, 
@@ -52,6 +53,14 @@ const ImageCard = ({
     e.stopPropagation();
     if (!isLiked) {
       onToggleLike(image.id);
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      await downloadImage(imageSrc, image.prompt);
+    } catch (error) {
+      toast.error('Failed to download image');
     }
   };
 
@@ -108,7 +117,7 @@ const ImageCard = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onDownload(imageSrc, image.prompt)}>
+                <DropdownMenuItem onClick={handleDownload}>
                   Download
                 </DropdownMenuItem>
                 {image.user_id === userId && (
