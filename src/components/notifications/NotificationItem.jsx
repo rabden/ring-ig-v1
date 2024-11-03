@@ -66,7 +66,7 @@ const NotificationItem = ({ notification, isGlobal = false }) => {
                 key={index}
                 src={url}
                 alt=""
-                className="h-40 w-40 rounded-lg object-cover" // Increased from h-24 w-24 to h-40 w-40
+                className="h-64 w-64 rounded-lg object-cover"
               />
             ))}
           </div>
