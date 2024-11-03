@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MoreVertical } from "lucide-react";
@@ -60,42 +60,42 @@ const ImageCard = ({
       return profile;
     },
     enabled: !!image.user_id,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
   });
 
   const { data: isOwnerPro } = useProUser(image.user_id);
 
+  const checkVisibility = useCallback(() => {
+    if (!imageRef.current) return;
+
+    const rect = imageRef.current.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+    const verticalMargin = windowHeight;
+    
+    const isVisible = (
+      rect.top <= windowHeight + verticalMargin &&
+      rect.bottom >= -verticalMargin
+    );
+
+    if (isVisible && !shouldLoad) {
+      setShouldLoad(true);
+      setImageSrc(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl);
+    }
+  }, [shouldLoad, image.storage_path]);
+
   useEffect(() => {
-    const checkVisibility = () => {
-      if (!imageRef.current) return;
-
-      const rect = imageRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      const verticalMargin = windowHeight;
-      
-      const isVisible = (
-        rect.top <= windowHeight + verticalMargin &&
-        rect.bottom >= -verticalMargin
-      );
-
-      if (isVisible && !shouldLoad) {
-        setShouldLoad(true);
-        setImageSrc(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl);
-      } else if (!isVisible && shouldLoad) {
-        setShouldLoad(false);
-        setImageLoaded(false);
-        setImageSrc('');
-      }
-    };
-
     checkVisibility();
-    window.addEventListener('scroll', checkVisibility, { passive: true });
+    const scrollHandler = () => {
+      window.requestAnimationFrame(checkVisibility);
+    };
+    window.addEventListener('scroll', scrollHandler, { passive: true });
     window.addEventListener('resize', checkVisibility);
 
     return () => {
-      window.removeEventListener('scroll', checkVisibility);
+      window.removeEventListener('scroll', scrollHandler);
       window.removeEventListener('resize', checkVisibility);
     };
-  }, [shouldLoad, image.storage_path]);
+  }, [checkVisibility]);
 
   const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
   const modelName = modelConfigs?.[image.model]?.name || image.model;
@@ -182,4 +182,4 @@ const ImageCard = ({
   );
 };
 
-export default ImageCard;
+export default React.memo(ImageCard);

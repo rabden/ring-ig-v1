@@ -6,12 +6,21 @@ const ImageCardAvatar = React.memo(({ imageOwner, isOwnerPro }) => {
   return (
     <div className={`rounded-full ${isOwnerPro ? 'p-[2px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500' : ''}`}>
       <Avatar className={`h-6 w-6 flex-shrink-0 ${isOwnerPro ? 'border-2 border-background rounded-full' : ''}`}>
-        <AvatarImage src={imageOwner?.avatar_url} />
+        <AvatarImage 
+          src={imageOwner?.avatar_url} 
+          loading="lazy"
+          className="object-cover"
+        />
         <AvatarFallback>
           <User className="h-4 w-4" />
         </AvatarFallback>
       </Avatar>
     </div>
+  );
+}, (prevProps, nextProps) => {
+  return (
+    prevProps.imageOwner?.avatar_url === nextProps.imageOwner?.avatar_url &&
+    prevProps.isOwnerPro === nextProps.isOwnerPro
   );
 });
 
