@@ -1,5 +1,6 @@
 import React from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Drawer } from 'vaul';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ProfileAvatar from './ProfileAvatar';
 import ImageGallery from '../ImageGallery';
@@ -19,6 +20,8 @@ const UserProfilePopup = ({
   setActiveTab,
   setStyle
 }) => {
+  const isMobile = window.innerWidth <= 768;
+  
   const { data: userProfile } = useQuery({
     queryKey: ['userProfile', userId],
     queryFn: async () => {
@@ -52,48 +55,70 @@ const UserProfilePopup = ({
 
   if (!userProfile) return null;
 
-  return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[800px] max-h-[90vh] p-0">
-        <div className="p-6 border-b">
-          <div className="flex items-center gap-4">
-            <ProfileAvatar 
-              user={{ user_metadata: { avatar_url: userProfile.avatar_url } }}
-              isPro={isPro}
-              size="md"
-            />
-            <div>
-              <h2 className="text-xl font-semibold">{userProfile.display_name}</h2>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-sm text-muted-foreground">
-                  {totalLikes} likes
+  const ProfileContent = () => (
+    <>
+      <div className="p-6 border-b">
+        <div className="flex items-center gap-4">
+          <ProfileAvatar 
+            user={{ user_metadata: { avatar_url: userProfile.avatar_url } }}
+            isPro={isPro}
+            size="md"
+          />
+          <div>
+            <h2 className="text-xl font-semibold">{userProfile.display_name}</h2>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-sm text-muted-foreground">
+                {totalLikes} likes
+              </span>
+              {isPro && (
+                <span className="px-2 py-0.5 text-xs font-semibold bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 text-black rounded-full">
+                  PRO
                 </span>
-                {isPro && (
-                  <span className="px-2 py-0.5 text-xs font-semibold bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 text-black rounded-full">
-                    PRO
-                  </span>
-                )}
-              </div>
+              )}
             </div>
           </div>
         </div>
-        
-        <ScrollArea className="h-[calc(90vh-150px)]">
-          <div className="p-6">
-            <ImageGallery
-              userId={authenticatedUserId}
-              onImageClick={onImageClick}
-              onDownload={onDownload}
-              onRemix={onRemix}
-              onViewDetails={onViewDetails}
-              activeView="myImages"
-              setActiveTab={setActiveTab}
-              setStyle={setStyle}
-              showDiscard={false}
-              activeFilters={{ userId: userId }}
-            />
-          </div>
-        </ScrollArea>
+      </div>
+      
+      <ScrollArea className={isMobile ? "h-[calc(96vh-150px)]" : "h-[calc(90vh-150px)]"}>
+        <div className="p-6">
+          <ImageGallery
+            userId={authenticatedUserId}
+            onImageClick={onImageClick}
+            onDownload={onDownload}
+            onRemix={onRemix}
+            onViewDetails={onViewDetails}
+            activeView="myImages"
+            setActiveTab={setActiveTab}
+            setStyle={setStyle}
+            showDiscard={false}
+            activeFilters={{ userId: userId }}
+          />
+        </div>
+      </ScrollArea>
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <Drawer.Root open={isOpen} onOpenChange={onClose}>
+        <Drawer.Portal>
+          <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[60]" />
+          <Drawer.Content className="bg-background fixed inset-x-0 bottom-0 z-[60] rounded-t-[10px]">
+            <div className="h-full max-h-[96vh] overflow-hidden">
+              <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted-foreground/20 my-4" />
+              <ProfileContent />
+            </div>
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
+    );
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-[800px] max-h-[90vh] p-0">
+        <ProfileContent />
       </DialogContent>
     </Dialog>
   );
