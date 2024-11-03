@@ -46,6 +46,7 @@ const MobileImageDrawer = ({
     { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
     { label: "Quality", value: image.quality },
     { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
+    { label: "Seed", value: image.seed }, // Added seed detail
   ];
 
   return (
