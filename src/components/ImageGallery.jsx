@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { useImageFetch } from '@/hooks/useImageFetch';
 import { useLikes } from '@/hooks/useLikes';
-import { useModelConfigs } from '@/hooks/useModelConfigs';
+import { useSimpleImageFetch } from '@/hooks/useSimpleImageFetch';
 import ImageList from './ImageList';
 import MobileImageDrawer from './MobileImageDrawer';
 import MobileGeneratingStatus from './MobileGeneratingStatus';
@@ -27,7 +26,6 @@ const ImageGallery = ({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showImageInDrawer, setShowImageInDrawer] = useState(false);
   const { userLikes, toggleLike } = useLikes(userId);
-  const { data: modelConfigs } = useModelConfigs();
   const isMobile = window.innerWidth <= 768;
 
   // Intersection Observer for infinite scroll
@@ -40,13 +38,11 @@ const ImageGallery = ({
     isFetchingNextPage,
     isLoading,
     refetch
-  } = useImageFetch({
+  } = useSimpleImageFetch({
     userId,
     activeView,
     nsfwEnabled,
-    activeFilters,
-    searchQuery,
-    modelConfigs
+    activeFilters
   });
 
   useEffect(() => {
