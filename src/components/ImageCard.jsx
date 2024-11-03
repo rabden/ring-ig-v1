@@ -93,9 +93,7 @@ const ImageCard = ({
     }
   };
 
-  const handleRemixClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleRemixClick = () => {
     setStyle?.(image.style);
     setActiveTab?.('input');
     onRemix(image);
