@@ -40,6 +40,10 @@ export const useSimpleImageFetch = ({ userId, activeView, nsfwEnabled, activeFil
     if (activeFilters?.model) {
       query = query.eq('model', activeFilters.model);
     }
+    if (activeFilters?.userId) {
+      query = query.eq('user_id', activeFilters.userId)
+        .eq('is_private', false); // Exclude private images in user profile popup
+    }
 
     // Apply sorting
     if (activeView === 'inspiration') {
