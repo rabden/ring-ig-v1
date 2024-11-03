@@ -45,6 +45,22 @@ const UserProfile = () => {
     enabled: !!profile?.id
   });
 
+  const { data: userImages } = useQuery({
+    queryKey: ['profileImages', profile?.id],
+    queryFn: async () => {
+      if (!profile?.id) return [];
+      const { data, error } = await supabase
+        .from('user_images')
+        .select('*')
+        .eq('user_id', profile.id)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!profile?.id
+  });
+
   if (!profile) {
     return (
       <div className="min-h-screen bg-background p-4">
@@ -90,6 +106,8 @@ const UserProfile = () => {
           activeView="myImages"
           activeFilters={{ userId: profile.id }}
           nsfwEnabled={false}
+          data={{ pages: [{ images: userImages || [] }], pageParams: [] }}
+          isLoading={false}
         />
       </div>
     </div>
