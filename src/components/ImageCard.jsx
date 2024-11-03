@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { MoreVertical } from "lucide-react"
+import { MoreVertical, UserCircle2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ImageStatusIndicators from './ImageStatusIndicators'
@@ -44,9 +44,24 @@ const ImageCard = ({
     },
   });
 
+  const { data: userProfile } = useQuery({
+    queryKey: ['userProfile', image.user_id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('display_name, avatar_url')
+        .eq('id', image.user_id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
   const modelName = modelConfigs?.[image.model]?.name || image.model;
   const styleName = styleConfigs?.[image.style]?.name || 'General';
+  const displayName = userProfile?.display_name || 'Anonymous';
 
   const handleDoubleClick = (e) => {
     e.preventDefault();
@@ -99,7 +114,18 @@ const ImageCard = ({
         </CardContent>
       </Card>
       <div className="mt-1 flex items-center justify-between">
-        <p className="text-sm truncate w-[70%]">{image.prompt}</p>
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          {userProfile?.avatar_url ? (
+            <img 
+              src={userProfile.avatar_url} 
+              alt={displayName}
+              className="w-5 h-5 rounded-full"
+            />
+          ) : (
+            <UserCircle2 className="w-5 h-5 text-muted-foreground" />
+          )}
+          <p className="text-xs text-muted-foreground truncate">{displayName}</p>
+        </div>
         <div className="flex items-center gap-1">
           <div className="flex items-center gap-1">
             <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
