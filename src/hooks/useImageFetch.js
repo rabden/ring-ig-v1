@@ -53,16 +53,19 @@ export const useImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters, 
       .from('user_images')
       .select('*');
 
-    // Apply view filters
+    // Apply view filters and sorting
     if (activeView === 'myImages') {
-      query = query.eq('user_id', userId);
+      query = query
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
     } else if (activeView === 'inspiration') {
-      query = query.neq('user_id', userId);
-      // Sort by hot and trending for inspiration view
-      query = query.order('is_hot', { ascending: false })
-                  .order('is_trending', { ascending: false })
-                  .order('created_at', { ascending: false });
+      query = query
+        .neq('user_id', userId)
+        .order('is_hot', { ascending: false })
+        .order('is_trending', { ascending: false })
+        .order('created_at', { ascending: false });
     } else {
+      // Default sorting by date for other views
       query = query.order('created_at', { ascending: false });
     }
 
