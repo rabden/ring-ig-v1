@@ -6,11 +6,12 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
 import ProUpgradeForm from './pro/ProUpgradeForm';
-import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import ProfileAvatar from './profile/ProfileAvatar';
 import DisplayNameEditor from './profile/DisplayNameEditor';
 import { useRealtimeProfile } from '@/hooks/useRealtimeProfile';
+import { handleAvatarUpload } from '@/utils/profileUtils';
+import { useQueryClient } from '@tanstack/react-query';
 
 const ProfileMenu = ({ user, credits, bonusCredits }) => {
   const { logout } = useSupabaseAuth();
@@ -22,6 +23,7 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
   );
   const [showImageDialog, setShowImageDialog] = useState(false);
   const { data: isPro } = useProUser(user?.id);
+  const queryClient = useQueryClient();
 
   // Enable real-time updates
   useRealtimeProfile(user?.id);
@@ -62,51 +64,12 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
     }
   };
 
-  const handleAvatarUpload = async (event) => {
-    try {
-      const file = event.target.files?.[0];
-      if (!file) return;
-
-      if (!file.type.startsWith('image/')) {
-        toast.error('Please upload an image file');
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('File size must be less than 5MB');
-        return;
-      }
-
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}-${Math.random()}.${fileExt}`;
-      const filePath = `${user.id}/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('profile-pictures')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('profile-pictures')
-        .getPublicUrl(filePath);
-
-      const { error: updateError } = await supabase.auth.updateUser({
-        data: { avatar_url: publicUrl }
-      });
-
-      if (updateError) throw updateError;
-
-      await supabase
-        .from('profiles')
-        .update({ avatar_url: publicUrl })
-        .eq('id', user.id);
-
-      toast.success('Profile picture updated successfully');
+  const onAvatarUpload = async (event) => {
+    const file = event.target.files?.[0];
+    const newAvatarUrl = await handleAvatarUpload(file, user.id);
+    if (newAvatarUrl) {
+      queryClient.invalidateQueries(['user']);
       setShowImageDialog(false);
-    } catch (error) {
-      toast.error('Failed to update profile picture');
-      console.error('Error updating profile picture:', error);
     }
   };
 
