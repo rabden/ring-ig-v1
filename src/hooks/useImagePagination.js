@@ -19,9 +19,10 @@ export const useImagePagination = (userId, activeView, nsfwEnabled, activeFilter
       .order('created_at', { ascending: false })
       .range(from, to);
 
-    if (activeView === 'myImages') {
+    // Only apply user filtering if userId is defined and activeView is set
+    if (userId && activeView === 'myImages') {
       query = query.eq('user_id', userId);
-    } else if (activeView === 'inspiration') {
+    } else if (userId && activeView === 'inspiration') {
       query = query.neq('user_id', userId);
     }
 
@@ -57,7 +58,8 @@ export const useImagePagination = (userId, activeView, nsfwEnabled, activeFilter
     queryKey: ['paginatedImages', userId, activeView, nsfwEnabled, activeFilters, searchQuery],
     queryFn: fetchImagePage,
     getNextPageParam: (lastPage) => lastPage.nextPage,
-    enabled: !!userId && !!modelConfigs,
+    // Only enable the query if modelConfigs is available
+    enabled: !!modelConfigs,
   });
 
   return {
