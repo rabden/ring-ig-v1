@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const MobileGeneratingStatus = ({ generatingImages }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -29,32 +30,34 @@ const MobileGeneratingStatus = ({ generatingImages }) => {
       </button>
       
       {isExpanded && (
-        <div className="px-4 pb-3 space-y-3">
-          {generatingImages.map((img) => (
-            <div key={img.id} className="space-y-1.5">
-              <div className="flex items-center gap-2 w-full">
-                <span className="font-medium text-sm">Generating...</span>
-                <Badge variant="secondary" className="ml-auto text-xs">
-                  {img.width}x{img.height}
-                </Badge>
-              </div>
-              {img.prompt && (
-                <p className="text-xs text-muted-foreground line-clamp-1">
-                  {img.prompt}
-                </p>
-              )}
-              <div className="flex gap-2 text-xs text-muted-foreground">
-                <span>{modelConfigs?.[img.model]?.name || img.model}</span>
-                {img.style && modelConfigs?.[img.model]?.category !== "NSFW" && (
-                  <>
-                    <span>•</span>
-                    <span>{styleConfigs?.[img.style]?.name || img.style}</span>
-                  </>
+        <ScrollArea className="px-4 pb-3 max-h-[40vh]">
+          <div className="space-y-3">
+            {generatingImages.map((img) => (
+              <div key={img.id} className="space-y-1.5">
+                <div className="flex items-center gap-2 w-full">
+                  <span className="font-medium text-sm">Generating...</span>
+                  <Badge variant="secondary" className="ml-auto text-xs">
+                    {img.width}x{img.height}
+                  </Badge>
+                </div>
+                {img.prompt && (
+                  <p className="text-xs text-muted-foreground line-clamp-1">
+                    {img.prompt}
+                  </p>
                 )}
+                <div className="flex gap-2 text-xs text-muted-foreground">
+                  <span>{modelConfigs?.[img.model]?.name || img.model}</span>
+                  {img.style && modelConfigs?.[img.model]?.category !== "NSFW" && (
+                    <>
+                      <span>•</span>
+                      <span>{styleConfigs?.[img.style]?.name || img.style}</span>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </ScrollArea>
       )}
     </div>
   );
