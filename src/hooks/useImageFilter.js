@@ -14,12 +14,15 @@ export const useImageFilter = () => {
       
       // Filter by user and NSFW status
       if (activeView === 'myImages') {
+        // When NSFW is enabled, show only NSFW images
+        // When NSFW is disabled, show only non-NSFW images
         if (nsfwEnabled) {
           if (!(img.user_id === userId && isNsfw)) return false;
         } else {
           if (!(img.user_id === userId && !isNsfw)) return false;
         }
       } else if (activeView === 'inspiration') {
+        // Same logic for inspiration view
         if (nsfwEnabled) {
           if (!(img.user_id !== userId && isNsfw)) return false;
         } else {
