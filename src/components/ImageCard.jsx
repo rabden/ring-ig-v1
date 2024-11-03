@@ -11,6 +11,7 @@ import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import LikeButton from './LikeButton'
 import { useQuery } from '@tanstack/react-query'
 import { Skeleton } from "@/components/ui/skeleton"
+import { useQueryClient } from '@tanstack/react-query'
 
 const ImageCard = ({ 
   image, 
@@ -31,6 +32,7 @@ const ImageCard = ({
   const imageRef = useRef(null);
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
+  const queryClient = useQueryClient();
   
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['imageLikes', image.id],
@@ -44,6 +46,22 @@ const ImageCard = ({
       return count || 0;
     },
   });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('image_likes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'user_image_likes', filter: `image_id=eq.${image.id}` },
+        () => {
+          queryClient.invalidateQueries(['imageLikes', image.id]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [image.id, queryClient]);
 
   useEffect(() => {
     const checkVisibility = () => {

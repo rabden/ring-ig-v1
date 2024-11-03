@@ -1,8 +1,28 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
+import { useEffect } from 'react';
 
 export const useLikes = (userId) => {
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const channel = supabase
+      .channel('likes_changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'user_image_likes' },
+        (payload) => {
+          queryClient.invalidateQueries(['likes', userId]);
+          queryClient.invalidateQueries(['imageLikes']);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, queryClient]);
 
   const { data: userLikes } = useQuery({
     queryKey: ['likes', userId],
@@ -58,21 +78,37 @@ export const useLikes = (userId) => {
         if (error) throw error;
 
         // Create notification for the image owner
-        const { error: notificationError } = await supabase
-          .from('notifications')
-          .insert([{
-            user_id: imageData.user_id,
-            title: 'New Like',
-            message: `${userProfile?.display_name || 'Someone'} liked your image`,
-            image_url: supabase.storage.from('user-images').getPublicUrl(imageData.storage_path).data.publicUrl,
-            link: `/image/${imageId}`
-          }]);
-        
-        if (notificationError) throw notificationError;
+        if (imageData.user_id !== userId) {
+          const { error: notificationError } = await supabase
+            .from('notifications')
+            .insert([{
+              user_id: imageData.user_id,
+              title: 'New Like',
+              message: `${userProfile?.display_name || 'Someone'} liked your image`,
+              image_url: supabase.storage.from('user-images').getPublicUrl(imageData.storage_path).data.publicUrl,
+              link: `/image/${imageId}`
+            }]);
+          
+          if (notificationError) throw notificationError;
+        }
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(['likes', userId]);
+    onMutate: async (imageId) => {
+      // Optimistically update the UI
+      const previousLikes = queryClient.getQueryData(['likes', userId]);
+      queryClient.setQueryData(['likes', userId], old => {
+        const isLiked = old?.includes(imageId);
+        if (isLiked) {
+          return old.filter(id => id !== imageId);
+        } else {
+          return [...(old || []), imageId];
+        }
+      });
+      return { previousLikes };
+    },
+    onError: (err, imageId, context) => {
+      // Revert optimistic update on error
+      queryClient.setQueryData(['likes', userId], context.previousLikes);
     }
   });
 

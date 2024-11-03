@@ -1,8 +1,27 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
+import { useEffect } from 'react';
 
 export const useUserCredits = (userId) => {
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!userId) return;
+
+    const channel = supabase
+      .channel('credits_changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'user_credits', filter: `user_id=eq.${userId}` },
+        () => {
+          queryClient.invalidateQueries(['userCredits', userId]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, queryClient]);
 
   const fetchCredits = async () => {
     if (!userId) return null;
