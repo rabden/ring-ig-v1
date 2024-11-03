@@ -41,23 +41,16 @@ export const useImageFilter = () => {
       return true;
     });
 
-    // Sort inspiration images by hot and trending status
+    // Sort inspiration images by hot and trending
     if (activeView === 'inspiration') {
       filteredData.sort((a, b) => {
-        // Hot and trending images first
         if (a.is_hot && a.is_trending && (!b.is_hot || !b.is_trending)) return -1;
         if (b.is_hot && b.is_trending && (!a.is_hot || !a.is_trending)) return 1;
-        
-        // Then hot images
         if (a.is_hot && !b.is_hot) return -1;
         if (b.is_hot && !a.is_hot) return 1;
-        
-        // Then trending images
         if (a.is_trending && !b.is_trending) return -1;
         if (b.is_trending && !a.is_trending) return 1;
-        
-        // Finally sort by creation date
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        return new Date(b.created_at) - new Date(a.created_at);
       });
     }
 
