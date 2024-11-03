@@ -5,6 +5,7 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
+import { useProRequest } from '@/hooks/useProRequest';
 import ProUpgradeForm from './pro/ProUpgradeForm';
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -17,6 +18,7 @@ import { useQueryClient } from '@tanstack/react-query';
 const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const { logout } = useSupabaseAuth();
   const { data: isPro } = useProUser(user?.id);
+  const { data: proRequest } = useProRequest(user?.id);
   const [upgradeFormOpen, setUpgradeFormOpen] = React.useState(false);
   const [isEditing, setIsEditing] = React.useState(false);
   const [displayName, setDisplayName] = React.useState('');
@@ -124,7 +126,7 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
                     <p className="text-2xl font-bold">{totalLikes}</p>
                   </div>
                 </div>
-                {!isPro && (
+                {!isPro && !proRequest && (
                   <Button 
                     variant="default" 
                     className="w-full bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 hover:from-yellow-400 hover:via-yellow-600 hover:to-amber-600"
@@ -132,6 +134,11 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
                   >
                     Upgrade to Pro
                   </Button>
+                )}
+                {!isPro && proRequest && (
+                  <div className="text-sm text-center text-muted-foreground p-4 bg-muted rounded-lg">
+                    Your request to upgrade to Pro is being reviewed by our team
+                  </div>
                 )}
                 <Button onClick={() => logout()} variant="outline" className="w-full">
                   Log out

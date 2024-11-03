@@ -5,6 +5,7 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
+import { useProRequest } from '@/hooks/useProRequest';
 import ProUpgradeForm from './pro/ProUpgradeForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import ProfileAvatar from './profile/ProfileAvatar';
@@ -19,10 +20,11 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
   const [upgradeFormOpen, setUpgradeFormOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(
-    user?.user_metadata?.display_name || user.email?.split('@')[0] || ''
+    user?.user_metadata?.display_name || user?.email?.split('@')[0] || ''
   );
   const [showImageDialog, setShowImageDialog] = useState(false);
   const { data: isPro } = useProUser(user?.id);
+  const { data: proRequest } = useProRequest(user?.id);
   const queryClient = useQueryClient();
 
   // Enable real-time updates
@@ -122,7 +124,7 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
                 </div>
               </div>
               
-              {!isPro && (
+              {!isPro && !proRequest && (
                 <Button 
                   variant="default" 
                   className="w-full bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 hover:from-yellow-400 hover:via-yellow-600 hover:to-amber-600"
@@ -130,6 +132,12 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
                 >
                   Upgrade to Pro
                 </Button>
+              )}
+
+              {!isPro && proRequest && (
+                <div className="text-sm text-center text-muted-foreground p-2 bg-muted rounded-lg">
+                  Your request to upgrade to Pro is being reviewed by our team
+                </div>
               )}
               
               <Button variant="outline" className="w-full" onClick={() => logout()}>
@@ -154,7 +162,7 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
               const input = document.createElement('input');
               input.type = 'file';
               input.accept = 'image/*';
-              input.onchange = handleAvatarUpload;
+              input.onchange = onAvatarUpload;
               input.click();
             }}>
               Upload
