@@ -5,6 +5,14 @@ import { useUserCredits } from '@/hooks/useUserCredits';
 import { useImageGeneration } from '@/hooks/useImageGeneration';
 import { useQueryClient } from '@tanstack/react-query';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
+import { useImageGeneratorState } from '@/hooks/useImageGeneratorState';
+import { useProUser } from '@/hooks/useProUser';
+import { useModelConfigs } from '@/hooks/useModelConfigs';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/supabase';
+import { useRemixImage } from '@/hooks/useRemixImage';
+
+// Import components
 import AuthOverlay from '@/components/AuthOverlay';
 import BottomNavbar from '@/components/BottomNavbar';
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings';
@@ -16,12 +24,6 @@ import DesktopHeader from '@/components/header/DesktopHeader';
 import MobileHeader from '@/components/header/MobileHeader';
 import MobileNotificationsMenu from '@/components/MobileNotificationsMenu';
 import MobileProfileMenu from '@/components/MobileProfileMenu';
-import { useImageGeneratorState } from '@/hooks/useImageGeneratorState';
-import { useImageHandlers } from '@/hooks/useImageHandlers';
-import { useProUser } from '@/hooks/useProUser';
-import { useModelConfigs } from '@/hooks/useModelConfigs';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/supabase';
 
 const ImageGenerator = () => {
   const { imageId } = useParams();
@@ -48,6 +50,22 @@ const ImageGenerator = () => {
     fullScreenImageIndex, setFullScreenImageIndex, generatingImages, setGeneratingImages,
     activeView, setActiveView, nsfwEnabled, setNsfwEnabled, style, setStyle
   } = useImageGeneratorState();
+
+  const handleRemix = useRemixImage({
+    setPrompt,
+    setSeed,
+    setRandomizeSeed,
+    setWidth,
+    setHeight,
+    setModel,
+    setSteps,
+    setQuality,
+    setStyle,
+    setAspectRatio,
+    setUseAspectRatio,
+    session,
+    aspectRatios: []
+  });
 
   const { generateImage } = useImageGeneration({
     session,
@@ -83,7 +101,6 @@ const ImageGenerator = () => {
     handleImageClick,
     handleModelChange,
     handlePromptKeyDown,
-    handleRemix,
     handleDownload,
     handleDiscard,
     handleViewDetails,
@@ -207,6 +224,7 @@ const ImageGenerator = () => {
             setActiveTab={setActiveTab}
             setStyle={setStyle}
             showTopFilter={showTopFilter}
+            session={session}
           />
         </div>
       </div>
@@ -283,6 +301,18 @@ const ImageGenerator = () => {
         onDiscard={handleDiscard}
         onRemix={handleRemix}
         isOwner={false}
+        session={session}
+        setPrompt={setPrompt}
+        setSeed={setSeed}
+        setRandomizeSeed={setRandomizeSeed}
+        setWidth={setWidth}
+        setHeight={setHeight}
+        setModel={setModel}
+        setSteps={setSteps}
+        setQuality={setQuality}
+        setStyle={setStyle}
+        setAspectRatio={setAspectRatio}
+        setUseAspectRatio={setUseAspectRatio}
       />
       {generatingImages.length > 0 && (
         <MobileGeneratingStatus generatingImages={generatingImages} />

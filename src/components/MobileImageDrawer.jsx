@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
+import { useRemixImage } from '@/hooks/useRemixImage';
 import { toast } from 'sonner';
 
 const MobileImageDrawer = ({ 
@@ -15,18 +16,50 @@ const MobileImageDrawer = ({
   image, 
   showImage, 
   onDownload, 
-  onDiscard, 
-  onRemix, 
+  onDiscard,
   isOwner,
   setActiveTab,
-  setStyle 
+  setStyle,
+  session,
+  setPrompt,
+  setSeed,
+  setRandomizeSeed,
+  setWidth,
+  setHeight,
+  setModel,
+  setSteps,
+  setQuality,
+  setAspectRatio,
+  setUseAspectRatio,
+  aspectRatios
 }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   
-  if (!image) return null;
+  const handleRemix = useRemixImage({
+    setPrompt,
+    setSeed,
+    setRandomizeSeed,
+    setWidth,
+    setHeight,
+    setModel,
+    setSteps,
+    setQuality,
+    setStyle,
+    setAspectRatio,
+    setUseAspectRatio,
+    session,
+    aspectRatios
+  });
+
+  const handleRemixClick = () => {
+    handleRemix(image);
+    setStyle(image.style);
+    setActiveTab('input');
+    onOpenChange(false);
+  };
 
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(image.prompt);
@@ -42,17 +75,9 @@ const MobileImageDrawer = ({
     setTimeout(() => setShareIcon('share'), 1500);
   };
 
-  const handleRemixClick = () => {
-    onRemix(image);
-    setStyle(image.style);
-    setActiveTab('input');
-    onOpenChange(false);
-  };
-
   const detailItems = [
     { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
     { label: "Size", value: `${image.width}x${image.height}` },
-    { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
     { label: "Quality", value: image.quality },
     { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
     { label: "Seed", value: image.seed },
