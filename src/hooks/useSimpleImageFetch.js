@@ -2,8 +2,6 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 
 const ITEMS_PER_PAGE = 20;
-const NSFW_MODELS = ['animeNsfw', 'nsfwMaster'];
-const GENERAL_MODELS = ['turbo', 'flux', 'fluxDev', 'preLar'];
 
 export const useSimpleImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters = {} }) => {
   const fetchImages = async ({ pageParam = 0 }) => {
@@ -18,13 +16,6 @@ export const useSimpleImageFetch = ({ userId, activeView, nsfwEnabled, activeFil
       .from('user_images')
       .select('*');
 
-    // Apply NSFW filtering
-    if (nsfwEnabled) {
-      query = query.in('model', NSFW_MODELS);
-    } else {
-      query = query.in('model', GENERAL_MODELS);
-    }
-
     // Apply view filters and privacy
     if (activeView === 'myImages') {
       query = query.eq('user_id', activeFilters?.userId || userId);
@@ -32,6 +23,13 @@ export const useSimpleImageFetch = ({ userId, activeView, nsfwEnabled, activeFil
       query = query
         .neq('user_id', userId)
         .eq('is_private', false); // Only show public images in inspiration
+    }
+
+    // Apply NSFW filtering based on model category
+    if (nsfwEnabled) {
+      query = query.eq('model', 'nsfwMaster');
+    } else {
+      query = query.neq('model', 'nsfwMaster');
     }
 
     // Apply additional filters
