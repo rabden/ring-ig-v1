@@ -35,6 +35,13 @@ export const useImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters, 
       countQuery.ilike('prompt', `%${searchQuery}%`);
     }
 
+    // Add NSFW filter to count query
+    if (nsfwEnabled) {
+      countQuery.in('model', Object.keys(modelConfigs || {}).filter(key => modelConfigs[key].category === "NSFW"));
+    } else {
+      countQuery.in('model', Object.keys(modelConfigs || {}).filter(key => modelConfigs[key].category === "General"));
+    }
+
     const { count } = await countQuery;
 
     // Calculate the offset and check if it's beyond total records
@@ -82,22 +89,23 @@ export const useImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters, 
       query = query.ilike('prompt', `%${searchQuery}%`);
     }
 
+    // Add NSFW filter to main query
+    if (nsfwEnabled) {
+      query = query.in('model', Object.keys(modelConfigs || {}).filter(key => modelConfigs[key].category === "NSFW"));
+    } else {
+      query = query.in('model', Object.keys(modelConfigs || {}).filter(key => modelConfigs[key].category === "General"));
+    }
+
     // Apply pagination after all filters
     query = query.range(from, to);
 
     const { data, error } = await query;
     if (error) throw error;
 
-    // Filter NSFW content
-    const filteredData = data.filter(img => {
-      const isNsfw = modelConfigs?.[img.model]?.category === "NSFW";
-      return nsfwEnabled ? true : !isNsfw;
-    });
-
-    const hasMore = from + filteredData.length < count;
+    const hasMore = from + data.length < count;
     
     return {
-      images: filteredData,
+      images: data,
       nextPage: hasMore ? pageParam + 1 : null,
       totalCount: count
     };
