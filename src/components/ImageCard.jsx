@@ -1,19 +1,18 @@
-import React, { useState } from 'react'
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { MoreVertical, UserCircle2 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import ImageStatusIndicators from './ImageStatusIndicators'
-import { supabase } from '@/integrations/supabase/supabase'
-import { useModelConfigs } from '@/hooks/useModelConfigs'
-import { useStyleConfigs } from '@/hooks/useStyleConfigs'
-import LikeButton from './LikeButton'
-import { useQuery } from '@tanstack/react-query'
-import { Skeleton } from "@/components/ui/skeleton"
-import { downloadImage } from '@/utils/downloadUtils'
-import { Link } from 'react-router-dom'
-import { useProUser } from '@/hooks/useProUser'
+import React, { useState } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { MoreVertical, UserCircle2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import ImageStatusIndicators from './ImageStatusIndicators';
+import { supabase } from '@/integrations/supabase/supabase';
+import { useModelConfigs } from '@/hooks/useModelConfigs';
+import { useStyleConfigs } from '@/hooks/useStyleConfigs';
+import LikeButton from './LikeButton';
+import { useQuery } from '@tanstack/react-query';
+import { Skeleton } from "@/components/ui/skeleton";
+import { Link } from 'react-router-dom';
+import { useProUser } from '@/hooks/useProUser';
 
 const ImageCard = ({ 
   image, 
@@ -72,14 +71,6 @@ const ImageCard = ({
     e.stopPropagation();
     if (!isLiked) {
       onToggleLike(image.id);
-    }
-  };
-
-  const handleDownload = async () => {
-    try {
-      await downloadImage(imageSrc, image.prompt);
-    } catch (error) {
-      toast.error('Failed to download image');
     }
   };
 
@@ -154,10 +145,10 @@ const ImageCard = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleDownload}>
+                <DropdownMenuItem onClick={() => onDownload(imageSrc, image.prompt)}>
                   Download
                 </DropdownMenuItem>
-                {image.user_id === userId && (
+                {onDiscard && (
                   <DropdownMenuItem onClick={() => onDiscard(image)}>
                     Discard
                   </DropdownMenuItem>

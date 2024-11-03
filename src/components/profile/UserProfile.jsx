@@ -8,11 +8,14 @@ import { UserCircle2 } from "lucide-react";
 import ImageGallery from '../ImageGallery';
 import { toast } from 'sonner';
 import { downloadImage } from '@/utils/downloadUtils';
+import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
 const UserProfile = () => {
   const { userId } = useParams();
-  const { data: isPro } = useProUser(userId);
   const navigate = useNavigate();
+  const { data: isPro } = useProUser(userId);
+  const { session } = useSupabaseAuth();
+  const isOwnProfile = session?.user?.id === userId;
 
   const { data: profile } = useQuery({
     queryKey: ['profile', userId],
@@ -66,6 +69,7 @@ const UserProfile = () => {
   };
 
   const handleDiscard = async (image) => {
+    if (!isOwnProfile) return; // Only allow discard on own profile
     try {
       const { error } = await supabase
         .from('user_images')
@@ -123,7 +127,7 @@ const UserProfile = () => {
         activeView="myImages"
         onImageClick={handleImageClick}
         onDownload={handleDownload}
-        onDiscard={handleDiscard}
+        onDiscard={isOwnProfile ? handleDiscard : null} // Only pass discard handler if it's the user's own profile
         onRemix={handleRemix}
         onViewDetails={handleViewDetails}
       />
