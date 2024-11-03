@@ -7,6 +7,7 @@ import ImageGallery from '../ImageGallery';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
+import { useModelConfigs } from '@/hooks/useModelConfigs';
 
 const UserProfilePopup = ({ 
   userId, 
@@ -21,6 +22,8 @@ const UserProfilePopup = ({
   setStyle
 }) => {
   const isMobile = window.innerWidth <= 768;
+  const { data: modelConfigs } = useModelConfigs();
+  const isNsfwModel = (model) => modelConfigs?.[model]?.category === "NSFW";
   
   const { data: userProfile } = useQuery({
     queryKey: ['userProfile', userId],
@@ -49,6 +52,22 @@ const UserProfilePopup = ({
       
       if (error) throw error;
       return count || 0;
+    },
+    enabled: !!userId && isOpen,
+  });
+
+  // Get user's NSFW status
+  const { data: userNsfwStatus } = useQuery({
+    queryKey: ['userNsfwStatus', userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('user_settings')
+        .select('nsfw_enabled')
+        .eq('user_id', userId)
+        .single();
+      
+      if (error) throw error;
+      return data?.nsfw_enabled || false;
     },
     enabled: !!userId && isOpen,
   });
@@ -93,7 +112,7 @@ const UserProfilePopup = ({
             setStyle={setStyle}
             showDiscard={false}
             activeFilters={{ userId: userId }}
-            nsfwEnabled={true}
+            nsfwEnabled={userNsfwStatus}
           />
         </div>
       </ScrollArea>
