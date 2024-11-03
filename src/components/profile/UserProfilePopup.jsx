@@ -5,6 +5,7 @@ import ProfileAvatar from './ProfileAvatar';
 import ImageGallery from '../ImageGallery';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
+import { useProUser } from '@/hooks/useProUser';
 
 const UserProfilePopup = ({ 
   userId, 
@@ -25,7 +26,7 @@ const UserProfilePopup = ({
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data;
@@ -33,20 +34,7 @@ const UserProfilePopup = ({
     enabled: !!userId && isOpen,
   });
 
-  const { data: isPro } = useQuery({
-    queryKey: ['isPro', userId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('pro_users')
-        .select('id')
-        .eq('user_id', userId)
-        .single();
-      
-      if (error && error.code !== 'PGRST116') throw error;
-      return !!data;
-    },
-    enabled: !!userId && isOpen,
-  });
+  const { data: isPro } = useProUser(userId);
 
   const { data: totalLikes = 0 } = useQuery({
     queryKey: ['userTotalLikes', userId],

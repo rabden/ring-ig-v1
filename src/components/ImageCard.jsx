@@ -14,6 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { downloadImage } from '@/utils/downloadUtils';
 import UserProfilePopup from './profile/UserProfilePopup';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { useProUser } from '@/hooks/useProUser';
 
 const ImageCard = ({ 
   image, 
@@ -36,6 +37,8 @@ const ImageCard = ({
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   const { session } = useSupabaseAuth();
+  const { data: isPro } = useProUser(image.user_id);
+  
   const imageSrc = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
   
   const { data: likeCount = 0 } = useQuery({
@@ -58,24 +61,10 @@ const ImageCard = ({
         .from('profiles')
         .select('display_name, avatar_url')
         .eq('id', image.user_id)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data;
-    },
-  });
-
-  const { data: isPro } = useQuery({
-    queryKey: ['isPro', image.user_id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('pro_users')
-        .select('id')
-        .eq('user_id', image.user_id)
-        .single();
-      
-      if (error && error.code !== 'PGRST116') throw error;
-      return !!data;
     },
   });
 
