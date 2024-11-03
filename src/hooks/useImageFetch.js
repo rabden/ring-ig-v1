@@ -35,11 +35,14 @@ export const useImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters, 
       countQuery.ilike('prompt', `%${searchQuery}%`);
     }
 
-    // Add NSFW filter to count query
+    // Filter by NSFW models
+    const nsfwModels = Object.keys(modelConfigs || {}).filter(key => modelConfigs[key].category === "NSFW");
+    const generalModels = Object.keys(modelConfigs || {}).filter(key => modelConfigs[key].category === "General");
+    
     if (nsfwEnabled) {
-      countQuery.in('model', Object.keys(modelConfigs || {}).filter(key => modelConfigs[key].category === "NSFW"));
+      countQuery.in('model', nsfwModels);
     } else {
-      countQuery.in('model', Object.keys(modelConfigs || {}).filter(key => modelConfigs[key].category === "General"));
+      countQuery.in('model', generalModels);
     }
 
     const { count } = await countQuery;
@@ -89,11 +92,11 @@ export const useImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters, 
       query = query.ilike('prompt', `%${searchQuery}%`);
     }
 
-    // Add NSFW filter to main query
+    // Apply NSFW filter
     if (nsfwEnabled) {
-      query = query.in('model', Object.keys(modelConfigs || {}).filter(key => modelConfigs[key].category === "NSFW"));
+      query = query.in('model', nsfwModels);
     } else {
-      query = query.in('model', Object.keys(modelConfigs || {}).filter(key => modelConfigs[key].category === "General"));
+      query = query.in('model', generalModels);
     }
 
     // Apply pagination after all filters
