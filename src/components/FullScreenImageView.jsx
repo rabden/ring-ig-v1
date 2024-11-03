@@ -18,25 +18,10 @@ const FullScreenImageView = ({
 }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
-
+  
   if (!isOpen || !image) {
     return null;
   }
-
-  const handleDownload = () => {
-    const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
-    onDownload(imageUrl, image.prompt);
-  };
-
-  const handleRemix = () => {
-    onRemix(image);
-    onClose();
-  };
-
-  const handleDiscard = () => {
-    onDiscard(image);
-    onClose();
-  };
 
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(image.prompt);
@@ -45,6 +30,15 @@ const FullScreenImageView = ({
   const handleShare = async () => {
     await navigator.clipboard.writeText(`${window.location.origin}/image/${image.id}`);
   };
+
+  const detailItems = [
+    { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
+    { label: "Seed", value: image.seed },
+    { label: "Size", value: `${image.width}x${image.height}` },
+    { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
+    { label: "Quality", value: image.quality },
+    { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
+  ];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -79,45 +73,29 @@ const FullScreenImageView = ({
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium">Settings</h4>
                   <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div>Model:</div>
-                    <div className="text-muted-foreground">{modelConfigs?.[image.model]?.name || image.model}</div>
-                    <div>Quality:</div>
-                    <div className="text-muted-foreground">{image.quality}</div>
-                    <div>Size:</div>
-                    <div className="text-muted-foreground">{image.width}x{image.height}</div>
-                    <div>Seed:</div>
-                    <div className="text-muted-foreground">{image.seed}</div>
-                    <div>Style:</div>
-                    <div className="text-muted-foreground">{styleConfigs?.[image.style]?.name || "General"}</div>
+                    {detailItems.map((item, index) => (
+                      <React.Fragment key={index}>
+                        <div>{item.label}:</div>
+                        <div className="text-muted-foreground">{item.value}</div>
+                      </React.Fragment>
+                    ))}
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <h4 className="text-sm font-medium">Actions</h4>
                   <div className="grid grid-cols-1 gap-2">
-                    <Button 
-                      onClick={handleDownload}
-                      className="w-full"
-                      variant="outline"
-                    >
+                    <Button onClick={onDownload} className="w-full" variant="outline">
                       <Download className="mr-2 h-4 w-4" />
                       Download
                     </Button>
                     {isOwner && (
-                      <Button 
-                        onClick={handleDiscard}
-                        className="w-full"
-                        variant="destructive"
-                      >
+                      <Button onClick={onDiscard} className="w-full" variant="destructive">
                         <Trash2 className="mr-2 h-4 w-4" />
                         Discard
                       </Button>
                     )}
-                    <Button 
-                      onClick={handleRemix}
-                      className="w-full"
-                      variant="outline"
-                    >
+                    <Button onClick={onRemix} className="w-full" variant="outline">
                       <RefreshCw className="mr-2 h-4 w-4" />
                       Remix
                     </Button>
