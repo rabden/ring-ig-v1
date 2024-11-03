@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/supabase';
 
 const ITEMS_PER_PAGE = 20;
 const NSFW_MODELS = ['animeNsfw', 'nsfwMaster'];
+const GENERAL_MODELS = ['turbo', 'flux', 'fluxDev', 'preLar'];
 
 export const useSimpleImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters = {} }) => {
   const fetchImages = async ({ pageParam = 0 }) => {
@@ -21,7 +22,7 @@ export const useSimpleImageFetch = ({ userId, activeView, nsfwEnabled, activeFil
     if (nsfwEnabled) {
       query = query.in('model', NSFW_MODELS);
     } else {
-      query = query.not.in('model', NSFW_MODELS);
+      query = query.in('model', GENERAL_MODELS);
     }
 
     // Apply view filters
