@@ -2,6 +2,7 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 
 const ITEMS_PER_PAGE = 20;
+const NSFW_MODELS = ['nsfwMaster', 'animeNsfw'];
 
 export const useSimpleImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters = {} }) => {
   const fetchImages = async ({ pageParam = 0 }) => {
@@ -27,9 +28,9 @@ export const useSimpleImageFetch = ({ userId, activeView, nsfwEnabled, activeFil
 
     // Apply NSFW filtering based on model category
     if (nsfwEnabled) {
-      query = query.eq('model', 'nsfwMaster');
+      query = query.in('model', NSFW_MODELS);
     } else {
-      query = query.neq('model', 'nsfwMaster');
+      query = query.not('model', 'in', NSFW_MODELS);
     }
 
     // Apply additional filters
