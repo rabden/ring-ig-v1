@@ -13,12 +13,45 @@ export const useImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters, 
       };
     }
 
+    // First, get the total count
+    const countQuery = supabase
+      .from('user_images')
+      .select('id', { count: 'exact', head: true });
+
+    // Apply the same filters as the main query
+    if (activeView === 'myImages') {
+      countQuery.eq('user_id', userId);
+    } else if (activeView === 'inspiration') {
+      countQuery.neq('user_id', userId);
+    }
+
+    if (activeFilters?.style) {
+      countQuery.eq('style', activeFilters.style);
+    }
+    if (activeFilters?.model) {
+      countQuery.eq('model', activeFilters.model);
+    }
+    if (searchQuery) {
+      countQuery.ilike('prompt', `%${searchQuery}%`);
+    }
+
+    const { count } = await countQuery;
+
+    // Calculate the offset and check if it's beyond total records
     const from = pageParam * ITEMS_PER_PAGE;
+    if (count && from >= count) {
+      return {
+        images: [],
+        nextPage: null,
+        totalCount: count
+      };
+    }
+
     const to = from + ITEMS_PER_PAGE - 1;
 
     let query = supabase
       .from('user_images')
-      .select('*', { count: 'exact' });
+      .select('*');
 
     // Apply view filters
     if (activeView === 'myImages') {
@@ -49,13 +82,13 @@ export const useImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters, 
     // Apply pagination after all filters
     query = query.range(from, to);
 
-    const { data, error, count } = await query;
+    const { data, error } = await query;
     if (error) throw error;
 
     // Filter NSFW content
     const filteredData = data.filter(img => {
       const isNsfw = modelConfigs?.[img.model]?.category === "NSFW";
-      return nsfwEnabled ? isNsfw : !isNsfw;
+      return nsfwEnabled ? true : !isNsfw;
     });
 
     const hasMore = from + filteredData.length < count;
