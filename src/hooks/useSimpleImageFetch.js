@@ -30,7 +30,7 @@ export const useSimpleImageFetch = ({ userId, activeView, nsfwEnabled, activeFil
     if (nsfwEnabled) {
       query = query.in('model', NSFW_MODELS);
     } else {
-      query = query.not('model', 'in', NSFW_MODELS);
+      query = query.not('model', 'in', `(${NSFW_MODELS.join(',')})`);
     }
 
     // Apply additional filters
