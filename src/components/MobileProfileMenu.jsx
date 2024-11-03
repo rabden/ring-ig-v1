@@ -1,5 +1,4 @@
 import React from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import SignInDialog from '@/components/SignInDialog';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
@@ -7,10 +6,11 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
 import ProUpgradeForm from './pro/ProUpgradeForm';
-import { Edit, Check, Camera } from 'lucide-react';
-import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import ProfileAvatar from './profile/ProfileAvatar';
+import DisplayNameEditor from './profile/DisplayNameEditor';
+import { useRealtimeProfile } from '@/hooks/useRealtimeProfile';
 
 const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const { logout } = useSupabaseAuth();
@@ -19,6 +19,9 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const [isEditing, setIsEditing] = React.useState(false);
   const [displayName, setDisplayName] = React.useState(user?.user_metadata?.display_name || '');
   const [showImageDialog, setShowImageDialog] = React.useState(false);
+
+  // Enable real-time updates
+  useRealtimeProfile(user?.id);
 
   const { data: totalLikes = 0 } = useQuery({
     queryKey: ['totalLikes', user?.id],
@@ -112,54 +115,21 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
         <div className="p-6">
           {user ? (
             <div className="flex flex-col items-center space-y-8">
-              <div className="relative group">
-                <div className={`rounded-full ${isPro ? 'p-[3px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500' : ''}`}>
-                  <Avatar className={`h-24 w-24 ${isPro ? 'border-3 border-background rounded-full' : ''}`}>
-                    <AvatarImage src={user.user_metadata?.avatar_url} alt={user.email} />
-                    <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                </div>
-                <button 
-                  onClick={() => setShowImageDialog(true)}
-                  className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <Camera className="h-8 w-8 text-white" />
-                </button>
-              </div>
+              <ProfileAvatar 
+                user={user} 
+                isPro={isPro} 
+                size="lg" 
+                onEditClick={() => setShowImageDialog(true)}
+              />
               <div className="text-center space-y-2">
-                <div className="flex items-center justify-center gap-2">
-                  {isEditing ? (
-                    <>
-                      <Input
-                        value={displayName}
-                        onChange={(e) => setDisplayName(e.target.value)}
-                        className="h-8 text-xl font-semibold text-center"
-                      />
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleDisplayNameUpdate}
-                        className="h-8 w-8"
-                      >
-                        <Check className="h-4 w-4" />
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <h3 className="text-xl font-semibold">
-                        {user.user_metadata?.display_name || user.email}
-                      </h3>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setIsEditing(true)}
-                        className="h-8 w-8"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </>
-                  )}
-                </div>
+                <DisplayNameEditor
+                  isEditing={isEditing}
+                  displayName={displayName}
+                  setDisplayName={setDisplayName}
+                  onEdit={() => setIsEditing(true)}
+                  onUpdate={handleDisplayNameUpdate}
+                  size="lg"
+                />
                 <p className="text-sm text-muted-foreground">{user.email}</p>
                 {isPro && (
                   <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-primary text-primary-foreground">
@@ -167,6 +137,7 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
                   </div>
                 )}
               </div>
+              
               <div className="w-full space-y-6">
                 <div className="grid grid-cols-2 gap-6 p-4 rounded-lg bg-muted/50">
                   <div className="space-y-1.5 text-center">
