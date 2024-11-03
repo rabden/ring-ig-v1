@@ -1,20 +1,19 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MoreVertical } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import ImageStatusIndicators from './ImageStatusIndicators';
-import { supabase } from '@/integrations/supabase/supabase';
-import { useModelConfigs } from '@/hooks/useModelConfigs';
-import { useStyleConfigs } from '@/hooks/useStyleConfigs';
-import LikeButton from './LikeButton';
-import { useQuery } from '@tanstack/react-query';
-import UserProfileMenu from './profile/UserProfileMenu';
-import { useProUser } from '@/hooks/useProUser';
-import ImageCardAvatar from './ImageCardAvatar';
-import ImageCardContent from './ImageCardContent';
+import React, { useState, useRef, useEffect } from 'react'
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { MoreVertical, User } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import ImageStatusIndicators from './ImageStatusIndicators'
+import { supabase } from '@/integrations/supabase/supabase'
+import { useModelConfigs } from '@/hooks/useModelConfigs'
+import { useStyleConfigs } from '@/hooks/useStyleConfigs'
+import LikeButton from './LikeButton'
+import { useQuery } from '@tanstack/react-query'
+import { Skeleton } from "@/components/ui/skeleton"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
-const ImageCard = React.memo(({ 
+const ImageCard = ({ 
   image, 
   onImageClick, 
   onMoreClick, 
@@ -60,54 +59,42 @@ const ImageCard = React.memo(({
       return profile;
     },
     enabled: !!image.user_id,
-    staleTime: Infinity, // Cache permanently until manually invalidated
-    cacheTime: 30 * 60 * 1000, // Cache for 30 minutes
   });
 
-  const { data: isOwnerPro } = useProUser(image.user_id);
-
-  const checkVisibility = useCallback(() => {
-    if (!imageRef.current) return;
-
-    const rect = imageRef.current.getBoundingClientRect();
-    const windowHeight = window.innerHeight;
-    const verticalMargin = windowHeight;
-    
-    const isVisible = (
-      rect.top <= windowHeight + verticalMargin &&
-      rect.bottom >= -verticalMargin
-    );
-
-    if (isVisible && !shouldLoad) {
-      setShouldLoad(true);
-      setImageSrc(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl);
-    }
-  }, [shouldLoad, image.storage_path]);
-
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting && !shouldLoad) {
-            setShouldLoad(true);
-            setImageSrc(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl);
-          }
-        });
-      },
-      {
-        rootMargin: '100% 0px',
-        threshold: 0
-      }
-    );
+    const checkVisibility = () => {
+      if (!imageRef.current) return;
 
-    if (imageRef.current) {
-      observer.observe(imageRef.current);
-    }
+      const rect = imageRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const verticalMargin = windowHeight; // One viewport height margin
+      
+      const isVisible = (
+        rect.top <= windowHeight + verticalMargin &&
+        rect.bottom >= -verticalMargin
+      );
+
+      if (isVisible && !shouldLoad) {
+        setShouldLoad(true);
+        setImageSrc(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl);
+      } else if (!isVisible && shouldLoad) {
+        // Unload image when it's out of view
+        setShouldLoad(false);
+        setImageLoaded(false);
+        setImageSrc(''); // Clear the src to free up memory
+      }
+    };
+
+    // Initial check
+    checkVisibility();
+
+    // Add scroll and resize listeners
+    window.addEventListener('scroll', checkVisibility, { passive: true });
+    window.addEventListener('resize', checkVisibility);
 
     return () => {
-      if (imageRef.current) {
-        observer.unobserve(imageRef.current);
-      }
+      window.removeEventListener('scroll', checkVisibility);
+      window.removeEventListener('resize', checkVisibility);
     };
   }, [shouldLoad, image.storage_path]);
 
@@ -115,17 +102,16 @@ const ImageCard = React.memo(({
   const modelName = modelConfigs?.[image.model]?.name || image.model;
   const styleName = styleConfigs?.[image.style]?.name || 'General';
 
+  const handleDoubleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isLiked) {
+      onToggleLike(image.id);
+    }
+  };
+
   const displayName = imageOwner?.display_name || 'Anonymous';
   const truncatedName = displayName.length > 15 ? `${displayName.slice(0, 15)}...` : displayName;
-
-  const UserProfileTrigger = React.memo(React.forwardRef(({ onClick }, ref) => (
-    <div className="flex items-center gap-2 min-w-0 cursor-pointer" onClick={onClick} ref={ref}>
-      <ImageCardAvatar imageOwner={imageOwner} isOwnerPro={isOwnerPro} />
-      <span className="text-xs font-medium truncate">{truncatedName}</span>
-    </div>
-  )));
-
-  UserProfileTrigger.displayName = 'UserProfileTrigger';
 
   return (
     <div className="mb-2">
@@ -135,27 +121,46 @@ const ImageCard = React.memo(({
             isTrending={image.is_trending} 
             isHot={image.is_hot} 
           />
-          <ImageCardContent
-            imageRef={imageRef}
-            imageLoaded={imageLoaded}
-            shouldLoad={shouldLoad}
-            imageSrc={imageSrc}
-            image={image}
-            onImageClick={onImageClick}
-            onToggleLike={onToggleLike}
-            isLiked={isLiked}
-            modelName={modelName}
-            styleName={styleName}
-            isNsfw={isNsfw}
-            setImageLoaded={setImageLoaded}
-          />
+          <div ref={imageRef}>
+            {(!imageLoaded || !shouldLoad) && (
+              <div className="absolute inset-0 bg-muted animate-pulse">
+                <Skeleton className="w-full h-full" />
+              </div>
+            )}
+            {shouldLoad && (
+              <img 
+                src={imageSrc}
+                alt={image.prompt} 
+                className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                onClick={() => onImageClick(image)}
+                onDoubleClick={handleDoubleClick}
+                onLoad={() => setImageLoaded(true)}
+                loading="lazy"
+              />
+            )}
+          </div>
+          <div className="absolute bottom-2 left-2 flex gap-1">
+            <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
+              {modelName}
+            </Badge>
+            {!isNsfw && (
+              <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
+                {styleName}
+              </Badge>
+            )}
+          </div>
         </CardContent>
       </Card>
       <div className="mt-1 flex items-center justify-between">
-        <UserProfileMenu
-          userId={image.user_id}
-          trigger={<UserProfileTrigger />}
-        />
+        <div className="flex items-center gap-2 min-w-0">
+          <Avatar className="h-6 w-6 flex-shrink-0">
+            <AvatarImage src={imageOwner?.avatar_url} />
+            <AvatarFallback>
+              <User className="h-4 w-4" />
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-xs font-medium truncate">{truncatedName}</span>
+        </div>
         <div className="flex items-center gap-1 flex-shrink-0">
           <div className="flex items-center gap-1">
             <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
@@ -194,8 +199,6 @@ const ImageCard = React.memo(({
       </div>
     </div>
   );
-});
-
-ImageCard.displayName = 'ImageCard';
+};
 
 export default ImageCard;
