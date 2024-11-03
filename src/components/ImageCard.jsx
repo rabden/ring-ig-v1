@@ -1,17 +1,19 @@
-import React, { useState, useRef, useEffect } from 'react'
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { MoreVertical, User } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import ImageStatusIndicators from './ImageStatusIndicators'
-import { supabase } from '@/integrations/supabase/supabase'
-import { useModelConfigs } from '@/hooks/useModelConfigs'
-import { useStyleConfigs } from '@/hooks/useStyleConfigs'
-import LikeButton from './LikeButton'
-import { useQuery } from '@tanstack/react-query'
-import { Skeleton } from "@/components/ui/skeleton"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import React, { useState, useRef, useEffect } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { MoreVertical, User } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import ImageStatusIndicators from './ImageStatusIndicators';
+import { supabase } from '@/integrations/supabase/supabase';
+import { useModelConfigs } from '@/hooks/useModelConfigs';
+import { useStyleConfigs } from '@/hooks/useStyleConfigs';
+import LikeButton from './LikeButton';
+import { useQuery } from '@tanstack/react-query';
+import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import UserProfileMenu from './profile/UserProfileMenu';
+import { useProUser } from '@/hooks/useProUser';
 
 const ImageCard = ({ 
   image, 
@@ -61,57 +63,26 @@ const ImageCard = ({
     enabled: !!image.user_id,
   });
 
-  useEffect(() => {
-    const checkVisibility = () => {
-      if (!imageRef.current) return;
-
-      const rect = imageRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      const verticalMargin = windowHeight; // One viewport height margin
-      
-      const isVisible = (
-        rect.top <= windowHeight + verticalMargin &&
-        rect.bottom >= -verticalMargin
-      );
-
-      if (isVisible && !shouldLoad) {
-        setShouldLoad(true);
-        setImageSrc(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl);
-      } else if (!isVisible && shouldLoad) {
-        // Unload image when it's out of view
-        setShouldLoad(false);
-        setImageLoaded(false);
-        setImageSrc(''); // Clear the src to free up memory
-      }
-    };
-
-    // Initial check
-    checkVisibility();
-
-    // Add scroll and resize listeners
-    window.addEventListener('scroll', checkVisibility, { passive: true });
-    window.addEventListener('resize', checkVisibility);
-
-    return () => {
-      window.removeEventListener('scroll', checkVisibility);
-      window.removeEventListener('resize', checkVisibility);
-    };
-  }, [shouldLoad, image.storage_path]);
-
-  const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
-  const modelName = modelConfigs?.[image.model]?.name || image.model;
-  const styleName = styleConfigs?.[image.style]?.name || 'General';
-
-  const handleDoubleClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!isLiked) {
-      onToggleLike(image.id);
-    }
-  };
+  const { data: isOwnerPro } = useProUser(image.user_id);
 
   const displayName = imageOwner?.display_name || 'Anonymous';
   const truncatedName = displayName.length > 15 ? `${displayName.slice(0, 15)}...` : displayName;
+
+  const UserProfileTrigger = React.forwardRef(({ onClick }, ref) => (
+    <div className="flex items-center gap-2 min-w-0 cursor-pointer" onClick={onClick} ref={ref}>
+      <div className={`rounded-full ${isOwnerPro ? 'p-[2px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500' : ''}`}>
+        <Avatar className={`h-6 w-6 flex-shrink-0 ${isOwnerPro ? 'border-2 border-background rounded-full' : ''}`}>
+          <AvatarImage src={imageOwner?.avatar_url} />
+          <AvatarFallback>
+            <User className="h-4 w-4" />
+          </AvatarFallback>
+        </Avatar>
+      </div>
+      <span className="text-xs font-medium truncate">{truncatedName}</span>
+    </div>
+  ));
+
+  UserProfileTrigger.displayName = 'UserProfileTrigger';
 
   return (
     <div className="mb-2">
@@ -129,38 +100,23 @@ const ImageCard = ({
             )}
             {shouldLoad && (
               <img 
-                src={imageSrc}
+                src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
                 alt={image.prompt} 
                 className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                 onClick={() => onImageClick(image)}
-                onDoubleClick={handleDoubleClick}
+                onDoubleClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!isLiked) onToggleLike(image.id); }}
                 onLoad={() => setImageLoaded(true)}
                 loading="lazy"
               />
             )}
           </div>
-          <div className="absolute bottom-2 left-2 flex gap-1">
-            <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
-              {modelName}
-            </Badge>
-            {!isNsfw && (
-              <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
-                {styleName}
-              </Badge>
-            )}
-          </div>
         </CardContent>
       </Card>
       <div className="mt-1 flex items-center justify-between">
-        <div className="flex items-center gap-2 min-w-0">
-          <Avatar className="h-6 w-6 flex-shrink-0">
-            <AvatarImage src={imageOwner?.avatar_url} />
-            <AvatarFallback>
-              <User className="h-4 w-4" />
-            </AvatarFallback>
-          </Avatar>
-          <span className="text-xs font-medium truncate">{truncatedName}</span>
-        </div>
+        <UserProfileMenu
+          userId={image.user_id}
+          trigger={<UserProfileTrigger />}
+        />
         <div className="flex items-center gap-1 flex-shrink-0">
           <div className="flex items-center gap-1">
             <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
@@ -178,7 +134,7 @@ const ImageCard = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onDownload(imageSrc, image.prompt)}>
+                <DropdownMenuItem onClick={() => onDownload(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl, image.prompt)}>
                   Download
                 </DropdownMenuItem>
                 {image.user_id === userId && (
