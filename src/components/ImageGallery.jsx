@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
+import { useImageFetch } from '@/hooks/useImageFetch';
 import { useLikes } from '@/hooks/useLikes';
-import { useSimpleImageFetch } from '@/hooks/useSimpleImageFetch';
+import { useModelConfigs } from '@/hooks/useModelConfigs';
 import ImageList from './ImageList';
 import MobileImageDrawer from './MobileImageDrawer';
 import MobileGeneratingStatus from './MobileGeneratingStatus';
+import { supabase } from '@/integrations/supabase/supabase';
 
 const ImageGallery = ({ 
   userId, 
@@ -25,6 +27,7 @@ const ImageGallery = ({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showImageInDrawer, setShowImageInDrawer] = useState(false);
   const { userLikes, toggleLike } = useLikes(userId);
+  const { data: modelConfigs } = useModelConfigs();
   const isMobile = window.innerWidth <= 768;
 
   // Intersection Observer for infinite scroll
@@ -37,17 +40,14 @@ const ImageGallery = ({
     isFetchingNextPage,
     isLoading,
     refetch
-  } = useSimpleImageFetch({
+  } = useImageFetch({
     userId,
     activeView,
     nsfwEnabled,
-    activeFilters
+    activeFilters,
+    searchQuery,
+    modelConfigs
   });
-
-  // Scroll to top when data changes
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [data, activeView]);
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -58,6 +58,35 @@ const ImageGallery = ({
   useEffect(() => {
     refetch();
   }, [activeView, nsfwEnabled, refetch]);
+
+  useEffect(() => {
+    const channels = [
+      supabase
+        .channel('user_images_changes')
+        .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'user_images' }, 
+          () => {
+            refetch();
+          }
+        ),
+      supabase
+        .channel('user_image_likes_changes')
+        .on('postgres_changes', 
+          { event: '*', schema: 'public', table: 'user_image_likes' },
+          () => {
+            refetch();
+          }
+        )
+    ];
+
+    Promise.all(channels.map(channel => channel.subscribe()));
+
+    return () => {
+      channels.forEach(channel => {
+        supabase.removeChannel(channel);
+      });
+    };
+  }, [userId, refetch]);
 
   const handleImageClick = (image) => {
     if (isMobile) {
@@ -78,7 +107,7 @@ const ImageGallery = ({
   };
 
   return (
-    <div>
+    <>
       <ImageList
         data={data}
         isLoading={isLoading}
@@ -118,7 +147,7 @@ const ImageGallery = ({
       />
 
       <MobileGeneratingStatus generatingImages={generatingImages} />
-    </div>
+    </>
   );
 };
 

@@ -48,8 +48,6 @@ const ImageGenerator = () => {
     activeView, setActiveView, nsfwEnabled, setNsfwEnabled, style, setStyle
   } = useImageGeneratorState();
 
-  const [isPrivate, setIsPrivate] = useState(false);
-
   const { generateImage } = useImageGeneration({
     session,
     prompt,
@@ -65,8 +63,7 @@ const ImageGenerator = () => {
     setGeneratingImages,
     style,
     modelConfigs,
-    steps,
-    isPrivate
+    steps
   });
 
   const handleGenerateImage = async () => {
@@ -127,6 +124,7 @@ const ImageGenerator = () => {
     setSearchQuery(query);
   };
 
+  // Add remix image loading
   const { data: remixImage } = useQuery({
     queryKey: ['remixImage', imageId],
     queryFn: async () => {
@@ -142,6 +140,7 @@ const ImageGenerator = () => {
     enabled: !!imageId && isRemixRoute,
   });
 
+  // Handle remix image loading
   useEffect(() => {
     if (remixImage && isRemixRoute) {
       setPrompt(remixImage.prompt);
@@ -156,7 +155,6 @@ const ImageGenerator = () => {
         setAspectRatio(remixImage.aspect_ratio);
         setUseAspectRatio(true);
       }
-      setIsPrivate(remixImage.is_private); // Set privacy based on remix image
     }
   }, [remixImage, isRemixRoute]);
 
@@ -247,8 +245,6 @@ const ImageGenerator = () => {
           setSteps={setSteps}
           proMode={isPro}
           modelConfigs={modelConfigs}
-          isPrivate={isPrivate}
-          setIsPrivate={setIsPrivate}
         />
       </div>
 

@@ -3,11 +3,10 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Drawer } from 'vaul';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ProfileAvatar from './ProfileAvatar';
+import ImageGallery from '../ImageGallery';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
-import { useFilteredImageFetch } from '@/hooks/useFilteredImageFetch';
-import ImageList from '../ImageList';
 
 const UserProfilePopup = ({ 
   userId, 
@@ -19,11 +18,9 @@ const UserProfilePopup = ({
   onRemix,
   onViewDetails,
   setActiveTab,
-  setStyle,
-  nsfwEnabled
+  setStyle
 }) => {
   const isMobile = window.innerWidth <= 768;
-  const { data: isPro } = useProUser(userId);
   
   const { data: userProfile } = useQuery({
     queryKey: ['userProfile', userId],
@@ -40,6 +37,8 @@ const UserProfilePopup = ({
     enabled: !!userId && isOpen,
   });
 
+  const { data: isPro } = useProUser(userId);
+
   const { data: totalLikes = 0 } = useQuery({
     queryKey: ['userTotalLikes', userId],
     queryFn: async () => {
@@ -52,19 +51,6 @@ const UserProfilePopup = ({
       return count || 0;
     },
     enabled: !!userId && isOpen,
-  });
-
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading
-  } = useFilteredImageFetch({
-    userId: authenticatedUserId,
-    profileUserId: userId,
-    nsfwEnabled,
-    activeFilters: {}
   });
 
   if (!userProfile) return null;
@@ -96,20 +82,18 @@ const UserProfilePopup = ({
       
       <ScrollArea className={isMobile ? "h-[calc(96vh-100px)]" : "h-[calc(90vh-100px)]"}>
         <div className="p-6">
-          <ImageList
-            data={data}
-            isLoading={isLoading}
+          <ImageGallery
             userId={authenticatedUserId}
             onImageClick={onImageClick}
             onDownload={onDownload}
             onRemix={onRemix}
             onViewDetails={onViewDetails}
+            activeView="myImages"
             setActiveTab={setActiveTab}
             setStyle={setStyle}
-            isMobile={isMobile}
-            hasNextPage={hasNextPage}
-            fetchNextPage={fetchNextPage}
-            isFetchingNextPage={isFetchingNextPage}
+            showDiscard={false}
+            activeFilters={{ userId: userId }}
+            nsfwEnabled={true}
           />
         </div>
       </ScrollArea>
