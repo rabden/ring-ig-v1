@@ -22,17 +22,11 @@ export const useImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters, 
       query = query.neq('user_id', userId);
     }
 
-    // Apply NSFW filter based on model category
-    if (modelConfigs) {
-      const nsfwModelKeys = Object.entries(modelConfigs)
-        .filter(([_, config]) => config.category === 'NSFW')
-        .map(([key]) => key);
-
-      if (nsfwEnabled) {
-        query = query.in('model', nsfwModelKeys);
-      } else {
-        query = query.not('model', 'in', nsfwModelKeys);
-      }
+    // Apply NSFW filter
+    if (nsfwEnabled) {
+      query = query.in('model', ['animeNsfw', 'nsfwMaster']);
+    } else {
+      query = query.in('model', ['turbo', 'flux', 'fluxDev', 'preLar']);
     }
 
     // Apply additional filters
@@ -68,6 +62,6 @@ export const useImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters, 
     queryKey: ['images', userId, activeView, nsfwEnabled, activeFilters, searchQuery],
     queryFn: fetchImages,
     getNextPageParam: (lastPage) => lastPage.nextPage,
-    enabled: !!userId && !!modelConfigs,
+    enabled: !!userId,
   });
 };
