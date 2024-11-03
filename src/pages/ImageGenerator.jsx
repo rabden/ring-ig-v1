@@ -22,7 +22,6 @@ import { useProUser } from '@/hooks/useProUser';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
-import { useImageFilter } from '@/hooks/useImageFilter';
 
 const ImageGenerator = () => {
   const { imageId } = useParams();
@@ -125,25 +124,6 @@ const ImageGenerator = () => {
     setSearchQuery(query);
   };
 
-  const [isHotActive, setIsHotActive] = useState(false);
-  const [isTrendingActive, setIsTrendingActive] = useState(false);
-
-  const handleToggleHot = () => {
-    setIsHotActive(!isHotActive);
-    setActiveFilters(prev => ({
-      ...prev,
-      hot: !isHotActive
-    }));
-  };
-
-  const handleToggleTrending = () => {
-    setIsTrendingActive(!isTrendingActive);
-    setActiveFilters(prev => ({
-      ...prev,
-      trending: !isTrendingActive
-    }));
-  };
-
   // Add remix image loading
   const { data: remixImage } = useQuery({
     queryKey: ['remixImage', imageId],
@@ -195,10 +175,6 @@ const ImageGenerator = () => {
               onRemoveFilter={handleRemoveFilter}
               onSearch={handleSearch}
               nsfwEnabled={nsfwEnabled}
-              onToggleHot={handleToggleHot}
-              onToggleTrending={handleToggleTrending}
-              isHotActive={isHotActive}
-              isTrendingActive={isTrendingActive}
             />
             <MobileHeader
               activeFilters={activeFilters}
@@ -207,10 +183,6 @@ const ImageGenerator = () => {
               onSearch={handleSearch}
               isVisible={isHeaderVisible}
               nsfwEnabled={nsfwEnabled}
-              onToggleHot={handleToggleHot}
-              onToggleTrending={handleToggleTrending}
-              isHotActive={isHotActive}
-              isTrendingActive={isTrendingActive}
             />
           </>
         )}

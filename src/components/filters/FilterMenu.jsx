@@ -8,22 +8,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Filter, TrendingUp, Flame } from "lucide-react";
+import { Filter, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 
-const FilterMenu = ({ 
-  activeFilters, 
-  onFilterChange, 
-  onRemoveFilter,
-  onToggleHot,
-  onToggleTrending,
-  isHotActive,
-  isTrendingActive,
-  nsfwEnabled 
-}) => {
+const FilterMenu = ({ activeFilters, onFilterChange, onRemoveFilter, nsfwEnabled }) => {
   const { data: styleConfigs } = useStyleConfigs();
   const { data: modelConfigs } = useModelConfigs();
 
@@ -78,22 +69,6 @@ const FilterMenu = ({
 
   return (
     <div className="flex items-center gap-2">
-      <Button
-        variant={isTrendingActive ? "default" : "ghost"}
-        size="sm"
-        className="h-8 px-3"
-        onClick={onToggleTrending}
-      >
-        <TrendingUp className="h-4 w-4" />
-      </Button>
-      <Button
-        variant={isHotActive ? "default" : "ghost"}
-        size="sm"
-        className="h-8 px-3"
-        onClick={onToggleHot}
-      >
-        <Flame className="h-4 w-4" />
-      </Button>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button 

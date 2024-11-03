@@ -9,7 +9,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
-import { Copy, Share2 } from "lucide-react"
+import { Copy, Share2, Check } from "lucide-react"
+import { toast } from 'sonner'
 import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 
@@ -33,12 +34,14 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(image.prompt);
     setCopyIcon('check');
+    toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
   };
 
   const handleShare = async () => {
     await navigator.clipboard.writeText(`${window.location.origin}/image/${image.id}`);
     setShareIcon('check');
+    toast.success('Share link copied to clipboard');
     setTimeout(() => setShareIcon('share'), 1500);
   };
 

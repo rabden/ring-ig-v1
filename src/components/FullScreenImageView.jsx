@@ -6,6 +6,7 @@ import { Download, Trash2, RefreshCw, Copy, Share2, Check } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
+import { toast } from 'sonner';
 
 const FullScreenImageView = ({ 
   image, 
@@ -28,12 +29,14 @@ const FullScreenImageView = ({
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(image.prompt);
     setCopyIcon('check');
+    toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
   };
 
   const handleShare = async () => {
     await navigator.clipboard.writeText(`${window.location.origin}/image/${image.id}`);
     setShareIcon('check');
+    toast.success('Share link copied to clipboard');
     setTimeout(() => setShareIcon('share'), 1500);
   };
 
