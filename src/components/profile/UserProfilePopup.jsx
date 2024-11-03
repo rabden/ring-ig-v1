@@ -57,21 +57,21 @@ const UserProfilePopup = ({
 
   const ProfileContent = () => (
     <>
-      <div className="p-6 border-b">
-        <div className="flex items-center gap-4">
+      <div className="p-3 border-b">
+        <div className="flex items-center gap-3">
           <ProfileAvatar 
             user={{ user_metadata: { avatar_url: userProfile.avatar_url } }}
             isPro={isPro}
-            size="md"
+            size="sm"
           />
           <div>
-            <h2 className="text-xl font-semibold">{userProfile.display_name}</h2>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="text-sm text-muted-foreground">
+            <h2 className="text-base font-semibold">{userProfile.display_name}</h2>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">
                 {totalLikes} likes
               </span>
               {isPro && (
-                <span className="px-2 py-0.5 text-xs font-semibold bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 text-black rounded-full">
+                <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 text-black rounded-full">
                   PRO
                 </span>
               )}
@@ -80,7 +80,7 @@ const UserProfilePopup = ({
         </div>
       </div>
       
-      <ScrollArea className={isMobile ? "h-[calc(96vh-150px)]" : "h-[calc(90vh-150px)]"}>
+      <ScrollArea className={isMobile ? "h-[calc(96vh-100px)]" : "h-[calc(90vh-100px)]"}>
         <div className="p-6">
           <ImageGallery
             userId={authenticatedUserId}
@@ -93,6 +93,7 @@ const UserProfilePopup = ({
             setStyle={setStyle}
             showDiscard={false}
             activeFilters={{ userId: userId }}
+            nsfwEnabled={true}
           />
         </div>
       </ScrollArea>
