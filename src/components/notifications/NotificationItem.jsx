@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useNotifications } from '@/contexts/NotificationContext';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const NotificationItem = ({ notification, isGlobal = false }) => {
@@ -59,21 +58,19 @@ const NotificationItem = ({ notification, isGlobal = false }) => {
       </div>
 
       {images.length > 0 && (
-        <ScrollArea className="w-full" orientation="horizontal">
-          <div className="flex gap-2 pb-2 min-w-full">
-            {images.map((url, index) => (
-              <div key={index} className="relative min-w-[120px] w-[120px] flex-shrink-0">
-                <AspectRatio ratio={1}>
-                  <img
-                    src={url}
-                    alt=""
-                    className="rounded-md object-cover w-full h-full hover:opacity-90 transition-opacity"
-                  />
-                </AspectRatio>
-              </div>
-            ))}
-          </div>
-        </ScrollArea>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {images.map((url, index) => (
+            <div key={index} className="relative">
+              <AspectRatio ratio={1}>
+                <img
+                  src={url}
+                  alt=""
+                  className="rounded-md object-cover w-full h-full hover:opacity-90 transition-opacity"
+                />
+              </AspectRatio>
+            </div>
+          ))}
+        </div>
       )}
 
       {links.length > 0 && (
