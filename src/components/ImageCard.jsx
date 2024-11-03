@@ -14,7 +14,7 @@ import { useProUser } from '@/hooks/useProUser';
 import ImageCardAvatar from './ImageCardAvatar';
 import ImageCardContent from './ImageCardContent';
 
-const ImageCard = ({ 
+const ImageCard = React.memo(({ 
   image, 
   onImageClick, 
   onMoreClick, 
@@ -196,4 +196,6 @@ const ImageCard = ({
   );
 });
 
-export default React.memo(ImageCard);
+ImageCard.displayName = 'ImageCard';
+
+export default ImageCard;
