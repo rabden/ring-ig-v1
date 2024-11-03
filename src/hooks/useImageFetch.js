@@ -5,7 +5,7 @@ const ITEMS_PER_PAGE = 20;
 
 export const useImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters, searchQuery, modelConfigs }) => {
   const fetchImages = async ({ pageParam = 0 }) => {
-    if (!userId) {
+    if (!userId || !modelConfigs) {
       return {
         images: [],
         nextPage: null,
@@ -88,11 +88,14 @@ export const useImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters, 
     const { data, error } = await query;
     if (error) throw error;
 
-    // Filter NSFW content based on nsfwEnabled flag and model category
+    // Filter images based on NSFW status
     const filteredData = data.filter(img => {
-      if (!modelConfigs) return false;
-      const isNsfwModel = modelConfigs[img.model]?.category === "NSFW";
-      return nsfwEnabled ? isNsfwModel : !isNsfwModel;
+      const modelConfig = modelConfigs[img.model];
+      const isNsfwModel = modelConfig?.category === "NSFW";
+      
+      // If NSFW is enabled, show only NSFW images
+      // If NSFW is disabled, show only non-NSFW images
+      return nsfwEnabled === isNsfwModel;
     });
 
     const hasMore = from + filteredData.length < count;
