@@ -59,10 +59,10 @@ const NotificationItem = ({ notification, isGlobal = false }) => {
       </div>
 
       {images.length > 0 && (
-        <ScrollArea className="w-full">
-          <div className="flex gap-2 pb-2">
+        <ScrollArea className="w-full" orientation="horizontal">
+          <div className="flex gap-2 pb-2 min-w-full">
             {images.map((url, index) => (
-              <div key={index} className="relative min-w-[120px] w-[120px]">
+              <div key={index} className="relative min-w-[120px] w-[120px] flex-shrink-0">
                 <AspectRatio ratio={1}>
                   <img
                     src={url}
