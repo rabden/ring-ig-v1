@@ -161,54 +161,59 @@ const ImageGenerator = () => {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
+      {session && (
+        <>
+          <DesktopHeader
+            user={session.user}
+            credits={credits}
+            bonusCredits={bonusCredits}
+            activeView={activeView}
+            setActiveView={setActiveView}
+            generatingImages={generatingImages}
+            activeFilters={activeFilters}
+            onFilterChange={handleFilterChange}
+            onRemoveFilter={handleRemoveFilter}
+            onSearch={handleSearch}
+            nsfwEnabled={nsfwEnabled}
+            showTopFilter={showTopFilter}
+            setShowTopFilter={setShowTopFilter}
+          />
+          <MobileHeader
+            activeFilters={activeFilters}
+            onFilterChange={handleFilterChange}
+            onRemoveFilter={handleRemoveFilter}
+            onSearch={handleSearch}
+            isVisible={isHeaderVisible}
+            nsfwEnabled={nsfwEnabled}
+            activeView={activeView}
+            showTopFilter={showTopFilter}
+            setShowTopFilter={setShowTopFilter}
+          />
+        </>
+      )}
+      
       <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
         {session && (
           <>
-            <DesktopHeader
-              user={session.user}
-              credits={credits}
-              bonusCredits={bonusCredits}
+            <ImageGallery
+              userId={session?.user?.id}
+              onImageClick={handleImageClick}
+              onDownload={handleDownload}
+              onDiscard={handleDiscard}
+              onRemix={handleRemix}
+              onViewDetails={handleViewDetails}
               activeView={activeView}
-              setActiveView={setActiveView}
               generatingImages={generatingImages}
-              activeFilters={activeFilters}
-              onFilterChange={handleFilterChange}
-              onRemoveFilter={handleRemoveFilter}
-              onSearch={handleSearch}
               nsfwEnabled={nsfwEnabled}
+              modelConfigs={modelConfigs}
+              activeFilters={activeFilters}
+              searchQuery={searchQuery}
+              setActiveTab={setActiveTab}
+              setStyle={setStyle}
               showTopFilter={showTopFilter}
-              setShowTopFilter={setShowTopFilter}
-            />
-            <MobileHeader
-              activeFilters={activeFilters}
-              onFilterChange={handleFilterChange}
-              onRemoveFilter={handleRemoveFilter}
-              onSearch={handleSearch}
-              isVisible={isHeaderVisible}
-              nsfwEnabled={nsfwEnabled}
             />
           </>
         )}
-
-        <div className="md:mt-16 mt-12">
-          <ImageGallery
-            userId={session?.user?.id}
-            onImageClick={handleImageClick}
-            onDownload={handleDownload}
-            onDiscard={handleDiscard}
-            onRemix={handleRemix}
-            onViewDetails={handleViewDetails}
-            activeView={activeView}
-            generatingImages={generatingImages}
-            nsfwEnabled={nsfwEnabled}
-            modelConfigs={modelConfigs}
-            activeFilters={activeFilters}
-            searchQuery={searchQuery}
-            setActiveTab={setActiveTab}
-            setStyle={setStyle}
-            showTopFilter={showTopFilter}
-          />
-        </div>
       </div>
 
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-4 md:p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
@@ -259,7 +264,7 @@ const ImageGenerator = () => {
         bonusCredits={bonusCredits}
         activeTab={activeTab}
       />
-
+      
       <BottomNavbar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
