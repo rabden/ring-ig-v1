@@ -55,8 +55,8 @@ const ImageList = ({
         <ImageCard
           key={image.id}
           image={image}
-          onImageClick={() => onImageClick(image, index)}
-          onMoreClick={(e) => onMoreClick(image, e)}
+          onImageClick={() => onImageClick(image)}
+          onMoreClick={() => onMoreClick(image)}
           onDownload={onDownload}
           onDiscard={onDiscard}
           onRemix={onRemix}

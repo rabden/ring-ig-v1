@@ -88,18 +88,17 @@ const ImageGallery = ({
     };
   }, [userId, refetch]);
 
-  const handleImageClick = (image, index) => {
+  const handleImageClick = (image) => {
     if (isMobile) {
       setSelectedImage(image);
       setShowImageInDrawer(true);
       setDrawerOpen(true);
     } else {
-      onImageClick(image, index);
+      onImageClick(image);
     }
   };
 
-  const handleMoreClick = (image, e) => {
-    e.stopPropagation();
+  const handleMoreClick = (image) => {
     if (isMobile) {
       setSelectedImage(image);
       setShowImageInDrawer(false);
