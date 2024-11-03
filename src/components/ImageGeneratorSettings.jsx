@@ -78,6 +78,7 @@ const ImageGeneratorSettings = ({
 
   const handleGenerateClick = async () => {
     if (generateImage && prompt.trim()) {
+      setPrompt(''); // Clear prompt before generation starts
       await generateImage();
     }
   };
