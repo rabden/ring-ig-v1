@@ -12,6 +12,8 @@ import LikeButton from './LikeButton'
 import { useQuery } from '@tanstack/react-query'
 import { Skeleton } from "@/components/ui/skeleton"
 import { downloadImage } from '@/utils/downloadUtils'
+import { Link } from 'react-router-dom'
+import { useProUser } from '@/hooks/useProUser'
 
 const ImageCard = ({ 
   image, 
@@ -57,6 +59,8 @@ const ImageCard = ({
       return data;
     },
   });
+
+  const { data: isUserPro } = useProUser(image.user_id);
 
   const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
   const modelName = modelConfigs?.[image.model]?.name || image.model;
@@ -114,18 +118,25 @@ const ImageCard = ({
         </CardContent>
       </Card>
       <div className="mt-1 flex items-center justify-between">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          {userProfile?.avatar_url ? (
-            <img 
-              src={userProfile.avatar_url} 
-              alt={displayName}
-              className="w-5 h-5 rounded-full"
-            />
-          ) : (
-            <UserCircle2 className="w-5 h-5 text-muted-foreground" />
-          )}
-          <p className="text-xs text-muted-foreground truncate">{displayName}</p>
-        </div>
+        <Link 
+          to={`/profile/${image.user_id}`} 
+          className="flex items-center gap-2 flex-1 min-w-0 group"
+        >
+          <div className={`relative ${isUserPro ? 'p-[2px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 rounded-full' : ''}`}>
+            {userProfile?.avatar_url ? (
+              <img 
+                src={userProfile.avatar_url} 
+                alt={displayName}
+                className={`w-5 h-5 rounded-full ${isUserPro ? 'border border-background' : ''}`}
+              />
+            ) : (
+              <UserCircle2 className="w-5 h-5 text-muted-foreground" />
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground truncate group-hover:text-foreground transition-colors">
+            {displayName}
+          </p>
+        </Link>
         <div className="flex items-center gap-1">
           <div className="flex items-center gap-1">
             <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
