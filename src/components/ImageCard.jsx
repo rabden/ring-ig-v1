@@ -152,16 +152,16 @@ const ImageCard = ({
         </CardContent>
       </Card>
       <div className="mt-1 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Avatar className="h-6 w-6">
+        <div className="flex items-center gap-2 min-w-0">
+          <Avatar className="h-6 w-6 flex-shrink-0">
             <AvatarImage src={imageOwner?.avatar_url} />
             <AvatarFallback>
               <User className="h-4 w-4" />
             </AvatarFallback>
           </Avatar>
-          <span className="text-sm font-medium">{truncatedName}</span>
+          <span className="text-xs font-medium truncate">{truncatedName}</span>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 flex-shrink-0">
           <div className="flex items-center gap-1">
             <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
             <span className="text-xs text-muted-foreground">{likeCount}</span>
