@@ -62,6 +62,28 @@ const ImageGallery = ({
     modelConfigs
   );
 
+  // Sort images based on hot and trending status for inspiration view
+  const sortedImages = React.useMemo(() => {
+    if (activeView !== 'inspiration') return images;
+
+    return [...images].sort((a, b) => {
+      // Both hot and trending
+      if (a.is_hot && a.is_trending && (!b.is_hot || !b.is_trending)) return -1;
+      if (b.is_hot && b.is_trending && (!a.is_hot || !a.is_trending)) return 1;
+      
+      // Hot only
+      if (a.is_hot && !b.is_hot) return -1;
+      if (b.is_hot && !a.is_hot) return 1;
+      
+      // Trending only
+      if (a.is_trending && !b.is_trending) return -1;
+      if (b.is_trending && !a.is_trending) return 1;
+      
+      // Default to newest first
+      return new Date(b.created_at) - new Date(a.created_at);
+    });
+  }, [images, activeView]);
+
   // Scroll to top when content changes
   useEffect(() => {
     if (galleryRef.current) {
@@ -108,11 +130,11 @@ const ImageGallery = ({
       ));
     }
     
-    if (!images || images.length === 0) {
+    if (!sortedImages || sortedImages.length === 0) {
       return [<NoResults key="no-results" />];
     }
     
-    return images.map((image, index) => (
+    return sortedImages.map((image, index) => (
       <ImageCard
         key={image.id}
         image={image}
