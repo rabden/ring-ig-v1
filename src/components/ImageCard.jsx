@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MoreVertical, User } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { MoreVertical } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import ImageStatusIndicators from './ImageStatusIndicators';
 import { supabase } from '@/integrations/supabase/supabase';
@@ -10,10 +9,10 @@ import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import LikeButton from './LikeButton';
 import { useQuery } from '@tanstack/react-query';
-import { Skeleton } from "@/components/ui/skeleton";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import UserProfileMenu from './profile/UserProfileMenu';
 import { useProUser } from '@/hooks/useProUser';
+import ImageCardAvatar from './ImageCardAvatar';
+import ImageCardContent from './ImageCardContent';
 
 const ImageCard = ({ 
   image, 
@@ -71,7 +70,7 @@ const ImageCard = ({
 
       const rect = imageRef.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
-      const verticalMargin = windowHeight; // One viewport height margin
+      const verticalMargin = windowHeight;
       
       const isVisible = (
         rect.top <= windowHeight + verticalMargin &&
@@ -105,19 +104,12 @@ const ImageCard = ({
   const displayName = imageOwner?.display_name || 'Anonymous';
   const truncatedName = displayName.length > 15 ? `${displayName.slice(0, 15)}...` : displayName;
 
-  const UserProfileTrigger = React.forwardRef(({ onClick }, ref) => (
+  const UserProfileTrigger = React.memo(React.forwardRef(({ onClick }, ref) => (
     <div className="flex items-center gap-2 min-w-0 cursor-pointer" onClick={onClick} ref={ref}>
-      <div className={`rounded-full ${isOwnerPro ? 'p-[2px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500' : ''}`}>
-        <Avatar className={`h-6 w-6 flex-shrink-0 ${isOwnerPro ? 'border-2 border-background rounded-full' : ''}`}>
-          <AvatarImage src={imageOwner?.avatar_url} />
-          <AvatarFallback>
-            <User className="h-4 w-4" />
-          </AvatarFallback>
-        </Avatar>
-      </div>
+      <ImageCardAvatar imageOwner={imageOwner} isOwnerPro={isOwnerPro} />
       <span className="text-xs font-medium truncate">{truncatedName}</span>
     </div>
-  ));
+  )));
 
   UserProfileTrigger.displayName = 'UserProfileTrigger';
 
@@ -129,34 +121,19 @@ const ImageCard = ({
             isTrending={image.is_trending} 
             isHot={image.is_hot} 
           />
-          <div ref={imageRef}>
-            {(!imageLoaded || !shouldLoad) && (
-              <div className="absolute inset-0 bg-muted animate-pulse">
-                <Skeleton className="w-full h-full" />
-              </div>
-            )}
-            {shouldLoad && (
-              <img 
-                src={imageSrc}
-                alt={image.prompt} 
-                className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-                onClick={() => onImageClick(image)}
-                onDoubleClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!isLiked) onToggleLike(image.id); }}
-                onLoad={() => setImageLoaded(true)}
-                loading="lazy"
-              />
-            )}
-          </div>
-          <div className="absolute bottom-2 left-2 flex gap-1">
-            <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
-              {modelName}
-            </Badge>
-            {!isNsfw && (
-              <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
-                {styleName}
-              </Badge>
-            )}
-          </div>
+          <ImageCardContent
+            imageRef={imageRef}
+            imageLoaded={imageLoaded}
+            shouldLoad={shouldLoad}
+            imageSrc={imageSrc}
+            image={image}
+            onImageClick={onImageClick}
+            onToggleLike={onToggleLike}
+            isLiked={isLiked}
+            modelName={modelName}
+            styleName={styleName}
+            isNsfw={isNsfw}
+          />
         </CardContent>
       </Card>
       <div className="mt-1 flex items-center justify-between">
