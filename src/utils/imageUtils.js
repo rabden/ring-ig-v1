@@ -1,5 +1,6 @@
 import { qualityOptions, aspectRatios } from '@/utils/imageConfigs';
 import { supabase } from '@/integrations/supabase/supabase';
+import { styleConfig } from '@/config/styleConfig';
 
 export const makeDivisibleBy16 = (num) => Math.floor(num / 16) * 16;
 
@@ -36,13 +37,6 @@ export const getModifiedPrompt = async (prompt, style, model, modelConfigs) => {
     return prompt;
   }
 
-  // Get style config from the database
-  const { data: styleConfig } = await supabase
-    .from('style_configs')
-    .select('suffix')
-    .eq('key', style)
-    .single();
-  
-  const styleSuffix = styleConfig?.suffix || '';
+  const styleSuffix = style ? styleConfig[style]?.suffix : '';
   return `${prompt}, ${styleSuffix}${modelConfig?.promptSuffix || ''}`;
 };
