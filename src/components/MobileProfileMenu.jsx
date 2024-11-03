@@ -19,11 +19,20 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const { data: isPro } = useProUser(user?.id);
   const [upgradeFormOpen, setUpgradeFormOpen] = React.useState(false);
   const [isEditing, setIsEditing] = React.useState(false);
-  const [displayName, setDisplayName] = React.useState(
-    user?.user_metadata?.display_name || (user?.email ? user.email.split('@')[0] : '') || ''
-  );
+  const [displayName, setDisplayName] = React.useState('');
   const [showImageDialog, setShowImageDialog] = React.useState(false);
   const queryClient = useQueryClient();
+
+  // Set display name when user data is available
+  React.useEffect(() => {
+    if (user) {
+      setDisplayName(
+        user.user_metadata?.display_name || 
+        (user.email ? user.email.split('@')[0] : '') || 
+        ''
+      );
+    }
+  }, [user]);
 
   // Enable real-time updates
   useRealtimeProfile(user?.id);
