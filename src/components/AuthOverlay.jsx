@@ -5,8 +5,7 @@ const AuthOverlay = () => {
   return (
     <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-[100]">
       <div className="text-center">
-        <h3 className="text-2xl font-semibold mb-6">Welcome to RING IG</h3>
-        <p className="text-muted-foreground mb-8">Sign in to start generating images</p>
+        <h3 className="text-lg font-semibold mb-4">Sign in to generate images</h3>
         <SignInDialog />
       </div>
     </div>

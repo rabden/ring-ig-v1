@@ -61,9 +61,3 @@
     box-shadow: none !important;
   }
 }
-
-@layer utilities {
-  .scrollbar-custom {
-    @apply scrollbar-thin scrollbar-track-secondary scrollbar-thumb-muted-foreground/30 hover:scrollbar-thumb-muted-foreground/50;
-  }
-}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
@@ -7,10 +7,8 @@ import { ThemeProvider } from "@/components/theme-provider"
 import ImageGenerator from "./pages/ImageGenerator"
 import Documentation from "./pages/Documentation"
 import SingleImageView from "./components/SingleImageView"
-import { SupabaseAuthProvider, useSupabaseAuth } from '@/integrations/supabase/auth'
+import { SupabaseAuthProvider } from '@/integrations/supabase/auth'
 import { NotificationProvider } from './contexts/NotificationContext'
-import LoadingScreen from './components/LoadingScreen'
-import AuthOverlay from './components/AuthOverlay'
 import '@/styles/shadcn-overrides.css'
 
 const queryClient = new QueryClient({
@@ -22,38 +20,6 @@ const queryClient = new QueryClient({
   },
 })
 
-const AppContent = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const { session } = useSupabaseAuth();
-
-  useEffect(() => {
-    // Simulate initial loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
-
-  return (
-    <>
-      {!session && <AuthOverlay />}
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<ImageGenerator />} />
-          <Route path="/docs" element={<Documentation />} />
-          <Route path="/image/:imageId" element={<SingleImageView />} />
-          <Route path="/remix/:imageId" element={<ImageGenerator />} />
-        </Routes>
-      </BrowserRouter>
-    </>
-  );
-};
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -61,7 +27,14 @@ const App = () => (
         <SupabaseAuthProvider>
           <NotificationProvider>
             <Toaster />
-            <AppContent />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<ImageGenerator />} />
+                <Route path="/docs" element={<Documentation />} />
+                <Route path="/image/:imageId" element={<SingleImageView />} />
+                <Route path="/remix/:imageId" element={<ImageGenerator />} />
+              </Routes>
+            </BrowserRouter>
           </NotificationProvider>
         </SupabaseAuthProvider>
       </TooltipProvider>

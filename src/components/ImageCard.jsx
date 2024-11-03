@@ -1,20 +1,16 @@
-import React, { useState } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MoreVertical, UserCircle2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import ImageStatusIndicators from './ImageStatusIndicators';
-import { supabase } from '@/integrations/supabase/supabase';
-import { useModelConfigs } from '@/hooks/useModelConfigs';
-import { useStyleConfigs } from '@/hooks/useStyleConfigs';
-import LikeButton from './LikeButton';
-import { useQuery } from '@tanstack/react-query';
-import { Skeleton } from "@/components/ui/skeleton";
-import { downloadImage } from '@/utils/downloadUtils';
-import UserProfilePopup from './profile/UserProfilePopup';
-import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { useProUser } from '@/hooks/useProUser';
+import React, { useState, useRef, useEffect } from 'react'
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { MoreVertical } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import ImageStatusIndicators from './ImageStatusIndicators'
+import { supabase } from '@/integrations/supabase/supabase'
+import { useModelConfigs } from '@/hooks/useModelConfigs'
+import { useStyleConfigs } from '@/hooks/useStyleConfigs'
+import LikeButton from './LikeButton'
+import { useQuery } from '@tanstack/react-query'
+import { Skeleton } from "@/components/ui/skeleton"
 
 const ImageCard = ({ 
   image, 
@@ -27,20 +23,14 @@ const ImageCard = ({
   userId,
   isMobile,
   isLiked,
-  onToggleLike,
-  showDiscard = true,
-  setActiveTab,
-  setStyle,
-  nsfwEnabled
+  onToggleLike
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [showProfilePopup, setShowProfilePopup] = useState(false);
+  const [shouldLoad, setShouldLoad] = useState(false);
+  const [imageSrc, setImageSrc] = useState('');
+  const imageRef = useRef(null);
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
-  const { session } = useSupabaseAuth();
-  const { data: isPro } = useProUser(image.user_id);
-  
-  const imageSrc = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
   
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['imageLikes', image.id],
@@ -55,38 +45,52 @@ const ImageCard = ({
     },
   });
 
-  const { data: userProfile } = useQuery({
-    queryKey: ['userProfile', image.user_id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('display_name, avatar_url')
-        .eq('id', image.user_id)
-        .maybeSingle();
+  useEffect(() => {
+    const checkVisibility = () => {
+      if (!imageRef.current) return;
+
+      const rect = imageRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const verticalMargin = windowHeight; // One viewport height margin
       
-      if (error) throw error;
-      return data;
-    },
-  });
+      const isVisible = (
+        rect.top <= windowHeight + verticalMargin &&
+        rect.bottom >= -verticalMargin
+      );
+
+      if (isVisible && !shouldLoad) {
+        setShouldLoad(true);
+        setImageSrc(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl);
+      } else if (!isVisible && shouldLoad) {
+        // Unload image when it's out of view
+        setShouldLoad(false);
+        setImageLoaded(false);
+        setImageSrc(''); // Clear the src to free up memory
+      }
+    };
+
+    // Initial check
+    checkVisibility();
+
+    // Add scroll and resize listeners
+    window.addEventListener('scroll', checkVisibility, { passive: true });
+    window.addEventListener('resize', checkVisibility);
+
+    return () => {
+      window.removeEventListener('scroll', checkVisibility);
+      window.removeEventListener('resize', checkVisibility);
+    };
+  }, [shouldLoad, image.storage_path]);
 
   const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
   const modelName = modelConfigs?.[image.model]?.name || image.model;
   const styleName = styleConfigs?.[image.style]?.name || 'General';
-  const displayName = userProfile?.display_name || 'Anonymous';
 
   const handleDoubleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isLiked) {
       onToggleLike(image.id);
-    }
-  };
-
-  const handleDownload = async () => {
-    try {
-      await downloadImage(imageSrc, image.prompt);
-    } catch (error) {
-      toast.error('Failed to download image');
     }
   };
 
@@ -98,20 +102,24 @@ const ImageCard = ({
             isTrending={image.is_trending} 
             isHot={image.is_hot} 
           />
-          {!imageLoaded && (
-            <div className="absolute inset-0 bg-muted animate-pulse">
-              <Skeleton className="w-full h-full" />
-            </div>
-          )}
-          <img 
-            src={imageSrc}
-            alt={image.prompt} 
-            className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-            onClick={() => onImageClick(image)}
-            onDoubleClick={handleDoubleClick}
-            onLoad={() => setImageLoaded(true)}
-            loading="lazy"
-          />
+          <div ref={imageRef}>
+            {(!imageLoaded || !shouldLoad) && (
+              <div className="absolute inset-0 bg-muted animate-pulse">
+                <Skeleton className="w-full h-full" />
+              </div>
+            )}
+            {shouldLoad && (
+              <img 
+                src={imageSrc}
+                alt={image.prompt} 
+                className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                onClick={() => onImageClick(image)}
+                onDoubleClick={handleDoubleClick}
+                onLoad={() => setImageLoaded(true)}
+                loading="lazy"
+              />
+            )}
+          </div>
           <div className="absolute bottom-2 left-2 flex gap-1">
             <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
               {modelName}
@@ -125,25 +133,7 @@ const ImageCard = ({
         </CardContent>
       </Card>
       <div className="mt-1 flex items-center justify-between">
-        <div 
-          className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer"
-          onClick={() => setShowProfilePopup(true)}
-        >
-          <div className={`relative ${isPro ? 'p-[2px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 rounded-full' : ''}`}>
-            {userProfile?.avatar_url ? (
-              <img 
-                src={userProfile.avatar_url} 
-                alt={displayName}
-                className={`w-5 h-5 rounded-full ${isPro ? 'border border-background' : ''}`}
-              />
-            ) : (
-              <UserCircle2 className="w-5 h-5 text-muted-foreground" />
-            )}
-          </div>
-          <p className="text-xs text-muted-foreground truncate hover:text-foreground transition-colors">
-            {displayName}
-          </p>
-        </div>
+        <p className="text-sm truncate w-[70%]">{image.prompt}</p>
         <div className="flex items-center gap-1">
           <div className="flex items-center gap-1">
             <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
@@ -161,10 +151,10 @@ const ImageCard = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={handleDownload}>
+                <DropdownMenuItem onClick={() => onDownload(imageSrc, image.prompt)}>
                   Download
                 </DropdownMenuItem>
-                {showDiscard && image.user_id === userId && (
+                {image.user_id === userId && (
                   <DropdownMenuItem onClick={() => onDiscard(image)}>
                     Discard
                   </DropdownMenuItem>
@@ -180,20 +170,6 @@ const ImageCard = ({
           )}
         </div>
       </div>
-
-      <UserProfilePopup
-        userId={image.user_id}
-        isOpen={showProfilePopup}
-        onClose={() => setShowProfilePopup(false)}
-        authenticatedUserId={session?.user?.id}
-        onImageClick={onImageClick}
-        onDownload={onDownload}
-        onRemix={onRemix}
-        onViewDetails={onViewDetails}
-        setActiveTab={setActiveTab}
-        setStyle={setStyle}
-        nsfwEnabled={nsfwEnabled}
-      />
     </div>
   );
 };
