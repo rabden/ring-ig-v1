@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MoreVertical } from "lucide-react"
@@ -26,11 +26,9 @@ const ImageCard = ({
   onToggleLike
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [shouldLoad, setShouldLoad] = useState(false);
-  const [imageSrc, setImageSrc] = useState('');
-  const imageRef = useRef(null);
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
+  const imageSrc = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
   
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['imageLikes', image.id],
@@ -44,43 +42,6 @@ const ImageCard = ({
       return count || 0;
     },
   });
-
-  useEffect(() => {
-    const checkVisibility = () => {
-      if (!imageRef.current) return;
-
-      const rect = imageRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      const verticalMargin = windowHeight; // One viewport height margin
-      
-      const isVisible = (
-        rect.top <= windowHeight + verticalMargin &&
-        rect.bottom >= -verticalMargin
-      );
-
-      if (isVisible && !shouldLoad) {
-        setShouldLoad(true);
-        setImageSrc(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl);
-      } else if (!isVisible && shouldLoad) {
-        // Unload image when it's out of view
-        setShouldLoad(false);
-        setImageLoaded(false);
-        setImageSrc(''); // Clear the src to free up memory
-      }
-    };
-
-    // Initial check
-    checkVisibility();
-
-    // Add scroll and resize listeners
-    window.addEventListener('scroll', checkVisibility, { passive: true });
-    window.addEventListener('resize', checkVisibility);
-
-    return () => {
-      window.removeEventListener('scroll', checkVisibility);
-      window.removeEventListener('resize', checkVisibility);
-    };
-  }, [shouldLoad, image.storage_path]);
 
   const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
   const modelName = modelConfigs?.[image.model]?.name || image.model;
@@ -102,24 +63,20 @@ const ImageCard = ({
             isTrending={image.is_trending} 
             isHot={image.is_hot} 
           />
-          <div ref={imageRef}>
-            {(!imageLoaded || !shouldLoad) && (
-              <div className="absolute inset-0 bg-muted animate-pulse">
-                <Skeleton className="w-full h-full" />
-              </div>
-            )}
-            {shouldLoad && (
-              <img 
-                src={imageSrc}
-                alt={image.prompt} 
-                className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-                onClick={() => onImageClick(image)}
-                onDoubleClick={handleDoubleClick}
-                onLoad={() => setImageLoaded(true)}
-                loading="lazy"
-              />
-            )}
-          </div>
+          {!imageLoaded && (
+            <div className="absolute inset-0 bg-muted animate-pulse">
+              <Skeleton className="w-full h-full" />
+            </div>
+          )}
+          <img 
+            src={imageSrc}
+            alt={image.prompt} 
+            className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+            onClick={() => onImageClick(image)}
+            onDoubleClick={handleDoubleClick}
+            onLoad={() => setImageLoaded(true)}
+            loading="lazy"
+          />
           <div className="absolute bottom-2 left-2 flex gap-1">
             <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
               {modelName}
