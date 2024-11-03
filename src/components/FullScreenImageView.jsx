@@ -71,8 +71,8 @@ const FullScreenImageView = ({
             />
           </div>
 
-          <div className="w-[350px] border-l">
-            <ScrollArea className="h-[100vh]">
+          <div className="w-[350px] h-[calc(100vh-2rem)] my-4 mr-4 rounded-lg border bg-background">
+            <ScrollArea className="h-full scrollbar-custom">
               <div className="p-6 space-y-6">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
