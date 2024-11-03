@@ -20,7 +20,7 @@ export const useImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters, 
 
     // Apply the same filters as the main query
     if (activeView === 'myImages') {
-      countQuery.eq('user_id', activeFilters?.userId || userId);
+      countQuery.eq('user_id', userId);
     } else if (activeView === 'inspiration') {
       countQuery.neq('user_id', userId);
     }
@@ -56,7 +56,7 @@ export const useImageFetch = ({ userId, activeView, nsfwEnabled, activeFilters, 
     // Apply view filters and sorting
     if (activeView === 'myImages') {
       query = query
-        .eq('user_id', activeFilters?.userId || userId)
+        .eq('user_id', userId)
         .order('created_at', { ascending: false });
     } else if (activeView === 'inspiration') {
       query = query

@@ -1,20 +1,17 @@
-import React, { useState } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MoreVertical, UserCircle2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import ImageStatusIndicators from './ImageStatusIndicators';
-import { supabase } from '@/integrations/supabase/supabase';
-import { useModelConfigs } from '@/hooks/useModelConfigs';
-import { useStyleConfigs } from '@/hooks/useStyleConfigs';
-import LikeButton from './LikeButton';
-import { useQuery } from '@tanstack/react-query';
-import { Skeleton } from "@/components/ui/skeleton";
-import { downloadImage } from '@/utils/downloadUtils';
-import UserProfilePopup from './profile/UserProfilePopup';
-import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { useProUser } from '@/hooks/useProUser';
+import React, { useState } from 'react'
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { MoreVertical, UserCircle2 } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import ImageStatusIndicators from './ImageStatusIndicators'
+import { supabase } from '@/integrations/supabase/supabase'
+import { useModelConfigs } from '@/hooks/useModelConfigs'
+import { useStyleConfigs } from '@/hooks/useStyleConfigs'
+import LikeButton from './LikeButton'
+import { useQuery } from '@tanstack/react-query'
+import { Skeleton } from "@/components/ui/skeleton"
+import { downloadImage } from '@/utils/downloadUtils'
 
 const ImageCard = ({ 
   image, 
@@ -27,19 +24,11 @@ const ImageCard = ({
   userId,
   isMobile,
   isLiked,
-  onToggleLike,
-  showDiscard = true,
-  setActiveTab,
-  setStyle,
-  nsfwEnabled
+  onToggleLike
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [showProfilePopup, setShowProfilePopup] = useState(false);
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
-  const { session } = useSupabaseAuth();
-  const { data: isPro } = useProUser(image.user_id);
-  
   const imageSrc = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
   
   const { data: likeCount = 0 } = useQuery({
@@ -62,7 +51,7 @@ const ImageCard = ({
         .from('profiles')
         .select('display_name, avatar_url')
         .eq('id', image.user_id)
-        .maybeSingle();
+        .single();
       
       if (error) throw error;
       return data;
@@ -125,24 +114,17 @@ const ImageCard = ({
         </CardContent>
       </Card>
       <div className="mt-1 flex items-center justify-between">
-        <div 
-          className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer"
-          onClick={() => setShowProfilePopup(true)}
-        >
-          <div className={`relative ${isPro ? 'p-[2px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 rounded-full' : ''}`}>
-            {userProfile?.avatar_url ? (
-              <img 
-                src={userProfile.avatar_url} 
-                alt={displayName}
-                className={`w-5 h-5 rounded-full ${isPro ? 'border border-background' : ''}`}
-              />
-            ) : (
-              <UserCircle2 className="w-5 h-5 text-muted-foreground" />
-            )}
-          </div>
-          <p className="text-xs text-muted-foreground truncate hover:text-foreground transition-colors">
-            {displayName}
-          </p>
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          {userProfile?.avatar_url ? (
+            <img 
+              src={userProfile.avatar_url} 
+              alt={displayName}
+              className="w-5 h-5 rounded-full"
+            />
+          ) : (
+            <UserCircle2 className="w-5 h-5 text-muted-foreground" />
+          )}
+          <p className="text-xs text-muted-foreground truncate">{displayName}</p>
         </div>
         <div className="flex items-center gap-1">
           <div className="flex items-center gap-1">
@@ -164,7 +146,7 @@ const ImageCard = ({
                 <DropdownMenuItem onClick={handleDownload}>
                   Download
                 </DropdownMenuItem>
-                {showDiscard && image.user_id === userId && (
+                {image.user_id === userId && (
                   <DropdownMenuItem onClick={() => onDiscard(image)}>
                     Discard
                   </DropdownMenuItem>
@@ -180,20 +162,6 @@ const ImageCard = ({
           )}
         </div>
       </div>
-
-      <UserProfilePopup
-        userId={image.user_id}
-        isOpen={showProfilePopup}
-        onClose={() => setShowProfilePopup(false)}
-        authenticatedUserId={session?.user?.id}
-        onImageClick={onImageClick}
-        onDownload={onDownload}
-        onRemix={onRemix}
-        onViewDetails={onViewDetails}
-        setActiveTab={setActiveTab}
-        setStyle={setStyle}
-        nsfwEnabled={nsfwEnabled}
-      />
     </div>
   );
 };
