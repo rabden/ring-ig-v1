@@ -4,6 +4,7 @@ import ActionButtons from '../ActionButtons';
 import FilterMenu from '../filters/FilterMenu';
 import SearchBar from '../search/SearchBar';
 import NotificationBell from '../notifications/NotificationBell';
+import PrivateFilterButton from '../filters/PrivateFilterButton';
 
 const DesktopHeader = ({ 
   user, 
@@ -16,7 +17,9 @@ const DesktopHeader = ({
   onFilterChange,
   onRemoveFilter,
   onSearch,
-  nsfwEnabled
+  nsfwEnabled,
+  showPrivate,
+  onTogglePrivate
 }) => {
   return (
     <div className="hidden md:block fixed top-0 left-0 right-[350px] bg-background z-10 px-10 py-3">
@@ -36,6 +39,11 @@ const DesktopHeader = ({
             activeView={activeView} 
             setActiveView={setActiveView} 
             generatingImages={generatingImages}
+          />
+          <PrivateFilterButton
+            showPrivate={showPrivate}
+            onToggle={onTogglePrivate}
+            disabled={activeView !== 'myImages'}
           />
           {!nsfwEnabled && (
             <FilterMenu
