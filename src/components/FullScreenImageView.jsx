@@ -16,7 +16,9 @@ const FullScreenImageView = ({
   onDownload,
   onDiscard,
   onRemix,
-  isOwner 
+  isOwner,
+  setStyle,
+  setActiveTab 
 }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
@@ -44,6 +46,13 @@ const FullScreenImageView = ({
   const handleDownload = async () => {
     const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
     await downloadImage(imageUrl, image.prompt);
+  };
+
+  const handleRemixClick = () => {
+    onRemix(image);
+    setStyle(image.style);
+    setActiveTab('input');
+    onClose();
   };
 
   const detailItems = [
@@ -111,7 +120,7 @@ const FullScreenImageView = ({
                           Discard
                         </Button>
                       )}
-                      <Button onClick={onRemix} className="w-full" variant="outline">
+                      <Button onClick={handleRemixClick} className="w-full" variant="outline">
                         <RefreshCw className="mr-2 h-4 w-4" />
                         Remix
                       </Button>

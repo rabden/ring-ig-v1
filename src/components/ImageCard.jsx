@@ -24,7 +24,9 @@ const ImageCard = ({
   userId,
   isMobile,
   isLiked,
-  onToggleLike
+  onToggleLike,
+  setActiveTab,
+  setStyle
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [shouldLoad, setShouldLoad] = useState(false);
@@ -93,6 +95,12 @@ const ImageCard = ({
     if (!isLiked) {
       onToggleLike(image.id);
     }
+  };
+
+  const handleRemixClick = () => {
+    onRemix(image);
+    setStyle(image.style);
+    setActiveTab('input');
   };
 
   const handleDownload = async () => {
@@ -165,7 +173,7 @@ const ImageCard = ({
                     Discard
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={() => onRemix(image)}>
+                <DropdownMenuItem onClick={handleRemixClick}>
                   Remix
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onViewDetails(image)}>

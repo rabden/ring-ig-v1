@@ -278,7 +278,9 @@ const ImageGenerator = () => {
         onDownload={handleDownload}
         onDiscard={handleDiscard}
         onRemix={handleRemix}
-        isOwner={false}
+        isOwner={selectedImage?.user_id === session?.user?.id}
+        setStyle={setStyle}
+        setActiveTab={setActiveTab}
       />
       {generatingImages.length > 0 && (
         <MobileGeneratingStatus generatingImages={generatingImages} />
