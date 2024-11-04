@@ -20,7 +20,8 @@ export const useImageGeneration = ({
   setGeneratingImages,
   style,
   modelConfigs,
-  steps
+  steps,
+  isPrivate
 }) => {
   const uploadImageMutation = useMutation({
     mutationFn: async ({ imageBlob, metadata }) => {
@@ -31,7 +32,7 @@ export const useImageGeneration = ({
           .upload(filePath, imageBlob);
         if (uploadError) throw uploadError;
 
-        const { generationId, steps, ...dbMetadata } = metadata; // Remove steps from database insert
+        const { generationId, steps, ...dbMetadata } = metadata;
         
         const { error: insertError } = await supabase
           .from('user_images')
@@ -39,7 +40,8 @@ export const useImageGeneration = ({
             user_id: session.user.id,
             storage_path: filePath,
             ...dbMetadata,
-            style: dbMetadata.style || 'general'
+            style: dbMetadata.style || 'general',
+            is_private: isPrivate
           });
         if (insertError) throw insertError;
 

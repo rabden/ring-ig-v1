@@ -13,8 +13,17 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
+import PrivateFilterToggle from './PrivateFilterToggle';
 
-const FilterMenu = ({ activeFilters, onFilterChange, onRemoveFilter, nsfwEnabled }) => {
+const FilterMenu = ({ 
+  activeFilters, 
+  onFilterChange, 
+  onRemoveFilter, 
+  nsfwEnabled,
+  activeView,
+  showPrivate,
+  onTogglePrivate 
+}) => {
   const { data: styleConfigs } = useStyleConfigs();
   const { data: modelConfigs } = useModelConfigs();
 
@@ -69,6 +78,11 @@ const FilterMenu = ({ activeFilters, onFilterChange, onRemoveFilter, nsfwEnabled
 
   return (
     <div className="flex items-center gap-2">
+      <PrivateFilterToggle 
+        showPrivate={showPrivate}
+        onToggle={onTogglePrivate}
+        activeView={activeView}
+      />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button 
