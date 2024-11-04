@@ -31,7 +31,7 @@ export const useImageGeneration = ({
           .upload(filePath, imageBlob);
         if (uploadError) throw uploadError;
 
-        const { generationId, ...dbMetadata } = metadata;
+        const { generationId, steps, ...dbMetadata } = metadata; // Remove steps from database insert
         
         const { error: insertError } = await supabase
           .from('user_images')
@@ -164,7 +164,7 @@ export const useImageGeneration = ({
           quality,
           style: modelConfigs[model]?.category === "NSFW" ? null : (style || 'general'),
           aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
-          steps,
+          steps, // This will be removed by destructuring in uploadImageMutation
           generationId
         }
       });
