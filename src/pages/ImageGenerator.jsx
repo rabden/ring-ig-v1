@@ -5,6 +5,7 @@ import { useUserCredits } from '@/hooks/useUserCredits';
 import { useImageGeneration } from '@/hooks/useImageGeneration';
 import { useQueryClient } from '@tanstack/react-query';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
+import { useRealtimeImages } from '@/hooks/useRealtimeImages';
 import AuthOverlay from '@/components/AuthOverlay';
 import BottomNavbar from '@/components/BottomNavbar';
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings';
@@ -24,6 +25,9 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 
 const ImageGenerator = () => {
+  // Initialize real-time updates
+  useRealtimeImages();
+
   const { imageId } = useParams();
   const location = useLocation();
   const isRemixRoute = location.pathname.startsWith('/remix/');

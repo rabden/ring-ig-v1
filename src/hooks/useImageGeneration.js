@@ -18,7 +18,8 @@ export const useImageGeneration = ({
   updateCredits,
   setGeneratingImages,
   style,
-  modelConfigs
+  modelConfigs,
+  steps
 }) => {
   const uploadImageMutation = useMutation({
     mutationFn: async ({ imageBlob, metadata }) => {
@@ -36,7 +37,7 @@ export const useImageGeneration = ({
           user_id: session.user.id,
           storage_path: filePath,
           ...dbMetadata,
-          style: dbMetadata.style || 'general'
+          style: modelConfigs[model]?.category === "NSFW" ? null : (style || 'general')
         });
       if (insertError) throw insertError;
     },
@@ -87,16 +88,9 @@ export const useImageGeneration = ({
 
     try {
       const { data: apiKeyData, error: apiKeyError } = await supabase.rpc('get_random_huggingface_api_key');
-      if (apiKeyError) {
-        setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-        throw new Error(`Failed to get API key: ${apiKeyError.message}`);
-      }
-      if (!apiKeyData) {
-        setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-        throw new Error('No active API key available');
-      }
+      if (apiKeyError) throw new Error(`Failed to get API key: ${apiKeyError.message}`);
+      if (!apiKeyData) throw new Error('No active API key available');
 
-      // Base parameters that all models support
       const parameters = {
         seed: actualSeed,
         width: finalWidth,
@@ -104,7 +98,6 @@ export const useImageGeneration = ({
         num_inference_steps: modelConfig?.defaultStep || 30,
       };
 
-      // Add negative_prompt only for models that support it (not FLUX models)
       if (!model.toLowerCase().includes('flux')) {
         parameters.negative_prompt = "ugly, disfigured, low quality, blurry, nsfw";
       }
@@ -128,11 +121,6 @@ export const useImageGeneration = ({
         return;
       }
 
-      if (!imageBlob || imageBlob.size === 0) {
-        setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-        throw new Error('Generated image is empty or invalid');
-      }
-
       await updateCredits(quality);
       await uploadImageMutation.mutateAsync({ 
         imageBlob, 
@@ -143,7 +131,7 @@ export const useImageGeneration = ({
           height: finalHeight,
           model,
           quality,
-          style: modelConfigs[model]?.category === "NSFW" ? "N/A" : (style || 'general'),
+          style: modelConfigs[model]?.category === "NSFW" ? null : (style || 'general'),
           aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
           generationId
         }

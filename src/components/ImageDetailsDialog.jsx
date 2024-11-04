@@ -26,7 +26,7 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
     { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
     { label: "Seed", value: image.seed },
     { label: "Size", value: `${image.width}x${image.height}` },
-    { label: "Aspect Ratio", value: image.aspect_ratio },
+    { label: "Aspect Ratio", value: image.aspect_ratio || `${image.width}:${image.height}` },
     { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
     { label: "Quality", value: image.quality },
   ];
