@@ -8,6 +8,7 @@ import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { toast } from 'sonner';
 import { downloadImage } from '@/utils/downloadUtils';
+import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
 const FullScreenImageView = ({ 
   image, 
@@ -20,6 +21,7 @@ const FullScreenImageView = ({
   setStyle,
   setActiveTab 
 }) => {
+  const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
