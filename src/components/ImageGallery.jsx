@@ -134,7 +134,7 @@ const ImageGallery = ({
 
   return (
     <>
-      <div ref={galleryRef}>
+      <div ref={galleryRef} className="mt-14 md:mt-16">
         <Masonry
           breakpointCols={breakpointColumnsObj}
           className="flex w-auto md:px-2 -mx-1 md:mx-0"
