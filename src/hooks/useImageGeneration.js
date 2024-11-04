@@ -123,7 +123,6 @@ export const useImageGeneration = ({
         num_inference_steps: steps || modelConfig?.defaultStep || 30,
       };
 
-      // Add negative_prompt only for non-FLUX models
       if (!model.toLowerCase().includes('flux')) {
         parameters.negative_prompt = modelConfig?.negativePrompt || "ugly, disfigured, low quality, blurry, nsfw";
       }
@@ -166,8 +165,9 @@ export const useImageGeneration = ({
           quality,
           style: modelConfigs[model]?.category === "NSFW" ? null : (style || 'general'),
           aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
-          steps, // This will be removed by destructuring in uploadImageMutation
-          generationId
+          steps,
+          generationId,
+          is_private: isPrivate
         }
       });
 

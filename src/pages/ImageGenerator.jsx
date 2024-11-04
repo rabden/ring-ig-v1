@@ -48,6 +48,8 @@ const ImageGenerator = () => {
     activeView, setActiveView, nsfwEnabled, setNsfwEnabled, style, setStyle
   } = useImageGeneratorState();
 
+  const [isPrivate, setIsPrivate] = useState(false);
+
   const { generateImage } = useImageGeneration({
     session,
     prompt,
@@ -63,7 +65,8 @@ const ImageGenerator = () => {
     setGeneratingImages,
     style,
     modelConfigs,
-    steps
+    steps,
+    isPrivate
   });
 
   const handleGenerateImage = async () => {
@@ -245,6 +248,8 @@ const ImageGenerator = () => {
           setSteps={setSteps}
           proMode={isPro}
           modelConfigs={modelConfigs}
+          isPrivate={isPrivate}
+          setIsPrivate={setIsPrivate}
         />
       </div>
 
