@@ -30,7 +30,9 @@ const ImageGeneratorSettings = ({
   style, setStyle,
   steps, setSteps,
   proMode,
-  modelConfigs
+  modelConfigs,
+  isPrivate,
+  setIsPrivate
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const totalCredits = (credits || 0) + (bonusCredits || 0);
@@ -105,31 +107,22 @@ const ImageGeneratorSettings = ({
         onGenerate={handleGenerateClick}
         hasEnoughCredits={hasEnoughCredits}
         onClear={handleClearPrompt}
+        isPrivate={isPrivate}
+        onPrivateChange={setIsPrivate}
       />
 
-      <ModelSection 
-        model={model} 
-        setModel={handleModelChange}
-        nsfwEnabled={nsfwEnabled}
-        quality={quality}
-        proMode={proMode}
-        modelConfigs={modelConfigs}
-      />
-
-      {!isNsfwModel && (
-        <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
-          <div className="border-x border-border/20">
-            <StyledScrollArea>
-              <StyleChooser 
-                style={style} 
-                setStyle={setStyle} 
-                proMode={proMode} 
-                isNsfwMode={isNsfwModel}
-              />
-            </StyledScrollArea>
-          </div>
-        </SettingSection>
-      )}
+      <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
+        <div className="border-x border-border/20">
+          <StyledScrollArea>
+            <StyleChooser 
+              style={style} 
+              setStyle={setStyle} 
+              proMode={proMode} 
+              isNsfwMode={isNsfwModel}
+            />
+          </StyledScrollArea>
+        </div>
+      </SettingSection>
 
       <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more credits.">
         <Tabs value={quality} onValueChange={setQuality}>

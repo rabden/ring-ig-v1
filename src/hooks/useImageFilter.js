@@ -12,6 +12,11 @@ export const useImageFilter = () => {
     let filteredData = images.filter(img => {
       const isNsfw = modelConfigs?.[img.model]?.category === "NSFW";
       
+      // Filter private images
+      if (img.is_private && img.user_id !== userId) {
+        return false;
+      }
+      
       // Filter by user and NSFW status
       if (activeView === 'myImages') {
         if (nsfwEnabled) {
