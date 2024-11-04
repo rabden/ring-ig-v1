@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { supabase } from '../supabase';
 import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 export const AuthContext = createContext();
 
@@ -8,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const handleAuthSession = async () => {
     try {
@@ -29,14 +31,12 @@ export const AuthProvider = ({ children }) => {
       if (event === 'SIGNED_IN') {
         setSession(session);
         queryClient.invalidateQueries('user');
-        // After successful sign in, redirect to home page
-        window.location.href = '/';
+        navigate('/', { replace: true });
       } else if (event === 'SIGNED_OUT') {
         setSession(null);
         queryClient.invalidateQueries('user');
         localStorage.removeItem('supabase.auth.token');
-        // After sign out, redirect to login page
-        window.location.href = '/login';
+        navigate('/login', { replace: true });
       } else if (event === 'TOKEN_REFRESHED') {
         setSession(session);
         queryClient.invalidateQueries('user');
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
     return () => {
       subscription?.unsubscribe();
     };
-  }, [queryClient]);
+  }, [queryClient, navigate]);
 
   const logout = async () => {
     try {
@@ -54,6 +54,7 @@ export const AuthProvider = ({ children }) => {
       setSession(null);
       queryClient.invalidateQueries('user');
       localStorage.removeItem('supabase.auth.token');
+      navigate('/login', { replace: true });
     } catch (error) {
       console.error('Error signing out:', error);
     }
