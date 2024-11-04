@@ -11,6 +11,7 @@ import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import LikeButton from './LikeButton'
 import { useQuery } from '@tanstack/react-query'
 import { Skeleton } from "@/components/ui/skeleton"
+import { downloadImage } from '@/utils/downloadUtils'
 
 const ImageCard = ({ 
   image, 
@@ -94,6 +95,11 @@ const ImageCard = ({
     }
   };
 
+  const handleDownload = async () => {
+    const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
+    await downloadImage(imageUrl, image.prompt);
+  };
+
   return (
     <div className="mb-2">
       <Card className="overflow-hidden">
@@ -151,7 +157,7 @@ const ImageCard = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onDownload(imageSrc, image.prompt)}>
+                <DropdownMenuItem onClick={handleDownload}>
                   Download
                 </DropdownMenuItem>
                 {image.user_id === userId && (

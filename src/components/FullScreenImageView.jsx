@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { toast } from 'sonner';
+import { downloadImage } from '@/utils/downloadUtils';
 
 const FullScreenImageView = ({ 
   image, 
@@ -38,6 +39,11 @@ const FullScreenImageView = ({
     setShareIcon('check');
     toast.success('Share link copied to clipboard');
     setTimeout(() => setShareIcon('share'), 1500);
+  };
+
+  const handleDownload = async () => {
+    const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
+    await downloadImage(imageUrl, image.prompt);
   };
 
   const detailItems = [
@@ -91,25 +97,27 @@ const FullScreenImageView = ({
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Actions</h4>
-                  <div className="grid grid-cols-1 gap-2">
-                    <Button onClick={onDownload} className="w-full" variant="outline">
-                      <Download className="mr-2 h-4 w-4" />
-                      Download
-                    </Button>
-                    {isOwner && (
-                      <Button onClick={onDiscard} className="w-full" variant="destructive">
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Discard
+                {session && (
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium">Actions</h4>
+                    <div className="grid grid-cols-1 gap-2">
+                      <Button onClick={handleDownload} className="w-full" variant="outline">
+                        <Download className="mr-2 h-4 w-4" />
+                        Download
                       </Button>
-                    )}
-                    <Button onClick={onRemix} className="w-full" variant="outline">
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Remix
-                    </Button>
+                      {isOwner && (
+                        <Button onClick={onDiscard} className="w-full" variant="destructive">
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Discard
+                        </Button>
+                      )}
+                      <Button onClick={onRemix} className="w-full" variant="outline">
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Remix
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </ScrollArea>
           </div>

@@ -1,5 +1,6 @@
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/supabase';
+import { downloadImage } from '@/utils/downloadUtils';
 
 export const useImageViewHandlers = (image, session, navigate) => {
   const handleDownload = async () => {
@@ -8,12 +9,7 @@ export const useImageViewHandlers = (image, session, navigate) => {
       return;
     }
     const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = `${image.prompt.slice(0, 30)}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    await downloadImage(imageUrl, image.prompt);
   };
 
   const handleRemix = () => {
