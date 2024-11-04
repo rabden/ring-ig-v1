@@ -32,7 +32,8 @@ const ImageGallery = ({
   searchQuery = '',
   setActiveTab,
   setStyle,
-  style
+  style,
+  showPrivate = false
 }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -43,7 +44,7 @@ const ImageGallery = ({
   const { filterImages } = useImageFilter();
 
   const { data: images, isLoading, refetch } = useQuery({
-    queryKey: ['images', userId, activeView, nsfwEnabled, activeFilters, searchQuery],
+    queryKey: ['images', userId, activeView, nsfwEnabled, activeFilters, searchQuery, showPrivate],
     queryFn: async () => {
       if (!userId) return []
 
@@ -60,7 +61,8 @@ const ImageGallery = ({
         nsfwEnabled,
         modelConfigs,
         activeFilters,
-        searchQuery
+        searchQuery,
+        showPrivate
       });
     },
     enabled: !!userId && !!modelConfigs,

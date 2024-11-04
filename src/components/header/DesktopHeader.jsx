@@ -16,7 +16,9 @@ const DesktopHeader = ({
   onFilterChange,
   onRemoveFilter,
   onSearch,
-  nsfwEnabled
+  nsfwEnabled,
+  showPrivate,
+  onTogglePrivate
 }) => {
   return (
     <div className="hidden md:block fixed top-0 left-0 right-[350px] bg-background z-10 px-10 py-3">
@@ -43,6 +45,9 @@ const DesktopHeader = ({
               onFilterChange={onFilterChange}
               onRemoveFilter={onRemoveFilter}
               nsfwEnabled={nsfwEnabled}
+              activeView={activeView}
+              showPrivate={showPrivate}
+              onTogglePrivate={onTogglePrivate}
             />
           )}
           <SearchBar onSearch={onSearch} />
