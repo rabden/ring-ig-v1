@@ -26,7 +26,8 @@ const ImageCard = ({
   isLiked,
   onToggleLike,
   setActiveTab,
-  setStyle
+  setStyle,
+  style
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [shouldLoad, setShouldLoad] = useState(false);
@@ -85,6 +86,19 @@ const ImageCard = ({
     };
   }, [shouldLoad, image.storage_path]);
 
+  const handleRemixClick = () => {
+    if (typeof onRemix === 'function' && typeof setStyle === 'function') {
+      onRemix(image);
+      setStyle(image.style);
+      setActiveTab('input');
+    }
+  };
+
+  const handleDownload = async () => {
+    const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
+    await downloadImage(imageUrl, image.prompt);
+  };
+
   const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
   const modelName = modelConfigs?.[image.model]?.name || image.model;
   const styleName = styleConfigs?.[image.style]?.name || 'General';
@@ -95,17 +109,6 @@ const ImageCard = ({
     if (!isLiked) {
       onToggleLike(image.id);
     }
-  };
-
-  const handleRemixClick = () => {
-    onRemix(image);
-    setStyle(image.style);
-    setActiveTab('input');
-  };
-
-  const handleDownload = async () => {
-    const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
-    await downloadImage(imageUrl, image.prompt);
   };
 
   return (

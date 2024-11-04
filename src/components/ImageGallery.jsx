@@ -31,7 +31,8 @@ const ImageGallery = ({
   activeFilters = {},
   searchQuery = '',
   setActiveTab,
-  setStyle
+  setStyle,
+  style
 }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -169,6 +170,9 @@ const ImageGallery = ({
         isMobile={isMobile}
         isLiked={userLikes.includes(image.id)}
         onToggleLike={toggleLike}
+        setActiveTab={setActiveTab}
+        setStyle={setStyle}
+        style={style}
       />
     ));
   };
@@ -194,6 +198,7 @@ const ImageGallery = ({
         isOwner={selectedImage?.user_id === userId}
         setActiveTab={setActiveTab}
         setStyle={setStyle}
+        style={style}
       />
 
       <MobileGeneratingStatus generatingImages={generatingImages} />
