@@ -98,9 +98,13 @@ const ImageCard = ({
   };
 
   const handleRemixClick = () => {
-    onRemix(image);
-    setStyle(image.style);
-    setActiveTab('input');
+    if (typeof setStyle === 'function' && typeof onRemix === 'function') {
+      onRemix(image);
+      setStyle(image.style);
+      setActiveTab('input');
+    } else {
+      console.error('setStyle or onRemix is not a function');
+    }
   };
 
   const handleDownload = async () => {
