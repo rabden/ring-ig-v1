@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { MoreVertical, User } from "lucide-react"
+import { MoreVertical } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ImageStatusIndicators from './ImageStatusIndicators'
@@ -11,7 +11,6 @@ import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import LikeButton from './LikeButton'
 import { useQuery } from '@tanstack/react-query'
 import { Skeleton } from "@/components/ui/skeleton"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 const ImageCard = ({ 
   image, 
@@ -44,21 +43,6 @@ const ImageCard = ({
       if (error) throw error;
       return count || 0;
     },
-  });
-
-  const { data: imageOwner } = useQuery({
-    queryKey: ['imageOwner', image.user_id],
-    queryFn: async () => {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', image.user_id)
-        .single();
-      
-      if (error) throw error;
-      return profile;
-    },
-    enabled: !!image.user_id,
   });
 
   useEffect(() => {
@@ -110,9 +94,6 @@ const ImageCard = ({
     }
   };
 
-  const displayName = imageOwner?.display_name || 'Anonymous';
-  const truncatedName = displayName.length > 15 ? `${displayName.slice(0, 15)}...` : displayName;
-
   return (
     <div className="mb-2">
       <Card className="overflow-hidden">
@@ -152,15 +133,7 @@ const ImageCard = ({
         </CardContent>
       </Card>
       <div className="mt-1 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Avatar className="h-6 w-6">
-            <AvatarImage src={imageOwner?.avatar_url} />
-            <AvatarFallback>
-              <User className="h-4 w-4" />
-            </AvatarFallback>
-          </Avatar>
-          <span className="text-sm font-medium">{truncatedName}</span>
-        </div>
+        <p className="text-sm truncate w-[70%]">{image.prompt}</p>
         <div className="flex items-center gap-1">
           <div className="flex items-center gap-1">
             <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
