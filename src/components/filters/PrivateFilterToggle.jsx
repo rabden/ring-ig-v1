@@ -10,7 +10,7 @@ const PrivateFilterToggle = ({ showPrivate, onToggle, activeView }) => {
       variant={showPrivate ? 'default' : 'outline'}
       size="sm"
       className="h-8 px-3"
-      onClick={onToggle}
+      onClick={() => onToggle(!showPrivate)}
     >
       <EyeOff className="h-4 w-4 mr-2" />
       Private
