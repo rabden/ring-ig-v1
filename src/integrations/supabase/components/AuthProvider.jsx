@@ -29,10 +29,14 @@ export const AuthProvider = ({ children }) => {
       if (event === 'SIGNED_IN') {
         setSession(session);
         queryClient.invalidateQueries('user');
+        // After successful sign in, redirect to home page
+        window.location.href = '/';
       } else if (event === 'SIGNED_OUT') {
         setSession(null);
         queryClient.invalidateQueries('user');
         localStorage.removeItem('supabase.auth.token');
+        // After sign out, redirect to login page
+        window.location.href = '/login';
       } else if (event === 'TOKEN_REFRESHED') {
         setSession(session);
         queryClient.invalidateQueries('user');
