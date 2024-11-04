@@ -188,6 +188,7 @@ const ImageGenerator = () => {
             activeView={activeView}
             showTopFilter={showTopFilter}
             setShowTopFilter={setShowTopFilter}
+            activeTab={activeTab}
           />
         </>
       )}

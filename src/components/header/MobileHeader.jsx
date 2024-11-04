@@ -13,8 +13,14 @@ const MobileHeader = ({
   nsfwEnabled,
   activeView,
   showTopFilter,
-  setShowTopFilter
+  setShowTopFilter,
+  activeTab
 }) => {
+  // Only show header when activeTab is 'images' and activeView is either 'myImages' or 'inspiration'
+  if (activeTab !== 'images' || (activeView !== 'myImages' && activeView !== 'inspiration')) {
+    return null;
+  }
+
   return (
     <div className={`md:hidden fixed top-0 left-0 right-0 bg-background z-10 px-2 py-2 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
       <div className="flex items-center justify-end gap-2 overflow-x-auto whitespace-nowrap scrollbar-none">
