@@ -7,8 +7,7 @@ export const useImageFilter = () => {
     nsfwEnabled,
     modelConfigs,
     activeFilters,
-    searchQuery,
-    showPrivate
+    searchQuery
   }) => {
     let filteredData = images.filter(img => {
       const isNsfw = modelConfigs?.[img.model]?.category === "NSFW";
@@ -26,8 +25,6 @@ export const useImageFilter = () => {
         } else {
           if (!(img.user_id !== userId && !isNsfw)) return false;
         }
-        // Don't show private images in inspiration view
-        if (img.is_private) return false;
       }
 
       // Filter by style and model
@@ -43,6 +40,19 @@ export const useImageFilter = () => {
 
       return true;
     });
+
+    // Sort inspiration images by hot and trending
+    if (activeView === 'inspiration') {
+      filteredData.sort((a, b) => {
+        if (a.is_hot && a.is_trending && (!b.is_hot || !b.is_trending)) return -1;
+        if (b.is_hot && b.is_trending && (!a.is_hot || !a.is_trending)) return 1;
+        if (a.is_hot && !b.is_hot) return -1;
+        if (b.is_hot && !a.is_hot) return 1;
+        if (a.is_trending && !b.is_trending) return -1;
+        if (b.is_trending && !a.is_trending) return 1;
+        return new Date(b.created_at) - new Date(a.created_at);
+      });
+    }
 
     return filteredData;
   }, []);

@@ -20,8 +20,7 @@ export const useImageGeneration = ({
   setGeneratingImages,
   style,
   modelConfigs,
-  steps,
-  isPrivate
+  steps
 }) => {
   const uploadImageMutation = useMutation({
     mutationFn: async ({ imageBlob, metadata }) => {
@@ -32,7 +31,7 @@ export const useImageGeneration = ({
           .upload(filePath, imageBlob);
         if (uploadError) throw uploadError;
 
-        const { generationId, steps, ...dbMetadata } = metadata;
+        const { generationId, steps, ...dbMetadata } = metadata; // Remove steps from database insert
         
         const { error: insertError } = await supabase
           .from('user_images')
@@ -40,8 +39,7 @@ export const useImageGeneration = ({
             user_id: session.user.id,
             storage_path: filePath,
             ...dbMetadata,
-            style: dbMetadata.style || 'general',
-            is_private: isPrivate
+            style: dbMetadata.style || 'general'
           });
         if (insertError) throw insertError;
 
@@ -123,6 +121,7 @@ export const useImageGeneration = ({
         num_inference_steps: steps || modelConfig?.defaultStep || 30,
       };
 
+      // Add negative_prompt only for non-FLUX models
       if (!model.toLowerCase().includes('flux')) {
         parameters.negative_prompt = modelConfig?.negativePrompt || "ugly, disfigured, low quality, blurry, nsfw";
       }
@@ -165,9 +164,8 @@ export const useImageGeneration = ({
           quality,
           style: modelConfigs[model]?.category === "NSFW" ? null : (style || 'general'),
           aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
-          steps,
-          generationId,
-          is_private: isPrivate
+          steps, // This will be removed by destructuring in uploadImageMutation
+          generationId
         }
       });
 

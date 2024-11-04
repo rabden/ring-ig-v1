@@ -32,8 +32,7 @@ const ImageGallery = ({
   searchQuery = '',
   setActiveTab,
   setStyle,
-  style,
-  showPrivate = false
+  style
 }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -44,25 +43,16 @@ const ImageGallery = ({
   const { filterImages } = useImageFilter();
 
   const { data: images, isLoading, refetch } = useQuery({
-    queryKey: ['images', userId, activeView, nsfwEnabled, activeFilters, searchQuery, showPrivate],
+    queryKey: ['images', userId, activeView, nsfwEnabled, activeFilters, searchQuery],
     queryFn: async () => {
       if (!userId) return []
 
-      const query = supabase
+      const { data, error } = await supabase
         .from('user_images')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
 
-      // Apply private filter when in myImages view
-      if (activeView === 'myImages') {
-        query.eq('user_id', userId);
-        if (showPrivate) {
-          query.eq('is_private', true);
-        }
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
+      if (error) throw error
 
       return filterImages(data, {
         userId,
@@ -70,8 +60,7 @@ const ImageGallery = ({
         nsfwEnabled,
         modelConfigs,
         activeFilters,
-        searchQuery,
-        showPrivate
+        searchQuery
       });
     },
     enabled: !!userId && !!modelConfigs,

@@ -30,9 +30,7 @@ const ImageGeneratorSettings = ({
   style, setStyle,
   steps, setSteps,
   proMode,
-  modelConfigs,
-  isPrivate,
-  setIsPrivate
+  modelConfigs
 }) => {
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
   const totalCredits = (credits || 0) + (bonusCredits || 0);
@@ -107,8 +105,6 @@ const ImageGeneratorSettings = ({
         onGenerate={handleGenerateClick}
         hasEnoughCredits={hasEnoughCredits}
         onClear={handleClearPrompt}
-        isPrivate={isPrivate}
-        onPrivacyToggle={() => setIsPrivate(!isPrivate)}
       />
 
       <ModelSection 

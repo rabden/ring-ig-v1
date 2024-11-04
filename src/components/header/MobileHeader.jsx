@@ -8,10 +8,7 @@ const MobileHeader = ({
   onRemoveFilter,
   onSearch,
   isVisible,
-  nsfwEnabled,
-  activeView,
-  showPrivate,
-  onTogglePrivate
+  nsfwEnabled
 }) => {
   return (
     <div className={`md:hidden fixed top-0 left-0 right-0 bg-background z-10 px-2 py-2 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
@@ -22,9 +19,6 @@ const MobileHeader = ({
             onFilterChange={onFilterChange}
             onRemoveFilter={onRemoveFilter}
             nsfwEnabled={nsfwEnabled}
-            activeView={activeView}
-            showPrivate={showPrivate}
-            onTogglePrivate={onTogglePrivate}
           />
         )}
         <SearchBar onSearch={onSearch} />
