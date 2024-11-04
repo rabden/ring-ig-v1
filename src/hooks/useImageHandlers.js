@@ -106,10 +106,8 @@ export const useImageHandlers = ({
   }
 
   const handleDiscard = async (image) => {
-    if (confirm('Are you sure you want to delete this image?')) {
-      await deleteImageCompletely(image.id);
-      queryClient.invalidateQueries(['userImages']);
-    }
+    await deleteImageCompletely(image.id);
+    queryClient.invalidateQueries(['userImages']);
   }
 
   const handleViewDetails = (image) => {
