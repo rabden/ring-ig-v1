@@ -15,9 +15,7 @@ const FullScreenImageView = ({
   onDownload,
   onDiscard,
   onRemix,
-  isOwner,
-  setActiveTab,
-  setStyle
+  isOwner 
 }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
@@ -40,13 +38,6 @@ const FullScreenImageView = ({
     setShareIcon('check');
     toast.success('Share link copied to clipboard');
     setTimeout(() => setShareIcon('share'), 1500);
-  };
-
-  const handleRemixClick = () => {
-    setStyle?.(image.style);
-    setActiveTab?.('input');
-    onRemix(image);
-    onClose();
   };
 
   const detailItems = [
@@ -113,7 +104,7 @@ const FullScreenImageView = ({
                         Discard
                       </Button>
                     )}
-                    <Button onClick={handleRemixClick} className="w-full" variant="outline">
+                    <Button onClick={onRemix} className="w-full" variant="outline">
                       <RefreshCw className="mr-2 h-4 w-4" />
                       Remix
                     </Button>

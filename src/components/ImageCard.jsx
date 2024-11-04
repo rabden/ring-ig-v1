@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { MoreVertical } from "lucide-react"
+import { MoreVertical, User } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import ImageStatusIndicators from './ImageStatusIndicators'
@@ -11,6 +11,7 @@ import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import LikeButton from './LikeButton'
 import { useQuery } from '@tanstack/react-query'
 import { Skeleton } from "@/components/ui/skeleton"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 const ImageCard = ({ 
   image, 
@@ -23,9 +24,7 @@ const ImageCard = ({
   userId,
   isMobile,
   isLiked,
-  onToggleLike,
-  setActiveTab,
-  setStyle
+  onToggleLike
 }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [shouldLoad, setShouldLoad] = useState(false);
@@ -47,13 +46,28 @@ const ImageCard = ({
     },
   });
 
+  const { data: imageOwner } = useQuery({
+    queryKey: ['imageOwner', image.user_id],
+    queryFn: async () => {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', image.user_id)
+        .single();
+      
+      if (error) throw error;
+      return profile;
+    },
+    enabled: !!image.user_id,
+  });
+
   useEffect(() => {
     const checkVisibility = () => {
       if (!imageRef.current) return;
 
       const rect = imageRef.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
-      const verticalMargin = windowHeight;
+      const verticalMargin = windowHeight; // One viewport height margin
       
       const isVisible = (
         rect.top <= windowHeight + verticalMargin &&
@@ -64,14 +78,17 @@ const ImageCard = ({
         setShouldLoad(true);
         setImageSrc(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl);
       } else if (!isVisible && shouldLoad) {
+        // Unload image when it's out of view
         setShouldLoad(false);
         setImageLoaded(false);
-        setImageSrc('');
+        setImageSrc(''); // Clear the src to free up memory
       }
     };
 
+    // Initial check
     checkVisibility();
 
+    // Add scroll and resize listeners
     window.addEventListener('scroll', checkVisibility, { passive: true });
     window.addEventListener('resize', checkVisibility);
 
@@ -93,11 +110,8 @@ const ImageCard = ({
     }
   };
 
-  const handleRemixClick = () => {
-    setStyle?.(image.style);
-    setActiveTab?.('input');
-    onRemix(image);
-  };
+  const displayName = imageOwner?.display_name || 'Anonymous';
+  const truncatedName = displayName.length > 15 ? `${displayName.slice(0, 15)}...` : displayName;
 
   return (
     <div className="mb-2">
@@ -138,7 +152,15 @@ const ImageCard = ({
         </CardContent>
       </Card>
       <div className="mt-1 flex items-center justify-between">
-        <p className="text-sm truncate w-[70%]">{image.prompt}</p>
+        <div className="flex items-center gap-2">
+          <Avatar className="h-6 w-6">
+            <AvatarImage src={imageOwner?.avatar_url} />
+            <AvatarFallback>
+              <User className="h-4 w-4" />
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-sm font-medium">{truncatedName}</span>
+        </div>
         <div className="flex items-center gap-1">
           <div className="flex items-center gap-1">
             <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
@@ -164,7 +186,7 @@ const ImageCard = ({
                     Discard
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={handleRemixClick}>
+                <DropdownMenuItem onClick={() => onRemix(image)}>
                   Remix
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => onViewDetails(image)}>

@@ -44,8 +44,8 @@ const MobileImageDrawer = ({
 
   const handleRemixClick = () => {
     onRemix(image);
-    setStyle?.(image.style);
-    setActiveTab?.('input');
+    setStyle(image.style);
+    setActiveTab('input');
     onOpenChange(false);
   };
 
