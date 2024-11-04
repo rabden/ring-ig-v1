@@ -1,5 +1,4 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
@@ -8,10 +7,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { SupabaseAuthUI } from '@/integrations/supabase/auth';
 
 const SignInDialog = () => {
-  const navigate = useNavigate();
-
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -21,17 +19,7 @@ const SignInDialog = () => {
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">Welcome Back</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col items-center space-y-4">
-          <p className="text-center text-muted-foreground">
-            Please sign in to continue using the application
-          </p>
-          <Button 
-            onClick={() => navigate('/login')}
-            className="w-full"
-          >
-            Go to Login
-          </Button>
-        </div>
+        <SupabaseAuthUI />
       </DialogContent>
     </Dialog>
   );

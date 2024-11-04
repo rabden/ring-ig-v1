@@ -1,8 +1,6 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { supabase } from '../supabase';
 import { useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { toast } from 'sonner';
 
 export const AuthContext = createContext();
 
@@ -10,101 +8,52 @@ export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
-  const location = useLocation();
 
   const handleAuthSession = async () => {
     try {
-      const { data: { session: currentSession }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        throw error;
-      }
-
-      if (currentSession) {
-        setSession(currentSession);
-        // Always redirect to home if we have a valid session, regardless of current path
-        if (location.pathname === '/login') {
-          navigate('/', { replace: true });
-        }
-      }
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      setSession(currentSession);
+      setLoading(false);
     } catch (error) {
-      console.error('Auth session error:', error);
-      toast.error('Authentication error. Please try signing in again.');
-    } finally {
+      console.error('Auth error:', error);
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    // Initial session check
     handleAuthSession();
 
-    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth event:', event);
       
-      switch (event) {
-        case 'SIGNED_IN':
-          setSession(session);
-          queryClient.invalidateQueries(['user']);
-          // Always navigate to home on sign in
-          navigate('/', { replace: true });
-          toast.success('Successfully signed in!');
-          break;
-
-        case 'SIGNED_OUT':
-          setSession(null);
-          queryClient.invalidateQueries(['user']);
-          queryClient.clear();
-          localStorage.removeItem('supabase.auth.token');
-          navigate('/login', { replace: true });
-          toast.success('Successfully signed out');
-          break;
-
-        case 'TOKEN_REFRESHED':
-        case 'USER_UPDATED':
-          setSession(session);
-          queryClient.invalidateQueries(['user']);
-          // Ensure we're on the home page if we have a valid session
-          if (session && location.pathname === '/login') {
-            navigate('/', { replace: true });
-          }
-          break;
-
-        case 'INITIAL_SESSION':
-          if (session) {
-            setSession(session);
-            queryClient.invalidateQueries(['user']);
-            // Redirect to home if we're on the login page
-            if (location.pathname === '/login') {
-              navigate('/', { replace: true });
-            }
-          }
-          break;
+      if (event === 'SIGNED_IN') {
+        setSession(session);
+        queryClient.invalidateQueries('user');
+      } else if (event === 'SIGNED_OUT') {
+        setSession(null);
+        queryClient.invalidateQueries('user');
+        localStorage.removeItem('supabase.auth.token');
+      } else if (event === 'TOKEN_REFRESHED') {
+        setSession(session);
+        queryClient.invalidateQueries('user');
       }
     });
 
     return () => {
       subscription?.unsubscribe();
     };
-  }, [queryClient, navigate, location.pathname]);
+  }, [queryClient]);
 
   const logout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
+      await supabase.auth.signOut();
       setSession(null);
-      queryClient.invalidateQueries(['user']);
-      queryClient.clear();
+      queryClient.invalidateQueries('user');
       localStorage.removeItem('supabase.auth.token');
-      navigate('/login', { replace: true });
-      toast.success('Successfully signed out');
     } catch (error) {
       console.error('Error signing out:', error);
-      toast.error('Error signing out. Please try again.');
     }
+    setLoading(false);
   };
 
   return (
