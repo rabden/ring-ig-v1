@@ -32,16 +32,16 @@ export const getModifiedPrompt = async (prompt, style, model, modelConfigs) => {
   if (!modelConfigs) return prompt;
   
   const modelConfig = modelConfigs[model];
-  if (modelConfig?.noStyleSuffix) {
+  if (modelConfig?.noStyleSuffix || modelConfig?.category === "NSFW") {
     return prompt;
   }
   
-  // Get style suffix from styleConfig
-  const styleSuffix = style ? styleConfig[style]?.suffix : styleConfig.general?.suffix;
+  // Get style suffix from styleConfig, defaulting to general style if none selected
+  const selectedStyle = style && styleConfig[style] ? styleConfig[style] : styleConfig.general;
+  const styleSuffix = selectedStyle?.suffix || '';
   
-  if (!styleSuffix) {
-    return prompt;
-  }
-
-  return `${prompt}, ${styleSuffix}${modelConfig?.promptSuffix || ''}`;
+  // Combine prompt with style suffix and model-specific suffix
+  const modifiedPrompt = `${prompt}, ${styleSuffix}${modelConfig?.promptSuffix || ''}`;
+  
+  return modifiedPrompt;
 };
