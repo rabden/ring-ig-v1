@@ -48,12 +48,21 @@ const ImageGallery = ({
     queryFn: async () => {
       if (!userId) return []
 
-      const { data, error } = await supabase
+      const query = supabase
         .from('user_images')
         .select('*')
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: false });
 
-      if (error) throw error
+      // Apply private filter when in myImages view
+      if (activeView === 'myImages') {
+        query.eq('user_id', userId);
+        if (showPrivate) {
+          query.eq('is_private', true);
+        }
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
 
       return filterImages(data, {
         userId,

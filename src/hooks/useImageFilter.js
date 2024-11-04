@@ -20,9 +20,6 @@ export const useImageFilter = () => {
         } else {
           if (!(img.user_id === userId && !isNsfw)) return false;
         }
-        // Filter private images based on showPrivate toggle
-        if (!showPrivate && img.is_private) return false;
-        if (showPrivate && !img.is_private) return false;
       } else if (activeView === 'inspiration') {
         if (nsfwEnabled) {
           if (!(img.user_id !== userId && isNsfw)) return false;
