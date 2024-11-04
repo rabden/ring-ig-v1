@@ -10,6 +10,7 @@ import { useLikes } from '@/hooks/useLikes'
 import MobileGeneratingStatus from './MobileGeneratingStatus'
 import { useImageFilter } from '@/hooks/useImageFilter'
 import NoResults from './NoResults'
+import GalleryContent from './gallery/GalleryContent'
 
 const breakpointColumnsObj = {
   default: 4,
@@ -156,38 +157,6 @@ const ImageGallery = ({
     }
   };
 
-  const renderContent = () => {
-    if (isLoading) {
-      return Array.from({ length: 8 }).map((_, index) => (
-        <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
-      ));
-    }
-    
-    if (!images || images.length === 0) {
-      return [<NoResults key="no-results" />];
-    }
-    
-    return images.map((image, index) => (
-      <ImageCard
-        key={image.id}
-        image={image}
-        onImageClick={() => handleImageClick(image, index)}
-        onMoreClick={handleMoreClick}
-        onDownload={onDownload}
-        onDiscard={onDiscard}
-        onRemix={onRemix}
-        onViewDetails={onViewDetails}
-        userId={userId}
-        isMobile={isMobile}
-        isLiked={userLikes.includes(image.id)}
-        onToggleLike={toggleLike}
-        setActiveTab={setActiveTab}
-        setStyle={setStyle}
-        style={style}
-      />
-    ));
-  };
-
   return (
     <>
       <Masonry
@@ -195,7 +164,23 @@ const ImageGallery = ({
         className="flex w-auto md:px-2 -mx-1 md:mx-0"
         columnClassName="bg-clip-padding px-1 md:px-2"
       >
-        {renderContent()}
+        <GalleryContent 
+          isLoading={isLoading}
+          images={images}
+          handleImageClick={handleImageClick}
+          handleMoreClick={handleMoreClick}
+          onDownload={onDownload}
+          onDiscard={onDiscard}
+          onRemix={onRemix}
+          onViewDetails={onViewDetails}
+          userId={userId}
+          isMobile={isMobile}
+          userLikes={userLikes}
+          toggleLike={toggleLike}
+          setActiveTab={setActiveTab}
+          setStyle={setStyle}
+          style={style}
+        />
       </Masonry>
 
       <MobileImageDrawer
