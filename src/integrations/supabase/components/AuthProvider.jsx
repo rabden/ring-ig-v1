@@ -21,11 +21,12 @@ export const AuthProvider = ({ children }) => {
         throw error;
       }
 
-      setSession(currentSession);
-
-      if (currentSession && location.pathname === '/login') {
-        // If we have a session and we're on the login page, redirect to home
-        navigate('/', { replace: true });
+      if (currentSession) {
+        setSession(currentSession);
+        // Always redirect to home if we have a valid session, regardless of current path
+        if (location.pathname === '/login') {
+          navigate('/', { replace: true });
+        }
       }
     } catch (error) {
       console.error('Auth session error:', error);
@@ -43,25 +44,44 @@ export const AuthProvider = ({ children }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth event:', event);
       
-      if (event === 'SIGNED_IN') {
-        setSession(session);
-        queryClient.invalidateQueries(['user']);
-        // Use replace: true to prevent back navigation to login
-        navigate('/', { replace: true });
-        toast.success('Successfully signed in!');
-      } else if (event === 'SIGNED_OUT') {
-        setSession(null);
-        queryClient.invalidateQueries(['user']);
-        queryClient.clear();
-        localStorage.removeItem('supabase.auth.token');
-        navigate('/login', { replace: true });
-        toast.success('Successfully signed out');
-      } else if (event === 'TOKEN_REFRESHED') {
-        setSession(session);
-        queryClient.invalidateQueries(['user']);
-      } else if (event === 'USER_UPDATED') {
-        setSession(session);
-        queryClient.invalidateQueries(['user']);
+      switch (event) {
+        case 'SIGNED_IN':
+          setSession(session);
+          queryClient.invalidateQueries(['user']);
+          // Always navigate to home on sign in
+          navigate('/', { replace: true });
+          toast.success('Successfully signed in!');
+          break;
+
+        case 'SIGNED_OUT':
+          setSession(null);
+          queryClient.invalidateQueries(['user']);
+          queryClient.clear();
+          localStorage.removeItem('supabase.auth.token');
+          navigate('/login', { replace: true });
+          toast.success('Successfully signed out');
+          break;
+
+        case 'TOKEN_REFRESHED':
+        case 'USER_UPDATED':
+          setSession(session);
+          queryClient.invalidateQueries(['user']);
+          // Ensure we're on the home page if we have a valid session
+          if (session && location.pathname === '/login') {
+            navigate('/', { replace: true });
+          }
+          break;
+
+        case 'INITIAL_SESSION':
+          if (session) {
+            setSession(session);
+            queryClient.invalidateQueries(['user']);
+            // Redirect to home if we're on the login page
+            if (location.pathname === '/login') {
+              navigate('/', { replace: true });
+            }
+          }
+          break;
       }
     });
 
