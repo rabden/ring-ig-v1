@@ -2,9 +2,23 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight, Lock, Unlock } from "lucide-react";
 
-const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits, isPrivate, onPrivateChange }) => {
+const PromptInput = ({ 
+  value, 
+  onChange, 
+  onKeyDown, 
+  onGenerate, 
+  hasEnoughCredits, 
+  isPrivate, 
+  onPrivateChange 
+}) => {
   const handleClear = () => {
     onChange({ target: { value: '' } });
+  };
+
+  const handlePrivateToggle = () => {
+    if (typeof onPrivateChange === 'function') {
+      onPrivateChange(!isPrivate);
+    }
   };
 
   return (
@@ -31,7 +45,7 @@ const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits,
             size="sm"
             variant={isPrivate ? "default" : "outline"}
             className="rounded-full flex items-center gap-1"
-            onClick={() => onPrivateChange(!isPrivate)}
+            onClick={handlePrivateToggle}
           >
             {isPrivate ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
             Private
