@@ -31,8 +31,6 @@ export const useImageFilter = () => {
         // Filter by privacy setting
         if (showPrivate) {
           if (!img.is_private) return false;
-        } else {
-          if (img.is_private) return false;
         }
         
         if (nsfwEnabled) {
