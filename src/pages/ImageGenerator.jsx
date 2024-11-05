@@ -45,7 +45,8 @@ const ImageGenerator = () => {
     selectedImage, setSelectedImage,
     detailsDialogOpen, setDetailsDialogOpen, fullScreenViewOpen, setFullScreenViewOpen,
     fullScreenImageIndex, setFullScreenImageIndex, generatingImages, setGeneratingImages,
-    activeView, setActiveView, nsfwEnabled, setNsfwEnabled, style, setStyle
+    activeView, setActiveView, nsfwEnabled, setNsfwEnabled, style, setStyle,
+    imageCount, setImageCount
   } = useImageGeneratorState();
 
   const [showPrivate, setShowPrivate] = useState(false);
@@ -65,7 +66,8 @@ const ImageGenerator = () => {
     setGeneratingImages,
     style,
     modelConfigs,
-    steps
+    steps,
+    imageCount
   });
 
   const handleGenerateImage = async () => {
@@ -253,6 +255,8 @@ const ImageGenerator = () => {
           setSteps={setSteps}
           proMode={isPro}
           modelConfigs={modelConfigs}
+          imageCount={imageCount}
+          setImageCount={setImageCount}
         />
       </div>
 

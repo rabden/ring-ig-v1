@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import StyleChooser from './StyleChooser';
 import AspectRatioChooser from './AspectRatioChooser';
 import SettingSection from './settings/SettingSection';
-import ModelSection from './settings/ModelSection';
+import ModelChooser from './settings/ModelChooser';
+import ImageCountChooser from './settings/ImageCountChooser';
 import PromptInput from './prompt/PromptInput';
 import StyledScrollArea from './style/StyledScrollArea';
 import { qualityOptions } from '@/utils/imageConfigs';
@@ -32,9 +33,11 @@ const ImageGeneratorSettings = ({
   proMode,
   modelConfigs,
   isPrivate,
-  setIsPrivate
+  setIsPrivate,
+  imageCount = 1,
+  setImageCount
 }) => {
-  const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality];
+  const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality] * imageCount;
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
   const showGuidanceScale = model === 'fluxDev';
@@ -74,16 +77,6 @@ const ImageGeneratorSettings = ({
     }
   };
 
-  const handleClearPrompt = () => {
-    setPrompt('');
-  };
-
-  const handleGenerateClick = async () => {
-    if (generateImage && prompt.trim()) {
-      await generateImage();
-    }
-  };
-
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className="flex justify-between items-center mb-4">
@@ -93,7 +86,7 @@ const ImageGeneratorSettings = ({
             Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
             {!hasEnoughCredits && (
               <span className="text-destructive ml-2">
-                Need {creditCost} credits for {quality}
+                Need {creditCost} credits
               </span>
             )}
           </div>
@@ -104,11 +97,23 @@ const ImageGeneratorSettings = ({
         value={prompt}
         onChange={handlePromptChange}
         onKeyDown={handlePromptKeyDown}
-        onGenerate={handleGenerateClick}
+        onGenerate={generateImage}
         hasEnoughCredits={hasEnoughCredits}
-        onClear={handleClearPrompt}
         isPrivate={isPrivate}
         onPrivateChange={setIsPrivate}
+      />
+
+      <ModelChooser
+        model={model}
+        setModel={handleModelChange}
+        nsfwEnabled={nsfwEnabled}
+        proMode={proMode}
+        modelConfigs={modelConfigs}
+      />
+
+      <ImageCountChooser
+        count={imageCount}
+        setCount={setImageCount}
       />
 
       <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
