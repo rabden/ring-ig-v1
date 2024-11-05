@@ -1,9 +1,9 @@
-import { useMutation } from '@tanstack/react-query';
+import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/supabase';
+import { toast } from 'sonner';
 import { qualityOptions } from '@/utils/imageConfigs';
 import { calculateDimensions, getModifiedPrompt } from '@/utils/imageUtils';
 import { handleApiResponse } from '@/utils/retryUtils';
-import { toast } from 'sonner';
 
 export const useImageGeneration = ({
   session,
@@ -21,44 +21,9 @@ export const useImageGeneration = ({
   style,
   modelConfigs,
   steps,
-  isPrivate,
   imageCount = 1
 }) => {
-  const { mutateAsync: uploadImage } = useMutation({
-    mutationFn: async ({ imageBlob, metadata }) => {
-      const filePath = `${session.user.id}/${Date.now()}.png`;
-      const { error: uploadError } = await supabase.storage
-        .from('user-images')
-        .upload(filePath, imageBlob);
-      if (uploadError) throw uploadError;
-
-      const { generationId, steps, ...dbMetadata } = metadata;
-      
-      const { error: insertError } = await supabase
-        .from('user_images')
-        .insert({
-          user_id: session.user.id,
-          storage_path: filePath,
-          ...dbMetadata,
-          style: dbMetadata.style || 'general',
-          is_private: isPrivate
-        });
-      if (insertError) throw insertError;
-
-      return { success: true };
-    },
-    onSuccess: (_, { metadata: { generationId } }) => {
-      setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-      toast.success('Image generated successfully!');
-    },
-    onError: (error, { metadata: { generationId } }) => {
-      setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-      toast.error('Failed to save generated image');
-      console.error('Error uploading image:', error);
-    },
-  });
-
-  const generateImage = async (retryCount = 0) => {
+  const generateImage = useCallback(async (isPrivate) => {
     if (!session || !prompt || !modelConfigs) {
       !session && toast.error('Please sign in to generate images');
       !prompt && toast.error('Please enter a prompt');
@@ -93,17 +58,15 @@ export const useImageGeneration = ({
       const maxDimension = qualityOptions[quality];
       const { width: finalWidth, height: finalHeight } = calculateDimensions(useAspectRatio, aspectRatio, width, height, maxDimension);
 
-      if (retryCount === 0) {
-        setGeneratingImages(prev => [...prev, { 
-          id: generationId, 
-          width: finalWidth, 
-          height: finalHeight,
-          prompt: modifiedPrompt,
-          model,
-          style: modelConfigs[model]?.category === "NSFW" ? null : style,
-          is_private: isPrivate
-        }]);
-      }
+      setGeneratingImages(prev => [...prev, { 
+        id: generationId, 
+        width: finalWidth, 
+        height: finalHeight,
+        prompt: modifiedPrompt,
+        model,
+        style: modelConfigs[model]?.category === "NSFW" ? null : style,
+        is_private: isPrivate
+      }]);
 
       const promise = (async () => {
         try {
@@ -156,9 +119,17 @@ export const useImageGeneration = ({
             throw new Error('Generated image is empty or invalid');
           }
 
-          await uploadImage({ 
-            imageBlob, 
-            metadata: {
+          const filePath = `${session.user.id}/${Date.now()}.png`;
+          const { error: uploadError } = await supabase.storage
+            .from('user-images')
+            .upload(filePath, imageBlob);
+          if (uploadError) throw uploadError;
+
+          const { error: insertError } = await supabase
+            .from('user_images')
+            .insert({
+              user_id: session.user.id,
+              storage_path: filePath,
               prompt: modifiedPrompt,
               seed: actualSeed,
               width: finalWidth,
@@ -168,10 +139,12 @@ export const useImageGeneration = ({
               style: modelConfigs[model]?.category === "NSFW" ? null : (style || 'general'),
               aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
               steps,
-              generationId,
               is_private: isPrivate
-            }
-          });
+            });
+          if (insertError) throw insertError;
+
+          setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
+          toast.success('Image generated successfully!');
 
         } catch (error) {
           console.error('Error generating image:', error);
@@ -189,7 +162,11 @@ export const useImageGeneration = ({
     } catch (error) {
       console.error('Error in batch generation:', error);
     }
-  };
+  }, [
+    session, prompt, seed, randomizeSeed, width, height,
+    model, quality, useAspectRatio, aspectRatio, updateCredits,
+    setGeneratingImages, style, modelConfigs, steps, imageCount
+  ]);
 
   return { generateImage };
 };

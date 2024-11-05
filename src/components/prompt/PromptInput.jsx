@@ -13,6 +13,10 @@ const PromptInput = ({
   isPrivate, 
   onPrivateChange 
 }) => {
+  const handleGenerate = () => {
+    onGenerate(isPrivate);
+  };
+
   const handlePrivateToggle = () => {
     if (typeof onPrivateChange === 'function') {
       onPrivateChange(!isPrivate);
@@ -75,7 +79,7 @@ const PromptInput = ({
             <Button
               size="sm"
               className="rounded-full"
-              onClick={onGenerate}
+              onClick={handleGenerate}
               disabled={!value.length || !hasEnoughCredits}
             >
               Generate
