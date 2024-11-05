@@ -17,5 +17,8 @@ export const useProUser = (userId) => {
     },
     enabled: !!userId,
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    retry: false, // Don't retry on failure
+    refetchOnWindowFocus: false, // Don't refetch when window gains focus
+    initialData: false // Set initial data to false
   });
 };
