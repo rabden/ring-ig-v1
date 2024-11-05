@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/supabase';
 import { toast } from 'sonner';
 import { qualityOptions } from '@/utils/imageConfigs';
@@ -23,7 +22,7 @@ export const useImageGeneration = ({
   steps,
   imageCount = 1
 }) => {
-  const generateImage = useCallback(async (isPrivate) => {
+  const generateImage = async (isPrivate) => {
     if (!session || !prompt || !modelConfigs) {
       !session && toast.error('Please sign in to generate images');
       !prompt && toast.error('Please enter a prompt');
@@ -125,6 +124,7 @@ export const useImageGeneration = ({
             .upload(filePath, imageBlob);
           if (uploadError) throw uploadError;
 
+          // Remove steps from the database insert since the column no longer exists
           const { error: insertError } = await supabase
             .from('user_images')
             .insert({
@@ -138,7 +138,6 @@ export const useImageGeneration = ({
               quality,
               style: modelConfigs[model]?.category === "NSFW" ? null : (style || 'general'),
               aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
-              steps,
               is_private: isPrivate
             });
           if (insertError) throw insertError;
@@ -162,11 +161,7 @@ export const useImageGeneration = ({
     } catch (error) {
       console.error('Error in batch generation:', error);
     }
-  }, [
-    session, prompt, seed, randomizeSeed, width, height,
-    model, quality, useAspectRatio, aspectRatio, updateCredits,
-    setGeneratingImages, style, modelConfigs, steps, imageCount
-  ]);
+  };
 
   return { generateImage };
 };
