@@ -23,6 +23,7 @@ export const useImageGeneratorState = () => {
   const [activeView, setActiveView] = useState('myImages');
   const [nsfwEnabled, setNsfwEnabled] = useState(false);
   const [style, setStyle] = useState(null);
+  const [imageCount, setImageCount] = useState(1);
 
   useEffect(() => {
     if (modelConfigs) {
@@ -56,6 +57,7 @@ export const useImageGeneratorState = () => {
     generatingImages, setGeneratingImages,
     activeView, setActiveView,
     nsfwEnabled, setNsfwEnabled,
-    style, setStyle
+    style, setStyle,
+    imageCount, setImageCount
   };
 };
