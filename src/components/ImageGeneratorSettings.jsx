@@ -49,7 +49,7 @@ const ImageGeneratorSettings = ({
     }
     setModel(newModel);
     if (modelConfigs?.[newModel]?.category === "NSFW") {
-      setStyle(null); // Reset style when switching to NSFW model
+      setStyle(null);
     }
   };
 
