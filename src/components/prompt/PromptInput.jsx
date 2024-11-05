@@ -48,7 +48,7 @@ const PromptInput = ({
             onClick={handlePrivateToggle}
           >
             {isPrivate ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
-            Private
+            {isPrivate ? 'Private' : 'Public'}
           </Button>
           
           <div className="flex gap-2">
