@@ -1,7 +1,6 @@
 import React from 'react';
 import FilterMenu from '../filters/FilterMenu';
 import SearchBar from '../search/SearchBar';
-import PrivateFilterButton from '../filters/PrivateFilterButton';
 
 const MobileHeader = ({ 
   activeFilters,
@@ -9,19 +8,11 @@ const MobileHeader = ({
   onRemoveFilter,
   onSearch,
   isVisible,
-  nsfwEnabled,
-  showPrivate,
-  onTogglePrivate,
-  activeView
+  nsfwEnabled
 }) => {
   return (
     <div className={`md:hidden fixed top-0 left-0 right-0 bg-background z-10 px-2 py-2 transition-transform duration-300 ${isVisible ? 'translate-y-0' : '-translate-y-full'}`}>
-      <div className="flex items-center justify-end gap-2 overflow-x-auto whitespace-nowrap">
-        <PrivateFilterButton
-          showPrivate={showPrivate}
-          onToggle={onTogglePrivate}
-          disabled={activeView !== 'myImages'}
-        />
+      <div className="flex items-center justify-end gap-2 overflow-x-auto whitespace-nowrap scrollbar-none">
         {!nsfwEnabled && (
           <FilterMenu
             activeFilters={activeFilters}

@@ -10,7 +10,13 @@ import { useLikes } from '@/hooks/useLikes'
 import MobileGeneratingStatus from './MobileGeneratingStatus'
 import { useImageFilter } from '@/hooks/useImageFilter'
 import NoResults from './NoResults'
-import GalleryContent from './GalleryContent'
+
+const breakpointColumnsObj = {
+  default: 4,
+  1100: 3,
+  700: 2,
+  500: 2
+}
 
 const ImageGallery = ({ 
   userId, 
@@ -26,8 +32,7 @@ const ImageGallery = ({
   searchQuery = '',
   setActiveTab,
   setStyle,
-  style,
-  showPrivate = false
+  style
 }) => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -38,7 +43,7 @@ const ImageGallery = ({
   const { filterImages } = useImageFilter();
 
   const { data: images, isLoading, refetch } = useQuery({
-    queryKey: ['images', userId, activeView, nsfwEnabled, activeFilters, searchQuery, showPrivate],
+    queryKey: ['images', userId, activeView, nsfwEnabled, activeFilters, searchQuery],
     queryFn: async () => {
       if (!userId) return []
 
@@ -55,8 +60,7 @@ const ImageGallery = ({
         nsfwEnabled,
         modelConfigs,
         activeFilters,
-        searchQuery,
-        showPrivate
+        searchQuery
       });
     },
     enabled: !!userId && !!modelConfigs,
@@ -141,24 +145,47 @@ const ImageGallery = ({
     }
   };
 
-  return (
-    <>
-      <GalleryContent
-        images={images}
-        isLoading={isLoading}
-        userLikes={userLikes}
-        toggleLike={toggleLike}
-        userId={userId}
-        isMobile={isMobile}
-        onImageClick={onImageClick}
+  const renderContent = () => {
+    if (isLoading) {
+      return Array.from({ length: 8 }).map((_, index) => (
+        <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
+      ));
+    }
+    
+    if (!images || images.length === 0) {
+      return [<NoResults key="no-results" />];
+    }
+    
+    return images.map((image, index) => (
+      <ImageCard
+        key={image.id}
+        image={image}
+        onImageClick={() => handleImageClick(image, index)}
+        onMoreClick={handleMoreClick}
         onDownload={onDownload}
         onDiscard={onDiscard}
         onRemix={onRemix}
         onViewDetails={onViewDetails}
+        userId={userId}
+        isMobile={isMobile}
+        isLiked={userLikes.includes(image.id)}
+        onToggleLike={toggleLike}
         setActiveTab={setActiveTab}
         setStyle={setStyle}
         style={style}
       />
+    ));
+  };
+
+  return (
+    <>
+      <Masonry
+        breakpointCols={breakpointColumnsObj}
+        className="flex w-auto md:px-2 -mx-1 md:mx-0"
+        columnClassName="bg-clip-padding px-1 md:px-2"
+      >
+        {renderContent()}
+      </Masonry>
 
       <MobileImageDrawer
         open={drawerOpen}
