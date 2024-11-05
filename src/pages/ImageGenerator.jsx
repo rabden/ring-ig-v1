@@ -30,6 +30,7 @@ const ImageGenerator = () => {
 
   const [activeFilters, setActiveFilters] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
+  const [isPrivate, setIsPrivate] = useState(false); // Add this line
   const isHeaderVisible = useScrollDirection();
   const { session } = useSupabaseAuth();
   const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id);
@@ -255,6 +256,8 @@ const ImageGenerator = () => {
           setSteps={setSteps}
           proMode={isPro}
           modelConfigs={modelConfigs}
+          isPrivate={isPrivate}
+          setIsPrivate={setIsPrivate}
           imageCount={imageCount}
           setImageCount={setImageCount}
         />
