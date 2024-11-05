@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/supabase';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
+import { generateImage } from '@/api/generate';
 
 export const useImageGeneration = ({ 
   session, 
@@ -22,7 +23,7 @@ export const useImageGeneration = ({
   imageCount,
   isPrivate
 }) => {
-  const generateImage = useCallback(async () => {
+  const generateImages = useCallback(async () => {
     if (!session) {
       toast.error('Please sign in to generate images');
       return;
@@ -63,7 +64,6 @@ export const useImageGeneration = ({
       const generationId = uuidv4();
       generationIds.push(generationId);
 
-      // Add to generating images state immediately
       setGeneratingImages(prev => [...prev, {
         id: generationId,
         width: finalWidth,
@@ -76,8 +76,7 @@ export const useImageGeneration = ({
     }
 
     try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
+      const response = await generateImage({
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`
@@ -103,10 +102,8 @@ export const useImageGeneration = ({
       const { message } = await response.json();
       toast.success(message);
 
-      // Update user credits
       await updateCredits(-creditCost);
 
-      // Insert image metadata into database
       for (const generationId of generationIds) {
         const { error } = await supabase
           .from('user_images')
@@ -135,7 +132,6 @@ export const useImageGeneration = ({
       console.error('Error generating image:', error);
       toast.error(error.message || 'Failed to generate image');
       
-      // Remove from generating images state on error
       setGeneratingImages(prev => prev.filter(img => !generationIds.includes(img.id)));
     }
   }, [
@@ -145,5 +141,5 @@ export const useImageGeneration = ({
     isPrivate
   ]);
 
-  return { generateImage };
+  return { generateImage: generateImages };
 };
