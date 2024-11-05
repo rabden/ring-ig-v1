@@ -48,6 +48,8 @@ const ImageGenerator = () => {
     activeView, setActiveView, nsfwEnabled, setNsfwEnabled, style, setStyle
   } = useImageGeneratorState();
 
+  const [showPrivate, setShowPrivate] = useState(false);
+
   const { generateImage } = useImageGeneration({
     session,
     prompt,
@@ -175,6 +177,8 @@ const ImageGenerator = () => {
               onRemoveFilter={handleRemoveFilter}
               onSearch={handleSearch}
               nsfwEnabled={nsfwEnabled}
+              showPrivate={showPrivate}
+              onTogglePrivate={() => setShowPrivate(!showPrivate)}
             />
             <MobileHeader
               activeFilters={activeFilters}
@@ -183,6 +187,9 @@ const ImageGenerator = () => {
               onSearch={handleSearch}
               isVisible={isHeaderVisible}
               nsfwEnabled={nsfwEnabled}
+              showPrivate={showPrivate}
+              onTogglePrivate={() => setShowPrivate(!showPrivate)}
+              activeView={activeView}
             />
           </>
         )}
@@ -203,6 +210,7 @@ const ImageGenerator = () => {
             searchQuery={searchQuery}
             setActiveTab={setActiveTab}
             setStyle={setStyle}
+            showPrivate={showPrivate}
           />
         </div>
       </div>

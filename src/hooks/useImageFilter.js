@@ -7,29 +7,38 @@ export const useImageFilter = () => {
     nsfwEnabled,
     modelConfigs,
     activeFilters,
-    searchQuery
+    searchQuery,
+    showPrivate
   }) => {
     let filteredData = images.filter(img => {
       const isNsfw = modelConfigs?.[img.model]?.category === "NSFW";
       
       // Filter private images
-      if (img.is_private && img.user_id !== userId) {
-        return false;
+      if (activeView === 'inspiration') {
+        // Never show private images in inspiration
+        if (img.is_private) return false;
+        if (img.user_id === userId) return false;
+        if (nsfwEnabled) {
+          return isNsfw;
+        }
+        return !isNsfw;
       }
       
-      // Filter by user and NSFW status
+      // My Images view
       if (activeView === 'myImages') {
-        if (nsfwEnabled) {
-          if (!(img.user_id === userId && isNsfw)) return false;
+        if (img.user_id !== userId) return false;
+        
+        // Filter by privacy setting
+        if (showPrivate) {
+          if (!img.is_private) return false;
         } else {
-          if (!(img.user_id === userId && !isNsfw)) return false;
+          if (img.is_private) return false;
         }
-      } else if (activeView === 'inspiration') {
+        
         if (nsfwEnabled) {
-          if (!(img.user_id !== userId && isNsfw)) return false;
-        } else {
-          if (!(img.user_id !== userId && !isNsfw)) return false;
+          return isNsfw;
         }
+        return !isNsfw;
       }
 
       // Filter by style and model
