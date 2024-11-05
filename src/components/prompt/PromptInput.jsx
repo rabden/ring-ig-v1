@@ -5,10 +5,8 @@ import { toast } from "sonner";
 
 const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits, onClear, isPrivate, onPrivateChange }) => {
   const handlePrivateToggle = () => {
-    if (typeof onPrivateChange === 'function') {
-      onPrivateChange(!isPrivate);
-      toast.success(`Image generation set to ${!isPrivate ? 'private' : 'public'}`);
-    }
+    onPrivateChange(!isPrivate);
+    toast.success(`Image generation set to ${!isPrivate ? 'private' : 'public'}`);
   };
 
   return (
@@ -31,26 +29,24 @@ const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits,
         </div>
         
         <div className="flex justify-between items-center mt-4">
-          {typeof onPrivateChange === 'function' && (
-            <Button
-              size="sm"
-              variant={isPrivate ? "default" : "outline"}
-              className={`rounded-full flex items-center gap-2 ${isPrivate ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}`}
-              onClick={handlePrivateToggle}
-            >
-              {isPrivate ? (
-                <>
-                  <Lock className="h-4 w-4" />
-                  Private
-                </>
-              ) : (
-                <>
-                  <Unlock className="h-4 w-4" />
-                  Public
-                </>
-              )}
-            </Button>
-          )}
+          <Button
+            size="sm"
+            variant={isPrivate ? "default" : "outline"}
+            className={`rounded-full flex items-center gap-2 ${isPrivate ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}`}
+            onClick={handlePrivateToggle}
+          >
+            {isPrivate ? (
+              <>
+                <Lock className="h-4 w-4" />
+                Private
+              </>
+            ) : (
+              <>
+                <Unlock className="h-4 w-4" />
+                Public
+              </>
+            )}
+          </Button>
           
           <div className="flex gap-2">
             {value.length > 0 && (
