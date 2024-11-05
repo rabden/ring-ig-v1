@@ -1,18 +1,16 @@
-import { useMutation } from '@tanstack/react-query';
+import { useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/supabase';
-import { qualityOptions } from '@/utils/imageConfigs';
-import { calculateDimensions, getModifiedPrompt } from '@/utils/imageUtils';
-import { handleApiResponse } from '@/utils/retryUtils';
 import { toast } from 'sonner';
+import { v4 as uuidv4 } from 'uuid';
 
-export const useImageGeneration = ({
-  session,
-  prompt,
-  seed,
-  randomizeSeed,
-  width,
-  height,
-  model,
+export const useImageGeneration = ({ 
+  session, 
+  prompt, 
+  seed, 
+  randomizeSeed, 
+  width, 
+  height, 
+  model, 
   quality,
   useAspectRatio,
   aspectRatio,
@@ -21,175 +19,131 @@ export const useImageGeneration = ({
   style,
   modelConfigs,
   steps,
-  isPrivate,
-  imageCount = 1
+  imageCount,
+  isPrivate
 }) => {
-  const { mutateAsync: uploadImage } = useMutation({
-    mutationFn: async ({ imageBlob, metadata }) => {
-      const filePath = `${session.user.id}/${Date.now()}.png`;
-      const { error: uploadError } = await supabase.storage
-        .from('user-images')
-        .upload(filePath, imageBlob);
-      if (uploadError) throw uploadError;
-
-      const { generationId, steps, ...dbMetadata } = metadata;
-      
-      const { error: insertError } = await supabase
-        .from('user_images')
-        .insert({
-          user_id: session.user.id,
-          storage_path: filePath,
-          ...dbMetadata,
-          style: dbMetadata.style || 'general',
-          is_private: isPrivate
-        });
-      if (insertError) throw insertError;
-
-      return { success: true };
-    },
-    onSuccess: (_, { metadata: { generationId } }) => {
-      setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-      toast.success('Image generated successfully!');
-    },
-    onError: (error, { metadata: { generationId } }) => {
-      setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-      toast.error('Failed to save generated image');
-      console.error('Error uploading image:', error);
-    },
-  });
-
-  const generateImage = async (retryCount = 0) => {
-    if (!session || !prompt || !modelConfigs) {
-      !session && toast.error('Please sign in to generate images');
-      !prompt && toast.error('Please enter a prompt');
-      !modelConfigs && console.error('Model configs not loaded');
-      return;
-    }
-
-    const modelConfig = modelConfigs[model];
-    if (!modelConfig) {
-      toast.error('Invalid model selected');
-      return;
-    }
-
-    if (modelConfig?.qualityLimits && !modelConfig.qualityLimits.includes(quality)) {
-      toast.error(`Quality ${quality} not supported for model ${model}`);
+  const generateImage = useCallback(async () => {
+    if (!session) {
+      toast.error('Please sign in to generate images');
       return;
     }
 
     const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality] * imageCount;
-    const totalCredits = session.credits + (session.bonusCredits || 0);
+    const { data: { credit_count, bonus_credits } } = await supabase
+      .from('user_credits')
+      .select('credit_count, bonus_credits')
+      .eq('user_id', session.user.id)
+      .single();
+
+    const totalCredits = (credit_count || 0) + (bonus_credits || 0);
     if (totalCredits < creditCost) {
-      toast.error('Insufficient credits');
+      toast.error('Not enough credits');
       return;
     }
 
-    const generationPromises = [];
-    for (let i = 0; i < imageCount; i++) {
-      const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed + i;
-      const generationId = Date.now().toString() + i;
+    let finalWidth = width;
+    let finalHeight = height;
+
+    if (useAspectRatio && aspectRatio) {
+      const [w, h] = aspectRatio.split(':').map(Number);
+      const ratio = w / h;
       
-      const modifiedPrompt = await getModifiedPrompt(prompt, style, model, modelConfigs);
-      const maxDimension = qualityOptions[quality];
-      const { width: finalWidth, height: finalHeight } = calculateDimensions(useAspectRatio, aspectRatio, width, height, maxDimension);
-
-      if (retryCount === 0) {
-        setGeneratingImages(prev => [...prev, { 
-          id: generationId, 
-          width: finalWidth, 
-          height: finalHeight,
-          prompt: modifiedPrompt,
-          model,
-          style: modelConfigs[model]?.category === "NSFW" ? null : style,
-          is_private: isPrivate
-        }]);
+      if (ratio > 1) {
+        finalHeight = Math.round(width / ratio);
+      } else {
+        finalWidth = Math.round(height * ratio);
       }
+    }
 
-      const promise = (async () => {
-        try {
-          const { data: apiKeyData, error: apiKeyError } = await supabase.rpc('get_random_huggingface_api_key');
-          if (apiKeyError) {
-            setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-            toast.error('Failed to get API key');
-            throw new Error(`Failed to get API key: ${apiKeyError.message}`);
-          }
-          if (!apiKeyData) {
-            setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-            toast.error('No active API key available');
-            throw new Error('No active API key available');
-          }
+    const modifiedPrompt = prompt.trim();
+    const finalSeed = randomizeSeed ? Math.floor(Math.random() * 2147483647) : seed;
 
-          const parameters = {
-            seed: actualSeed,
-            width: finalWidth,
-            height: finalHeight,
-            num_inference_steps: steps || modelConfig?.defaultStep || 30,
-          };
+    const generationIds = [];
+    for (let i = 0; i < imageCount; i++) {
+      const generationId = uuidv4();
+      generationIds.push(generationId);
 
-          if (!model.toLowerCase().includes('flux')) {
-            parameters.negative_prompt = modelConfig?.negativePrompt || "ugly, disfigured, low quality, blurry, nsfw";
-          }
-
-          const response = await fetch(modelConfig?.apiUrl, {
-            headers: {
-              Authorization: `Bearer ${apiKeyData}`,
-              "Content-Type": "application/json",
-              "x-wait-for-model": "true"
-            },
-            method: "POST",
-            body: JSON.stringify({
-              inputs: modifiedPrompt,
-              parameters
-            }),
-          });
-
-          const imageBlob = await handleApiResponse(response);
-          if (!imageBlob) {
-            setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-            toast.error('Failed to generate image');
-            return;
-          }
-
-          if (!imageBlob || imageBlob.size === 0) {
-            setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-            toast.error('Generated image is invalid');
-            throw new Error('Generated image is empty or invalid');
-          }
-
-          await uploadImage({ 
-            imageBlob, 
-            metadata: {
-              prompt: modifiedPrompt,
-              seed: actualSeed,
-              width: finalWidth,
-              height: finalHeight,
-              model,
-              quality,
-              style: modelConfigs[model]?.category === "NSFW" ? null : (style || 'general'),
-              aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
-              steps,
-              generationId,
-              is_private: isPrivate
-            }
-          });
-
-        } catch (error) {
-          console.error('Error generating image:', error);
-          toast.error('Failed to generate image');
-          setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-        }
-      })();
-
-      generationPromises.push(promise);
+      // Add to generating images state immediately
+      setGeneratingImages(prev => [...prev, {
+        id: generationId,
+        width: finalWidth,
+        height: finalHeight,
+        prompt: modifiedPrompt,
+        model,
+        style: modelConfigs[model]?.category === "NSFW" ? null : style,
+        is_private: isPrivate
+      }]);
     }
 
     try {
-      await Promise.all(generationPromises);
-      await updateCredits(quality, imageCount);
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify({
+          prompt: modifiedPrompt,
+          seed: finalSeed,
+          width: finalWidth,
+          height: finalHeight,
+          model,
+          quality,
+          style,
+          steps,
+          generationIds
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to generate image');
+      }
+
+      const { message } = await response.json();
+      toast.success(message);
+
+      // Update user credits
+      await updateCredits(-creditCost);
+
+      // Insert image metadata into database
+      for (const generationId of generationIds) {
+        const { error } = await supabase
+          .from('user_images')
+          .insert({
+            user_id: session.user.id,
+            prompt: modifiedPrompt,
+            seed: finalSeed,
+            width: finalWidth,
+            height: finalHeight,
+            quality,
+            model,
+            style: modelConfigs[model]?.category === "NSFW" ? null : (style || 'general'),
+            aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
+            steps,
+            generationId,
+            is_private: isPrivate
+          });
+
+        if (error) {
+          console.error('Error inserting image metadata:', error);
+          toast.error('Failed to save image metadata');
+        }
+      }
+
     } catch (error) {
-      console.error('Error in batch generation:', error);
+      console.error('Error generating image:', error);
+      toast.error(error.message || 'Failed to generate image');
+      
+      // Remove from generating images state on error
+      setGeneratingImages(prev => prev.filter(img => !generationIds.includes(img.id)));
     }
-  };
+  }, [
+    session, prompt, seed, randomizeSeed, width, height,
+    model, quality, useAspectRatio, aspectRatio, updateCredits,
+    setGeneratingImages, style, modelConfigs, steps, imageCount,
+    isPrivate
+  ]);
 
   return { generateImage };
 };
