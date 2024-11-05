@@ -30,9 +30,14 @@ export const useImageFilter = () => {
         
         // Filter by privacy setting
         if (showPrivate) {
-          if (!img.is_private) return false;
+          // When private filter is on, show only private images
+          return img.is_private;
+        } else {
+          // When private filter is off, show only non-private images
+          return !img.is_private;
         }
-        
+
+        // NSFW filtering happens after privacy filtering
         if (nsfwEnabled) {
           return isNsfw;
         }
