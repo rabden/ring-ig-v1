@@ -1,63 +1,75 @@
-import { useState, useEffect } from 'react'
-import { useModelConfigs } from './useModelConfigs'
+import { useState, useEffect } from 'react';
+import { useModelConfigs } from './useModelConfigs';
 
 export const useImageGeneratorState = () => {
   const { data: modelConfigs } = useModelConfigs();
-  const [prompt, setPrompt] = useState('');
-  const [seed, setSeed] = useState(0);
-  const [randomizeSeed, setRandomizeSeed] = useState(true);
-  const [width, setWidth] = useState(1024);
-  const [height, setHeight] = useState(1024);
-  const [steps, setSteps] = useState(4);
-  const [model, setModel] = useState('turbo');
-  const [activeTab, setActiveTab] = useState('images');
-  const [aspectRatio, setAspectRatio] = useState("1:1");
-  const [useAspectRatio, setUseAspectRatio] = useState(true);
-  const [quality, setQuality] = useState("HD");
-  const [modelSidebarOpen, setModelSidebarOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
-  const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false);
-  const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0);
-  const [generatingImages, setGeneratingImages] = useState([]);
-  const [activeView, setActiveView] = useState('myImages');
-  const [nsfwEnabled, setNsfwEnabled] = useState(false);
-  const [style, setStyle] = useState(null);
-  const [imageCount, setImageCount] = useState(1);
+  
+  // Initialize all state values
+  const [state, setState] = useState({
+    prompt: '',
+    seed: 0,
+    randomizeSeed: true,
+    width: 1024,
+    height: 1024,
+    steps: 4,
+    model: 'turbo',
+    activeTab: 'images',
+    aspectRatio: '1:1',
+    useAspectRatio: true,
+    quality: 'HD',
+    modelSidebarOpen: false,
+    selectedImage: null,
+    detailsDialogOpen: false,
+    fullScreenViewOpen: false,
+    fullScreenImageIndex: 0,
+    generatingImages: [],
+    activeView: 'myImages',
+    nsfwEnabled: false,
+    style: null,
+    imageCount: 1,
+    isPrivate: false
+  });
+
+  // Create setters for each state property
+  const setters = {
+    setPrompt: (value) => setState(prev => ({ ...prev, prompt: value })),
+    setSeed: (value) => setState(prev => ({ ...prev, seed: value })),
+    setRandomizeSeed: (value) => setState(prev => ({ ...prev, randomizeSeed: value })),
+    setWidth: (value) => setState(prev => ({ ...prev, width: value })),
+    setHeight: (value) => setState(prev => ({ ...prev, height: value })),
+    setSteps: (value) => setState(prev => ({ ...prev, steps: value })),
+    setModel: (value) => setState(prev => ({ ...prev, model: value })),
+    setActiveTab: (value) => setState(prev => ({ ...prev, activeTab: value })),
+    setAspectRatio: (value) => setState(prev => ({ ...prev, aspectRatio: value })),
+    setUseAspectRatio: (value) => setState(prev => ({ ...prev, useAspectRatio: value })),
+    setQuality: (value) => setState(prev => ({ ...prev, quality: value })),
+    setModelSidebarOpen: (value) => setState(prev => ({ ...prev, modelSidebarOpen: value })),
+    setSelectedImage: (value) => setState(prev => ({ ...prev, selectedImage: value })),
+    setDetailsDialogOpen: (value) => setState(prev => ({ ...prev, detailsDialogOpen: value })),
+    setFullScreenViewOpen: (value) => setState(prev => ({ ...prev, fullScreenViewOpen: value })),
+    setFullScreenImageIndex: (value) => setState(prev => ({ ...prev, fullScreenImageIndex: value })),
+    setGeneratingImages: (value) => setState(prev => ({ ...prev, generatingImages: Array.isArray(value) ? value : [] })),
+    setActiveView: (value) => setState(prev => ({ ...prev, activeView: value })),
+    setNsfwEnabled: (value) => setState(prev => ({ ...prev, nsfwEnabled: value })),
+    setStyle: (value) => setState(prev => ({ ...prev, style: value })),
+    setImageCount: (value) => setState(prev => ({ ...prev, imageCount: value })),
+    setIsPrivate: (value) => setState(prev => ({ ...prev, isPrivate: value }))
+  };
 
   useEffect(() => {
     if (modelConfigs) {
-      if (nsfwEnabled) {
-        setModel('nsfwMaster');
-        setSteps(modelConfigs['nsfwMaster']?.defaultStep || 35);
+      if (state.nsfwEnabled) {
+        setters.setModel('nsfwMaster');
+        setters.setSteps(modelConfigs['nsfwMaster']?.defaultStep || 35);
       } else {
-        setModel('turbo');
-        setSteps(modelConfigs['turbo']?.defaultStep || 4);
+        setters.setModel('turbo');
+        setters.setSteps(modelConfigs['turbo']?.defaultStep || 4);
       }
     }
-  }, [nsfwEnabled, modelConfigs]);
+  }, [state.nsfwEnabled, modelConfigs]);
 
   return {
-    prompt, setPrompt,
-    seed, setSeed,
-    randomizeSeed, setRandomizeSeed,
-    width, setWidth,
-    height, setHeight,
-    steps, setSteps,
-    model, setModel,
-    activeTab, setActiveTab,
-    aspectRatio, setAspectRatio,
-    useAspectRatio, setUseAspectRatio,
-    quality, setQuality,
-    modelSidebarOpen, setModelSidebarOpen,
-    selectedImage, setSelectedImage,
-    detailsDialogOpen, setDetailsDialogOpen,
-    fullScreenViewOpen, setFullScreenViewOpen,
-    fullScreenImageIndex, setFullScreenImageIndex,
-    generatingImages, setGeneratingImages,
-    activeView, setActiveView,
-    nsfwEnabled, setNsfwEnabled,
-    style, setStyle,
-    imageCount, setImageCount
+    ...state,
+    ...setters
   };
 };
