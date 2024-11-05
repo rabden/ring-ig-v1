@@ -24,40 +24,37 @@ export const useImageGeneration = ({
   isPrivate,
   imageCount = 1
 }) => {
-  const uploadImageMutation = useMutation({
+  const { mutateAsync: uploadImage } = useMutation({
     mutationFn: async ({ imageBlob, metadata }) => {
-      try {
-        const filePath = `${session.user.id}/${Date.now()}.png`;
-        const { error: uploadError } = await supabase.storage
-          .from('user-images')
-          .upload(filePath, imageBlob);
-        if (uploadError) throw uploadError;
+      const filePath = `${session.user.id}/${Date.now()}.png`;
+      const { error: uploadError } = await supabase.storage
+        .from('user-images')
+        .upload(filePath, imageBlob);
+      if (uploadError) throw uploadError;
 
-        const { generationId, steps, ...dbMetadata } = metadata;
-        
-        const { error: insertError } = await supabase
-          .from('user_images')
-          .insert({
-            user_id: session.user.id,
-            storage_path: filePath,
-            ...dbMetadata,
-            style: dbMetadata.style || 'general',
-            is_private: isPrivate
-          });
-        if (insertError) throw insertError;
+      const { generationId, steps, ...dbMetadata } = metadata;
+      
+      const { error: insertError } = await supabase
+        .from('user_images')
+        .insert({
+          user_id: session.user.id,
+          storage_path: filePath,
+          ...dbMetadata,
+          style: dbMetadata.style || 'general',
+          is_private: isPrivate
+        });
+      if (insertError) throw insertError;
 
-        toast.success('Image generated successfully!');
-      } catch (error) {
-        console.error('Error uploading image:', error);
-        toast.error('Failed to save generated image');
-        throw error;
-      }
+      return { success: true };
     },
     onSuccess: (_, { metadata: { generationId } }) => {
       setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
+      toast.success('Image generated successfully!');
     },
     onError: (error, { metadata: { generationId } }) => {
       setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
+      toast.error('Failed to save generated image');
+      console.error('Error uploading image:', error);
     },
   });
 
@@ -158,7 +155,7 @@ export const useImageGeneration = ({
             throw new Error('Generated image is empty or invalid');
           }
 
-          await uploadImageMutation.mutateAsync({ 
+          await uploadImage({ 
             imageBlob, 
             metadata: {
               prompt: modifiedPrompt,
