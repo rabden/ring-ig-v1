@@ -100,7 +100,8 @@ export const useImageGeneration = ({
           height: finalHeight,
           prompt: modifiedPrompt,
           model,
-          style: modelConfigs[model]?.category === "NSFW" ? null : style
+          style: modelConfigs[model]?.category === "NSFW" ? null : style,
+          is_private: isPrivate
         }]);
       }
 
@@ -167,7 +168,8 @@ export const useImageGeneration = ({
               style: modelConfigs[model]?.category === "NSFW" ? null : (style || 'general'),
               aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
               steps,
-              generationId
+              generationId,
+              is_private: isPrivate
             }
           });
 
