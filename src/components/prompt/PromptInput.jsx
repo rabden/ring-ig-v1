@@ -15,6 +15,12 @@ const PromptInput = ({
     onChange({ target: { value: '' } });
   };
 
+  const handlePrivateToggle = () => {
+    if (typeof onPrivateChange === 'function') {
+      onPrivateChange(!isPrivate);
+    }
+  };
+
   return (
     <div className="relative mb-8">
       <div className="relative">
@@ -39,7 +45,7 @@ const PromptInput = ({
             size="sm"
             variant={isPrivate ? "default" : "outline"}
             className="rounded-full flex items-center gap-1"
-            onClick={() => onPrivateChange(!isPrivate)}
+            onClick={handlePrivateToggle}
           >
             {isPrivate ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
             {isPrivate ? 'Private' : 'Public'}
