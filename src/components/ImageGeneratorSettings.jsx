@@ -10,6 +10,7 @@ import ModelChooser from './settings/ModelChooser';
 import ImageCountChooser from './settings/ImageCountChooser';
 import PromptInput from './prompt/PromptInput';
 import StyledScrollArea from './style/StyledScrollArea';
+import PrivateSettings from './settings/PrivateSettings';
 import { qualityOptions } from '@/utils/imageConfigs';
 
 const ImageGeneratorSettings = ({
@@ -49,7 +50,7 @@ const ImageGeneratorSettings = ({
     }
     setModel(newModel);
     if (modelConfigs?.[newModel]?.category === "NSFW") {
-      setStyle(null); // Reset style when switching to NSFW model
+      setStyle(null);
     }
   };
 
@@ -77,10 +78,6 @@ const ImageGeneratorSettings = ({
     }
   };
 
-  const handlePrivateToggle = (newValue) => {
-    setIsPrivate(newValue);
-  };
-
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className="flex justify-between items-center mb-4">
@@ -104,7 +101,7 @@ const ImageGeneratorSettings = ({
         onGenerate={generateImage}
         hasEnoughCredits={hasEnoughCredits}
         isPrivate={isPrivate}
-        onPrivateChange={handlePrivateToggle}
+        onPrivateChange={setIsPrivate}
       />
 
       <ModelChooser
@@ -178,6 +175,11 @@ const ImageGeneratorSettings = ({
           onCheckedChange={setNsfwEnabled}
         />
       </div>
+
+      <PrivateSettings 
+        isPrivate={isPrivate}
+        onPrivateChange={setIsPrivate}
+      />
     </div>
   );
 };
