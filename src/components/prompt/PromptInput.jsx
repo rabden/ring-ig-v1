@@ -1,26 +1,10 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight, Lock, Unlock } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
-const PromptInput = ({ 
-  value, 
-  onChange, 
-  onKeyDown, 
-  onGenerate, 
-  hasEnoughCredits, 
-  isPrivate, 
-  onPrivateChange 
-}) => {
-  const handleClear = () => {
-    onChange({ target: { value: '' } });
-  };
-
-  const handlePrivateToggle = () => {
-    if (typeof onPrivateChange === 'function') {
-      onPrivateChange(!isPrivate);
-    }
-  };
-
+const PromptInput = ({ value, onChange, onKeyDown, onGenerate, hasEnoughCredits, onClear, isPrivate, onPrivateChange }) => {
   return (
     <div className="relative mb-8">
       <div className="relative">
@@ -41,15 +25,17 @@ const PromptInput = ({
         </div>
         
         <div className="flex justify-between items-center mt-4">
-          <Button
-            size="sm"
-            variant={isPrivate ? "default" : "outline"}
-            className="rounded-full flex items-center gap-1"
-            onClick={handlePrivateToggle}
-          >
-            {isPrivate ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
-            {isPrivate ? 'Private' : 'Public'}
-          </Button>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="private-mode"
+              checked={isPrivate}
+              onCheckedChange={onPrivateChange}
+            />
+            <Label htmlFor="private-mode" className="flex items-center gap-1">
+              {isPrivate ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
+              Private
+            </Label>
+          </div>
           
           <div className="flex gap-2">
             {value.length > 0 && (
@@ -57,7 +43,7 @@ const PromptInput = ({
                 size="sm"
                 variant="outline"
                 className="rounded-full"
-                onClick={handleClear}
+                onClick={onClear}
               >
                 <X className="h-4 w-4" />
               </Button>

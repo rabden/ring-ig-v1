@@ -10,7 +10,6 @@ import ModelChooser from './settings/ModelChooser';
 import ImageCountChooser from './settings/ImageCountChooser';
 import PromptInput from './prompt/PromptInput';
 import StyledScrollArea from './style/StyledScrollArea';
-import PrivateSettings from './settings/PrivateSettings';
 import { qualityOptions } from '@/utils/imageConfigs';
 
 const ImageGeneratorSettings = ({
@@ -50,7 +49,7 @@ const ImageGeneratorSettings = ({
     }
     setModel(newModel);
     if (modelConfigs?.[newModel]?.category === "NSFW") {
-      setStyle(null);
+      setStyle(null); // Reset style when switching to NSFW model
     }
   };
 
@@ -175,11 +174,6 @@ const ImageGeneratorSettings = ({
           onCheckedChange={setNsfwEnabled}
         />
       </div>
-
-      <PrivateSettings 
-        isPrivate={isPrivate}
-        onPrivateChange={setIsPrivate}
-      />
     </div>
   );
 };
