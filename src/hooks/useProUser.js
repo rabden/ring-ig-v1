@@ -15,6 +15,7 @@ export const useProUser = (userId) => {
       
       return !!data;
     },
-    enabled: !!userId
+    enabled: !!userId,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 };
