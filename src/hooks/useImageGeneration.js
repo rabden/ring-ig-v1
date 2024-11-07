@@ -22,7 +22,7 @@ export const useImageGeneration = ({
   steps,
   imageCount = 1
 }) => {
-  const generateImage = async (isPrivate) => {
+  const generateImage = async (isPrivate = false) => {
     if (!session || !prompt || !modelConfigs) {
       !session && toast.error('Please sign in to generate images');
       !prompt && toast.error('Please enter a prompt');
@@ -124,7 +124,6 @@ export const useImageGeneration = ({
             .upload(filePath, imageBlob);
           if (uploadError) throw uploadError;
 
-          // Remove steps from the database insert since the column no longer exists
           const { error: insertError } = await supabase
             .from('user_images')
             .insert({
