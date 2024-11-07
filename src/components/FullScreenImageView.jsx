@@ -33,7 +33,7 @@ const FullScreenImageView = ({
 
   const handleCopyPrompt = async () => {
     // Only copy the user's prompt without the style suffix
-    await navigator.clipboard.writeText(image.prompt);
+    await navigator.clipboard.writeText(image.user_prompt || image.prompt);
     setCopyIcon('check');
     toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
@@ -48,7 +48,7 @@ const FullScreenImageView = ({
 
   const handleDownload = async () => {
     const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
-    await downloadImage(imageUrl, image.prompt);
+    await downloadImage(imageUrl, image.user_prompt || image.prompt);
   };
 
   const handleRemixClick = () => {
@@ -94,7 +94,7 @@ const FullScreenImageView = ({
                       </Button>
                     </div>
                   </div>
-                  <p className="text-sm text-muted-foreground">{image.prompt}</p>
+                  <p className="text-sm text-muted-foreground">{image.user_prompt || image.prompt}</p>
                 </div>
 
                 <div className="space-y-2">

@@ -34,7 +34,7 @@ const MobileImageDrawer = ({
   if (!image) return null;
 
   const handleCopyPrompt = async () => {
-    await navigator.clipboard.writeText(image.prompt);
+    await navigator.clipboard.writeText(image.user_prompt || image.prompt);
     setCopyIcon('check');
     toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
@@ -100,7 +100,7 @@ const MobileImageDrawer = ({
                 </div>
               </div>
               <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md break-words">
-                {image.prompt}
+                {image.user_prompt || image.prompt}
               </p>
             </div>
             
