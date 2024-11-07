@@ -20,10 +20,11 @@ export const useGalleryImages = ({
         .order('created_at', { ascending: false });
 
       // Filter by NSFW content
+      const nsfwModels = ['nsfwMaster', 'animeNsfw'];
       if (nsfwEnabled) {
-        query = query.in('model', ['nsfwMaster', 'animeNsfw']);
+        query = query.in('model', nsfwModels);
       } else {
-        query = query.not('model', 'in', ['nsfwMaster', 'animeNsfw']);
+        query = query.not('model', 'in', `(${nsfwModels.join(',')})`);
       }
 
       // Apply view-specific filters
