@@ -12,6 +12,7 @@ import ImageCardActions from './ImageCardActions';
 import { supabase } from '@/integrations/supabase/supabase';
 import MobileImageDrawer from './MobileImageDrawer';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { toast } from 'sonner';
 
 const ImageCard = ({ 
   image, 
@@ -76,15 +77,23 @@ const ImageCard = ({
     }
   };
 
+  const handleDiscard = async () => {
+    if (!image?.id) {
+      toast.error('Cannot delete image: Invalid image ID');
+      return;
+    }
+    try {
+      await onDiscard(image);
+      toast.success('Image deleted successfully');
+    } catch (error) {
+      toast.error('Failed to delete image');
+      console.error('Error deleting image:', error);
+    }
+  };
+
   const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
   const modelName = modelConfigs?.[image.model]?.name || image.model;
   const styleName = styleConfigs?.[image.style]?.name || 'General';
-
-  const handleDiscard = async () => {
-    if (image && image.id) {
-      await onDiscard(image);
-    }
-  };
 
   return (
     <>
