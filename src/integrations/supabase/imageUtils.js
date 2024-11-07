@@ -1,10 +1,6 @@
 import { supabase } from './supabase';
 
 export const deleteImageFromStorage = async (storagePath) => {
-  if (!storagePath) {
-    throw new Error('Storage path is required for deletion');
-  }
-
   try {
     const { error } = await supabase.storage
       .from('user-images')
@@ -20,10 +16,6 @@ export const deleteImageFromStorage = async (storagePath) => {
 };
 
 export const deleteImageRecord = async (imageId) => {
-  if (!imageId) {
-    throw new Error('Image ID is required for deletion');
-  }
-
   try {
     const { error } = await supabase
       .from('user_images')
@@ -40,28 +32,27 @@ export const deleteImageRecord = async (imageId) => {
 };
 
 export const deleteImageCompletely = async (imageId) => {
-  if (!imageId) {
-    throw new Error('Image ID is required for deletion');
-  }
-
   try {
     // First, fetch the image record to get the storage_path
     const { data: imageRecords, error: fetchError } = await supabase
       .from('user_images')
       .select('storage_path')
-      .eq('id', imageId)
-      .single();
+      .eq('id', imageId);
 
     if (fetchError) {
       throw new Error(`Failed to fetch image record: ${fetchError.message}`);
     }
 
-    if (!imageRecords) {
-      throw new Error('Image record not found');
+    // Check if we found any records
+    if (!imageRecords || imageRecords.length === 0) {
+      console.warn('Image record not found');
+      return;
     }
 
+    const imageRecord = imageRecords[0];
+
     // Delete from storage first
-    await deleteImageFromStorage(imageRecords.storage_path);
+    await deleteImageFromStorage(imageRecord.storage_path);
 
     // Then delete from database
     await deleteImageRecord(imageId);

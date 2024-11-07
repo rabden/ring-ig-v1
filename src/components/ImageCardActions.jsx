@@ -19,14 +19,7 @@ const ImageCardActions = ({
   const handleMoreClick = (e) => {
     e.stopPropagation();
     if (isMobile) {
-      onViewDetails(true);
-    }
-  };
-
-  const handleDiscard = (e) => {
-    e.stopPropagation();
-    if (image && image.id) {
-      onDiscard(image);
+      onViewDetails(false); // Pass false to indicate menu button click
     }
   };
 
@@ -52,14 +45,14 @@ const ImageCardActions = ({
               Download
             </DropdownMenuItem>
             {image.user_id === userId && (
-              <DropdownMenuItem onClick={handleDiscard}>
+              <DropdownMenuItem onClick={() => onDiscard(image)}>
                 Discard
               </DropdownMenuItem>
             )}
             <DropdownMenuItem onClick={() => onRemix(image)}>
               Remix
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onViewDetails(true)}>
+            <DropdownMenuItem onClick={() => onViewDetails(false)}>
               View Details
             </DropdownMenuItem>
           </DropdownMenuContent>

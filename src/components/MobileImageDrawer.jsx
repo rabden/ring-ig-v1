@@ -24,7 +24,7 @@ const MobileImageDrawer = ({
   isOwner,
   setActiveTab,
   setStyle,
-  showFullImage = true // Changed default to true
+  showFullImage = false
 }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
