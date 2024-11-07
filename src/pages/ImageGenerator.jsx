@@ -30,7 +30,7 @@ const ImageGenerator = () => {
 
   const [activeFilters, setActiveFilters] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
-  const [isPrivate, setIsPrivate] = useState(false); // Add this line
+  const [isPrivate, setIsPrivate] = useState(false);
   const isHeaderVisible = useScrollDirection();
   const { session } = useSupabaseAuth();
   const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id);
@@ -51,6 +51,7 @@ const ImageGenerator = () => {
   } = useImageGeneratorState();
 
   const [showPrivate, setShowPrivate] = useState(false);
+  const [completedImages, setCompletedImages] = useState([]);
 
   const { generateImage } = useImageGeneration({
     session,
@@ -129,39 +130,39 @@ const ImageGenerator = () => {
     setSearchQuery(query);
   };
 
-  // Add remix image loading
-  const { data: remixImage } = useQuery({
-    queryKey: ['remixImage', imageId],
-    queryFn: async () => {
-      if (!imageId) return null;
-      const { data, error } = await supabase
-        .from('user_images')
-        .select('*')
-        .eq('id', imageId)
-        .single();
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!imageId && isRemixRoute,
-  });
-
-  // Handle remix image loading
   useEffect(() => {
-    if (remixImage && isRemixRoute) {
-      setPrompt(remixImage.prompt);
-      setSeed(remixImage.seed);
-      setRandomizeSeed(false);
-      setWidth(remixImage.width);
-      setHeight(remixImage.height);
-      setModel(remixImage.model);
-      setQuality(remixImage.quality);
-      setStyle(remixImage.style);
-      if (remixImage.aspect_ratio) {
-        setAspectRatio(remixImage.aspect_ratio);
-        setUseAspectRatio(true);
+    const checkCompletedImages = async () => {
+      const completed = [];
+      for (const img of generatingImages) {
+        try {
+          const { data } = await supabase
+            .from('user_images')
+            .select('*')
+            .eq('id', img.id)
+            .single();
+          
+          if (data && data.storage_path) {
+            completed.push(data);
+            setGeneratingImages(prev => prev.filter(i => i.id !== img.id));
+          }
+        } catch (error) {
+          console.error('Error checking image status:', error);
+        }
       }
+      if (completed.length > 0) {
+        setCompletedImages(prev => [...completed, ...prev]);
+      }
+    };
+
+    if (generatingImages.length > 0) {
+      const interval = setInterval(checkCompletedImages, 2000);
+      return () => clearInterval(interval);
     }
-  }, [remixImage, isRemixRoute]);
+  }, [generatingImages]);
+
+  useEffect(() => {
+    setCompletedImages([]);
+  }, [activeTab, activeView]);
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
@@ -224,6 +225,13 @@ const ImageGenerator = () => {
             <AuthOverlay />
           </div>
         )}
+        <div className="flex items-center justify-between mb-4">
+          <GeneratingImagesDropdown 
+            generatingImages={generatingImages} 
+            completedImages={completedImages}
+          />
+        </div>
+
         <ImageGeneratorSettings
           prompt={prompt}
           setPrompt={setPrompt}
