@@ -23,7 +23,8 @@ const MobileImageDrawer = ({
   onRemix, 
   isOwner,
   setActiveTab,
-  setStyle 
+  setStyle,
+  showFullImage = false
 }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
@@ -58,6 +59,16 @@ const MobileImageDrawer = ({
       <DrawerContent>
         <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted my-4" />
         <ScrollArea className="h-[80vh] px-4">
+          {showFullImage && (
+            <div className="relative rounded-lg overflow-hidden mb-6">
+              <img
+                src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                alt={image.prompt}
+                className="w-full h-auto"
+              />
+            </div>
+          )}
+          
           <div className="space-y-6">
             <div>
               <div className="flex items-center justify-between mb-2">
