@@ -19,7 +19,7 @@ const ImageCardActions = ({
   const handleMoreClick = (e) => {
     e.stopPropagation();
     if (isMobile) {
-      onViewDetails(false); // Pass false to indicate menu button click
+      onViewDetails(true); // Changed to true to show image in drawer
     }
   };
 
@@ -52,7 +52,7 @@ const ImageCardActions = ({
             <DropdownMenuItem onClick={() => onRemix(image)}>
               Remix
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onViewDetails(false)}>
+            <DropdownMenuItem onClick={() => onViewDetails(true)}>
               View Details
             </DropdownMenuItem>
           </DropdownMenuContent>
