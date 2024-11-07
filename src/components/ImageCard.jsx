@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ImageStatusIndicators from './ImageStatusIndicators';
@@ -10,6 +10,7 @@ import { downloadImage } from '@/utils/downloadUtils';
 import { useImageLoader } from '@/hooks/useImageLoader';
 import ImageCardActions from './ImageCardActions';
 import { supabase } from '@/integrations/supabase/supabase';
+import MobileImageDrawer from './MobileImageDrawer';
 
 const ImageCard = ({ 
   image, 
@@ -25,6 +26,7 @@ const ImageCard = ({
   setStyle,
 }) => {
   const imageRef = useRef(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   const { imageLoaded, shouldLoad, imageSrc, setImageLoaded } = useImageLoader(imageRef, image);
@@ -45,7 +47,7 @@ const ImageCard = ({
   const handleImageClick = (e) => {
     e.preventDefault();
     if (isMobile) {
-      onViewDetails(image);
+      setDrawerOpen(true);
     } else {
       onImageClick(image);
     }
@@ -77,59 +79,74 @@ const ImageCard = ({
   const styleName = styleConfigs?.[image.style]?.name || 'General';
 
   return (
-    <div className="mb-2">
-      <Card className="overflow-hidden">
-        <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-          <ImageStatusIndicators 
-            isTrending={image.is_trending} 
-            isHot={image.is_hot} 
-          />
-          <div ref={imageRef}>
-            {(!imageLoaded || !shouldLoad) && (
-              <div className="absolute inset-0 bg-muted animate-pulse">
-                <Skeleton className="w-full h-full" />
-              </div>
-            )}
-            {shouldLoad && (
-              <img 
-                src={imageSrc}
-                alt={image.prompt} 
-                className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-                onClick={handleImageClick}
-                onDoubleClick={handleDoubleClick}
-                onLoad={() => setImageLoaded(true)}
-                loading="lazy"
-              />
-            )}
-          </div>
-          <div className="absolute bottom-2 left-2 flex gap-1">
-            <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
-              {modelName}
-            </Badge>
-            {!isNsfw && (
+    <>
+      <div className="mb-2">
+        <Card className="overflow-hidden">
+          <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
+            <ImageStatusIndicators 
+              isTrending={image.is_trending} 
+              isHot={image.is_hot} 
+            />
+            <div ref={imageRef}>
+              {(!imageLoaded || !shouldLoad) && (
+                <div className="absolute inset-0 bg-muted animate-pulse">
+                  <Skeleton className="w-full h-full" />
+                </div>
+              )}
+              {shouldLoad && (
+                <img 
+                  src={imageSrc}
+                  alt={image.prompt} 
+                  className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                  onClick={handleImageClick}
+                  onDoubleClick={handleDoubleClick}
+                  onLoad={() => setImageLoaded(true)}
+                  loading="lazy"
+                />
+              )}
+            </div>
+            <div className="absolute bottom-2 left-2 flex gap-1">
               <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
-                {styleName}
+                {modelName}
               </Badge>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-      <div className="mt-1 flex items-center justify-between">
-        <p className="text-sm truncate w-[70%]">{image.prompt}</p>
-        <ImageCardActions
-          image={image}
-          isMobile={isMobile}
-          isLiked={isLiked}
-          likeCount={likeCount}
-          onToggleLike={onToggleLike}
-          onViewDetails={onViewDetails}
-          onDownload={handleDownload}
-          onDiscard={onDiscard}
-          onRemix={handleRemixClick}
-          userId={userId}
-        />
+              {!isNsfw && (
+                <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
+                  {styleName}
+                </Badge>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+        <div className="mt-1 flex items-center justify-between">
+          <p className="text-sm truncate w-[70%]">{image.prompt}</p>
+          <ImageCardActions
+            image={image}
+            isMobile={isMobile}
+            isLiked={isLiked}
+            likeCount={likeCount}
+            onToggleLike={onToggleLike}
+            onViewDetails={() => setDrawerOpen(true)}
+            onDownload={handleDownload}
+            onDiscard={onDiscard}
+            onRemix={handleRemixClick}
+            userId={userId}
+          />
+        </div>
       </div>
-    </div>
+
+      <MobileImageDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        image={image}
+        showImage={false}
+        onDownload={handleDownload}
+        onDiscard={onDiscard}
+        onRemix={handleRemixClick}
+        isOwner={image.user_id === userId}
+        setActiveTab={setActiveTab}
+        setStyle={setStyle}
+      />
+    </>
   );
 };
 
