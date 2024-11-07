@@ -24,8 +24,7 @@ export const useGalleryImages = ({
       if (nsfwEnabled) {
         query = query.in('model', nsfwModels);
       } else {
-        // Using the correct syntax for filtering out NSFW models
-        query = query.not('model', 'in', `(${nsfwModels.join(',')})`);
+        query = query.not('model', 'in', nsfwModels);
       }
 
       // Apply view-specific filters
