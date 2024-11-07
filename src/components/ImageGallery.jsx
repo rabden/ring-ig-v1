@@ -1,13 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/supabase';
-import { useModelConfigs } from '@/hooks/useModelConfigs';
-import MobileImageDrawer from './MobileImageDrawer';
-import { useLikes } from '@/hooks/useLikes';
-import MobileGeneratingStatus from './MobileGeneratingStatus';
-import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { useGalleryData } from '@/hooks/useGalleryData';
-import ImageList from './gallery/ImageList';
-import { toast } from 'sonner';
+import React, { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { supabase } from '@/integrations/supabase/supabase'
+import Masonry from 'react-masonry-css'
+import SkeletonImageCard from './SkeletonImageCard'
+import { useModelConfigs } from '@/hooks/useModelConfigs'
+import MobileImageDrawer from './MobileImageDrawer'
+import ImageCard from './ImageCard'
+import { useLikes } from '@/hooks/useLikes'
+import MobileGeneratingStatus from './MobileGeneratingStatus'
+import { useImageFilter } from '@/hooks/useImageFilter'
+import NoResults from './NoResults'
+
+const breakpointColumnsObj = {
+  default: 4,
+  1100: 3,
+  700: 2,
+  500: 2
+}
 
 const ImageGallery = ({ 
   userId, 
@@ -32,32 +41,70 @@ const ImageGallery = ({
   const { userLikes, toggleLike } = useLikes(userId);
   const { data: modelConfigs } = useModelConfigs();
   const isMobile = window.innerWidth <= 768;
-  const { session } = useSupabaseAuth();
+  const { filterImages } = useImageFilter();
 
-  const { data: images, isLoading, refetch } = useGalleryData({
-    userId,
-    activeView,
-    nsfwEnabled,
-    activeFilters,
-    searchQuery,
-    showPrivate,
-    session,
-    modelConfigs
+  const { data: images, isLoading, refetch } = useQuery({
+    queryKey: ['images', userId, activeView, nsfwEnabled, activeFilters, searchQuery, showPrivate],
+    queryFn: async () => {
+      if (!userId) return []
+
+      const { data, error } = await supabase
+        .from('user_images')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+
+      return filterImages(data, {
+        userId,
+        activeView,
+        nsfwEnabled,
+        modelConfigs,
+        activeFilters,
+        searchQuery,
+        showPrivate
+      });
+    },
+    enabled: !!userId && !!modelConfigs,
   });
 
   useEffect(() => {
-    if (!session?.user?.id) {
-      toast.error('Please sign in to view images');
-      return;
-    }
+    refetch()
+  }, [activeView, nsfwEnabled, showPrivate, refetch]);
 
+  useEffect(() => {
     const channels = [
       supabase
         .channel('user_images_changes')
         .on('postgres_changes', 
           { event: '*', schema: 'public', table: 'user_images' }, 
           (payload) => {
-            refetch();
+            if (payload.eventType === 'INSERT') {
+              const isNsfw = modelConfigs?.[payload.new.model]?.category === "NSFW";
+              if (activeView === 'myImages') {
+                if (nsfwEnabled) {
+                  if (isNsfw && payload.new.user_id === userId) {
+                    refetch();
+                  }
+                } else {
+                  if (!isNsfw && payload.new.user_id === userId) {
+                    refetch();
+                  }
+                }
+              } else if (activeView === 'inspiration') {
+                if (nsfwEnabled) {
+                  if (isNsfw && payload.new.user_id !== userId) {
+                    refetch();
+                  }
+                } else {
+                  if (!isNsfw && payload.new.user_id !== userId) {
+                    refetch();
+                  }
+                }
+              }
+            } else if (payload.eventType === 'DELETE') {
+              refetch();
+            }
           }
         ),
       supabase
@@ -70,53 +117,77 @@ const ImageGallery = ({
         )
     ];
 
+    // Subscribe to all channels
     Promise.all(channels.map(channel => channel.subscribe()));
 
+    // Cleanup function to unsubscribe from all channels
     return () => {
       channels.forEach(channel => {
         supabase.removeChannel(channel);
       });
     };
-  }, [session?.user?.id, refetch]);
+  }, [userId, activeView, nsfwEnabled, refetch, modelConfigs]);
 
-  const handleImageClick = (image) => {
-    if (isMobile) {
+  const handleImageClick = (image, index) => {
+    if (window.innerWidth <= 768) {
       setSelectedImage(image);
       setShowImageInDrawer(true);
       setDrawerOpen(true);
     } else {
-      onImageClick(image);
+      onImageClick(image, index);
     }
   };
 
   const handleMoreClick = (image, e) => {
     e.stopPropagation();
-    if (isMobile) {
+    if (window.innerWidth <= 768) {
       setSelectedImage(image);
       setShowImageInDrawer(false);
       setDrawerOpen(true);
     }
   };
 
-  return (
-    <>
-      <ImageList
-        images={images}
-        isLoading={isLoading}
-        userId={userId}
-        onImageClick={handleImageClick}
+  const renderContent = () => {
+    if (isLoading) {
+      return Array.from({ length: 8 }).map((_, index) => (
+        <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
+      ));
+    }
+    
+    if (!images || images.length === 0) {
+      return [<NoResults key="no-results" />];
+    }
+    
+    return images.map((image, index) => (
+      <ImageCard
+        key={image.id}
+        image={image}
+        onImageClick={() => handleImageClick(image, index)}
         onMoreClick={handleMoreClick}
         onDownload={onDownload}
         onDiscard={onDiscard}
         onRemix={onRemix}
         onViewDetails={onViewDetails}
+        userId={userId}
         isMobile={isMobile}
-        userLikes={userLikes}
-        toggleLike={toggleLike}
+        isLiked={userLikes.includes(image.id)}
+        onToggleLike={toggleLike}
         setActiveTab={setActiveTab}
         setStyle={setStyle}
         style={style}
       />
+    ));
+  };
+
+  return (
+    <>
+      <Masonry
+        breakpointCols={breakpointColumnsObj}
+        className="flex w-auto md:px-2 -mx-1 md:mx-0"
+        columnClassName="bg-clip-padding px-1 md:px-2"
+      >
+        {renderContent()}
+      </Masonry>
 
       <MobileImageDrawer
         open={drawerOpen}

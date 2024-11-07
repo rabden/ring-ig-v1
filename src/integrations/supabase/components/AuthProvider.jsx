@@ -13,10 +13,6 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       setSession(currentSession);
-      if (currentSession) {
-        // Ensure the session is properly stored
-        await supabase.auth.setSession(currentSession);
-      }
       setLoading(false);
     } catch (error) {
       console.error('Auth error:', error);
@@ -32,7 +28,6 @@ export const AuthProvider = ({ children }) => {
       
       if (event === 'SIGNED_IN') {
         setSession(session);
-        await supabase.auth.setSession(session);
         queryClient.invalidateQueries('user');
       } else if (event === 'SIGNED_OUT') {
         setSession(null);
@@ -40,7 +35,6 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('supabase.auth.token');
       } else if (event === 'TOKEN_REFRESHED') {
         setSession(session);
-        await supabase.auth.setSession(session);
         queryClient.invalidateQueries('user');
       }
     });
