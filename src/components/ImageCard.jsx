@@ -16,7 +16,7 @@ import { downloadImage } from '@/utils/downloadUtils'
 const ImageCard = ({ 
   image, 
   onImageClick, 
-  onMoreClick, 
+  onMoreClick = () => {}, // Add default empty function
   onDownload, 
   onDiscard, 
   onRemix, 
@@ -157,7 +157,7 @@ const ImageCard = ({
             <span className="text-xs text-muted-foreground">{likeCount}</span>
           </div>
           {isMobile ? (
-            <Button variant="ghost" className="h-6 w-6 p-0" onClick={(e) => onMoreClick(image, e)}>
+            <Button variant="ghost" className="h-6 w-6 p-0" onClick={() => onMoreClick(image)}>
               <MoreVertical className="h-4 w-4" />
             </Button>
           ) : (

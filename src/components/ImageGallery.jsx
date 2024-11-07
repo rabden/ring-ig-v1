@@ -43,6 +43,12 @@ const ImageGallery = ({
     searchQuery
   });
 
+  const handleMobileMoreClick = (image) => {
+    if (isMobile) {
+      onViewDetails(image);
+    }
+  };
+
   const renderContent = () => {
     if (isLoading) {
       return Array.from({ length: 8 }).map((_, index) => (
@@ -63,6 +69,7 @@ const ImageGallery = ({
         onDiscard={onDiscard}
         onRemix={onRemix}
         onViewDetails={onViewDetails}
+        onMoreClick={handleMobileMoreClick}
         userId={userId}
         isMobile={isMobile}
         isLiked={userLikes.includes(image.id)}
