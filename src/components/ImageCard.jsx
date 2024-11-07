@@ -33,7 +33,7 @@ const ImageCard = ({
   const { data: styleConfigs } = useStyleConfigs();
   const { imageLoaded, shouldLoad, imageSrc, setImageLoaded } = useImageLoader(imageRef, image);
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
-  
+
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['imageLikes', image.id],
     queryFn: async () => {
@@ -95,41 +95,45 @@ const ImageCard = ({
   const modelName = modelConfigs?.[image.model]?.name || image.model;
   const styleName = styleConfigs?.[image.style]?.name || 'General';
 
+  const aspectRatio = (image.height / image.width) * 100;
+
   return (
     <div className="mb-4 w-full">
       <Card className="overflow-hidden">
-        <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-          <ImageStatusIndicators 
-            isTrending={image.is_trending} 
-            isHot={image.is_hot} 
-          />
-          <div ref={imageRef} className="absolute inset-0">
-            {(!imageLoaded || !shouldLoad) && (
-              <div className="absolute inset-0 bg-muted">
-                <Skeleton className="w-full h-full" />
-              </div>
-            )}
-            {shouldLoad && (
-              <img 
-                src={imageSrc}
-                alt={image.prompt} 
-                className={`w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-                onClick={handleImageClick}
-                onDoubleClick={handleDoubleClick}
-                onLoad={() => setImageLoaded(true)}
-                loading="lazy"
-              />
-            )}
-          </div>
-          <div className="absolute bottom-2 left-2 flex gap-1">
-            <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
-              {modelName}
-            </Badge>
-            {!isNsfw && (
+        <CardContent className="p-0 relative">
+          <div style={{ paddingTop: `${aspectRatio}%` }} className="relative">
+            <ImageStatusIndicators 
+              isTrending={image.is_trending} 
+              isHot={image.is_hot} 
+            />
+            <div ref={imageRef} className="absolute inset-0">
+              {(!imageLoaded || !shouldLoad) && (
+                <div className="absolute inset-0 bg-muted">
+                  <Skeleton className="w-full h-full" />
+                </div>
+              )}
+              {shouldLoad && (
+                <img 
+                  src={imageSrc}
+                  alt={image.prompt} 
+                  className={`w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                  onClick={handleImageClick}
+                  onDoubleClick={handleDoubleClick}
+                  onLoad={() => setImageLoaded(true)}
+                  loading="lazy"
+                />
+              )}
+            </div>
+            <div className="absolute bottom-2 left-2 flex gap-1">
               <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
-                {styleName}
+                {modelName}
               </Badge>
-            )}
+              {!isNsfw && (
+                <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
+                  {styleName}
+                </Badge>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>

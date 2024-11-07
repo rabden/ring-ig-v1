@@ -3,13 +3,15 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
 const SkeletonImageCard = ({ width = 512, height = 512 }) => {
-  const aspectRatio = (height / width) * 100
+  const aspectRatio = (height / width) * 100;
 
   return (
     <div className="mb-4 w-full">
       <Card className="overflow-hidden">
-        <CardContent className="p-0 relative" style={{ paddingTop: `${aspectRatio}%` }}>
-          <Skeleton className="absolute inset-0 w-full h-full" />
+        <CardContent className="p-0 relative">
+          <div style={{ paddingTop: `${aspectRatio}%` }} className="relative">
+            <Skeleton className="absolute inset-0 w-full h-full" />
+          </div>
         </CardContent>
       </Card>
       <div className="mt-2 flex items-center justify-between">
