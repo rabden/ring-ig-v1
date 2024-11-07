@@ -79,19 +79,11 @@ export const useImageGeneration = ({
           }
 
           const parameters = {
-            seed: actualSeed,
             width: finalWidth,
             height: finalHeight,
             num_inference_steps: steps || modelConfig?.defaultStep || 30,
+            seed: actualSeed
           };
-
-          if (modelConfig?.guidanceScale) {
-            parameters.guidance_scale = modelConfig.guidanceScale;
-          }
-
-          if (!model.toLowerCase().includes('flux')) {
-            parameters.negative_prompt = modelConfig?.negativePrompt || "ugly, disfigured, low quality, blurry, nsfw";
-          }
 
           const response = await fetch(modelConfig?.apiUrl, {
             headers: {
