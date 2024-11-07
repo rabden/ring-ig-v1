@@ -10,7 +10,9 @@ import { useLikes } from '@/hooks/useLikes'
 import MobileGeneratingStatus from './MobileGeneratingStatus'
 import { useImageFilter } from '@/hooks/useImageFilter'
 import NoResults from './NoResults'
+import { useSupabaseAuth } from '@/integrations/supabase/auth'
 
+// Move breakpoint config to a separate constant
 const breakpointColumnsObj = {
   default: 4,
   1100: 3,
@@ -42,18 +44,31 @@ const ImageGallery = ({
   const { data: modelConfigs } = useModelConfigs();
   const isMobile = window.innerWidth <= 768;
   const { filterImages } = useImageFilter();
+  const { session } = useSupabaseAuth();
 
+  // Update the query to depend on session
   const { data: images, isLoading, refetch } = useQuery({
     queryKey: ['images', userId, activeView, nsfwEnabled, activeFilters, searchQuery, showPrivate],
     queryFn: async () => {
-      if (!userId) return []
+      if (!session?.user?.id) return [];
 
-      const { data, error } = await supabase
+      const query = supabase
         .from('user_images')
         .select('*')
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: false });
 
-      if (error) throw error
+      if (activeView === 'myImages') {
+        query.eq('user_id', userId);
+      } else if (activeView === 'inspiration') {
+        query.neq('user_id', userId);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Error fetching images:', error);
+        throw error;
+      }
 
       return filterImages(data, {
         userId,
@@ -65,7 +80,7 @@ const ImageGallery = ({
         showPrivate
       });
     },
-    enabled: !!userId && !!modelConfigs,
+    enabled: !!session?.user?.id && !!modelConfigs,
   });
 
   useEffect(() => {
