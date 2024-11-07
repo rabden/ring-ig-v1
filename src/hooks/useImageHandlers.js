@@ -1,6 +1,7 @@
 import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useProUser } from '@/hooks/useProUser'
+import { toast } from 'sonner'
 
 export const useImageHandlers = ({
   generateImage,
@@ -58,7 +59,6 @@ export const useImageHandlers = ({
     setWidth(image.width);
     setHeight(image.height);
 
-    // Handle model selection based on user's pro status
     const isProModel = modelConfigs?.[image.model]?.isPremium;
     if (isProModel && !isPro) {
       setModel('turbo');
@@ -68,14 +68,12 @@ export const useImageHandlers = ({
       setSteps(image.steps);
     }
 
-    // Handle quality settings
     if (image.quality === 'HD+' && !isPro) {
       setQuality('HD');
     } else {
       setQuality(image.quality);
     }
 
-    // Handle style
     const styleConfig = modelConfigs?.[image.model];
     if (styleConfig?.noStyleSuffix) {
       setStyle?.(null);
@@ -85,7 +83,6 @@ export const useImageHandlers = ({
       setStyle?.(null);
     }
 
-    // Handle aspect ratio
     const isPremiumRatio = ['9:21', '21:9', '3:2', '2:3', '4:5', '5:4', '10:16', '16:10'].includes(image.aspect_ratio);
     if (isPremiumRatio && !isPro) {
       setAspectRatio('1:1');
@@ -106,8 +103,19 @@ export const useImageHandlers = ({
   }
 
   const handleDiscard = async (image) => {
-    await deleteImageCompletely(image.id);
-    queryClient.invalidateQueries(['userImages']);
+    if (!image?.id) {
+      toast.error('Cannot delete image: Invalid image ID');
+      return;
+    }
+    
+    try {
+      await deleteImageCompletely(image.id);
+      queryClient.invalidateQueries(['userImages']);
+      toast.success('Image deleted successfully');
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      toast.error('Failed to delete image');
+    }
   }
 
   const handleViewDetails = (image) => {

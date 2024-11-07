@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { MoreVertical } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import LikeButton from './LikeButton';
+import { toast } from 'sonner';
 
 const ImageCardActions = ({ 
   image, 
@@ -19,8 +20,16 @@ const ImageCardActions = ({
   const handleMoreClick = (e) => {
     e.stopPropagation();
     if (isMobile) {
-      onViewDetails(false); // Pass false to indicate menu button click
+      onViewDetails(false);
     }
+  };
+
+  const handleDiscard = () => {
+    if (!image?.id) {
+      toast.error('Cannot delete image: Invalid image ID');
+      return;
+    }
+    onDiscard(image);
   };
 
   return (
@@ -45,7 +54,7 @@ const ImageCardActions = ({
               Download
             </DropdownMenuItem>
             {image.user_id === userId && (
-              <DropdownMenuItem onClick={() => onDiscard(image)}>
+              <DropdownMenuItem onClick={handleDiscard}>
                 Discard
               </DropdownMenuItem>
             )}
