@@ -4,7 +4,6 @@ import { useModelConfigs } from './useModelConfigs';
 export const useImageGeneratorState = () => {
   const { data: modelConfigs } = useModelConfigs();
   
-  // Initialize all state values
   const [state, setState] = useState({
     prompt: '',
     seed: 0,
@@ -30,6 +29,13 @@ export const useImageGeneratorState = () => {
     isPrivate: false
   });
 
+  const setGeneratingImages = (value) => {
+    setState(prev => ({
+      ...prev,
+      generatingImages: Array.isArray(value) ? value : typeof value === 'function' ? value(prev.generatingImages) : []
+    }));
+  };
+
   // Create setters for each state property
   const setters = {
     setPrompt: (value) => setState(prev => ({ ...prev, prompt: value })),
@@ -48,7 +54,7 @@ export const useImageGeneratorState = () => {
     setDetailsDialogOpen: (value) => setState(prev => ({ ...prev, detailsDialogOpen: value })),
     setFullScreenViewOpen: (value) => setState(prev => ({ ...prev, fullScreenViewOpen: value })),
     setFullScreenImageIndex: (value) => setState(prev => ({ ...prev, fullScreenImageIndex: value })),
-    setGeneratingImages: (value) => setState(prev => ({ ...prev, generatingImages: Array.isArray(value) ? value : [] })),
+    setGeneratingImages,
     setActiveView: (value) => setState(prev => ({ ...prev, activeView: value })),
     setNsfwEnabled: (value) => setState(prev => ({ ...prev, nsfwEnabled: value })),
     setStyle: (value) => setState(prev => ({ ...prev, style: value })),

@@ -32,134 +32,114 @@ export const NotificationProvider = ({ children }) => {
       const hiddenIds = new Set((profile?.hidden_global_notifications || '').split(',').filter(Boolean));
 
       // Fetch user-specific notifications
-      const { data: userNotifications, error: userError } = await supabase
+      const { data: userNotifications } = await supabase
         .from('notifications')
         .select('*')
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
 
-      if (userError) {
-        console.error('Error fetching notifications:', userError);
-        return;
-      }
-
       // Fetch global notifications
-      const { data: allGlobalNotifications, error: globalError } = await supabase
+      const { data: allGlobalNotifications } = await supabase
         .from('global_notifications')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (globalError) {
-        console.error('Error fetching global notifications:', globalError);
-        return;
-      }
-
-      const visibleGlobalNotifications = allGlobalNotifications.filter(n => !hiddenIds.has(n.id.toString()));
+      const visibleGlobalNotifications = (allGlobalNotifications || []).filter(n => !hiddenIds.has(n.id.toString()));
 
       setNotifications(userNotifications || []);
-      setGlobalNotifications(visibleGlobalNotifications || []);
+      setGlobalNotifications(visibleGlobalNotifications);
       
       const unreadUserNotifications = (userNotifications || []).filter(n => !n.is_read).length;
-      const unreadGlobalNotifications = visibleGlobalNotifications.length;
-      setUnreadCount(unreadUserNotifications + unreadGlobalNotifications);
+      setUnreadCount(unreadUserNotifications + visibleGlobalNotifications.length);
     };
 
     fetchNotifications();
 
-    const channel = supabase
+    // Subscribe to notifications changes
+    const notificationsChannel = supabase
       .channel('notifications_changes')
       .on('postgres_changes', 
         { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${session.user.id}` },
-        (payload) => {
-          if (payload.eventType === 'INSERT') {
-            setNotifications(prev => [payload.new, ...prev]);
-            setUnreadCount(prev => prev + 1);
-          } else if (payload.eventType === 'DELETE') {
-            setNotifications(prev => prev.filter(n => n.id !== payload.old.id));
-            if (!payload.old.is_read) {
-              setUnreadCount(prev => Math.max(0, prev - 1));
-            }
-          }
+        () => {
+          fetchNotifications();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to global notifications changes
+    const globalNotificationsChannel = supabase
+      .channel('global_notifications_changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'global_notifications' },
+        () => {
+          fetchNotifications();
         }
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(notificationsChannel);
+      supabase.removeChannel(globalNotificationsChannel);
     };
   }, [session?.user?.id]);
 
   const markAsRead = async (notificationId) => {
-    try {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('id', notificationId);
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('id', notificationId);
 
-      if (error) throw error;
-
+    if (!error) {
       setNotifications(prev =>
         prev.map(n =>
           n.id === notificationId ? { ...n, is_read: true } : n
         )
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error('Error marking notification as read:', error);
     }
   };
 
   const deleteNotification = async (notificationId) => {
-    try {
-      const { error } = await supabase
-        .from('notifications')
-        .delete()
-        .eq('id', notificationId);
+    const { error } = await supabase
+      .from('notifications')
+      .delete()
+      .eq('id', notificationId);
 
-      if (error) throw error;
-
+    if (!error) {
       const notification = notifications.find(n => n.id === notificationId);
       setNotifications(prev => prev.filter(n => n.id !== notificationId));
       if (notification && !notification.is_read) {
         setUnreadCount(prev => Math.max(0, prev - 1));
       }
-    } catch (error) {
-      console.error('Error deleting notification:', error);
     }
   };
 
   const hideGlobalNotification = async (notificationId) => {
-    try {
-      // Get current hidden notifications
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('hidden_global_notifications')
-        .eq('id', session.user.id)
-        .single();
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('hidden_global_notifications')
+      .eq('id', session.user.id)
+      .single();
 
-      const currentHidden = (profile?.hidden_global_notifications || '').split(',').filter(Boolean);
-      const newHidden = [...currentHidden, notificationId.toString()].join(',');
+    const currentHidden = (profile?.hidden_global_notifications || '').split(',').filter(Boolean);
+    const newHidden = [...currentHidden, notificationId.toString()].join(',');
 
-      // Update profile with new hidden notifications
-      const { error } = await supabase
-        .from('profiles')
-        .update({ hidden_global_notifications: newHidden })
-        .eq('id', session.user.id);
+    const { error } = await supabase
+      .from('profiles')
+      .update({ hidden_global_notifications: newHidden })
+      .eq('id', session.user.id);
 
-      if (error) throw error;
-
-      setGlobalNotifications(prev => 
-        prev.filter(n => n.id !== notificationId)
-      );
+    if (!error) {
+      setGlobalNotifications(prev => prev.filter(n => n.id !== notificationId));
       setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error('Error hiding global notification:', error);
     }
   };
 
   return (
     <NotificationContext.Provider value={{
-      notifications: [...notifications, ...globalNotifications],
+      notifications: [...notifications, ...globalNotifications].sort((a, b) => 
+        new Date(b.created_at) - new Date(a.created_at)
+      ),
       unreadCount,
       markAsRead,
       deleteNotification,
