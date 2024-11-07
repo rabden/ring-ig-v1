@@ -1,6 +1,7 @@
 import React from 'react';
 import ImageGeneratorSettings from './ImageGeneratorSettings';
 import GeneratingImagesDropdown from './GeneratingImagesDropdown';
+import AuthOverlay from './AuthOverlay';
 
 const ImageGeneratorContainer = ({ 
   session, 
