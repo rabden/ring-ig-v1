@@ -33,8 +33,8 @@ VALUES
     ('flux', 'Ring.1', 'General', 'https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell', ARRAY[4, 8, 12, 16, 20], 8, null, false, false, null),
     ('fluxDev', 'Ring.1 hyper', 'General', 'https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev', ARRAY[25, 30, 35, 40, 45], 30, null, true, false, null),
     ('preLar', 'Ring.1 Pre-lar', 'General', 'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large', ARRAY[50], 50, ARRAY['SD', 'HD'], true, false, null),
-    ('animeNsfw', 'Ring.1 Anime', 'NSFW', 'https://api-inference.huggingface.co/models/John6666/mala-anime-mix-nsfw-pony-xl-v5-sdxl', ARRAY[35], 35, null, true, true, null),
-    ('nsfwMaster', 'Ring.1N', 'NSFW', 'https://api-inference.huggingface.co/models/pimpilikipilapi1/NSFW_master', ARRAY[30, 35, 40, 45, 50], 35, null, false, true, null);
+    ('animeNsfw', 'Ring.1 Anime', 'NSFW', 'https://api-inference.huggingface.co/models/John6666/mala-anime-mix-nsfw-pony-xl-v5-sdxl', ARRAY[35, 40, 45], 40, null, true, true, null),
+    ('nsfwMaster', 'Ring.1N', 'NSFW', 'https://api-inference.huggingface.co/models/pimpilikipilapi1/NSFW_master', ARRAY[30, 35, 40, 45, 50], 30, null, false, true, null);
 
 -- Insert initial style configs
 INSERT INTO public.style_configs (key, name, suffix, is_premium)
