@@ -6,22 +6,21 @@ import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-const MobileGeneratingStatus = ({ generatingImages }) => {
+const MobileGeneratingStatus = ({ generatingImages = [] }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
 
-  if (!generatingImages?.length) return null;
-
+  // Remove the early return to always render the component structure
   return (
-    <div className="fixed bottom-[56px] left-0 right-0 bg-background border-t border-border/30 md:hidden z-40">
+    <div className={`fixed bottom-[56px] left-0 right-0 bg-background border-t border-border/30 md:hidden z-40 ${!generatingImages?.length ? 'hidden' : ''}`}>
       <button 
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full px-4 py-2 flex items-center justify-between text-sm border-b border-border/30"
       >
         <div className="flex items-center gap-2">
           <Loader className="w-4 h-4 animate-spin" />
-          <span>Generating-{generatingImages.length}</span>
+          <span>Generating-{generatingImages?.length || 0}</span>
         </div>
         <ChevronDown className={cn(
           "w-4 h-4 transition-transform",
@@ -29,7 +28,7 @@ const MobileGeneratingStatus = ({ generatingImages }) => {
         )} />
       </button>
       
-      {isExpanded && (
+      {isExpanded && generatingImages?.length > 0 && (
         <ScrollArea className="max-h-[40vh]">
           <div className="px-4 py-3 space-y-3">
             {generatingImages.map((img) => (
