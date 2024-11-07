@@ -11,6 +11,7 @@ import { useImageLoader } from '@/hooks/useImageLoader';
 import ImageCardActions from './ImageCardActions';
 import { supabase } from '@/integrations/supabase/supabase';
 import MobileImageDrawer from './MobileImageDrawer';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const ImageCard = ({ 
   image, 
@@ -30,6 +31,7 @@ const ImageCard = ({
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   const { imageLoaded, shouldLoad, imageSrc, setImageLoaded } = useImageLoader(imageRef, image);
+  const isMobileDevice = useMediaQuery('(max-width: 768px)');
   
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['imageLikes', image.id],
@@ -46,7 +48,7 @@ const ImageCard = ({
 
   const handleImageClick = (e) => {
     e.preventDefault();
-    if (isMobile) {
+    if (isMobileDevice) {
       setDrawerOpen(true);
     } else {
       onImageClick(image);
@@ -134,18 +136,20 @@ const ImageCard = ({
         </div>
       </div>
 
-      <MobileImageDrawer
-        open={drawerOpen}
-        onOpenChange={setDrawerOpen}
-        image={image}
-        showFullImage={true}
-        onDownload={handleDownload}
-        onDiscard={onDiscard}
-        onRemix={handleRemixClick}
-        isOwner={image.user_id === userId}
-        setActiveTab={setActiveTab}
-        setStyle={setStyle}
-      />
+      {isMobileDevice && (
+        <MobileImageDrawer
+          open={drawerOpen}
+          onOpenChange={setDrawerOpen}
+          image={image}
+          showFullImage={true}
+          onDownload={handleDownload}
+          onDiscard={onDiscard}
+          onRemix={handleRemixClick}
+          isOwner={image.user_id === userId}
+          setActiveTab={setActiveTab}
+          setStyle={setStyle}
+        />
+      )}
     </>
   );
 };
