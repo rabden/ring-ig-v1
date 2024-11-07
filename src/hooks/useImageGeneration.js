@@ -78,30 +78,28 @@ export const useImageGeneration = ({
             throw new Error('No active API key available');
           }
 
+          // Updated API parameters according to specification
           const parameters = {
+            guidance_scale: modelConfig?.guidanceScale || 7.5,
+            num_inference_steps: steps || modelConfig?.defaultStep || 30,
             target_size: {
               width: finalWidth,
               height: finalHeight
             },
-            seed: actualSeed,
-            num_inference_steps: steps || modelConfig?.defaultStep || 30,
+            seed: actualSeed
           };
 
-          if (modelConfig?.guidanceScale) {
-            parameters.guidance_scale = modelConfig.guidanceScale;
-          }
-
-          // Only add negative_prompt for non-NSFW models
-          if (!model.toLowerCase().includes('nsfw') && !modelConfig?.category?.toLowerCase().includes('nsfw')) {
-            parameters.negative_prompt = modelConfig?.negativePrompt || "ugly, disfigured, low quality, blurry, nsfw";
+          // Add negative prompt if model requires it
+          if (!model.toLowerCase().includes('flux')) {
+            parameters.negative_prompt = modelConfig?.negativePrompt || ["ugly", "disfigured", "low quality", "blurry", "nsfw"];
           }
 
           const response = await fetch(modelConfig?.apiUrl, {
             headers: {
               Authorization: `Bearer ${apiKeyData}`,
               "Content-Type": "application/json",
-              "x-wait-for-model": "true",
-              "x-use-cache": "true"
+              "x-use-cache": "true",
+              "x-wait-for-model": "true"
             },
             method: "POST",
             body: JSON.stringify({
