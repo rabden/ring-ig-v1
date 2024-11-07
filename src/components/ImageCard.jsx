@@ -80,6 +80,12 @@ const ImageCard = ({
   const modelName = modelConfigs?.[image.model]?.name || image.model;
   const styleName = styleConfigs?.[image.style]?.name || 'General';
 
+  const handleDiscard = async () => {
+    if (image && image.id) {
+      await onDiscard(image);
+    }
+  };
+
   return (
     <>
       <div className="mb-2">
@@ -129,7 +135,7 @@ const ImageCard = ({
             onToggleLike={onToggleLike}
             onViewDetails={() => setDrawerOpen(true)}
             onDownload={handleDownload}
-            onDiscard={onDiscard}
+            onDiscard={handleDiscard}
             onRemix={handleRemixClick}
             userId={userId}
           />
@@ -143,7 +149,7 @@ const ImageCard = ({
           image={image}
           showFullImage={true}
           onDownload={handleDownload}
-          onDiscard={onDiscard}
+          onDiscard={handleDiscard}
           onRemix={handleRemixClick}
           isOwner={image.user_id === userId}
           setActiveTab={setActiveTab}
