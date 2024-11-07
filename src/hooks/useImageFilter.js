@@ -11,16 +11,20 @@ export const useImageFilter = () => {
     showPrivate
   }) => {
     let filteredData = images.filter(img => {
-      const isNsfw = modelConfigs?.[img.model]?.category === "NSFW";
+      // Check if the model is NSFW based on its category
+      const isNsfw = modelConfigs?.[img.model]?.category === "NSFW" || 
+                    img.model?.toLowerCase().includes('nsfw');
       
       // Filter private images
       if (activeView === 'inspiration') {
         // Never show private images in inspiration
         if (img.is_private) return false;
         if (img.user_id === userId) return false;
+        // If NSFW is enabled, only show NSFW content
         if (nsfwEnabled) {
           return isNsfw;
         }
+        // If NSFW is disabled, hide all NSFW content
         return !isNsfw;
       }
       
@@ -54,6 +58,9 @@ export const useImageFilter = () => {
         const prompt = img.prompt?.toLowerCase() || '';
         if (!prompt.includes(query)) return false;
       }
+
+      // If NSFW is disabled, hide all NSFW content
+      if (!nsfwEnabled && isNsfw) return false;
 
       return true;
     });
