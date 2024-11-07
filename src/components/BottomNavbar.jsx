@@ -1,10 +1,10 @@
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { Image, Plus, Sparkles, Bell, User } from 'lucide-react';
 import { cn } from "@/lib/utils";
-import NotificationList from './notifications/NotificationList';
-import { useNotifications } from '@/contexts/NotificationContext';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useProUser } from '@/hooks/useProUser';
+import { useNotifications } from '@/contexts/NotificationContext';
+import GeneratingImagesDrawer from './GeneratingImagesDrawer';
 
 const UserAvatar = memo(({ session, isPro }) => (
   <div className={`rounded-full ${isPro ? 'p-[2px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500' : ''}`}>
@@ -17,98 +17,130 @@ const UserAvatar = memo(({ session, isPro }) => (
 
 UserAvatar.displayName = 'UserAvatar';
 
-const NavButton = memo(({ icon: Icon, isActive, onClick, children, badge }) => (
-  <button
-    onClick={onClick}
-    className={cn(
-      "flex items-center justify-center w-14 h-12 transition-all",
-      isActive ? "text-primary" : "text-muted-foreground",
-      "relative group"
-    )}
-  >
-    <div className={cn(
-      "absolute inset-x-2 h-0.5 -top-1 rounded-full transition-all",
-      isActive ? "bg-primary" : "bg-transparent"
-    )} />
-    <div className="relative">
-      {children || <Icon size={20} className={cn(
-        "transition-transform duration-200",
-        isActive ? "scale-100" : "scale-90 group-hover:scale-100"
-      )} />}
-      {badge > 0 && (
-        <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] font-medium text-primary-foreground flex items-center justify-center">
-          {badge > 9 ? '9+' : badge}
-        </span>
+const NavButton = memo(({ icon: Icon, isActive, onClick, onLongPress, children, badge }) => {
+  const [longPressTimer, setLongPressTimer] = useState(null);
+
+  const handleTouchStart = () => {
+    if (!onLongPress) return;
+    const timer = setTimeout(() => {
+      onLongPress();
+    }, 500); // 500ms for long press
+    setLongPressTimer(timer);
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+  };
+
+  return (
+    <button
+      onClick={onClick}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
+      className={cn(
+        "flex items-center justify-center w-14 h-12 transition-all",
+        isActive ? "text-primary" : "text-muted-foreground",
+        "relative group"
       )}
-    </div>
-  </button>
-));
+    >
+      <div className={cn(
+        "absolute inset-x-2 h-0.5 -top-1 rounded-full transition-all",
+        isActive ? "bg-primary" : "bg-transparent"
+      )} />
+      <div className="relative">
+        {children || <Icon size={20} className={cn(
+          "transition-transform duration-200",
+          isActive ? "scale-100" : "scale-90 group-hover:scale-100"
+        )} />}
+        {badge > 0 && (
+          <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] font-medium text-primary-foreground flex items-center justify-center">
+            {badge > 9 ? '9+' : badge}
+          </span>
+        )}
+      </div>
+    </button>
+  );
+});
 
 NavButton.displayName = 'NavButton';
 
 const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits, activeView, setActiveView, generatingImages = [] }) => {
   const { unreadCount } = useNotifications();
   const { data: isPro } = useProUser(session?.user?.id);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/30 md:hidden z-50">
-      <div className="flex items-center justify-around px-2 max-w-md mx-auto">
-        <NavButton
-          icon={Image}
-          isActive={activeTab === 'images' && activeView === 'myImages'}
-          onClick={() => {
-            setActiveTab('images');
-            setActiveView('myImages');
-          }}
-        />
-        <NavButton
-          icon={Sparkles}
-          isActive={activeTab === 'images' && activeView === 'inspiration'}
-          onClick={() => {
-            setActiveTab('images');
-            setActiveView('inspiration');
-          }}
-        />
-        <NavButton
-          icon={Plus}
-          isActive={activeTab === 'input'}
-          onClick={() => setActiveTab('input')}
-          badge={generatingImages.length}
-        />
-        <NavButton
-          icon={Bell}
-          isActive={activeTab === 'notifications'}
-          onClick={() => setActiveTab('notifications')}
-        >
-          <div className="relative">
-            <Bell size={20} className={cn(
-              "transition-transform duration-200",
-              activeTab === 'notifications' ? "scale-100" : "scale-90 group-hover:scale-100"
-            )} />
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
+    <>
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/30 md:hidden z-50">
+        <div className="flex items-center justify-around px-2 max-w-md mx-auto">
+          <NavButton
+            icon={Image}
+            isActive={activeTab === 'images' && activeView === 'myImages'}
+            onClick={() => {
+              setActiveTab('images');
+              setActiveView('myImages');
+            }}
+          />
+          <NavButton
+            icon={Sparkles}
+            isActive={activeTab === 'images' && activeView === 'inspiration'}
+            onClick={() => {
+              setActiveTab('images');
+              setActiveView('inspiration');
+            }}
+          />
+          <NavButton
+            icon={Plus}
+            isActive={activeTab === 'input'}
+            onClick={() => setActiveTab('input')}
+            onLongPress={() => setDrawerOpen(true)}
+            badge={generatingImages.length}
+          />
+          <NavButton
+            icon={Bell}
+            isActive={activeTab === 'notifications'}
+            onClick={() => setActiveTab('notifications')}
+          >
+            <div className="relative">
+              <Bell size={20} className={cn(
+                "transition-transform duration-200",
+                activeTab === 'notifications' ? "scale-100" : "scale-90 group-hover:scale-100"
+              )} />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </div>
+          </NavButton>
+          <NavButton
+            icon={User}
+            isActive={activeTab === 'profile'}
+            onClick={() => setActiveTab('profile')}
+          >
+            {session ? (
+              <UserAvatar session={session} isPro={isPro} />
+            ) : (
+              <User size={20} className={cn(
+                "transition-transform duration-200",
+                activeTab === 'profile' ? "scale-100" : "scale-90 group-hover:scale-100"
+              )} />
             )}
-          </div>
-        </NavButton>
-        <NavButton
-          icon={User}
-          isActive={activeTab === 'profile'}
-          onClick={() => setActiveTab('profile')}
-        >
-          {session ? (
-            <UserAvatar session={session} isPro={isPro} />
-          ) : (
-            <User size={20} className={cn(
-              "transition-transform duration-200",
-              activeTab === 'profile' ? "scale-100" : "scale-90 group-hover:scale-100"
-            )} />
-          )}
-        </NavButton>
+          </NavButton>
+        </div>
+        <div className="h-safe-area-bottom bg-background" />
       </div>
-      <div className="h-safe-area-bottom bg-background" />
-    </div>
+
+      <GeneratingImagesDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        generatingImages={generatingImages}
+      />
+    </>
   );
 };
 
