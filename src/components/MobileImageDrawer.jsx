@@ -18,7 +18,6 @@ const MobileImageDrawer = ({
   open, 
   onOpenChange, 
   image, 
-  showImage, 
   onDownload, 
   onDiscard, 
   onRemix, 
@@ -59,33 +58,6 @@ const MobileImageDrawer = ({
       <DrawerContent>
         <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted my-4" />
         <ScrollArea className="h-[80vh] px-4">
-          {showImage && (
-            <div className="relative rounded-lg overflow-hidden mb-4">
-              <img
-                src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                alt={image.prompt}
-                className="w-full h-auto"
-              />
-            </div>
-          )}
-          
-          <div className="flex gap-2 justify-between mb-6">
-            <Button variant="ghost" size="sm" className="flex-1" onClick={onDownload}>
-              <Download className="mr-2 h-4 w-4" />
-              Download
-            </Button>
-            {isOwner && (
-              <Button variant="ghost" size="sm" className="flex-1 text-destructive hover:text-destructive" onClick={onDiscard}>
-                <Trash2 className="mr-2 h-4 w-4" />
-                Discard
-              </Button>
-            )}
-            <Button variant="ghost" size="sm" className="flex-1" onClick={handleRemixClick}>
-              <Wand2 className="mr-2 h-4 w-4" />
-              Remix
-            </Button>
-          </div>
-
           <div className="space-y-6">
             <div>
               <div className="flex items-center justify-between mb-2">
@@ -104,6 +76,23 @@ const MobileImageDrawer = ({
               </p>
             </div>
             
+            <div className="flex gap-2 justify-between">
+              <Button variant="ghost" size="sm" className="flex-1" onClick={onDownload}>
+                <Download className="mr-2 h-4 w-4" />
+                Download
+              </Button>
+              {isOwner && (
+                <Button variant="ghost" size="sm" className="flex-1 text-destructive hover:text-destructive" onClick={onDiscard}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Discard
+                </Button>
+              )}
+              <Button variant="ghost" size="sm" className="flex-1" onClick={handleRemixClick}>
+                <Wand2 className="mr-2 h-4 w-4" />
+                Remix
+              </Button>
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <p className="text-sm font-medium text-muted-foreground">Model</p>
