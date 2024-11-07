@@ -16,7 +16,7 @@ import { downloadImage } from '@/utils/downloadUtils'
 const ImageCard = ({ 
   image, 
   onImageClick, 
-  onMoreClick = () => {}, // Add default empty function
+  onMoreClick = () => {}, 
   onDownload, 
   onDiscard, 
   onRemix, 
@@ -86,6 +86,22 @@ const ImageCard = ({
     };
   }, [shouldLoad, image.storage_path]);
 
+  const handleImageClick = (e) => {
+    e.preventDefault();
+    if (isMobile) {
+      onViewDetails(image);
+    } else {
+      onImageClick(image);
+    }
+  };
+
+  const handleMoreClick = (e) => {
+    e.stopPropagation();
+    if (isMobile) {
+      onViewDetails(image);
+    }
+  };
+
   const handleRemixClick = () => {
     if (typeof onRemix === 'function' && typeof setStyle === 'function') {
       onRemix(image);
@@ -130,7 +146,7 @@ const ImageCard = ({
                 src={imageSrc}
                 alt={image.prompt} 
                 className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-                onClick={() => onImageClick(image)}
+                onClick={handleImageClick}
                 onDoubleClick={handleDoubleClick}
                 onLoad={() => setImageLoaded(true)}
                 loading="lazy"
@@ -157,7 +173,7 @@ const ImageCard = ({
             <span className="text-xs text-muted-foreground">{likeCount}</span>
           </div>
           {isMobile ? (
-            <Button variant="ghost" className="h-6 w-6 p-0" onClick={() => onMoreClick(image)}>
+            <Button variant="ghost" className="h-6 w-6 p-0" onClick={handleMoreClick}>
               <MoreVertical className="h-4 w-4" />
             </Button>
           ) : (
