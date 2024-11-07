@@ -73,7 +73,7 @@ const NavButton = memo(({ icon: Icon, isActive, onClick, children, badge, onLong
             isActive ? "scale-100" : "scale-90 group-hover:scale-100"
           )} />
           {badge > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-primary text-[10px] font-medium text-primary-foreground flex items-center justify-center">
+            <span className="absolute top-1 right-2 h-4 w-4 rounded-full bg-primary text-[10px] font-medium text-primary-foreground flex items-center justify-center">
               {badge > 9 ? '9+' : badge}
             </span>
           )}

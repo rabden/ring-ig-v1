@@ -13,11 +13,11 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent>
-        <DrawerHeader>
+      <DrawerContent className="h-[50vh]">
+        <DrawerHeader className="border-b">
           <DrawerTitle>Generating Images</DrawerTitle>
         </DrawerHeader>
-        <div className="px-4 pb-4 space-y-4">
+        <div className="px-4 py-4 space-y-4 overflow-y-auto scrollbar-thin scrollbar-thumb-secondary scrollbar-track-transparent">
           {generatingImages.map((img) => (
             <div key={img.id} className="flex flex-col gap-2 p-4 border rounded-lg">
               <div className="flex items-center gap-2">
