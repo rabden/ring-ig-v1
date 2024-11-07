@@ -11,8 +11,6 @@ import ImageGeneratorSettings from '@/components/ImageGeneratorSettings';
 import ImageGallery from '@/components/ImageGallery';
 import ImageDetailsDialog from '@/components/ImageDetailsDialog';
 import FullScreenImageView from '@/components/FullScreenImageView';
-import MobileGeneratingStatus from '@/components/MobileGeneratingStatus';
-import DesktopHeader from '@/components/header/DesktopHeader';
 import MobileHeader from '@/components/header/MobileHeader';
 import MobileNotificationsMenu from '@/components/MobileNotificationsMenu';
 import MobileProfileMenu from '@/components/MobileProfileMenu';
@@ -30,7 +28,7 @@ const ImageGenerator = () => {
 
   const [activeFilters, setActiveFilters] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
-  const [isPrivate, setIsPrivate] = useState(false); // Add this line
+  const [isPrivate, setIsPrivate] = useState(false);
   const isHeaderVisible = useScrollDirection();
   const { session } = useSupabaseAuth();
   const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id);
@@ -129,7 +127,6 @@ const ImageGenerator = () => {
     setSearchQuery(query);
   };
 
-  // Add remix image loading
   const { data: remixImage } = useQuery({
     queryKey: ['remixImage', imageId],
     queryFn: async () => {
@@ -145,7 +142,6 @@ const ImageGenerator = () => {
     enabled: !!imageId && isRemixRoute,
   });
 
-  // Handle remix image loading
   useEffect(() => {
     if (remixImage && isRemixRoute) {
       setPrompt(remixImage.prompt);
@@ -297,9 +293,6 @@ const ImageGenerator = () => {
         setStyle={setStyle}
         setActiveTab={setActiveTab}
       />
-      {generatingImages.length > 0 && (
-        <MobileGeneratingStatus generatingImages={generatingImages} />
-      )}
     </div>
   );
 };
