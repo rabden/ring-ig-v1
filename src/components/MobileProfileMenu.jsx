@@ -6,7 +6,6 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
 import { useProRequest } from '@/hooks/useProRequest';
-import ProUpgradeForm from './pro/ProUpgradeForm';
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import ProfileAvatar from './profile/ProfileAvatar';
@@ -19,13 +18,11 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const { logout } = useSupabaseAuth();
   const { data: isPro } = useProUser(user?.id);
   const { data: proRequest } = useProRequest(user?.id);
-  const [upgradeFormOpen, setUpgradeFormOpen] = React.useState(false);
   const [isEditing, setIsEditing] = React.useState(false);
   const [displayName, setDisplayName] = React.useState('');
   const [showImageDialog, setShowImageDialog] = React.useState(false);
   const queryClient = useQueryClient();
 
-  // Set display name when user data is available
   React.useEffect(() => {
     if (user) {
       setDisplayName(
@@ -84,6 +81,23 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
     }
   };
 
+  const handleProRequest = async () => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_pro_request: true })
+        .eq('id', user.id);
+
+      if (error) throw error;
+      
+      toast.success("Pro request submitted successfully");
+      queryClient.invalidateQueries(['proRequest', user.id]);
+    } catch (error) {
+      toast.error("Failed to submit pro request");
+      console.error('Error submitting pro request:', error);
+    }
+  };
+
   if (activeTab !== 'profile') return null;
 
   return (
@@ -130,9 +144,9 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
                   <Button 
                     variant="default" 
                     className="w-full bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 hover:from-yellow-400 hover:via-yellow-600 hover:to-amber-600"
-                    onClick={() => setUpgradeFormOpen(true)}
+                    onClick={handleProRequest}
                   >
-                    Upgrade to Pro
+                    Request Pro Access
                   </Button>
                 )}
                 {!isPro && proRequest && (
@@ -175,11 +189,6 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <ProUpgradeForm 
-        open={upgradeFormOpen}
-        onOpenChange={setUpgradeFormOpen}
-      />
     </div>
   );
 };

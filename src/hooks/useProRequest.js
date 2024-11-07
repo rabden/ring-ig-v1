@@ -8,13 +8,13 @@ export const useProRequest = (userId) => {
       if (!userId) return null;
       
       const { data, error } = await supabase
-        .from('user_pro_requests')
-        .select('*')
-        .eq('user_id', userId)
-        .maybeSingle();
+        .from('profiles')
+        .select('is_pro_request')
+        .eq('id', userId)
+        .single();
       
       if (error) throw error;
-      return data;
+      return data?.is_pro_request || false;
     },
     enabled: !!userId
   });
