@@ -24,8 +24,9 @@ const ImageCardActions = ({
   };
 
   const handleDiscard = (e) => {
+    e.preventDefault();
     e.stopPropagation();
-    if (image && image.id) {
+    if (image?.id) {
       onDiscard(image);
     }
   };
