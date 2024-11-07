@@ -19,7 +19,14 @@ const ImageCardActions = ({
   const handleMoreClick = (e) => {
     e.stopPropagation();
     if (isMobile) {
-      onViewDetails(true); // Changed to true to show image in drawer
+      onViewDetails(true);
+    }
+  };
+
+  const handleDiscard = (e) => {
+    e.stopPropagation();
+    if (image && image.id) {
+      onDiscard(image);
     }
   };
 
@@ -45,7 +52,7 @@ const ImageCardActions = ({
               Download
             </DropdownMenuItem>
             {image.user_id === userId && (
-              <DropdownMenuItem onClick={() => onDiscard(image)}>
+              <DropdownMenuItem onClick={handleDiscard}>
                 Discard
               </DropdownMenuItem>
             )}
