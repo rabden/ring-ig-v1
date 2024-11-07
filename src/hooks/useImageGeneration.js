@@ -51,7 +51,8 @@ export const useImageGeneration = ({
     const generationPromises = [];
     for (let i = 0; i < imageCount; i++) {
       const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed + i;
-      const generationId = Date.now().toString() + i;
+      // Generate a proper UUID for each image
+      const generationId = crypto.randomUUID();
       
       const modifiedPrompt = await getModifiedPrompt(prompt, style, model, modelConfigs);
       const maxDimension = qualityOptions[quality];
@@ -127,6 +128,7 @@ export const useImageGeneration = ({
           const { error: insertError } = await supabase
             .from('user_images')
             .insert({
+              id: generationId,
               user_id: session.user.id,
               storage_path: filePath,
               prompt: modifiedPrompt,
