@@ -5,7 +5,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Download, Trash2, Wand2, Copy, Share2, Check } from "lucide-react";
 import { toast } from 'sonner';
-import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import {
   Drawer,
@@ -23,18 +22,16 @@ const MobileImageDrawer = ({
   onRemix, 
   isOwner,
   setActiveTab,
-  setStyle,
   showFullImage = false
 }) => {
   const { data: modelConfigs } = useModelConfigs();
-  const { data: styleConfigs } = useStyleConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   
   if (!image) return null;
 
   const handleCopyPrompt = async () => {
-    await navigator.clipboard.writeText(image.user_prompt || image.prompt);
+    await navigator.clipboard.writeText(image.prompt);
     setCopyIcon('check');
     toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
@@ -49,7 +46,6 @@ const MobileImageDrawer = ({
 
   const handleRemixClick = () => {
     onRemix(image);
-    setStyle(image.style);
     setActiveTab('input');
     onOpenChange(false);
   };
@@ -83,7 +79,7 @@ const MobileImageDrawer = ({
                 </div>
               </div>
               <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md break-words">
-                {image.user_prompt || image.prompt}
+                {image.prompt}
               </p>
             </div>
             
@@ -109,12 +105,6 @@ const MobileImageDrawer = ({
                 <p className="text-sm font-medium text-muted-foreground">Model</p>
                 <Badge variant="outline" className="text-xs sm:text-sm font-normal">
                   {modelConfigs?.[image.model]?.name || image.model}
-                </Badge>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Style</p>
-                <Badge variant="outline" className="text-xs sm:text-sm font-normal">
-                  {styleConfigs?.[image.style]?.name || "General"}
                 </Badge>
               </div>
               <div className="space-y-1">

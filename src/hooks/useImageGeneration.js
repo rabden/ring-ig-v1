@@ -1,7 +1,7 @@
 import { supabase } from '@/integrations/supabase/supabase';
 import { toast } from 'sonner';
 import { qualityOptions } from '@/utils/imageConfigs';
-import { calculateDimensions, getModifiedPrompt } from '@/utils/imageUtils';
+import { calculateDimensions } from '@/utils/imageUtils';
 import { handleApiResponse } from '@/utils/retryUtils';
 
 export const useImageGeneration = ({
@@ -17,7 +17,6 @@ export const useImageGeneration = ({
   aspectRatio,
   updateCredits,
   setGeneratingImages,
-  style,
   modelConfigs,
   steps,
   imageCount = 1
@@ -53,7 +52,6 @@ export const useImageGeneration = ({
       const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed + i;
       const generationId = Date.now().toString() + i;
       
-      const modifiedPrompt = await getModifiedPrompt(prompt, style, model, modelConfigs);
       const maxDimension = qualityOptions[quality];
       const { width: finalWidth, height: finalHeight } = calculateDimensions(useAspectRatio, aspectRatio, width, height, maxDimension);
 
@@ -61,9 +59,8 @@ export const useImageGeneration = ({
         id: generationId, 
         width: finalWidth, 
         height: finalHeight,
-        prompt: modifiedPrompt,
+        prompt,
         model,
-        style: modelConfigs[model]?.category === "NSFW" ? null : style,
         is_private: isPrivate
       }]);
 
@@ -88,7 +85,6 @@ export const useImageGeneration = ({
             num_inference_steps: steps || modelConfig?.defaultStep || 30,
           };
 
-          // Add guidance scale for specific models
           if (modelConfig?.guidanceScale) {
             parameters.guidance_scale = modelConfig.guidanceScale;
           }
@@ -105,7 +101,7 @@ export const useImageGeneration = ({
             },
             method: "POST",
             body: JSON.stringify({
-              inputs: modifiedPrompt,
+              inputs: prompt,
               parameters
             }),
           });
@@ -134,13 +130,12 @@ export const useImageGeneration = ({
             .insert({
               user_id: session.user.id,
               storage_path: filePath,
-              prompt: modifiedPrompt,
+              prompt,
               seed: actualSeed,
               width: finalWidth,
               height: finalHeight,
               model,
               quality,
-              style: modelConfigs[model]?.category === "NSFW" ? null : (style || 'general'),
               aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
               is_private: isPrivate
             });

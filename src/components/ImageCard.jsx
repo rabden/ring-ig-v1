@@ -3,7 +3,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ImageStatusIndicators from './ImageStatusIndicators';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
-import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from "@/components/ui/skeleton";
 import { downloadImage } from '@/utils/downloadUtils';
@@ -25,12 +24,10 @@ const ImageCard = ({
   isLiked,
   onToggleLike,
   setActiveTab,
-  setStyle,
 }) => {
   const imageRef = useRef(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const { data: modelConfigs } = useModelConfigs();
-  const { data: styleConfigs } = useStyleConfigs();
   const { imageLoaded, shouldLoad, imageSrc, setImageLoaded } = useImageLoader(imageRef, image);
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
   
@@ -57,9 +54,8 @@ const ImageCard = ({
   };
 
   const handleRemixClick = () => {
-    if (typeof onRemix === 'function' && typeof setStyle === 'function') {
+    if (typeof onRemix === 'function') {
       onRemix(image);
-      setStyle(image.style);
       setActiveTab('input');
     }
   };
@@ -93,7 +89,6 @@ const ImageCard = ({
 
   const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
   const modelName = modelConfigs?.[image.model]?.name || image.model;
-  const styleName = styleConfigs?.[image.style]?.name || 'General';
 
   return (
     <>
@@ -126,11 +121,6 @@ const ImageCard = ({
               <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
                 {modelName}
               </Badge>
-              {!isNsfw && (
-                <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
-                  {styleName}
-                </Badge>
-              )}
             </div>
           </CardContent>
         </Card>
@@ -162,7 +152,6 @@ const ImageCard = ({
           onRemix={handleRemixClick}
           isOwner={image.user_id === userId}
           setActiveTab={setActiveTab}
-          setStyle={setStyle}
         />
       )}
     </>
