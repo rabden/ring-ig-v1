@@ -81,6 +81,7 @@ export const useImageGeneration = ({
             throw new Error('No active API key available');
           }
 
+          // Example API call for each model
           const parameters = {
             seed: actualSeed,
             width: finalWidth,
