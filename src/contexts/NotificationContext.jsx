@@ -29,7 +29,12 @@ export const NotificationProvider = ({ children }) => {
         .eq('id', session.user.id)
         .single();
 
-      const hiddenIds = new Set((profile?.hidden_global_notifications || '').split(',').filter(Boolean));
+      const hiddenIds = new Set(
+        (profile?.hidden_global_notifications || '')
+          .split(',')
+          .filter(Boolean)
+          .map(id => id.trim())
+      );
 
       // Fetch user-specific notifications
       const { data: userNotifications } = await supabase
@@ -44,7 +49,8 @@ export const NotificationProvider = ({ children }) => {
         .select('*')
         .order('created_at', { ascending: false });
 
-      const visibleGlobalNotifications = (allGlobalNotifications || []).filter(n => !hiddenIds.has(n.id.toString()));
+      const visibleGlobalNotifications = (allGlobalNotifications || [])
+        .filter(n => !hiddenIds.has(n.id.toString()));
 
       setNotifications(userNotifications || []);
       setGlobalNotifications(visibleGlobalNotifications);
@@ -55,7 +61,6 @@ export const NotificationProvider = ({ children }) => {
 
     fetchNotifications();
 
-    // Subscribe to notifications changes
     const notificationsChannel = supabase
       .channel('notifications_changes')
       .on('postgres_changes', 
@@ -66,7 +71,6 @@ export const NotificationProvider = ({ children }) => {
       )
       .subscribe();
 
-    // Subscribe to global notifications changes
     const globalNotificationsChannel = supabase
       .channel('global_notifications_changes')
       .on('postgres_changes', 
@@ -121,8 +125,12 @@ export const NotificationProvider = ({ children }) => {
       .eq('id', session.user.id)
       .single();
 
-    const currentHidden = (profile?.hidden_global_notifications || '').split(',').filter(Boolean);
-    const newHidden = [...currentHidden, notificationId.toString()].join(',');
+    const currentHidden = (profile?.hidden_global_notifications || '')
+      .split(',')
+      .filter(Boolean)
+      .map(id => id.trim());
+
+    const newHidden = [...new Set([...currentHidden, notificationId.toString()])].join(',');
 
     const { error } = await supabase
       .from('profiles')
