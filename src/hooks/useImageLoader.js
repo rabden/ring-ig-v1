@@ -7,37 +7,33 @@ export const useImageLoader = (imageRef, image) => {
   const [imageSrc, setImageSrc] = useState('');
 
   useEffect(() => {
-    const checkVisibility = () => {
-      if (!imageRef.current) return;
+    if (!image?.storage_path) return;
 
-      const rect = imageRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      const verticalMargin = windowHeight;
-      
-      const isVisible = (
-        rect.top <= windowHeight + verticalMargin &&
-        rect.bottom >= -verticalMargin
-      );
-
-      if (isVisible && !shouldLoad) {
-        setShouldLoad(true);
-        setImageSrc(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl);
-      } else if (!isVisible && shouldLoad) {
-        setShouldLoad(false);
-        setImageLoaded(false);
-        setImageSrc('');
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !shouldLoad) {
+            setShouldLoad(true);
+            setImageSrc(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl);
+          }
+        });
+      },
+      {
+        rootMargin: '50px 0px',
+        threshold: 0.1
       }
-    };
+    );
 
-    checkVisibility();
-    window.addEventListener('scroll', checkVisibility, { passive: true });
-    window.addEventListener('resize', checkVisibility);
+    if (imageRef.current) {
+      observer.observe(imageRef.current);
+    }
 
     return () => {
-      window.removeEventListener('scroll', checkVisibility);
-      window.removeEventListener('resize', checkVisibility);
+      if (imageRef.current) {
+        observer.unobserve(imageRef.current);
+      }
     };
-  }, [shouldLoad, image.storage_path]);
+  }, [image.storage_path, shouldLoad]);
 
   return { imageLoaded, shouldLoad, imageSrc, setImageLoaded };
 };
