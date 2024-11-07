@@ -7,21 +7,21 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import AuthOverlay from '@/components/AuthOverlay';
 import BottomNavbar from '@/components/BottomNavbar';
-import ImageGeneratorContainer from '@/components/ImageGeneratorContainer';
+import ImageGeneratorSettings from '@/components/ImageGeneratorSettings';
+import ImageGallery from '@/components/ImageGallery';
 import ImageDetailsDialog from '@/components/ImageDetailsDialog';
 import FullScreenImageView from '@/components/FullScreenImageView';
 import MobileGeneratingStatus from '@/components/MobileGeneratingStatus';
+import DesktopHeader from '@/components/header/DesktopHeader';
+import MobileHeader from '@/components/header/MobileHeader';
 import MobileNotificationsMenu from '@/components/MobileNotificationsMenu';
 import MobileProfileMenu from '@/components/MobileProfileMenu';
-import GeneratorHeader from '@/components/image-generator/GeneratorHeader';
-import GeneratorGallery from '@/components/image-generator/GeneratorGallery';
 import { useImageGeneratorState } from '@/hooks/useImageGeneratorState';
 import { useImageHandlers } from '@/hooks/useImageHandlers';
 import { useProUser } from '@/hooks/useProUser';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
-import GeneratingImagesDropdown from '@/components/GeneratingImagesDropdown';
 
 const ImageGenerator = () => {
   const { imageId } = useParams();
@@ -30,7 +30,7 @@ const ImageGenerator = () => {
 
   const [activeFilters, setActiveFilters] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
-  const [showPrivate, setShowPrivate] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(false); // Add this line
   const isHeaderVisible = useScrollDirection();
   const { session } = useSupabaseAuth();
   const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id);
@@ -47,10 +47,10 @@ const ImageGenerator = () => {
     detailsDialogOpen, setDetailsDialogOpen, fullScreenViewOpen, setFullScreenViewOpen,
     fullScreenImageIndex, setFullScreenImageIndex, generatingImages, setGeneratingImages,
     activeView, setActiveView, nsfwEnabled, setNsfwEnabled, style, setStyle,
-    imageCount, setImageCount, isPrivate, setIsPrivate
+    imageCount, setImageCount
   } = useImageGeneratorState();
 
-  const [completedImages, setCompletedImages] = useState([]);
+  const [showPrivate, setShowPrivate] = useState(false);
 
   const { generateImage } = useImageGeneration({
     session,
@@ -129,114 +129,139 @@ const ImageGenerator = () => {
     setSearchQuery(query);
   };
 
-  useEffect(() => {
-    const checkCompletedImages = async () => {
-      const completed = [];
-      for (const img of generatingImages) {
-        try {
-          const { data } = await supabase
-            .from('user_images')
-            .select('*')
-            .eq('id', img.id)
-            .single();
-          
-          if (data && data.storage_path) {
-            completed.push(data);
-            setGeneratingImages(prev => prev.filter(i => i.id !== img.id));
-          }
-        } catch (error) {
-          console.error('Error checking image status:', error);
-        }
-      }
-      if (completed.length > 0) {
-        setCompletedImages(prev => [...completed, ...prev]);
-      }
-    };
+  // Add remix image loading
+  const { data: remixImage } = useQuery({
+    queryKey: ['remixImage', imageId],
+    queryFn: async () => {
+      if (!imageId) return null;
+      const { data, error } = await supabase
+        .from('user_images')
+        .select('*')
+        .eq('id', imageId)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!imageId && isRemixRoute,
+  });
 
-    if (generatingImages.length > 0) {
-      const interval = setInterval(checkCompletedImages, 2000);
-      return () => clearInterval(interval);
+  // Handle remix image loading
+  useEffect(() => {
+    if (remixImage && isRemixRoute) {
+      setPrompt(remixImage.prompt);
+      setSeed(remixImage.seed);
+      setRandomizeSeed(false);
+      setWidth(remixImage.width);
+      setHeight(remixImage.height);
+      setModel(remixImage.model);
+      setQuality(remixImage.quality);
+      setStyle(remixImage.style);
+      if (remixImage.aspect_ratio) {
+        setAspectRatio(remixImage.aspect_ratio);
+        setUseAspectRatio(true);
+      }
     }
-  }, [generatingImages]);
-
-  useEffect(() => {
-    setCompletedImages([]);
-  }, [activeTab, activeView]);
+  }, [remixImage, isRemixRoute]);
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
       <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
-        <GeneratorHeader
+        {session && (
+          <>
+            <DesktopHeader
+              user={session.user}
+              credits={credits}
+              bonusCredits={bonusCredits}
+              activeView={activeView}
+              setActiveView={setActiveView}
+              generatingImages={generatingImages}
+              activeFilters={activeFilters}
+              onFilterChange={handleFilterChange}
+              onRemoveFilter={handleRemoveFilter}
+              onSearch={handleSearch}
+              nsfwEnabled={nsfwEnabled}
+              showPrivate={showPrivate}
+              onTogglePrivate={() => setShowPrivate(!showPrivate)}
+            />
+            <MobileHeader
+              activeFilters={activeFilters}
+              onFilterChange={handleFilterChange}
+              onRemoveFilter={handleRemoveFilter}
+              onSearch={handleSearch}
+              isVisible={isHeaderVisible}
+              nsfwEnabled={nsfwEnabled}
+              showPrivate={showPrivate}
+              onTogglePrivate={() => setShowPrivate(!showPrivate)}
+              activeView={activeView}
+            />
+          </>
+        )}
+
+        <div className="md:mt-16 mt-12">
+          <ImageGallery
+            userId={session?.user?.id}
+            onImageClick={handleImageClick}
+            onDownload={handleDownload}
+            onDiscard={handleDiscard}
+            onRemix={handleRemix}
+            onViewDetails={handleViewDetails}
+            activeView={activeView}
+            generatingImages={generatingImages}
+            nsfwEnabled={nsfwEnabled}
+            modelConfigs={modelConfigs}
+            activeFilters={activeFilters}
+            searchQuery={searchQuery}
+            setActiveTab={setActiveTab}
+            setStyle={setStyle}
+            showPrivate={showPrivate}
+          />
+        </div>
+      </div>
+
+      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-4 md:p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
+        {!session && (
+          <div className="absolute inset-0 z-10">
+            <AuthOverlay />
+          </div>
+        )}
+        <ImageGeneratorSettings
+          prompt={prompt}
+          setPrompt={setPrompt}
+          handlePromptKeyDown={handlePromptKeyDown}
+          generateImage={handleGenerateImage}
+          model={model}
+          setModel={handleModelChange}
+          seed={seed}
+          setSeed={setSeed}
+          randomizeSeed={randomizeSeed}
+          setRandomizeSeed={setRandomizeSeed}
+          quality={quality}
+          setQuality={setQuality}
+          useAspectRatio={useAspectRatio}
+          setUseAspectRatio={setUseAspectRatio}
+          aspectRatio={aspectRatio}
+          setAspectRatio={setAspectRatio}
+          width={width}
+          setWidth={setWidth}
+          height={height}
+          setHeight={setHeight}
           session={session}
           credits={credits}
           bonusCredits={bonusCredits}
-          activeView={activeView}
-          setActiveView={setActiveView}
-          generatingImages={generatingImages}
-          activeFilters={activeFilters}
-          onFilterChange={handleFilterChange}
-          onRemoveFilter={handleRemoveFilter}
-          onSearch={handleSearch}
           nsfwEnabled={nsfwEnabled}
-          showPrivate={showPrivate}
-          onTogglePrivate={() => setShowPrivate(!showPrivate)}
-          isHeaderVisible={isHeaderVisible}
-        />
-
-        <GeneratorGallery
-          userId={session?.user?.id}
-          onImageClick={handleImageClick}
-          onDownload={handleDownload}
-          onDiscard={handleDiscard}
-          onRemix={handleRemix}
-          onViewDetails={handleViewDetails}
-          activeView={activeView}
-          generatingImages={generatingImages}
-          nsfwEnabled={nsfwEnabled}
-          modelConfigs={modelConfigs}
-          activeFilters={activeFilters}
-          searchQuery={searchQuery}
-          setActiveTab={setActiveTab}
+          setNsfwEnabled={setNsfwEnabled}
+          style={style}
           setStyle={setStyle}
-          showPrivate={showPrivate}
+          steps={steps}
+          setSteps={setSteps}
+          proMode={isPro}
+          modelConfigs={modelConfigs}
+          isPrivate={isPrivate}
+          setIsPrivate={setIsPrivate}
+          imageCount={imageCount}
+          setImageCount={setImageCount}
         />
       </div>
-
-      <ImageGeneratorContainer
-        session={session}
-        credits={credits}
-        bonusCredits={bonusCredits}
-        generatingImages={generatingImages}
-        completedImages={completedImages}
-        prompt={prompt}
-        setPrompt={setPrompt}
-        handlePromptKeyDown={handlePromptKeyDown}
-        generateImage={handleGenerateImage}
-        model={model}
-        setModel={setModel}
-        seed={seed}
-        setSeed={setSeed}
-        randomizeSeed={randomizeSeed}
-        setRandomizeSeed={setRandomizeSeed}
-        quality={quality}
-        setQuality={setQuality}
-        useAspectRatio={useAspectRatio}
-        setUseAspectRatio={setUseAspectRatio}
-        aspectRatio={aspectRatio}
-        setAspectRatio={setAspectRatio}
-        width={width}
-        setWidth={setWidth}
-        height={height}
-        setHeight={setHeight}
-        steps={steps}
-        setSteps={setSteps}
-        proMode={isPro}
-        modelConfigs={modelConfigs}
-        isPrivate={isPrivate}
-        setIsPrivate={setIsPrivate}
-        imageCount={imageCount}
-        setImageCount={setImageCount}
-      />
 
       <MobileNotificationsMenu activeTab={activeTab} />
       <MobileProfileMenu 
