@@ -119,27 +119,36 @@ export const NotificationProvider = ({ children }) => {
   };
 
   const hideGlobalNotification = async (notificationId) => {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('hidden_global_notifications')
-      .eq('id', session.user.id)
-      .single();
+    try {
+      // Get current hidden notifications
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('hidden_global_notifications')
+        .eq('id', session.user.id)
+        .single();
 
-    const currentHidden = (profile?.hidden_global_notifications || '')
-      .split(',')
-      .filter(Boolean)
-      .map(id => id.trim());
+      // Parse existing hidden IDs
+      const currentHidden = (profile?.hidden_global_notifications || '')
+        .split(',')
+        .filter(Boolean)
+        .map(id => id.trim());
 
-    const newHidden = [...new Set([...currentHidden, notificationId.toString()])].join(',');
+      // Add new ID if not already hidden
+      if (!currentHidden.includes(notificationId.toString())) {
+        const newHidden = [...currentHidden, notificationId.toString()].join(',');
 
-    const { error } = await supabase
-      .from('profiles')
-      .update({ hidden_global_notifications: newHidden })
-      .eq('id', session.user.id);
+        const { error } = await supabase
+          .from('profiles')
+          .update({ hidden_global_notifications: newHidden })
+          .eq('id', session.user.id);
 
-    if (!error) {
-      setGlobalNotifications(prev => prev.filter(n => n.id !== notificationId));
-      setUnreadCount(prev => Math.max(0, prev - 1));
+        if (!error) {
+          setGlobalNotifications(prev => prev.filter(n => n.id !== notificationId));
+          setUnreadCount(prev => Math.max(0, prev - 1));
+        }
+      }
+    } catch (error) {
+      console.error('Error hiding global notification:', error);
     }
   };
 
