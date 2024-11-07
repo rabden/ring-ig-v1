@@ -10,15 +10,10 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   
-  // Remove the early return to always render the component structure
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className={`h-8 ${!generatingImages?.length ? 'hidden' : ''}`}
-        >
+        <Button variant="outline" size="sm" className="h-8">
           <Loader className="w-4 h-4 mr-2 animate-spin" />
           Generating-{generatingImages?.length || 0}
         </Button>

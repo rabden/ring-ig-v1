@@ -11,9 +11,8 @@ const MobileGeneratingStatus = ({ generatingImages = [] }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
 
-  // Remove the early return to always render the component structure
   return (
-    <div className={`fixed bottom-[56px] left-0 right-0 bg-background border-t border-border/30 md:hidden z-40 ${!generatingImages?.length ? 'hidden' : ''}`}>
+    <div className="fixed bottom-[56px] left-0 right-0 bg-background border-t border-border/30 md:hidden z-40">
       <button 
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full px-4 py-2 flex items-center justify-between text-sm border-b border-border/30"
