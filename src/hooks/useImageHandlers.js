@@ -1,7 +1,6 @@
 import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useProUser } from '@/hooks/useProUser'
-import { toast } from "sonner"
 
 export const useImageHandlers = ({
   generateImage,
@@ -107,18 +106,8 @@ export const useImageHandlers = ({
   }
 
   const handleDiscard = async (image) => {
-    if (!image?.id) {
-      toast.error("Cannot delete image: Invalid image ID");
-      return;
-    }
-    
-    try {
-      await deleteImageCompletely(image.id);
-      queryClient.invalidateQueries(['userImages']);
-      toast.success("Image deleted successfully");
-    } catch (error) {
-      toast.error(`Failed to delete image: ${error.message}`);
-    }
+    await deleteImageCompletely(image.id);
+    queryClient.invalidateQueries(['userImages']);
   }
 
   const handleViewDetails = (image) => {
