@@ -30,18 +30,20 @@ export const modelConfig = {
     qualityLimits: null,
     noStyleSuffix: false,
     isPremium: true,
-    promptSuffix: null
+    promptSuffix: null,
+    guidanceScale: 3.5
   },
   preLar: {
     name: "Ring.1 Pre-lar",
     category: "General",
     apiUrl: "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large",
-    inferenceSteps: [50],
-    defaultStep: 50,
+    inferenceSteps: [40],
+    defaultStep: 40,
     qualityLimits: ["SD", "HD"],
     noStyleSuffix: false,
     isPremium: true,
-    promptSuffix: null
+    promptSuffix: null,
+    guidanceScale: 4.5
   },
   animeNsfw: {
     name: "Ring.1 Anime",

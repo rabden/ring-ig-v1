@@ -81,13 +81,17 @@ export const useImageGeneration = ({
             throw new Error('No active API key available');
           }
 
-          // Example API call for each model
           const parameters = {
             seed: actualSeed,
             width: finalWidth,
             height: finalHeight,
             num_inference_steps: steps || modelConfig?.defaultStep || 30,
           };
+
+          // Add guidance scale for specific models
+          if (modelConfig?.guidanceScale) {
+            parameters.guidance_scale = modelConfig.guidanceScale;
+          }
 
           if (!model.toLowerCase().includes('flux')) {
             parameters.negative_prompt = modelConfig?.negativePrompt || "ugly, disfigured, low quality, blurry, nsfw";
