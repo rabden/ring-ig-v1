@@ -1,7 +1,33 @@
--- Drop existing table, triggers, and functions
-DROP TABLE IF EXISTS public.user_credits;
+-- Drop existing triggers and functions
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 DROP FUNCTION IF EXISTS public.handle_new_user();
+
+-- Ensure the profiles table exists with all necessary columns
+CREATE TABLE IF NOT EXISTS public.profiles (
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    display_name TEXT,
+    avatar_url TEXT,
+    credit_count INTEGER NOT NULL DEFAULT 50,
+    bonus_credits INTEGER NOT NULL DEFAULT 0,
+    last_refill_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    is_admin BOOLEAN DEFAULT false,
+    is_pro BOOLEAN DEFAULT false,
+    is_pro_request BOOLEAN DEFAULT false,
+    hidden_global_notifications TEXT DEFAULT '',
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Enable Row Level Security
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+-- Create policies for profiles table
+CREATE POLICY "Users can view their own profile"
+    ON public.profiles FOR SELECT
+    USING (auth.uid() = id);
+
+CREATE POLICY "Users can update their own profile"
+    ON public.profiles FOR UPDATE
+    USING (auth.uid() = id);
 
 -- Create function to handle new user creation
 CREATE OR REPLACE FUNCTION public.handle_new_user()
@@ -66,3 +92,6 @@ SELECT
     CURRENT_TIMESTAMP
 FROM auth.users
 ON CONFLICT (id) DO NOTHING;
+
+-- Enable realtime for profiles table
+ALTER PUBLICATION supabase_realtime ADD TABLE profiles;
