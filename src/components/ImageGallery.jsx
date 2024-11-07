@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Masonry from 'react-masonry-css';
 import SkeletonImageCard from './SkeletonImageCard';
 import ImageCard from './ImageCard';

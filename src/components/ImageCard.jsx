@@ -33,7 +33,7 @@ const ImageCard = ({
   const { data: styleConfigs } = useStyleConfigs();
   const { imageLoaded, shouldLoad, imageSrc, setImageLoaded } = useImageLoader(imageRef, image);
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
-
+  
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['imageLikes', image.id],
     queryFn: async () => {
@@ -95,20 +95,18 @@ const ImageCard = ({
   const modelName = modelConfigs?.[image.model]?.name || image.model;
   const styleName = styleConfigs?.[image.style]?.name || 'General';
 
-  const aspectRatio = (image.height / image.width) * 100;
-
   return (
-    <div className="mb-4 w-full">
-      <Card className="overflow-hidden">
-        <CardContent className="p-0 relative">
-          <div style={{ paddingTop: `${aspectRatio}%` }} className="relative">
+    <>
+      <div className="mb-2">
+        <Card className="overflow-hidden">
+          <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
             <ImageStatusIndicators 
               isTrending={image.is_trending} 
               isHot={image.is_hot} 
             />
-            <div ref={imageRef} className="absolute inset-0">
+            <div ref={imageRef}>
               {(!imageLoaded || !shouldLoad) && (
-                <div className="absolute inset-0 bg-muted">
+                <div className="absolute inset-0 bg-muted animate-pulse">
                   <Skeleton className="w-full h-full" />
                 </div>
               )}
@@ -116,7 +114,7 @@ const ImageCard = ({
                 <img 
                   src={imageSrc}
                   alt={image.prompt} 
-                  className={`w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                  className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                   onClick={handleImageClick}
                   onDoubleClick={handleDoubleClick}
                   onLoad={() => setImageLoaded(true)}
@@ -134,23 +132,23 @@ const ImageCard = ({
                 </Badge>
               )}
             </div>
-          </div>
-        </CardContent>
-      </Card>
-      <div className="mt-1 flex items-center justify-between">
-        <p className="text-sm truncate w-[70%]">{image.prompt}</p>
-        <ImageCardActions
-          image={image}
-          isMobile={isMobile}
-          isLiked={isLiked}
-          likeCount={likeCount}
-          onToggleLike={onToggleLike}
-          onViewDetails={() => setDrawerOpen(true)}
-          onDownload={handleDownload}
-          onDiscard={handleDiscard}
-          onRemix={handleRemixClick}
-          userId={userId}
-        />
+          </CardContent>
+        </Card>
+        <div className="mt-1 flex items-center justify-between">
+          <p className="text-sm truncate w-[70%]">{image.prompt}</p>
+          <ImageCardActions
+            image={image}
+            isMobile={isMobile}
+            isLiked={isLiked}
+            likeCount={likeCount}
+            onToggleLike={onToggleLike}
+            onViewDetails={() => setDrawerOpen(true)}
+            onDownload={handleDownload}
+            onDiscard={handleDiscard}
+            onRemix={handleRemixClick}
+            userId={userId}
+          />
+        </div>
       </div>
 
       {isMobileDevice && (
@@ -167,7 +165,7 @@ const ImageCard = ({
           setStyle={setStyle}
         />
       )}
-    </div>
+    </>
   );
 };
 

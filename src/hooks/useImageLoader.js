@@ -7,33 +7,37 @@ export const useImageLoader = (imageRef, image) => {
   const [imageSrc, setImageSrc] = useState('');
 
   useEffect(() => {
-    if (!image?.storage_path) return;
+    const checkVisibility = () => {
+      if (!imageRef.current) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && !shouldLoad) {
-            setShouldLoad(true);
-            setImageSrc(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl);
-          }
-        });
-      },
-      {
-        rootMargin: '50px 0px',
-        threshold: 0.1
-      }
-    );
+      const rect = imageRef.current.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const verticalMargin = windowHeight;
+      
+      const isVisible = (
+        rect.top <= windowHeight + verticalMargin &&
+        rect.bottom >= -verticalMargin
+      );
 
-    if (imageRef.current) {
-      observer.observe(imageRef.current);
-    }
-
-    return () => {
-      if (imageRef.current) {
-        observer.unobserve(imageRef.current);
+      if (isVisible && !shouldLoad) {
+        setShouldLoad(true);
+        setImageSrc(supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl);
+      } else if (!isVisible && shouldLoad) {
+        setShouldLoad(false);
+        setImageLoaded(false);
+        setImageSrc('');
       }
     };
-  }, [image.storage_path, shouldLoad]);
+
+    checkVisibility();
+    window.addEventListener('scroll', checkVisibility, { passive: true });
+    window.addEventListener('resize', checkVisibility);
+
+    return () => {
+      window.removeEventListener('scroll', checkVisibility);
+      window.removeEventListener('resize', checkVisibility);
+    };
+  }, [shouldLoad, image.storage_path]);
 
   return { imageLoaded, shouldLoad, imageSrc, setImageLoaded };
 };
