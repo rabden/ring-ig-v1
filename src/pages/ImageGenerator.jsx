@@ -8,12 +8,11 @@ import { useScrollDirection } from '@/hooks/useScrollDirection';
 import AuthOverlay from '@/components/AuthOverlay';
 import BottomNavbar from '@/components/BottomNavbar';
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings';
-import ImageGallery from '@/components/ImageGallery';
 import ImageDetailsDialog from '@/components/ImageDetailsDialog';
 import FullScreenImageView from '@/components/FullScreenImageView';
-import MobileHeader from '@/components/header/MobileHeader';
 import MobileNotificationsMenu from '@/components/MobileNotificationsMenu';
 import MobileProfileMenu from '@/components/MobileProfileMenu';
+import GallerySection from '@/components/gallery/GallerySection';
 import { useImageGeneratorState } from '@/hooks/useImageGeneratorState';
 import { useImageHandlers } from '@/hooks/useImageHandlers';
 import { useProUser } from '@/hooks/useProUser';
@@ -29,6 +28,7 @@ const ImageGenerator = () => {
   const [activeFilters, setActiveFilters] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
+  const [showPrivate, setShowPrivate] = useState(false);
   const isHeaderVisible = useScrollDirection();
   const { session } = useSupabaseAuth();
   const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id);
@@ -47,8 +47,6 @@ const ImageGenerator = () => {
     activeView, setActiveView, nsfwEnabled, setNsfwEnabled, style, setStyle,
     imageCount, setImageCount
   } = useImageGeneratorState();
-
-  const [showPrivate, setShowPrivate] = useState(false);
 
   const { generateImage } = useImageGeneration({
     session,
@@ -161,57 +159,33 @@ const ImageGenerator = () => {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
-      <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
-        {session && (
-          <>
-            <DesktopHeader
-              user={session.user}
-              credits={credits}
-              bonusCredits={bonusCredits}
-              activeView={activeView}
-              setActiveView={setActiveView}
-              generatingImages={generatingImages}
-              activeFilters={activeFilters}
-              onFilterChange={handleFilterChange}
-              onRemoveFilter={handleRemoveFilter}
-              onSearch={handleSearch}
-              nsfwEnabled={nsfwEnabled}
-              showPrivate={showPrivate}
-              onTogglePrivate={() => setShowPrivate(!showPrivate)}
-            />
-            <MobileHeader
-              activeFilters={activeFilters}
-              onFilterChange={handleFilterChange}
-              onRemoveFilter={handleRemoveFilter}
-              onSearch={handleSearch}
-              isVisible={isHeaderVisible}
-              nsfwEnabled={nsfwEnabled}
-              showPrivate={showPrivate}
-              onTogglePrivate={() => setShowPrivate(!showPrivate)}
-              activeView={activeView}
-            />
-          </>
-        )}
-
-        <div className="md:mt-16 mt-12">
-          <ImageGallery
-            userId={session?.user?.id}
-            onImageClick={handleImageClick}
-            onDownload={handleDownload}
-            onDiscard={handleDiscard}
-            onRemix={handleRemix}
-            onViewDetails={handleViewDetails}
-            activeView={activeView}
-            generatingImages={generatingImages}
-            nsfwEnabled={nsfwEnabled}
-            modelConfigs={modelConfigs}
-            activeFilters={activeFilters}
-            searchQuery={searchQuery}
-            setActiveTab={setActiveTab}
-            setStyle={setStyle}
-            showPrivate={showPrivate}
-          />
-        </div>
+      <div className={`${activeTab === 'images' ? 'block' : 'hidden md:block'}`}>
+        <GallerySection
+          session={session}
+          credits={credits}
+          bonusCredits={bonusCredits}
+          activeView={activeView}
+          setActiveView={setActiveView}
+          generatingImages={generatingImages}
+          activeFilters={activeFilters}
+          handleFilterChange={handleFilterChange}
+          handleRemoveFilter={handleRemoveFilter}
+          handleSearch={handleSearch}
+          nsfwEnabled={nsfwEnabled}
+          showPrivate={showPrivate}
+          setShowPrivate={setShowPrivate}
+          isHeaderVisible={isHeaderVisible}
+          userId={session?.user?.id}
+          handleImageClick={handleImageClick}
+          handleDownload={handleDownload}
+          handleDiscard={handleDiscard}
+          handleRemix={handleRemix}
+          handleViewDetails={handleViewDetails}
+          searchQuery={searchQuery}
+          setActiveTab={setActiveTab}
+          setStyle={setStyle}
+          style={style}
+        />
       </div>
 
       <div className={`w-full md:w-[350px] bg-card text-card-foreground p-4 md:p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
@@ -275,6 +249,7 @@ const ImageGenerator = () => {
         bonusCredits={bonusCredits}
         activeView={activeView}
         setActiveView={setActiveView}
+        generatingImages={generatingImages}
       />
       
       <ImageDetailsDialog
