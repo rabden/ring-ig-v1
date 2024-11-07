@@ -32,7 +32,6 @@ const FullScreenImageView = ({
   }
 
   const handleCopyPrompt = async () => {
-    // Only copy the user's prompt without the style suffix
     await navigator.clipboard.writeText(image.user_prompt || image.prompt);
     setCopyIcon('check');
     toast.success('Prompt copied to clipboard');
@@ -56,6 +55,21 @@ const FullScreenImageView = ({
     setStyle(image.style);
     setActiveTab('input');
     onClose();
+  };
+
+  const handleDiscard = async () => {
+    if (!image?.id) {
+      toast.error('Cannot delete image: Invalid image ID');
+      return;
+    }
+    try {
+      await onDiscard(image);
+      toast.success('Image deleted successfully');
+      onClose();
+    } catch (error) {
+      toast.error('Failed to delete image');
+      console.error('Error deleting image:', error);
+    }
   };
 
   const detailItems = [
@@ -118,7 +132,7 @@ const FullScreenImageView = ({
                         Download
                       </Button>
                       {isOwner && (
-                        <Button onClick={onDiscard} className="w-full" variant="destructive">
+                        <Button onClick={handleDiscard} className="w-full" variant="destructive">
                           <Trash2 className="mr-2 h-4 w-4" />
                           Discard
                         </Button>
