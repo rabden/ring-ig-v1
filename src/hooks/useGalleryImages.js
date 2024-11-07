@@ -21,9 +21,11 @@ export const useGalleryImages = ({
 
       // Filter by NSFW content
       if (nsfwEnabled) {
-        query = query.eq('model', 'nsfwMaster');
+        // Include both nsfwMaster and animeNsfw models when NSFW is enabled
+        query = query.in('model', ['nsfwMaster', 'animeNsfw']);
       } else {
-        query = query.neq('model', 'nsfwMaster');
+        // Exclude both NSFW models when NSFW is disabled
+        query = query.not('model', 'in', ['nsfwMaster', 'animeNsfw']);
       }
 
       // Apply view-specific filters

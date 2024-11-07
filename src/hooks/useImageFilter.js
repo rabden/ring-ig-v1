@@ -11,7 +11,9 @@ export const useImageFilter = () => {
     showPrivate
   }) => {
     let filteredData = images.filter(img => {
-      const isNsfw = modelConfigs?.[img.model]?.category === "NSFW";
+      const isNsfw = modelConfigs?.[img.model]?.category === "NSFW" || 
+                    img.model === 'nsfwMaster' || 
+                    img.model === 'animeNsfw';
       
       // Filter private images
       if (activeView === 'inspiration') {
