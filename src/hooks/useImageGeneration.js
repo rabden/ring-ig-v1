@@ -78,27 +78,25 @@ export const useImageGeneration = ({
             throw new Error('No active API key available');
           }
 
-          // Updated API parameters according to specification
           const parameters = {
-            guidance_scale: modelConfig?.guidanceScale || 7.5,
+            seed: actualSeed,
+            width: finalWidth,
+            height: finalHeight,
             num_inference_steps: steps || modelConfig?.defaultStep || 30,
-            target_size: {
-              width: finalWidth,
-              height: finalHeight
-            },
-            seed: actualSeed
           };
 
-          // Add negative prompt if model requires it
+          if (modelConfig?.guidanceScale) {
+            parameters.guidance_scale = modelConfig.guidanceScale;
+          }
+
           if (!model.toLowerCase().includes('flux')) {
-            parameters.negative_prompt = modelConfig?.negativePrompt || ["ugly", "disfigured", "low quality", "blurry", "nsfw"];
+            parameters.negative_prompt = modelConfig?.negativePrompt || "ugly, disfigured, low quality, blurry, nsfw";
           }
 
           const response = await fetch(modelConfig?.apiUrl, {
             headers: {
               Authorization: `Bearer ${apiKeyData}`,
               "Content-Type": "application/json",
-              "x-use-cache": "true",
               "x-wait-for-model": "true"
             },
             method: "POST",
