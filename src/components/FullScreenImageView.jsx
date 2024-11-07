@@ -32,6 +32,7 @@ const FullScreenImageView = ({
   }
 
   const handleCopyPrompt = async () => {
+    // Only copy the user's prompt without the style suffix
     await navigator.clipboard.writeText(image.prompt);
     setCopyIcon('check');
     toast.success('Prompt copied to clipboard');
