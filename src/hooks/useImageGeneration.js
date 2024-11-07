@@ -79,9 +79,11 @@ export const useImageGeneration = ({
           }
 
           const parameters = {
+            target_size: {
+              width: finalWidth,
+              height: finalHeight
+            },
             seed: actualSeed,
-            width: finalWidth,
-            height: finalHeight,
             num_inference_steps: steps || modelConfig?.defaultStep || 30,
           };
 
@@ -89,7 +91,8 @@ export const useImageGeneration = ({
             parameters.guidance_scale = modelConfig.guidanceScale;
           }
 
-          if (!model.toLowerCase().includes('flux')) {
+          // Only add negative_prompt for non-NSFW models
+          if (!model.toLowerCase().includes('nsfw') && !modelConfig?.category?.toLowerCase().includes('nsfw')) {
             parameters.negative_prompt = modelConfig?.negativePrompt || "ugly, disfigured, low quality, blurry, nsfw";
           }
 
@@ -97,7 +100,8 @@ export const useImageGeneration = ({
             headers: {
               Authorization: `Bearer ${apiKeyData}`,
               "Content-Type": "application/json",
-              "x-wait-for-model": "true"
+              "x-wait-for-model": "true",
+              "x-use-cache": "true"
             },
             method: "POST",
             body: JSON.stringify({
