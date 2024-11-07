@@ -3,6 +3,7 @@ import Masonry from 'react-masonry-css';
 import SkeletonImageCard from './SkeletonImageCard';
 import ImageCard from './ImageCard';
 import { useLikes } from '@/hooks/useLikes';
+import MobileGeneratingStatus from './MobileGeneratingStatus';
 import NoResults from './NoResults';
 import { useGalleryImages } from '@/hooks/useGalleryImages';
 
@@ -81,13 +82,17 @@ const ImageGallery = ({
   };
 
   return (
-    <Masonry
-      breakpointCols={breakpointColumnsObj}
-      className="flex w-auto md:px-2 -mx-1 md:mx-0"
-      columnClassName="bg-clip-padding px-1 md:px-2"
-    >
-      {renderContent()}
-    </Masonry>
+    <>
+      <Masonry
+        breakpointCols={breakpointColumnsObj}
+        className="flex w-auto md:px-2 -mx-1 md:mx-0"
+        columnClassName="bg-clip-padding px-1 md:px-2"
+      >
+        {renderContent()}
+      </Masonry>
+
+      <MobileGeneratingStatus generatingImages={generatingImages} />
+    </>
   );
 };
 
