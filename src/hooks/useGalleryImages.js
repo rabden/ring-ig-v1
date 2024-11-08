@@ -20,7 +20,7 @@ export const useGalleryImages = ({
   } = useInfiniteQuery({
     queryKey: ['galleryImages', userId, activeView, nsfwEnabled, showPrivate, activeFilters, searchQuery],
     queryFn: async ({ pageParam = 0 }) => {
-      if (!userId) return { data: [], nextPage: null };
+      if (!userId) return { data: [], nextPage: null, count: 0 };
 
       let query = supabase
         .from('user_images')
@@ -69,17 +69,18 @@ export const useGalleryImages = ({
       
       if (error) throw error;
 
-      const hasMore = (pageParam + 1) * ITEMS_PER_PAGE < count;
+      const hasMore = count ? (pageParam + 1) * ITEMS_PER_PAGE < count : false;
       return {
         data: data || [],
-        nextPage: hasMore ? pageParam + 1 : null,
-        count
+        nextPage: hasMore ? pageParam + 1 : undefined,
+        count: count || 0
       };
     },
-    getNextPageParam: (lastPage) => lastPage.nextPage,
+    getNextPageParam: (lastPage) => lastPage?.nextPage,
+    initialPageParam: 0
   });
 
-  const images = data?.pages.flatMap(page => page.data) || [];
+  const images = data?.pages?.flatMap(page => page.data) || [];
 
   return { 
     images, 
