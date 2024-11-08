@@ -11,11 +11,14 @@ export const AuthProvider = ({ children }) => {
 
   const handleAuthSession = async () => {
     try {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+      if (error) throw error;
       setSession(currentSession);
-      setLoading(false);
     } catch (error) {
       console.error('Auth error:', error);
+      // Clear invalid session data
+      window.localStorage.removeItem('supabase.auth.token');
+    } finally {
       setLoading(false);
     }
   };
@@ -32,8 +35,11 @@ export const AuthProvider = ({ children }) => {
       } else if (event === 'SIGNED_OUT') {
         setSession(null);
         queryClient.invalidateQueries('user');
-        localStorage.removeItem('supabase.auth.token');
+        window.localStorage.removeItem('supabase.auth.token');
       } else if (event === 'TOKEN_REFRESHED') {
+        setSession(session);
+        queryClient.invalidateQueries('user');
+      } else if (event === 'USER_UPDATED') {
         setSession(session);
         queryClient.invalidateQueries('user');
       }
@@ -49,7 +55,7 @@ export const AuthProvider = ({ children }) => {
       await supabase.auth.signOut();
       setSession(null);
       queryClient.invalidateQueries('user');
-      localStorage.removeItem('supabase.auth.token');
+      window.localStorage.removeItem('supabase.auth.token');
     } catch (error) {
       console.error('Error signing out:', error);
     }
