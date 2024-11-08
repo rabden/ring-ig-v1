@@ -6,7 +6,7 @@ BEGIN
                   WHERE table_schema='public' 
                   AND table_name='user_images' 
                   AND column_name='style') THEN
-        ALTER TABLE public.user_images ADD COLUMN style TEXT;
+        ALTER TABLE public.user_images ADD COLUMN style TEXT NULL;
     END IF;
 END $$;
 
