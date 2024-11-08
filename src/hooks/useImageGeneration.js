@@ -19,7 +19,6 @@ export const useImageGeneration = ({
   setGeneratingImages,
   style,
   modelConfigs,
-  steps,
   imageCount = 1
 }) => {
   const generateImage = async (isPrivate = false) => {
@@ -101,15 +100,10 @@ export const useImageGeneration = ({
             .update({ last_used_at: new Date().toISOString() })
             .eq('api_key', apiKeyData.api_key);
 
-          const parameters = model === 'fluxDev' || model === 'preLar' ? {
+          const parameters = {
             seed: actualSeed,
             width: finalWidth,
             height: finalHeight
-          } : {
-            seed: actualSeed,
-            width: finalWidth,
-            height: finalHeight,
-            num_inference_steps: steps || modelConfig?.defaultStep || 30
           };
 
           const response = await fetch(modelConfig?.apiUrl, {
@@ -157,7 +151,6 @@ export const useImageGeneration = ({
               width: finalWidth,
               height: finalHeight,
               model,
-              steps: steps || modelConfig?.defaultStep || 30,
               quality,
               style: finalStyle,
               aspect_ratio: finalAspectRatio,
