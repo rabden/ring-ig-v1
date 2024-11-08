@@ -6,17 +6,19 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
 import { useProRequest } from '@/hooks/useProRequest';
+import ProUpgradeForm from './pro/ProUpgradeForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import ProfileAvatar from './profile/ProfileAvatar';
 import DisplayNameEditor from './profile/DisplayNameEditor';
 import { useRealtimeProfile } from '@/hooks/useRealtimeProfile';
 import { handleAvatarUpload } from '@/utils/profileUtils';
 import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { toast } from 'sonner'; // Importing toast here
 
 const ProfileMenu = ({ user, credits, bonusCredits }) => {
   const { logout } = useSupabaseAuth();
   const [isOpen, setIsOpen] = useState(false);
+  const [upgradeFormOpen, setUpgradeFormOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(
     user?.user_metadata?.display_name || user?.email?.split('@')[0] || ''
@@ -57,10 +59,10 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
         .update({ display_name: displayName })
         .eq('id', user.id);
 
-      toast.success("Display name updated successfully");
+      toast.success("Display name updated successfully"); // Using toast here
       setIsEditing(false);
     } catch (error) {
-      toast.error("Failed to update display name");
+      toast.error("Failed to update display name"); // Using toast here
       console.error('Error updating display name:', error);
     }
   };
@@ -71,23 +73,6 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
     if (newAvatarUrl) {
       queryClient.invalidateQueries(['user']);
       setShowImageDialog(false);
-    }
-  };
-
-  const handleProRequest = async () => {
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ is_pro_request: true })
-        .eq('id', user.id);
-
-      if (error) throw error;
-      
-      toast.success("Pro request submitted successfully");
-      queryClient.invalidateQueries(['proRequest', user.id]);
-    } catch (error) {
-      toast.error("Failed to submit pro request");
-      console.error('Error submitting pro request:', error);
     }
   };
 
@@ -144,9 +129,9 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
                 <Button 
                   variant="default" 
                   className="w-full bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 hover:from-yellow-400 hover:via-yellow-600 hover:to-amber-600"
-                  onClick={handleProRequest}
+                  onClick={() => setUpgradeFormOpen(true)}
                 >
-                  Request Pro Access
+                  Upgrade to Pro
                 </Button>
               )}
 
@@ -186,6 +171,11 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ProUpgradeForm 
+        open={upgradeFormOpen}
+        onOpenChange={setUpgradeFormOpen}
+      />
     </>
   );
 };

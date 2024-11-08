@@ -26,8 +26,7 @@ const FullScreenImageView = ({
   onRemix,
   isOwner,
   setStyle,
-  setActiveTab,
-  hideUserInfo = false
+  setActiveTab 
 }) => {
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
@@ -46,8 +45,22 @@ const FullScreenImageView = ({
         .single();
       return data;
     },
-    enabled: !!image?.user_id && !hideUserInfo
+    enabled: !!image?.user_id
   });
+
+  const { data: likeCount = 0 } = useQuery({
+    queryKey: ['likes', image?.id],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('user_image_likes')
+        .select('*', { count: 'exact' })
+        .eq('image_id', image.id);
+      return count;
+    },
+    enabled: !!image?.id
+  });
+  
+  if (!isOpen || !image) return null;
 
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
@@ -65,17 +78,9 @@ const FullScreenImageView = ({
 
   const handleRemix = () => {
     onRemix(image);
+    setStyle(image.style);
     setActiveTab('input');
     onClose();
-  };
-
-  const handleDiscard = async () => {
-    try {
-      await onDiscard(image);  // Pass the entire image object
-      onClose();
-    } catch (error) {
-      toast.error(`Error deleting image: ${error.message}`);
-    }
   };
 
   const detailItems = [
@@ -114,24 +119,22 @@ const FullScreenImageView = ({
             <div className="bg-card h-[calc(100vh-32px)] rounded-lg border shadow-sm">
               <ScrollArea className="h-full">
                 <div className="p-6 space-y-6">
-                  {!hideUserInfo && (
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
-                        <span className="text-sm font-medium">{owner?.display_name}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <ImagePrivacyToggle image={image} isOwner={isOwner} />
-                        <div className="flex items-center gap-1">
-                          <LikeButton 
-                            isLiked={userLikes?.includes(image.id)} 
-                            onToggle={() => toggleLike(image.id)} 
-                          />
-                          <span className="text-xs text-muted-foreground">{likeCount}</span>
-                        </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
+                      <span className="text-sm font-medium">{owner?.display_name}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <ImagePrivacyToggle image={image} isOwner={isOwner} />
+                      <div className="flex items-center gap-1">
+                        <LikeButton 
+                          isLiked={userLikes?.includes(image.id)} 
+                          onToggle={() => toggleLike(image.id)} 
+                        />
+                        <span className="text-xs text-muted-foreground">{likeCount}</span>
                       </div>
                     </div>
-                  )}
+                  </div>
 
                   <ImagePromptSection 
                     prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)}
@@ -142,16 +145,24 @@ const FullScreenImageView = ({
                     onShare={handleShare}
                   />
 
-                  <div className="flex gap-2 justify-between">
-                    <Button onClick={() => onDownload(image)} className="flex-1" variant="ghost" size="sm">
-                      <Download className="mr-2 h-4 w-4" />
-                      Download
-                    </Button>
-                    <Button onClick={handleRemix} className="flex-1" variant="ghost" size="sm">
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Remix
-                    </Button>
-                  </div>
+                  {session && (
+                    <div className="flex gap-2 justify-between">
+                      <Button onClick={onDownload} className="flex-1" variant="ghost" size="sm">
+                        <Download className="mr-2 h-4 w-4" />
+                        Download
+                      </Button>
+                      {isOwner && (
+                        <Button onClick={onDiscard} className="flex-1 text-destructive hover:text-destructive" variant="ghost" size="sm">
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Discard
+                        </Button>
+                      )}
+                      <Button onClick={handleRemix} className="flex-1" variant="ghost" size="sm">
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Remix
+                      </Button>
+                    </div>
+                  )}
 
                   <ImageDetailsSection detailItems={detailItems} />
                 </div>

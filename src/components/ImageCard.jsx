@@ -63,9 +63,9 @@ const ImageCard = ({
   };
 
   const handleRemixClick = () => {
-    if (typeof onRemix === 'function') {
+    if (typeof onRemix === 'function' && typeof setStyle === 'function') {
       onRemix(image);
-      // Remove the setStyle call here
+      setStyle(image.style);
       setActiveTab('input');
     }
   };

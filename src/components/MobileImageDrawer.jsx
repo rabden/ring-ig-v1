@@ -26,8 +26,7 @@ const MobileImageDrawer = ({
   isOwner,
   setActiveTab,
   setStyle,
-  showFullImage = false,
-  hideUserInfo = false
+  showFullImage = false
 }) => {
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
@@ -35,7 +34,7 @@ const MobileImageDrawer = ({
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
-
+  
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],
     queryFn: async () => {
@@ -46,7 +45,7 @@ const MobileImageDrawer = ({
         .single();
       return data;
     },
-    enabled: !!image?.user_id && !hideUserInfo
+    enabled: !!image?.user_id
   });
 
   const { data: likeCount = 0 } = useQuery({
@@ -79,7 +78,7 @@ const MobileImageDrawer = ({
 
   const handleRemixClick = () => {
     onRemix(image);
-    // Remove the setStyle call here
+    setStyle(image.style);
     setActiveTab('input');
     onOpenChange(false);
   };
@@ -109,24 +108,22 @@ const MobileImageDrawer = ({
           )}
           
           <div className="space-y-8">
-            {!hideUserInfo && (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
-                  <span className="text-sm font-medium">{owner?.display_name}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <ImagePrivacyToggle image={image} isOwner={isOwner} />
-                  <div className="flex items-center gap-1">
-                    <LikeButton 
-                      isLiked={userLikes?.includes(image.id)} 
-                      onToggle={() => toggleLike(image.id)} 
-                    />
-                    <span className="text-xs text-muted-foreground">{likeCount}</span>
-                  </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
+                <span className="text-sm font-medium">{owner?.display_name}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <ImagePrivacyToggle image={image} isOwner={isOwner} />
+                <div className="flex items-center gap-1">
+                  <LikeButton 
+                    isLiked={userLikes?.includes(image.id)} 
+                    onToggle={() => toggleLike(image.id)} 
+                  />
+                  <span className="text-xs text-muted-foreground">{likeCount}</span>
                 </div>
               </div>
-            )}
+            </div>
 
             <div>
               <div className="flex items-center justify-between mb-3">
@@ -148,7 +145,13 @@ const MobileImageDrawer = ({
                 <Download className="mr-2 h-4 w-4" />
                 Download
               </Button>
-              <Button variant="ghost" size="sm" className="flex-1" onClick={handleRemix}>
+              {isOwner && (
+                <Button variant="ghost" size="sm" className="flex-1 text-destructive hover:text-destructive" onClick={onDiscard}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Discard
+                </Button>
+              )}
+              <Button variant="ghost" size="sm" className="flex-1" onClick={handleRemixClick}>
                 <Wand2 className="mr-2 h-4 w-4" />
                 Remix
               </Button>

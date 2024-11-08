@@ -1,6 +1,5 @@
 import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
-import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import { useProUser } from '@/hooks/useProUser'
 import { toast } from 'sonner'
 
@@ -18,6 +17,7 @@ export const useImageHandlers = ({
   setQuality,
   setAspectRatio,
   setUseAspectRatio,
+  setStyle,
   aspectRatios,
   session,
   queryClient,
@@ -25,9 +25,8 @@ export const useImageHandlers = ({
   setDetailsDialogOpen,
   setActiveView,
 }) => {
-  const { data: modelConfigs } = useModelConfigs() || {};
-  const { data: styleConfigs } = useStyleConfigs() || {};
-  const { data: isPro } = useProUser(session?.user?.id) || {};
+  const { data: modelConfigs } = useModelConfigs();
+  const { data: isPro } = useProUser(session?.user?.id);
 
   const handleGenerateImage = async () => {
     await generateImage()
@@ -66,14 +65,27 @@ export const useImageHandlers = ({
 
     // Set model based on NSFW status and pro status
     if (isNsfwModel) {
+      // For NSFW images, always use nsfwMaster for non-pro users
       setModel('nsfwMaster');
-      setSteps(modelConfigs?.['nsfwMaster']?.defaultStep || 30);
+      setSteps(modelConfigs['nsfwMaster']?.defaultStep || 30);
+      // NSFW models should never have styles
+      if (typeof setStyle === 'function') {
+        setStyle(null);
+      }
     } else if (isProModel && !isPro) {
+      // For non-NSFW pro models, fallback to turbo for non-pro users
       setModel('turbo');
-      setSteps(modelConfigs?.['turbo']?.defaultStep || 4);
+      setSteps(modelConfigs['turbo']?.defaultStep || 4);
+      if (typeof setStyle === 'function') {
+        setStyle(null);
+      }
     } else {
+      // Keep the original model if user has access to it
       setModel(image.model);
       setSteps(image.steps);
+      if (typeof setStyle === 'function') {
+        setStyle(image.style);
+      }
     }
 
     if (image.quality === 'HD+' && !isPro) {
