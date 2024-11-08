@@ -54,6 +54,15 @@ const MobileImageDrawer = ({
     onOpenChange(false);
   };
 
+  const detailItems = [
+    { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
+    { label: "Seed", value: image.seed },
+    { label: "Size", value: `${image.width}x${image.height}` },
+    { label: "Aspect Ratio", value: image.aspect_ratio || "Custom" },
+    { label: "Quality", value: image.quality },
+    { label: "Style", value: styleConfigs?.[image.style]?.name || "General" },
+  ];
+
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="h-[100vh] bg-background">
@@ -104,31 +113,15 @@ const MobileImageDrawer = ({
               </Button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Model</p>
-                <Badge variant="secondary" className="text-xs sm:text-sm font-normal">
-                  {modelConfigs?.[image.model]?.name || image.model}
-                </Badge>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Style</p>
-                <Badge variant="secondary" className="text-xs sm:text-sm font-normal">
-                  {styleConfigs?.[image.style]?.name || "General"}
-                </Badge>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Size</p>
-                <Badge variant="secondary" className="text-xs sm:text-sm font-normal">
-                  {image.width}x{image.height}
-                </Badge>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Quality</p>
-                <Badge variant="secondary" className="text-xs sm:text-sm font-normal">
-                  {image.quality}
-                </Badge>
-              </div>
+            <div className="space-y-4">
+              {detailItems.map((item, index) => (
+                <div key={index} className="space-y-1.5">
+                  <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
+                  <Badge variant="secondary" className="text-sm font-normal">
+                    {item.value}
+                  </Badge>
+                </div>
+              ))}
             </div>
           </div>
         </ScrollArea>
