@@ -147,16 +147,11 @@ export const useImageGeneration = ({
             
           if (uploadError) throw uploadError;
 
-          const { data: { publicUrl } } = supabase.storage
-            .from('user-images')
-            .getPublicUrl(filePath);
-
           const { error: insertError } = await supabase
             .from('user_images')
             .insert([{
               user_id: session.user.id,
               storage_path: filePath,
-              image_url: publicUrl,
               prompt: modifiedPrompt,
               seed: actualSeed,
               width: finalWidth,
