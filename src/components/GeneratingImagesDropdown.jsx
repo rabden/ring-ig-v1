@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { useModelConfigs } from '@/hooks/useModelConfigs'
+import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 
 const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
   const { data: modelConfigs } = useModelConfigs();
+  const { data: styleConfigs } = useStyleConfigs();
   
   if (!generatingImages?.length) return null;
   
@@ -34,6 +36,12 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
             )}
             <div className="flex gap-2 text-xs text-muted-foreground">
               <span>{modelConfigs?.[img.model]?.name || img.model}</span>
+              {img.style && modelConfigs?.[img.model]?.category !== "NSFW" && (
+                <>
+                  <span>•</span>
+                  <span>{styleConfigs?.[img.style]?.name || img.style}</span>
+                </>
+              )}
             </div>
           </DropdownMenuItem>
         ))}

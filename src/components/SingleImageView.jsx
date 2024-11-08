@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
+import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useImageViewHandlers } from './image-view/ImageViewHandlers';
@@ -14,6 +15,7 @@ const SingleImageView = () => {
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
+  const { data: styleConfigs } = useStyleConfigs();
 
   const { data: image, isLoading } = useQuery({
     queryKey: ['singleImage', imageId],
@@ -53,6 +55,7 @@ const SingleImageView = () => {
       image={image}
       session={session}
       modelConfigs={modelConfigs}
+      styleConfigs={styleConfigs}
       handlers={handlers}
     />
   ) : (
@@ -60,6 +63,7 @@ const SingleImageView = () => {
       image={image}
       session={session}
       modelConfigs={modelConfigs}
+      styleConfigs={styleConfigs}
       handlers={handlers}
       onBack={() => navigate(-1)}
     />

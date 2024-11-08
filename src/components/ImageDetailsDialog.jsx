@@ -11,9 +11,11 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { Copy, Share2, Check } from "lucide-react"
 import { toast } from 'sonner'
+import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 
 const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
+  const { data: styleConfigs } = useStyleConfigs();
   const { data: modelConfigs } = useModelConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
@@ -25,6 +27,7 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
     { label: "Seed", value: image.seed },
     { label: "Size", value: `${image.width}x${image.height}` },
     { label: "Aspect Ratio", value: image.aspect_ratio },
+    { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
     { label: "Quality", value: image.quality },
   ];
 

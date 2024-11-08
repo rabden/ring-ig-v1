@@ -1,4 +1,5 @@
 import { qualityOptions, aspectRatios } from '@/utils/imageConfigs';
+import { styleConfig } from '@/config/styleConfig';
 
 export const makeDivisibleBy16 = (num) => Math.floor(num / 16) * 16;
 
@@ -35,6 +36,12 @@ export const getModifiedPrompt = async (prompt, style, model, modelConfigs) => {
     return prompt;
   }
   
-  // Since styles are removed, just return the prompt with any model-specific suffix
-  return `${prompt}${modelConfig?.promptSuffix || ''}`;
+  // Get style suffix from styleConfig, defaulting to general style if none selected
+  const selectedStyle = style && styleConfig[style] ? styleConfig[style] : styleConfig.general;
+  const styleSuffix = selectedStyle?.suffix || '';
+  
+  // Combine prompt with style suffix and model-specific suffix
+  const modifiedPrompt = `${prompt}, ${styleSuffix}${modelConfig?.promptSuffix || ''}`;
+  
+  return modifiedPrompt;
 };

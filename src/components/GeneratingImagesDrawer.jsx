@@ -2,10 +2,12 @@ import React from 'react';
 import { Badge } from "@/components/ui/badge"
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 import { useModelConfigs } from '@/hooks/useModelConfigs'
+import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import { Loader } from "lucide-react"
 
 const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) => {
   const { data: modelConfigs } = useModelConfigs();
+  const { data: styleConfigs } = useStyleConfigs();
 
   if (!generatingImages?.length) return null;
 
@@ -32,6 +34,12 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
               )}
               <div className="flex gap-2 text-xs text-muted-foreground">
                 <span>{modelConfigs?.[img.model]?.name || img.model}</span>
+                {img.style && modelConfigs?.[img.model]?.category !== "NSFW" && (
+                  <>
+                    <span>•</span>
+                    <span>{styleConfigs?.[img.style]?.name || img.style}</span>
+                  </>
+                )}
               </div>
             </div>
           ))}

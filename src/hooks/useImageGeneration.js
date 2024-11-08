@@ -1,7 +1,7 @@
 import { supabase } from '@/integrations/supabase/supabase';
 import { toast } from 'sonner';
 import { qualityOptions } from '@/utils/imageConfigs';
-import { calculateDimensions } from '@/utils/imageUtils';
+import { calculateDimensions, getModifiedPrompt } from '@/utils/imageUtils';
 import { handleApiResponse } from '@/utils/retryUtils';
 
 export const useImageGeneration = ({
@@ -17,6 +17,7 @@ export const useImageGeneration = ({
   aspectRatio,
   updateCredits,
   setGeneratingImages,
+  style,
   modelConfigs,
   steps,
   imageCount = 1
@@ -52,6 +53,7 @@ export const useImageGeneration = ({
       const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed + i;
       const generationId = Date.now().toString() + i;
       
+      const modifiedPrompt = await getModifiedPrompt(prompt, style, model, modelConfigs);
       const maxDimension = qualityOptions[quality];
       const { width: finalWidth, height: finalHeight } = calculateDimensions(useAspectRatio, aspectRatio, width, height, maxDimension);
 
@@ -59,8 +61,9 @@ export const useImageGeneration = ({
         id: generationId, 
         width: finalWidth, 
         height: finalHeight,
-        prompt,
+        prompt: modifiedPrompt,
         model,
+        style: modelConfigs[model]?.category === "NSFW" ? null : style,
         is_private: isPrivate
       }]);
 
@@ -78,12 +81,17 @@ export const useImageGeneration = ({
             throw new Error('No active API key available');
           }
 
+          // Example API call for each model
           const parameters = {
+            seed: actualSeed,
             width: finalWidth,
             height: finalHeight,
             num_inference_steps: steps || modelConfig?.defaultStep || 30,
-            seed: actualSeed
           };
+
+          if (!model.toLowerCase().includes('flux')) {
+            parameters.negative_prompt = modelConfig?.negativePrompt || "ugly, disfigured, low quality, blurry, nsfw";
+          }
 
           const response = await fetch(modelConfig?.apiUrl, {
             headers: {
@@ -93,7 +101,7 @@ export const useImageGeneration = ({
             },
             method: "POST",
             body: JSON.stringify({
-              inputs: prompt,
+              inputs: modifiedPrompt,
               parameters
             }),
           });
@@ -122,12 +130,13 @@ export const useImageGeneration = ({
             .insert({
               user_id: session.user.id,
               storage_path: filePath,
-              prompt,
+              prompt: modifiedPrompt,
               seed: actualSeed,
               width: finalWidth,
               height: finalHeight,
               model,
               quality,
+              style: modelConfigs[model]?.category === "NSFW" ? null : (style || 'general'),
               aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
               is_private: isPrivate
             });

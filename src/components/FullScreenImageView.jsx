@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Download, Trash2, RefreshCw, Copy, Share2, Check } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
+import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { toast } from 'sonner';
 import { downloadImage } from '@/utils/downloadUtils';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
@@ -17,10 +18,12 @@ const FullScreenImageView = ({
   onDiscard,
   onRemix,
   isOwner,
+  setStyle,
   setActiveTab 
 }) => {
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
+  const { data: styleConfigs } = useStyleConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   
@@ -29,7 +32,7 @@ const FullScreenImageView = ({
   }
 
   const handleCopyPrompt = async () => {
-    await navigator.clipboard.writeText(image.prompt);
+    await navigator.clipboard.writeText(image.user_prompt || image.prompt);
     setCopyIcon('check');
     toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
@@ -44,11 +47,12 @@ const FullScreenImageView = ({
 
   const handleDownload = async () => {
     const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
-    await downloadImage(imageUrl, image.prompt);
+    await downloadImage(imageUrl, image.user_prompt || image.prompt);
   };
 
   const handleRemixClick = () => {
     onRemix(image);
+    setStyle(image.style);
     setActiveTab('input');
     onClose();
   };
@@ -74,6 +78,7 @@ const FullScreenImageView = ({
     { label: "Size", value: `${image.width}x${image.height}` },
     { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
     { label: "Quality", value: image.quality },
+    { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
   ];
 
   return (
@@ -103,7 +108,7 @@ const FullScreenImageView = ({
                       </Button>
                     </div>
                   </div>
-                  <p className="text-sm text-muted-foreground">{image.prompt}</p>
+                  <p className="text-sm text-muted-foreground">{image.user_prompt || image.prompt}</p>
                 </div>
 
                 <div className="space-y-2">

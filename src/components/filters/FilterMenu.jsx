@@ -11,17 +11,20 @@ import {
 import { Filter, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 
 const FilterMenu = ({ activeFilters, onFilterChange, onRemoveFilter, nsfwEnabled }) => {
+  const { data: styleConfigs } = useStyleConfigs();
   const { data: modelConfigs } = useModelConfigs();
 
   // If NSFW is enabled, don't show the filter menu
   if (nsfwEnabled) return null;
 
   const getFilteredConfigs = () => {
-    if (!modelConfigs) return { models: {} };
+    if (!styleConfigs || !modelConfigs) return { styles: {}, models: {} };
 
+    const styles = styleConfigs;
     const models = Object.entries(modelConfigs).reduce((acc, [key, config]) => {
       if (config.category === "General") {
         acc[key] = config;
@@ -29,15 +32,17 @@ const FilterMenu = ({ activeFilters, onFilterChange, onRemoveFilter, nsfwEnabled
       return acc;
     }, {});
 
-    return { models };
+    return { styles, models };
   };
 
-  const { models } = getFilteredConfigs();
+  const { styles, models } = getFilteredConfigs();
 
   const renderActiveFilters = () => (
     <div className="hidden md:flex flex-wrap gap-2">
       {Object.entries(activeFilters).map(([type, value]) => {
-        const label = modelConfigs?.[value]?.name;
+        const label = type === 'style' 
+          ? styleConfigs?.[value]?.name 
+          : modelConfigs?.[value]?.name;
         
         if (!label) return null;
         
@@ -80,7 +85,9 @@ const FilterMenu = ({ activeFilters, onFilterChange, onRemoveFilter, nsfwEnabled
               <div className="md:hidden mb-4">
                 <DropdownMenuLabel className="text-sm font-semibold mb-3">Active Filters</DropdownMenuLabel>
                 {Object.entries(activeFilters).map(([type, value]) => {
-                  const label = modelConfigs?.[value]?.name;
+                  const label = type === 'style' 
+                    ? styleConfigs?.[value]?.name 
+                    : modelConfigs?.[value]?.name;
                   
                   if (!label) return null;
                   
@@ -103,6 +110,22 @@ const FilterMenu = ({ activeFilters, onFilterChange, onRemoveFilter, nsfwEnabled
                   );
                 })}
               </div>
+
+              <DropdownMenuLabel className="text-sm font-semibold mb-3">Styles</DropdownMenuLabel>
+              <div className="grid grid-cols-2 gap-2 mb-6">
+                {Object.entries(styles).map(([key, config]) => (
+                  <Button
+                    key={`style-${key}`}
+                    variant={activeFilters.style === key ? 'default' : 'outline'}
+                    className="h-auto py-2 px-3 text-xs justify-start font-normal"
+                    onClick={() => onFilterChange('style', key)}
+                  >
+                    {config.name}
+                  </Button>
+                ))}
+              </div>
+              
+              <DropdownMenuSeparator className="my-4" />
               
               <DropdownMenuLabel className="text-sm font-semibold mb-3">Models</DropdownMenuLabel>
               <div className="grid grid-cols-2 gap-2">
