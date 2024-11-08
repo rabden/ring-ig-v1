@@ -28,8 +28,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <SupabaseAuthProvider>
-          <NotificationProvider>
-            <TooltipProvider>
+          <TooltipProvider>
+            <NotificationProvider>
               <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<ImageGenerator />} />
@@ -39,8 +39,8 @@ function App() {
                 </Routes>
                 <Toaster />
               </BrowserRouter>
-            </TooltipProvider>
-          </NotificationProvider>
+            </NotificationProvider>
+          </TooltipProvider>
         </SupabaseAuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
