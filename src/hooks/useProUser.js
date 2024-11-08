@@ -19,8 +19,6 @@ export const useProUser = (userId) => {
     staleTime: 1000 * 60, // Cache for 1 minute
     cacheTime: 1000 * 60 * 5, // Keep in cache for 5 minutes
     refetchOnMount: true,
-    refetchOnWindowFocus: true,
-    suspense: false, // Disable suspense mode
-    useErrorBoundary: false // Don't throw errors to error boundary
+    refetchOnWindowFocus: true
   });
 };
