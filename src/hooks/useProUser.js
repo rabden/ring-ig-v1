@@ -15,7 +15,7 @@ export const useProUser = (userId) => {
       
       return data?.is_pro || false;
     },
-    enabled: !!userId,
+    enabled: true, // Always enable the query, handle undefined userId in queryFn
     staleTime: 1000 * 60, // Cache for 1 minute
     cacheTime: 1000 * 60 * 5, // Keep in cache for 5 minutes
     refetchOnMount: true,
