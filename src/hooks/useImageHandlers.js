@@ -67,7 +67,6 @@ export const useImageHandlers = ({
 
     // Set model based on NSFW status and pro status
     if (isNsfwModel) {
-      // For NSFW images, always use nsfwMaster for non-pro users
       setModel('nsfwMaster');
       setSteps(modelConfigs['nsfwMaster']?.defaultStep || 30);
       // NSFW models should never have styles
@@ -75,23 +74,22 @@ export const useImageHandlers = ({
         setStyle(null);
       }
     } else if (isProModel && !isPro) {
-      // For non-NSFW pro models, fallback to turbo for non-pro users
       setModel('turbo');
       setSteps(modelConfigs['turbo']?.defaultStep || 4);
       if (typeof setStyle === 'function') {
         setStyle(null);
       }
     } else {
-      // Keep the original model if user has access to it
       setModel(image.model);
       setSteps(image.steps);
-      // Only keep the style if it's not a premium style or if the user is pro
+      
+      // Clear style if it's a premium style and user is not pro
       if (typeof setStyle === 'function') {
-        const styleConfig = image.style ? styleConfigs?.[image.style] : null;
-        if (!styleConfig?.isPremium || isPro) {
-          setStyle(image.style);
-        } else {
+        const styleConfig = styleConfigs?.[image.style];
+        if (styleConfig?.isPremium && !isPro) {
           setStyle(null);
+        } else {
+          setStyle(image.style);
         }
       }
     }
