@@ -12,7 +12,7 @@ export const styleConfig = {
   "3d": {
     name: "3D",
     suffix: "octane render, 3D model, ray tracing, volumetric lighting, subsurface scattering, ambient occlusion, physically based rendering, 3D visualization, blender art, cinema4d",
-    isPremium: true
+    isPremium: false
   },
   realistic: {
     name: "Realistic",
@@ -32,12 +32,12 @@ export const styleConfig = {
   watercolor: {
     name: "Watercolor",
     suffix: "watercolor painting, wet on wet, traditional media, watercolor texture, fluid painting, organic texture, watercolor paper, traditional art, painted, artistic",
-    isPremium: true
+    isPremium: false
   },
   comic: {
     name: "Comic",
     suffix: "comic art style, comic book style, graphic novel, ink drawing, cel shading, bold lines, comic panel, superhero art, action comics, manga style",
-    isPremium: true
+    isPremium: false
   },
   minimalist: {
     name: "Minimalist",
@@ -52,7 +52,7 @@ export const styleConfig = {
   retro: {
     name: "Retro",
     suffix: "vintage, retro style, old school, nostalgic, 80s, 70s, classic, aged, film grain, analog",
-    isPremium: true
+    isPremium: false
   },
   fantasy: {
     name: "Fantasy",
@@ -62,7 +62,7 @@ export const styleConfig = {
   abstract: {
     name: "Abstract",
     suffix: "abstract art, non-representational, geometric, contemporary art, modern art, experimental, avant-garde, abstract expressionism, artistic",
-    isPremium: true
+    isPremium: false
   },
   sketch: {
     name: "Sketch",
@@ -72,17 +72,17 @@ export const styleConfig = {
   oil: {
     name: "Oil Painting",
     suffix: "oil painting, traditional art, impasto, glazing, classical painting, fine art, canvas texture, brush strokes, traditional media, painted",
-    isPremium: true
+    isPremium: false
   },
   portrait: {
     name: "Portrait",
     suffix: "portrait photography, headshot, studio portrait, professional portrait, beauty shot, fashion photography, editorial portrait, model photo",
-    isPremium: true
+    isPremium: false
   },
   architectural: {
     name: "Architectural",
     suffix: "architecture photography, architectural visualization, building design, interior design, exterior design, architectural rendering, urban design",
-    isPremium: true
+    isPremium: false
   },
   nature: {
     name: "Nature",
@@ -92,7 +92,7 @@ export const styleConfig = {
   pop: {
     name: "Pop Art",
     suffix: "pop art style, andy warhol, roy lichtenstein, bold colors, halftone dots, comic style, pop culture, retro pop, artistic",
-    isPremium: true
+    isPremium: false
   },
   pixel: {
     name: "Pixel Art",
@@ -107,7 +107,7 @@ export const styleConfig = {
   isometric: {
     name: "Isometric",
     suffix: "isometric design, isometric view, 45-degree angle, geometric projection, technical illustration, architectural isometric, game asset style",
-    isPremium: true
+    isPremium: false
   },
   storybook: {
     name: "Storybook",
@@ -117,6 +117,6 @@ export const styleConfig = {
   steampunk: {
     name: "Steampunk",
     suffix: "steampunk aesthetic, victorian futurism, brass and copper, mechanical, steam-powered, gears, industrial revolution style, vintage sci-fi",
-    isPremium: true
+    isPremium: false
   }
 };
