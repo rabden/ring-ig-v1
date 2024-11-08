@@ -83,8 +83,14 @@ export const useImageHandlers = ({
       // Keep the original model if user has access to it
       setModel(image.model);
       setSteps(image.steps);
+      // Only keep the style if it's not a premium style or if the user is pro
       if (typeof setStyle === 'function') {
-        setStyle(image.style);
+        const styleConfig = window.__STYLE_CONFIGS__?.[image.style];
+        if (!styleConfig?.isPremium || isPro) {
+          setStyle(image.style);
+        } else {
+          setStyle(null);
+        }
       }
     }
 
