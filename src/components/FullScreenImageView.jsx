@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
-import { Download, Trash2, RefreshCw, ArrowLeft } from "lucide-react";
+import { Download, Trash2, RefreshCw, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
@@ -11,7 +11,7 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import ProfileAvatar from './profile/ProfileAvatar';
 import LikeButton from './LikeButton';
 import { useLikes } from '@/hooks/useLikes';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import ImagePromptSection from './image-view/ImagePromptSection';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
 import { getCleanPrompt } from '@/utils/promptUtils';
@@ -33,6 +33,7 @@ const FullScreenImageView = ({
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
+  const queryClient = useQueryClient();
 
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],
@@ -58,6 +59,25 @@ const FullScreenImageView = ({
     },
     enabled: !!image?.id
   });
+  
+  const handleTogglePrivacy = async () => {
+    if (!image?.id) return;
+    
+    try {
+      const { error } = await supabase
+        .from('user_images')
+        .update({ is_private: !image.is_private })
+        .eq('id', image.id);
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries(['userImages']);
+      toast.success(`Image is now ${!image.is_private ? 'private' : 'public'}`);
+    } catch (error) {
+      console.error('Error updating image privacy:', error);
+      toast.error('Failed to update image privacy');
+    }
+  };
   
   if (!isOpen || !image) return null;
 
@@ -131,6 +151,26 @@ const FullScreenImageView = ({
                       <span className="text-xs text-muted-foreground">{likeCount}</span>
                     </div>
                   </div>
+
+                  {isOwner && (
+                    <Button 
+                      variant="outline" 
+                      className="w-full" 
+                      onClick={handleTogglePrivacy}
+                    >
+                      {image.is_private ? (
+                        <>
+                          <EyeOff className="mr-2 h-4 w-4" />
+                          Private
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="mr-2 h-4 w-4" />
+                          Public
+                        </>
+                      )}
+                    </Button>
+                  )}
 
                   <ImagePromptSection 
                     prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)}

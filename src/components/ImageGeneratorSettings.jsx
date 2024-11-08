@@ -3,8 +3,6 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Lock, Unlock } from "lucide-react";
 import StyleChooser from './StyleChooser';
 import AspectRatioChooser from './AspectRatioChooser';
 import SettingSection from './settings/SettingSection';
@@ -35,8 +33,6 @@ const ImageGeneratorSettings = ({
   steps, setSteps,
   proMode,
   modelConfigs,
-  isPrivate,
-  setIsPrivate,
   imageCount = 1,
   setImageCount
 }) => {
@@ -84,32 +80,9 @@ const ImageGeneratorSettings = ({
     setPrompt('');
   };
 
-  const handlePrivateToggle = () => {
-    setIsPrivate(!isPrivate);
-    toast.success(`Image generation set to ${!isPrivate ? 'private' : 'public'}`);
-  };
-
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className="flex justify-between items-center mb-4">
-        <Button
-          size="sm"
-          variant={isPrivate ? "default" : "outline"}
-          className={`rounded-full flex items-center gap-2 ${isPrivate ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}`}
-          onClick={handlePrivateToggle}
-        >
-          {isPrivate ? (
-            <>
-              <Lock className="h-4 w-4" />
-              Private
-            </>
-          ) : (
-            <>
-              <Unlock className="h-4 w-4" />
-              Public
-            </>
-          )}
-        </Button>
         {session && (
           <div className="text-sm font-medium">
             Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
@@ -126,7 +99,7 @@ const ImageGeneratorSettings = ({
         value={prompt}
         onChange={handlePromptChange}
         onKeyDown={handlePromptKeyDown}
-        onGenerate={() => generateImage(isPrivate)}
+        onGenerate={generateImage}
         hasEnoughCredits={hasEnoughCredits}
         onClear={handleClearPrompt}
       />
