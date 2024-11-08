@@ -81,17 +81,13 @@ export const useImageGeneration = ({
             throw new Error('No active API key available');
           }
 
-          // Example API call for each model
+          // Simplified API parameters
           const parameters = {
             seed: actualSeed,
             width: finalWidth,
             height: finalHeight,
             num_inference_steps: steps || modelConfig?.defaultStep || 30,
           };
-
-          if (!model.toLowerCase().includes('flux')) {
-            parameters.negative_prompt = modelConfig?.negativePrompt || "ugly, disfigured, low quality, blurry, nsfw";
-          }
 
           const response = await fetch(modelConfig?.apiUrl, {
             headers: {
