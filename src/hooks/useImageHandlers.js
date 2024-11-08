@@ -2,6 +2,7 @@ import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useProUser } from '@/hooks/useProUser'
 import { toast } from 'sonner'
+import { getCleanPrompt } from '@/utils/promptUtils'
 
 export const useImageHandlers = ({
   generateImage,
@@ -53,7 +54,8 @@ export const useImageHandlers = ({
       return;
     }
 
-    setPrompt(image.prompt);
+    // Clean the prompt by removing any style suffix
+    setPrompt(getCleanPrompt(image.user_prompt || image.prompt, image.style));
     setSeed(image.seed);
     setRandomizeSeed(false);
     setWidth(image.width);
@@ -68,7 +70,6 @@ export const useImageHandlers = ({
       // For NSFW images, always use nsfwMaster for non-pro users
       setModel('nsfwMaster');
       setSteps(modelConfigs['nsfwMaster']?.defaultStep || 30);
-      // NSFW models should never have styles
       if (typeof setStyle === 'function') {
         setStyle(null);
       }
