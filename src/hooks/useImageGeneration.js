@@ -57,8 +57,8 @@ export const useImageGeneration = ({
       const maxDimension = qualityOptions[quality];
       const { width: finalWidth, height: finalHeight } = calculateDimensions(useAspectRatio, aspectRatio, width, height, maxDimension);
 
-      // Set default style to 'general' if not specified and not NSFW
-      const finalStyle = modelConfigs[model]?.category === "NSFW" ? null : (style || 'general');
+      // Set default style to 'N/A' if not specified or if NSFW model
+      const finalStyle = modelConfigs[model]?.category === "NSFW" ? 'N/A' : (style || 'N/A');
 
       setGeneratingImages(prev => [...prev, { 
         id: generationId, 
