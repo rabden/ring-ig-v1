@@ -100,15 +100,15 @@ const FullScreenImageView = ({
         </div>
         
         <div className="flex h-full">
-          <div className="flex-1 relative flex items-center justify-center bg-black/10 dark:bg-black/30">
+          <div className="flex-1 relative flex items-center justify-center bg-black/10 dark:bg-black/30 p-8">
             <img
               src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
               alt={image.prompt}
-              className="max-w-full max-h-[100vh] object-contain"
+              className="max-w-full max-h-[calc(100vh-4rem)] object-contain"
             />
           </div>
 
-          <div className="w-[350px] p-4">
+          <div className="w-[400px] p-4">
             <div className="bg-card h-[calc(100vh-32px)] rounded-lg border shadow-sm">
               <ScrollArea className="h-full">
                 <div className="p-6 space-y-6">
