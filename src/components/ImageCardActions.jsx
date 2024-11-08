@@ -26,7 +26,10 @@ const ImageCardActions = ({
 
   const handleViewDetails = (e) => {
     e.stopPropagation();
-    onViewDetails(image);
+    if (!isMobile) {
+      // For desktop, trigger the details dialog
+      onViewDetails(image, false);
+    }
   };
 
   const handleDiscard = () => {

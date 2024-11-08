@@ -11,6 +11,7 @@ import { useImageLoader } from '@/hooks/useImageLoader';
 import ImageCardActions from './ImageCardActions';
 import { supabase } from '@/integrations/supabase/supabase';
 import MobileImageDrawer from './MobileImageDrawer';
+import ImageDetailsDialog from './ImageDetailsDialog';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { toast } from 'sonner';
 
@@ -19,7 +20,6 @@ const ImageCard = ({
   onImageClick, 
   onDiscard, 
   onRemix, 
-  onViewDetails,
   userId,
   isMobile,
   isLiked,
@@ -29,6 +29,7 @@ const ImageCard = ({
 }) => {
   const imageRef = useRef(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   const { imageLoaded, shouldLoad, imageSrc, setImageLoaded } = useImageLoader(imageRef, image);
@@ -91,6 +92,14 @@ const ImageCard = ({
     }
   };
 
+  const handleViewDetails = (img, isMobileView = isMobileDevice) => {
+    if (isMobileView) {
+      setDrawerOpen(true);
+    } else {
+      setDetailsDialogOpen(true);
+    }
+  };
+
   const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
   const modelName = modelConfigs?.[image.model]?.name || image.model;
   const styleName = styleConfigs?.[image.style]?.name || 'General';
@@ -142,7 +151,7 @@ const ImageCard = ({
             isLiked={isLiked}
             likeCount={likeCount}
             onToggleLike={onToggleLike}
-            onViewDetails={() => setDrawerOpen(true)}
+            onViewDetails={handleViewDetails}
             onDownload={handleDownload}
             onDiscard={handleDiscard}
             onRemix={handleRemixClick}
@@ -165,6 +174,12 @@ const ImageCard = ({
           setStyle={setStyle}
         />
       )}
+
+      <ImageDetailsDialog
+        open={detailsDialogOpen}
+        onOpenChange={setDetailsDialogOpen}
+        image={image}
+      />
     </>
   );
 };
