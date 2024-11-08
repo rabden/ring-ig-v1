@@ -78,8 +78,12 @@ const FullScreenImageView = ({
 
   const handleRemix = () => {
     onRemix(image);
-    // Remove the setStyle call here
     setActiveTab('input');
+    onClose();
+  };
+
+  const handleDiscard = () => {
+    onDiscard(image.id);
     onClose();
   };
 
@@ -147,12 +151,12 @@ const FullScreenImageView = ({
 
                   {session && (
                     <div className="flex gap-2 justify-between">
-                      <Button onClick={onDownload} className="flex-1" variant="ghost" size="sm">
+                      <Button onClick={() => onDownload(image)} className="flex-1" variant="ghost" size="sm">
                         <Download className="mr-2 h-4 w-4" />
                         Download
                       </Button>
                       {isOwner && (
-                        <Button onClick={onDiscard} className="flex-1 text-destructive hover:text-destructive" variant="ghost" size="sm">
+                        <Button onClick={handleDiscard} className="flex-1 text-destructive hover:text-destructive" variant="ghost" size="sm">
                           <Trash2 className="mr-2 h-4 w-4" />
                           Discard
                         </Button>
