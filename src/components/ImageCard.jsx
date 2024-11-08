@@ -30,9 +30,9 @@ const ImageCard = ({
   const imageRef = useRef(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
-  const { imageLoaded, shouldLoad, imageSrc, setImageLoaded } = useImageLoader(imageRef, image);
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
   
   const { data: likeCount = 0 } = useQuery({
@@ -47,6 +47,10 @@ const ImageCard = ({
       return count || 0;
     },
   });
+
+  const handleImageLoad = () => {
+    setIsLoading(false);
+  };
 
   const handleImageClick = (e) => {
     e.preventDefault();
@@ -104,6 +108,8 @@ const ImageCard = ({
   const modelName = modelConfigs?.[image.model]?.name || image.model;
   const styleName = styleConfigs?.[image.style]?.name || 'General';
 
+  const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
+
   return (
     <>
       <div className="mb-2">
@@ -113,23 +119,22 @@ const ImageCard = ({
               isTrending={image.is_trending} 
               isHot={image.is_hot} 
             />
-            <div ref={imageRef}>
-              {(!imageLoaded || !shouldLoad) && (
+            <div ref={imageRef} className="absolute inset-0">
+              {isLoading && (
                 <div className="absolute inset-0 bg-muted animate-pulse">
                   <Skeleton className="w-full h-full" />
                 </div>
               )}
-              {shouldLoad && (
-                <img 
-                  src={imageSrc}
-                  alt={image.prompt} 
-                  className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-                  onClick={handleImageClick}
-                  onDoubleClick={handleDoubleClick}
-                  onLoad={() => setImageLoaded(true)}
-                  loading="lazy"
-                />
-              )}
+              <img 
+                src={imageUrl}
+                alt={image.prompt} 
+                className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+                onClick={handleImageClick}
+                onDoubleClick={handleDoubleClick}
+                onLoad={handleImageLoad}
+                loading="lazy"
+                decoding="async"
+              />
             </div>
             <div className="absolute bottom-2 left-2 flex gap-1">
               <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
