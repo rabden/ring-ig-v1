@@ -82,9 +82,17 @@ const FullScreenImageView = ({
     onClose();
   };
 
-  const handleDiscard = () => {
-    onDiscard(image.id);
-    onClose();
+  const handleDiscard = async () => {
+    if (!image?.id) {
+      toast.error('Cannot delete image: Invalid image ID');
+      return;
+    }
+    try {
+      await onDiscard(image.id);
+      onClose();
+    } catch (error) {
+      toast.error(`Error deleting image: ${error.message}`);
+    }
   };
 
   const detailItems = [
