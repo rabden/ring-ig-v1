@@ -93,59 +93,61 @@ const FullScreenImageView = ({
             />
           </div>
 
-          <div className="w-[350px] border-l">
-            <ScrollArea className="h-[100vh]">
-              <div className="p-6 space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Image Details</h3>
-                    <div className="flex gap-2">
-                      <Button variant="ghost" size="icon" onClick={handleCopyPrompt}>
-                        {copyIcon === 'copy' ? <Copy className="h-4 w-4" /> : <Check className="h-4 w-4" />}
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={handleShare}>
-                        {shareIcon === 'share' ? <Share2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{image.user_prompt || image.prompt}</p>
-                </div>
-
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Settings</h4>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    {detailItems.map((item, index) => (
-                      <React.Fragment key={index}>
-                        <div>{item.label}:</div>
-                        <div className="text-muted-foreground">{item.value}</div>
-                      </React.Fragment>
-                    ))}
-                  </div>
-                </div>
-
-                {session && (
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium">Actions</h4>
-                    <div className="grid grid-cols-1 gap-2">
-                      <Button onClick={handleDownload} className="w-full" variant="outline">
-                        <Download className="mr-2 h-4 w-4" />
-                        Download
-                      </Button>
-                      {isOwner && (
-                        <Button onClick={handleDiscard} className="w-full" variant="destructive">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Discard
+          <div className="w-[350px] p-4">
+            <div className="bg-card h-[calc(100vh-32px)] rounded-lg border shadow-sm">
+              <ScrollArea className="h-full">
+                <div className="p-6 space-y-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">Image Details</h3>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="icon" onClick={handleCopyPrompt}>
+                          {copyIcon === 'copy' ? <Copy className="h-4 w-4" /> : <Check className="h-4 w-4" />}
                         </Button>
-                      )}
-                      <Button onClick={handleRemixClick} className="w-full" variant="outline">
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        Remix
-                      </Button>
+                        <Button variant="ghost" size="icon" onClick={handleShare}>
+                          {shareIcon === 'share' ? <Share2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{image.user_prompt || image.prompt}</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium">Settings</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      {detailItems.map((item, index) => (
+                        <React.Fragment key={index}>
+                          <div>{item.label}:</div>
+                          <div className="text-muted-foreground">{item.value}</div>
+                        </React.Fragment>
+                      ))}
                     </div>
                   </div>
-                )}
-              </div>
-            </ScrollArea>
+
+                  {session && (
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-medium">Actions</h4>
+                      <div className="grid grid-cols-1 gap-2">
+                        <Button onClick={handleDownload} className="w-full" variant="outline">
+                          <Download className="mr-2 h-4 w-4" />
+                          Download
+                        </Button>
+                        {isOwner && (
+                          <Button onClick={handleDiscard} className="w-full" variant="destructive">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Discard
+                          </Button>
+                        )}
+                        <Button onClick={handleRemixClick} className="w-full" variant="outline">
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          Remix
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+            </div>
           </div>
         </div>
       </DialogContent>
