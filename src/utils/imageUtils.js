@@ -1,4 +1,4 @@
-import { qualityOptions, aspectRatios } from '@/utils/imageConfigs';
+import { qualityOptions, aspectRatios, findClosestAspectRatio } from '@/utils/imageConfigs';
 import { styleConfig } from '@/config/styleConfig';
 
 export const makeDivisibleBy16 = (num) => Math.floor(num / 16) * 16;
@@ -22,9 +22,13 @@ export const calculateDimensions = (useAspectRatio, aspectRatio, width, height, 
     finalHeight = Math.min(maxDimension, height);
   }
 
+  finalWidth = makeDivisibleBy16(finalWidth);
+  finalHeight = makeDivisibleBy16(finalHeight);
+
   return {
-    width: makeDivisibleBy16(finalWidth),
-    height: makeDivisibleBy16(finalHeight)
+    width: finalWidth,
+    height: finalHeight,
+    aspectRatio: useAspectRatio ? aspectRatio : findClosestAspectRatio(finalWidth, finalHeight)
   };
 };
 
@@ -44,33 +48,4 @@ export const getModifiedPrompt = async (prompt, style, model, modelConfigs) => {
   const modifiedPrompt = `${prompt}, ${styleSuffix}${modelConfig?.promptSuffix || ''}`;
   
   return modifiedPrompt;
-};
-
-export const getAspectRatioString = (width, height, useAspectRatio, selectedAspectRatio) => {
-  if (useAspectRatio && aspectRatios[selectedAspectRatio]) {
-    return selectedAspectRatio;
-  }
-  
-  // Find the closest matching aspect ratio
-  const ratio = width / height;
-  let closestRatio = null;
-  let minDifference = Infinity;
-  
-  Object.entries(aspectRatios).forEach(([ratioString, dimensions]) => {
-    const currentRatio = dimensions.width / dimensions.height;
-    const difference = Math.abs(currentRatio - ratio);
-    
-    if (difference < minDifference) {
-      minDifference = difference;
-      closestRatio = ratioString;
-    }
-  });
-  
-  // If we found a very close match (within 1% difference), use that ratio
-  if (minDifference < 0.01 && closestRatio) {
-    return closestRatio;
-  }
-  
-  // Otherwise, return the actual dimensions as the ratio
-  return `${width}:${height}`;
 };

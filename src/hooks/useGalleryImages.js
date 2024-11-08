@@ -65,13 +65,25 @@ export const useGalleryImages = ({
         query = query.ilike('prompt', `%${searchQuery}%`);
       }
 
-      const { data, error, count } = await query;
+      const { data: images, error, count } = await query;
       
       if (error) throw error;
 
+      // Transform the data to include public URLs
+      const transformedData = images?.map(image => {
+        const { data: { publicUrl } } = supabase.storage
+          .from('user-images')
+          .getPublicUrl(image.storage_path);
+          
+        return {
+          ...image,
+          image_url: publicUrl
+        };
+      }) || [];
+
       const hasMore = count ? (pageParam + 1) * ITEMS_PER_PAGE < count : false;
       return {
-        data: data || [],
+        data: transformedData,
         nextPage: hasMore ? pageParam + 1 : undefined,
         count: count || 0
       };

@@ -14,6 +14,8 @@ import { useLikes } from '@/hooks/useLikes';
 import { useQuery } from '@tanstack/react-query';
 import ImagePromptSection from './image-view/ImagePromptSection';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
+import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
+import { getCleanPrompt } from '@/utils/promptUtils';
 
 const FullScreenImageView = ({ 
   image, 
@@ -57,12 +59,11 @@ const FullScreenImageView = ({
     },
     enabled: !!image?.id
   });
-
+  
   if (!isOpen || !image) return null;
 
   const handleCopyPrompt = async () => {
-    // Always use user_prompt to ensure we're copying the original prompt without style suffix
-    await navigator.clipboard.writeText(image.user_prompt);
+    await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
     setCopyIcon('check');
     toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
@@ -73,6 +74,13 @@ const FullScreenImageView = ({
     setShareIcon('check');
     toast.success('Share link copied to clipboard');
     setTimeout(() => setShareIcon('share'), 1500);
+  };
+
+  const handleRemix = () => {
+    onRemix(image);
+    setStyle(image.style);
+    setActiveTab('input');
+    onClose();
   };
 
   const detailItems = [
@@ -102,7 +110,7 @@ const FullScreenImageView = ({
           <div className="flex-1 relative flex items-center justify-center bg-black/10 dark:bg-black/30 p-8">
             <img
               src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-              alt={image.user_prompt}
+              alt={image.prompt}
               className="max-w-full max-h-[calc(100vh-4rem)] object-contain"
             />
           </div>
@@ -116,17 +124,21 @@ const FullScreenImageView = ({
                       <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
                       <span className="text-sm font-medium">{owner?.display_name}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <LikeButton 
-                        isLiked={userLikes?.includes(image.id)} 
-                        onToggle={() => toggleLike(image.id)} 
-                      />
-                      <span className="text-xs text-muted-foreground">{likeCount}</span>
+                    <div className="flex items-center gap-2">
+                      <ImagePrivacyToggle image={image} isOwner={isOwner} />
+                      <div className="flex items-center gap-1">
+                        <LikeButton 
+                          isLiked={userLikes?.includes(image.id)} 
+                          onToggle={() => toggleLike(image.id)} 
+                        />
+                        <span className="text-xs text-muted-foreground">{likeCount}</span>
+                      </div>
                     </div>
                   </div>
 
                   <ImagePromptSection 
-                    prompt={image.user_prompt}
+                    prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)}
+                    style={image.style}
                     copyIcon={copyIcon}
                     shareIcon={shareIcon}
                     onCopyPrompt={handleCopyPrompt}
@@ -145,7 +157,7 @@ const FullScreenImageView = ({
                           Discard
                         </Button>
                       )}
-                      <Button onClick={onRemix} className="flex-1" variant="ghost" size="sm">
+                      <Button onClick={handleRemix} className="flex-1" variant="ghost" size="sm">
                         <RefreshCw className="mr-2 h-4 w-4" />
                         Remix
                       </Button>

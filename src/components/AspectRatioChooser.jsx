@@ -5,8 +5,8 @@ import { Lock, ChevronDown, ChevronUp } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { aspectRatios } from '@/utils/imageConfigs'
 
-const AspectRatioVisualizer = ({ ratio, isPremium }) => {
-  const [width, height] = ratio.split(':').map(Number)
+const AspectRatioVisualizer = ({ ratio = "1:1", isPremium }) => {
+  const [width, height] = (ratio || "1:1").split(':').map(Number)
   const maxHeight = 120
   const scale = maxHeight / height
   const scaledWidth = width * scale
@@ -22,19 +22,17 @@ const AspectRatioVisualizer = ({ ratio, isPremium }) => {
       >
         <div className="flex items-center gap-1">
           {ratio}
-          {/* Removed the lock icon from here */}
         </div>
       </div>
     </div>
   )
 }
 
-const AspectRatioChooser = ({ aspectRatio, setAspectRatio, proMode }) => {
+const AspectRatioChooser = ({ aspectRatio = "1:1", setAspectRatio, proMode }) => {
   const [isOpen, setIsOpen] = useState(false)
   
   const premiumRatios = ['9:21', '21:9', '3:2', '2:3', '4:5', '5:4', '10:16', '16:10'];
   
-  // Organize ratios in specified order from tallest to widest
   const ratios = [
     "9:21", "1:2", "9:16", "10:16", "2:3", "3:4", "4:5",
     "1:1", // Center point

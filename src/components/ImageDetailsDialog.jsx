@@ -6,14 +6,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { Copy, Share2, Check } from "lucide-react"
 import { toast } from 'sonner'
 import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import TruncatablePrompt from './TruncatablePrompt'
+import { getCleanPrompt } from '@/utils/promptUtils'
 
 const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
   const { data: styleConfigs } = useStyleConfigs();
@@ -33,7 +32,8 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
   ];
 
   const handleCopyPrompt = async () => {
-    await navigator.clipboard.writeText(image.user_prompt);
+    const cleanPrompt = getCleanPrompt(image.user_prompt || image.prompt, image.style);
+    await navigator.clipboard.writeText(cleanPrompt);
     setCopyIcon('check');
     toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
@@ -53,10 +53,10 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
           <DialogTitle className="text-2xl font-bold">Image Details</DialogTitle>
         </DialogHeader>
         <ScrollArea className="mt-4 max-h-[calc(80vh-100px)]">
-          <div className="space-y-6 p-4">
+          <div className="space-y-8 px-1">
             <div>
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-lg font-semibold">Prompt</h3>
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Prompt</h3>
                 <div className="flex gap-2">
                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleCopyPrompt}>
                     {copyIcon === 'copy' ? <Copy className="h-4 w-4" /> : <Check className="h-4 w-4" />}
@@ -66,16 +66,14 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
                   </Button>
                 </div>
               </div>
-              <TruncatablePrompt prompt={image.user_prompt} />
+              <TruncatablePrompt prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)} />
             </div>
-            <Separator />
+
             <div className="grid grid-cols-2 gap-4">
               {detailItems.map((item, index) => (
                 <div key={index} className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
-                  <Badge variant="outline" className="text-sm font-normal">
-                    {item.value}
-                  </Badge>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider">{item.label}</p>
+                  <p className="text-sm font-medium">{item.value}</p>
                 </div>
               ))}
             </div>

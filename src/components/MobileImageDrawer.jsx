@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
 import { Download, Trash2, Wand2, Copy, Share2, Check } from "lucide-react";
 import { toast } from 'sonner';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
@@ -13,6 +12,9 @@ import LikeButton from './LikeButton';
 import { useLikes } from '@/hooks/useLikes';
 import { useQuery } from '@tanstack/react-query';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { getCleanPrompt } from '@/utils/promptUtils';
+import TruncatablePrompt from './TruncatablePrompt';
+import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -61,7 +63,7 @@ const MobileImageDrawer = ({
   if (!image) return null;
 
   const handleCopyPrompt = async () => {
-    await navigator.clipboard.writeText(image.original_prompt || image.prompt);
+    await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
     setCopyIcon('check');
     toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
@@ -87,7 +89,7 @@ const MobileImageDrawer = ({
     { label: "Size", value: `${image.width}x${image.height}` },
     { label: "Aspect Ratio", value: image.aspect_ratio },
     { label: "Quality", value: image.quality },
-    { label: "Style", value: styleConfigs?.[image.style]?.name || "General" },
+    { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' }
   ];
 
   return (
@@ -99,30 +101,33 @@ const MobileImageDrawer = ({
             <div className="relative rounded-lg overflow-hidden mb-6">
               <img
                 src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                alt={image.original_prompt || image.prompt}
+                alt={image.prompt}
                 className="w-full h-auto"
               />
             </div>
           )}
           
-          <div className="space-y-6">
+          <div className="space-y-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
                 <span className="text-sm font-medium">{owner?.display_name}</span>
               </div>
-              <div className="flex items-center gap-1">
-                <LikeButton 
-                  isLiked={userLikes?.includes(image.id)} 
-                  onToggle={() => toggleLike(image.id)} 
-                />
-                <span className="text-xs text-muted-foreground">{likeCount}</span>
+              <div className="flex items-center gap-2">
+                <ImagePrivacyToggle image={image} isOwner={isOwner} />
+                <div className="flex items-center gap-1">
+                  <LikeButton 
+                    isLiked={userLikes?.includes(image.id)} 
+                    onToggle={() => toggleLike(image.id)} 
+                  />
+                  <span className="text-xs text-muted-foreground">{likeCount}</span>
+                </div>
               </div>
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-semibold">Prompt</h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Prompt</h3>
                 <div className="flex gap-2">
                   <Button variant="ghost" size="sm" onClick={handleCopyPrompt}>
                     {copyIcon === 'copy' ? <Copy className="h-4 w-4" /> : <Check className="h-4 w-4" />}
@@ -132,11 +137,9 @@ const MobileImageDrawer = ({
                   </Button>
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md break-words">
-                {image.original_prompt || image.prompt}
-              </p>
+              <TruncatablePrompt prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)} />
             </div>
-            
+
             <div className="flex gap-2 justify-between">
               <Button variant="ghost" size="sm" className="flex-1" onClick={onDownload}>
                 <Download className="mr-2 h-4 w-4" />
@@ -154,13 +157,11 @@ const MobileImageDrawer = ({
               </Button>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               {detailItems.map((item, index) => (
                 <div key={index} className="space-y-1">
-                  <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
-                  <Badge variant="secondary" className="text-xs sm:text-sm font-normal w-full justify-center">
-                    {item.value}
-                  </Badge>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider">{item.label}</p>
+                  <p className="text-sm font-medium">{item.value}</p>
                 </div>
               ))}
             </div>

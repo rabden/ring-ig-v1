@@ -21,3 +21,25 @@ export const qualityOptions = {
   "HD": 1024,
   "HD+": 1536,
 }
+
+export const findClosestAspectRatio = (width, height) => {
+  const targetRatio = width / height;
+  let closestRatio = "1:1";
+  let smallestDiff = Infinity;
+
+  Object.entries(aspectRatios).forEach(([ratio, dimensions]) => {
+    const currentRatio = dimensions.width / dimensions.height;
+    const diff = Math.abs(currentRatio - targetRatio);
+    
+    if (diff < smallestDiff) {
+      smallestDiff = diff;
+      closestRatio = ratio;
+    }
+  });
+
+  return closestRatio;
+};
+
+export const isValidAspectRatio = (ratio) => {
+  return ratio in aspectRatios;
+};

@@ -1,27 +1,17 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { X, ArrowRight, Lock, Unlock } from "lucide-react";
-import { toast } from "sonner";
+import { X, ArrowRight } from "lucide-react";
 
 const PromptInput = ({ 
-  value, 
+  value = '', 
   onChange, 
   onKeyDown, 
   onGenerate, 
   hasEnoughCredits, 
-  onClear, 
-  isPrivate, 
-  onPrivateChange 
+  onClear
 }) => {
   const handleGenerate = () => {
-    onGenerate(isPrivate);
-  };
-
-  const handlePrivateToggle = () => {
-    if (typeof onPrivateChange === 'function') {
-      onPrivateChange(!isPrivate);
-      toast.success(`Image generation set to ${!isPrivate ? 'private' : 'public'}`);
-    }
+    onGenerate();
   };
 
   return (
@@ -43,30 +33,9 @@ const PromptInput = ({
           />
         </div>
         
-        <div className="flex justify-between items-center mt-4">
-          {typeof onPrivateChange === 'function' && (
-            <Button
-              size="sm"
-              variant={isPrivate ? "default" : "outline"}
-              className={`rounded-full flex items-center gap-2 ${isPrivate ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}`}
-              onClick={handlePrivateToggle}
-            >
-              {isPrivate ? (
-                <>
-                  <Lock className="h-4 w-4" />
-                  Private
-                </>
-              ) : (
-                <>
-                  <Unlock className="h-4 w-4" />
-                  Public
-                </>
-              )}
-            </Button>
-          )}
-          
+        <div className="flex justify-end items-center mt-4">
           <div className="flex gap-2">
-            {value.length > 0 && (
+            {value?.length > 0 && (
               <Button
                 size="sm"
                 variant="outline"
@@ -80,7 +49,7 @@ const PromptInput = ({
               size="sm"
               className="rounded-full"
               onClick={handleGenerate}
-              disabled={!value.length || !hasEnoughCredits}
+              disabled={!value?.length || !hasEnoughCredits}
             >
               Generate
               <ArrowRight className="ml-2 h-4 w-4" />

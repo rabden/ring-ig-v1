@@ -11,6 +11,7 @@ import ImageCountChooser from './settings/ImageCountChooser';
 import PromptInput from './prompt/PromptInput';
 import StyledScrollArea from './style/StyledScrollArea';
 import { qualityOptions } from '@/utils/imageConfigs';
+import { toast } from 'sonner';
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -32,8 +33,6 @@ const ImageGeneratorSettings = ({
   steps, setSteps,
   proMode,
   modelConfigs,
-  isPrivate,
-  setIsPrivate,
   imageCount = 1,
   setImageCount
 }) => {
@@ -84,7 +83,6 @@ const ImageGeneratorSettings = ({
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold">Settings</h2>
         {session && (
           <div className="text-sm font-medium">
             Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
@@ -104,8 +102,6 @@ const ImageGeneratorSettings = ({
         onGenerate={generateImage}
         hasEnoughCredits={hasEnoughCredits}
         onClear={handleClearPrompt}
-        isPrivate={isPrivate}
-        onPrivateChange={setIsPrivate}
       />
 
       <ModelChooser
