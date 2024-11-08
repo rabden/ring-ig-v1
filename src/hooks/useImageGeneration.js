@@ -81,8 +81,12 @@ export const useImageGeneration = ({
             throw new Error('No active API key available');
           }
 
-          // Basic API parameters - only using essential parameters
-          const parameters = {
+          // Only include essential parameters for hyper and prelar models
+          const parameters = model === 'fluxDev' || model === 'preLar' ? {
+            seed: actualSeed,
+            width: finalWidth,
+            height: finalHeight
+          } : {
             seed: actualSeed,
             width: finalWidth,
             height: finalHeight,
