@@ -64,7 +64,6 @@ export const useImageGeneration = ({
 
       const finalStyle = modelConfigs[model]?.category === "NSFW" ? 'N/A' : (style || 'N/A');
 
-      // Update the generating images state with the privacy flag
       setGeneratingImages(prev => [...prev, { 
         id: generationId, 
         width: finalWidth, 
@@ -142,8 +141,8 @@ export const useImageGeneration = ({
             
           if (uploadError) throw uploadError;
 
-          // Explicitly set is_private in the database record
-          const { error: insertError } = await supabase
+          // Insert the image record with explicit privacy setting
+          const { data: insertData, error: insertError } = await supabase
             .from('user_images')
             .insert([{
               user_id: session.user.id,
@@ -156,12 +155,20 @@ export const useImageGeneration = ({
               quality,
               style: finalStyle,
               aspect_ratio: finalAspectRatio,
-              is_private: isPrivate // Ensure this is explicitly set
-            }]);
+              is_private: isPrivate
+            }])
+            .select()
+            .single();
 
           if (insertError) {
             console.error('Error inserting image record:', insertError);
             throw insertError;
+          }
+
+          // Verify the insert was successful and the privacy flag was set
+          if (!insertData || insertData.is_private !== isPrivate) {
+            console.error('Privacy flag mismatch:', { expected: isPrivate, actual: insertData?.is_private });
+            throw new Error('Failed to set image privacy correctly');
           }
 
           setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
