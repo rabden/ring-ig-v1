@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Download, Trash2, Wand2, Copy, Share2, Check, Eye, EyeOff } from "lucide-react";
+import { Download, Trash2, Wand2, Copy, Share2, Check } from "lucide-react";
 import { toast } from 'sonner';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
@@ -10,10 +10,11 @@ import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import ProfileAvatar from './profile/ProfileAvatar';
 import LikeButton from './LikeButton';
 import { useLikes } from '@/hooks/useLikes';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { getCleanPrompt } from '@/utils/promptUtils';
 import TruncatablePrompt from './TruncatablePrompt';
+import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -33,7 +34,6 @@ const MobileImageDrawer = ({
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
-  const queryClient = useQueryClient();
   
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],
@@ -61,25 +61,6 @@ const MobileImageDrawer = ({
   });
   
   if (!image) return null;
-
-  const handleTogglePrivacy = async () => {
-    if (!image?.id) return;
-    
-    try {
-      const { error } = await supabase
-        .from('user_images')
-        .update({ is_private: !image.is_private })
-        .eq('id', image.id);
-
-      if (error) throw error;
-
-      queryClient.invalidateQueries(['userImages']);
-      toast.success(`Image is now ${!image.is_private ? 'private' : 'public'}`);
-    } catch (error) {
-      console.error('Error updating image privacy:', error);
-      toast.error('Failed to update image privacy');
-    }
-  };
 
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
@@ -132,34 +113,17 @@ const MobileImageDrawer = ({
                 <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
                 <span className="text-sm font-medium">{owner?.display_name}</span>
               </div>
-              <div className="flex items-center gap-1">
-                <LikeButton 
-                  isLiked={userLikes?.includes(image.id)} 
-                  onToggle={() => toggleLike(image.id)} 
-                />
-                <span className="text-xs text-muted-foreground">{likeCount}</span>
+              <div className="flex items-center gap-2">
+                <ImagePrivacyToggle image={image} isOwner={isOwner} />
+                <div className="flex items-center gap-1">
+                  <LikeButton 
+                    isLiked={userLikes?.includes(image.id)} 
+                    onToggle={() => toggleLike(image.id)} 
+                  />
+                  <span className="text-xs text-muted-foreground">{likeCount}</span>
+                </div>
               </div>
             </div>
-
-            {isOwner && (
-              <Button 
-                variant="outline" 
-                className="w-full" 
-                onClick={handleTogglePrivacy}
-              >
-                {image.is_private ? (
-                  <>
-                    <EyeOff className="mr-2 h-4 w-4" />
-                    Private
-                  </>
-                ) : (
-                  <>
-                    <Eye className="mr-2 h-4 w-4" />
-                    Public
-                  </>
-                )}
-              </Button>
-            )}
 
             <div>
               <div className="flex items-center justify-between mb-3">
