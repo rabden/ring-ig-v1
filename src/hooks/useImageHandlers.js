@@ -61,9 +61,11 @@ export const useImageHandlers = ({
     setWidth(image.width);
     setHeight(image.height);
 
+    // Check if the original image was made with a pro model
     const isProModel = modelConfigs?.[image.model]?.isPremium;
     const isNsfwModel = modelConfigs?.[image.model]?.category === "NSFW";
 
+    // Set model based on NSFW status and pro status
     if (isNsfwModel) {
       setModel('nsfwMaster');
       setSteps(modelConfigs?.['nsfwMaster']?.defaultStep || 30);
@@ -75,9 +77,8 @@ export const useImageHandlers = ({
       setSteps(image.steps);
     }
 
-    if (typeof setStyle === 'function') {
-      setStyle(null);
-    }
+    // Always reset style to null when remixing
+    setStyle(null);
 
     if (image.quality === 'HD+' && !isPro) {
       setQuality('HD');
