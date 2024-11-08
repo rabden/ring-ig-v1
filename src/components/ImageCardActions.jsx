@@ -61,7 +61,7 @@ const ImageCardActions = ({
             <DropdownMenuItem onClick={() => onRemix(image)}>
               Remix
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onViewDetails(false)}>
+            <DropdownMenuItem onClick={() => onViewDetails(true)}>
               View Details
             </DropdownMenuItem>
           </DropdownMenuContent>
