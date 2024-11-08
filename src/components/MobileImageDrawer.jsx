@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Download, Trash2, Wand2, Copy, Share2, Check } from "lucide-react";
+import { Download, Trash2, Copy, Share2, Check } from "lucide-react";
 import { toast } from 'sonner';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
@@ -21,11 +21,8 @@ const MobileImageDrawer = ({
   onOpenChange, 
   image, 
   onDownload, 
-  onDiscard, 
-  onRemix, 
+  onDiscard,
   isOwner,
-  setActiveTab,
-  setStyle,
   showFullImage = false
 }) => {
   const { session } = useSupabaseAuth();
@@ -74,13 +71,6 @@ const MobileImageDrawer = ({
     setShareIcon('check');
     toast.success('Share link copied to clipboard');
     setTimeout(() => setShareIcon('share'), 1500);
-  };
-
-  const handleRemixClick = () => {
-    onRemix(image);
-    setStyle(image.style);
-    setActiveTab('input');
-    onOpenChange(false);
   };
 
   const detailItems = [
@@ -151,10 +141,6 @@ const MobileImageDrawer = ({
                   Discard
                 </Button>
               )}
-              <Button variant="ghost" size="sm" className="flex-1" onClick={handleRemixClick}>
-                <Wand2 className="mr-2 h-4 w-4" />
-                Remix
-              </Button>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

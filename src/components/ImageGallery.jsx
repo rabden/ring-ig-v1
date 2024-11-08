@@ -18,16 +18,12 @@ const ImageGallery = ({
   onImageClick, 
   onDownload, 
   onDiscard, 
-  onRemix, 
   onViewDetails, 
   activeView, 
   generatingImages = [], 
   nsfwEnabled,
   activeFilters = {},
   searchQuery = '',
-  setActiveTab,
-  setStyle,
-  style,
   showPrivate
 }) => {
   const { userLikes, toggleLike } = useLikes(userId);
@@ -95,16 +91,12 @@ const ImageGallery = ({
           onImageClick={() => onImageClick(image)}
           onDownload={onDownload}
           onDiscard={onDiscard}
-          onRemix={onRemix}
           onViewDetails={onViewDetails}
           onMoreClick={handleMobileMoreClick}
           userId={userId}
           isMobile={isMobile}
           isLiked={userLikes.includes(image.id)}
           onToggleLike={toggleLike}
-          setActiveTab={setActiveTab}
-          setStyle={setStyle}
-          style={style}
         />
       </div>
     ));

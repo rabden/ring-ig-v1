@@ -14,7 +14,6 @@ const ImageCardActions = ({
   onViewDetails,
   onDownload,
   onDiscard,
-  onRemix,
   userId
 }) => {
   const handleMoreClick = (e) => {
@@ -27,7 +26,6 @@ const ImageCardActions = ({
   const handleViewDetails = (e) => {
     e.stopPropagation();
     if (!isMobile) {
-      // For desktop, trigger the details dialog
       onViewDetails(image, false);
     }
   };
@@ -66,9 +64,6 @@ const ImageCardActions = ({
                 Discard
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem onClick={() => onRemix(image)}>
-              Remix
-            </DropdownMenuItem>
             <DropdownMenuItem onClick={handleViewDetails}>
               View Details
             </DropdownMenuItem>

@@ -35,7 +35,6 @@ function App() {
                   <Route path="/" element={<ImageGenerator />} />
                   <Route path="/docs" element={<Documentation />} />
                   <Route path="/image/:imageId" element={<SingleImageView />} />
-                  <Route path="/remix/:imageId" element={<ImageGenerator />} />
                 </Routes>
                 <Toaster />
               </BrowserRouter>

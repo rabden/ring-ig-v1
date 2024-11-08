@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
-import { Download, Trash2, RefreshCw, ArrowLeft } from "lucide-react";
+import { Download, Trash2, ArrowLeft } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
@@ -23,10 +23,7 @@ const FullScreenImageView = ({
   onClose,
   onDownload,
   onDiscard,
-  onRemix,
-  isOwner,
-  setStyle,
-  setActiveTab 
+  isOwner
 }) => {
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
@@ -74,13 +71,6 @@ const FullScreenImageView = ({
     setShareIcon('check');
     toast.success('Share link copied to clipboard');
     setTimeout(() => setShareIcon('share'), 1500);
-  };
-
-  const handleRemix = () => {
-    onRemix(image);
-    setStyle(image.style);
-    setActiveTab('input');
-    onClose();
   };
 
   const detailItems = [
@@ -157,10 +147,6 @@ const FullScreenImageView = ({
                           Discard
                         </Button>
                       )}
-                      <Button onClick={handleRemix} className="flex-1" variant="ghost" size="sm">
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        Remix
-                      </Button>
                     </div>
                   )}
 
