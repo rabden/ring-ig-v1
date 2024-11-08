@@ -139,6 +139,7 @@ export const useImageGeneration = ({
             .upload(filePath, imageBlob);
           if (uploadError) throw uploadError;
 
+          // Explicitly set is_private in the database insert
           const { error: insertError } = await supabase
             .from('user_images')
             .insert({
@@ -152,7 +153,7 @@ export const useImageGeneration = ({
               quality,
               style: finalStyle,
               aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
-              is_private: isPrivate
+              is_private: isPrivate // Ensure this is explicitly set
             });
           if (insertError) throw insertError;
 
