@@ -56,9 +56,9 @@ const MobileImageDrawer = ({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="h-[95vh]">
-        <div className="mx-auto w-12 h-1 flex-shrink-0 rounded-full bg-muted mt-4 mb-4" />
-        <ScrollArea className="h-full px-4 pb-8">
+      <DrawerContent className="h-[100vh] bg-background">
+        <div className="mx-auto w-12 h-1 flex-shrink-0 rounded-full bg-muted mt-4 mb-2" />
+        <ScrollArea className="h-[calc(100vh-24px)] px-4 pb-8">
           {showFullImage && (
             <div className="relative rounded-lg overflow-hidden mb-6">
               <img
@@ -82,7 +82,7 @@ const MobileImageDrawer = ({
                   </Button>
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md break-words">
+              <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md break-words">
                 {image.user_prompt || image.prompt}
               </p>
             </div>
@@ -107,25 +107,25 @@ const MobileImageDrawer = ({
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <p className="text-sm font-medium text-muted-foreground">Model</p>
-                <Badge variant="outline" className="text-xs sm:text-sm font-normal">
+                <Badge variant="secondary" className="text-xs sm:text-sm font-normal">
                   {modelConfigs?.[image.model]?.name || image.model}
                 </Badge>
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium text-muted-foreground">Style</p>
-                <Badge variant="outline" className="text-xs sm:text-sm font-normal">
+                <Badge variant="secondary" className="text-xs sm:text-sm font-normal">
                   {styleConfigs?.[image.style]?.name || "General"}
                 </Badge>
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium text-muted-foreground">Size</p>
-                <Badge variant="outline" className="text-xs sm:text-sm font-normal">
+                <Badge variant="secondary" className="text-xs sm:text-sm font-normal">
                   {image.width}x{image.height}
                 </Badge>
               </div>
               <div className="space-y-1">
                 <p className="text-sm font-medium text-muted-foreground">Quality</p>
-                <Badge variant="outline" className="text-xs sm:text-sm font-normal">
+                <Badge variant="secondary" className="text-xs sm:text-sm font-normal">
                   {image.quality}
                 </Badge>
               </div>

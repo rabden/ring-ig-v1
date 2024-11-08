@@ -13,13 +13,14 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="h-[50vh]">
-        <DrawerHeader className="border-b">
+      <DrawerContent className="h-[100vh] bg-background">
+        <div className="mx-auto w-12 h-1 flex-shrink-0 rounded-full bg-muted mt-4 mb-2" />
+        <DrawerHeader className="border-b border-border/30 pb-4 pt-0">
           <DrawerTitle>Generating Images</DrawerTitle>
         </DrawerHeader>
-        <div className="px-4 py-4 space-y-4 overflow-y-auto scrollbar-thin scrollbar-thumb-secondary scrollbar-track-transparent">
+        <ScrollArea className="h-[calc(100vh-100px)] px-4 py-4 space-y-4">
           {generatingImages.map((img) => (
-            <div key={img.id} className="flex flex-col gap-2 p-4 border rounded-lg">
+            <div key={img.id} className="flex flex-col gap-2 p-4 border border-border/30 rounded-lg bg-muted/30">
               <div className="flex items-center gap-2">
                 <Loader className="w-4 h-4 animate-spin" />
                 <span className="font-medium">Generating...</span>
@@ -43,7 +44,7 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
               </div>
             </div>
           ))}
-        </div>
+        </ScrollArea>
       </DrawerContent>
     </Drawer>
   );
