@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { toast } from 'sonner';
 
 const NotificationContext = createContext();
 
@@ -121,11 +122,17 @@ export const NotificationProvider = ({ children }) => {
   const hideGlobalNotification = async (notificationId) => {
     try {
       // Get current profile data
-      const { data: profile } = await supabase
+      const { data: profile, error: fetchError } = await supabase
         .from('profiles')
         .select('hidden_global_notifications')
         .eq('id', session.user.id)
         .single();
+
+      if (fetchError) {
+        console.error('Error fetching profile:', fetchError);
+        toast.error('Failed to hide notification');
+        return;
+      }
 
       // Parse existing hidden IDs
       const currentHidden = (profile?.hidden_global_notifications || '')
@@ -137,18 +144,24 @@ export const NotificationProvider = ({ children }) => {
       if (!currentHidden.includes(notificationId.toString())) {
         const newHidden = [...currentHidden, notificationId.toString()].join(',');
 
-        const { error } = await supabase
+        const { error: updateError } = await supabase
           .from('profiles')
           .update({ hidden_global_notifications: newHidden })
           .eq('id', session.user.id);
 
-        if (!error) {
-          setGlobalNotifications(prev => prev.filter(n => n.id !== notificationId));
-          setUnreadCount(prev => Math.max(0, prev - 1));
+        if (updateError) {
+          console.error('Error updating hidden notifications:', updateError);
+          toast.error('Failed to hide notification');
+          return;
         }
+
+        setGlobalNotifications(prev => prev.filter(n => n.id !== notificationId));
+        setUnreadCount(prev => Math.max(0, prev - 1));
+        toast.success('Notification hidden successfully');
       }
     } catch (error) {
       console.error('Error hiding global notification:', error);
+      toast.error('Failed to hide notification');
     }
   };
 
