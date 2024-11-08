@@ -120,7 +120,7 @@ export const NotificationProvider = ({ children }) => {
 
   const hideGlobalNotification = async (notificationId) => {
     try {
-      // Get current hidden notifications
+      // Get current profile data
       const { data: profile } = await supabase
         .from('profiles')
         .select('hidden_global_notifications')
