@@ -63,10 +63,9 @@ export const useImageGeneration = ({
         maxDimension
       );
 
-      // Set default style to 'N/A' if not specified or if NSFW model
       const finalStyle = modelConfigs[model]?.category === "NSFW" ? 'N/A' : (style || 'N/A');
 
-      // Add the private flag to the generating images state
+      // Update generating images state with is_private flag
       setGeneratingImages(prev => [...prev, { 
         id: generationId, 
         width: finalWidth, 
@@ -74,7 +73,7 @@ export const useImageGeneration = ({
         prompt: modifiedPrompt,
         model,
         style: finalStyle,
-        is_private: isPrivate // Ensure is_private is included in the state
+        is_private: isPrivate
       }]);
 
       const makeRequest = async (needNewKey = false) => {
@@ -146,10 +145,10 @@ export const useImageGeneration = ({
             .upload(filePath, imageBlob);
           if (uploadError) throw uploadError;
 
-          // Insert the image record with the correct is_private flag
+          // Insert image record with explicit is_private flag
           const { error: insertError } = await supabase
             .from('user_images')
-            .insert({
+            .insert([{
               user_id: session.user.id,
               storage_path: filePath,
               prompt: modifiedPrompt,
@@ -160,8 +159,9 @@ export const useImageGeneration = ({
               quality,
               style: finalStyle,
               aspect_ratio: finalAspectRatio,
-              is_private: isPrivate // Explicitly set the is_private flag
-            });
+              is_private: isPrivate
+            }]);
+
           if (insertError) throw insertError;
 
           setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
