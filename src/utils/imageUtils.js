@@ -1,4 +1,4 @@
-import { qualityOptions, aspectRatios } from '@/utils/imageConfigs';
+import { qualityOptions, aspectRatios, findClosestAspectRatio } from '@/utils/imageConfigs';
 import { styleConfig } from '@/config/styleConfig';
 
 export const makeDivisibleBy16 = (num) => Math.floor(num / 16) * 16;
@@ -22,9 +22,13 @@ export const calculateDimensions = (useAspectRatio, aspectRatio, width, height, 
     finalHeight = Math.min(maxDimension, height);
   }
 
+  finalWidth = makeDivisibleBy16(finalWidth);
+  finalHeight = makeDivisibleBy16(finalHeight);
+
   return {
-    width: makeDivisibleBy16(finalWidth),
-    height: makeDivisibleBy16(finalHeight)
+    width: finalWidth,
+    height: finalHeight,
+    aspectRatio: useAspectRatio ? aspectRatio : findClosestAspectRatio(finalWidth, finalHeight)
   };
 };
 
