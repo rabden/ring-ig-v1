@@ -65,7 +65,6 @@ export const useImageGeneration = ({
 
       const finalStyle = modelConfigs[model]?.category === "NSFW" ? 'N/A' : (style || 'N/A');
 
-      // Update generating images state with is_private flag
       setGeneratingImages(prev => [...prev, { 
         id: generationId, 
         width: finalWidth, 
@@ -139,23 +138,31 @@ export const useImageGeneration = ({
             throw new Error('Generated image is empty or invalid');
           }
 
-          const filePath = `${session.user.id}/${Date.now()}.png`;
+          const timestamp = Date.now();
+          const filePath = `${session.user.id}/${timestamp}.png`;
+          
           const { error: uploadError } = await supabase.storage
             .from('user-images')
             .upload(filePath, imageBlob);
+            
           if (uploadError) throw uploadError;
 
-          // Insert image record with explicit is_private flag
+          const { data: { publicUrl } } = supabase.storage
+            .from('user-images')
+            .getPublicUrl(filePath);
+
           const { error: insertError } = await supabase
             .from('user_images')
             .insert([{
               user_id: session.user.id,
               storage_path: filePath,
+              image_url: publicUrl,
               prompt: modifiedPrompt,
               seed: actualSeed,
               width: finalWidth,
               height: finalHeight,
               model,
+              steps: steps || modelConfig?.defaultStep || 30,
               quality,
               style: finalStyle,
               aspect_ratio: finalAspectRatio,
