@@ -68,14 +68,24 @@ export const useImageHandlers = ({
       // For NSFW images, always use nsfwMaster for non-pro users
       setModel('nsfwMaster');
       setSteps(modelConfigs['nsfwMaster']?.defaultStep || 30);
+      // NSFW models should never have styles
+      if (typeof setStyle === 'function') {
+        setStyle(null);
+      }
     } else if (isProModel && !isPro) {
       // For non-NSFW pro models, fallback to turbo for non-pro users
       setModel('turbo');
       setSteps(modelConfigs['turbo']?.defaultStep || 4);
+      if (typeof setStyle === 'function') {
+        setStyle(null);
+      }
     } else {
       // Keep the original model if user has access to it
       setModel(image.model);
       setSteps(image.steps);
+      if (typeof setStyle === 'function') {
+        setStyle(image.style);
+      }
     }
 
     if (image.quality === 'HD+' && !isPro) {
@@ -92,9 +102,6 @@ export const useImageHandlers = ({
       setAspectRatio(image.aspect_ratio);
       setUseAspectRatio(image.aspect_ratio in aspectRatios);
     }
-
-    // Always set style to null when remixing
-    setStyle(null);
   }
 
   const handleDownload = async (imageUrl, prompt) => {
