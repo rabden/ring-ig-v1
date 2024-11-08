@@ -48,6 +48,11 @@ const ImageGallery = ({
     searchQuery
   });
 
+  // Scroll to top when view changes or filters update
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [activeView, activeFilters, searchQuery, showPrivate]);
+
   const observer = useRef();
   const lastImageRef = useCallback(node => {
     if (isLoading || isFetchingNextPage) return;
