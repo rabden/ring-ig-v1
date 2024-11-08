@@ -29,11 +29,6 @@ const FullScreenImageView = ({
   setActiveTab,
   hideUserInfo = false
 }) => {
-  // Early return if no image is provided
-  if (!image) {
-    return null;
-  }
-
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
@@ -76,7 +71,7 @@ const FullScreenImageView = ({
 
   const handleDiscard = async () => {
     try {
-      await onDiscard(image);
+      await onDiscard(image);  // Pass the entire image object
       onClose();
     } catch (error) {
       toast.error(`Error deleting image: ${error.message}`);
@@ -132,7 +127,7 @@ const FullScreenImageView = ({
                             isLiked={userLikes?.includes(image.id)} 
                             onToggle={() => toggleLike(image.id)} 
                           />
-                          <span className="text-xs text-muted-foreground">{image.like_count}</span>
+                          <span className="text-xs text-muted-foreground">{likeCount}</span>
                         </div>
                       </div>
                     </div>
