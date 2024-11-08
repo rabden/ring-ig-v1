@@ -14,6 +14,7 @@ import { useLikes } from '@/hooks/useLikes';
 import { useQuery } from '@tanstack/react-query';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { getCleanPrompt } from '@/utils/promptUtils';
+import TruncatablePrompt from '../TruncatablePrompt';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -133,9 +134,9 @@ const MobileImageDrawer = ({
                   </Button>
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md break-words">
-                {getCleanPrompt(image.user_prompt || image.prompt, image.style)}
-              </p>
+              <TruncatablePrompt 
+                prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)} 
+              />
             </div>
             
             <div className="flex gap-2 justify-between">

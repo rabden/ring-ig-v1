@@ -3,18 +3,27 @@ import { cn } from "@/lib/utils";
 
 const TruncatablePrompt = ({ prompt, className }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const shouldTruncate = prompt.length > 150;
 
   return (
-    <p 
-      onClick={() => setIsExpanded(!isExpanded)} 
-      className={cn(
-        "text-sm text-muted-foreground bg-secondary p-3 rounded-md break-words cursor-pointer transition-all",
-        !isExpanded && "line-clamp-3",
-        className
+    <div className={cn("relative", className)}>
+      <p 
+        className={cn(
+          "text-sm text-muted-foreground bg-secondary p-3 rounded-md break-words transition-all duration-200",
+          !isExpanded && shouldTruncate && "line-clamp-3"
+        )}
+      >
+        {prompt}
+      </p>
+      {shouldTruncate && (
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="text-xs text-primary hover:underline mt-1 font-medium"
+        >
+          {isExpanded ? "Less" : "More"}
+        </button>
       )}
-    >
-      {prompt}
-    </p>
+    </div>
   );
 };
 
