@@ -57,13 +57,16 @@ export const useImageGeneration = ({
       const maxDimension = qualityOptions[quality];
       const { width: finalWidth, height: finalHeight } = calculateDimensions(useAspectRatio, aspectRatio, width, height, maxDimension);
 
+      // Set default style to 'general' if not specified and not NSFW
+      const finalStyle = modelConfigs[model]?.category === "NSFW" ? null : (style || 'general');
+
       setGeneratingImages(prev => [...prev, { 
         id: generationId, 
         width: finalWidth, 
         height: finalHeight,
         prompt: modifiedPrompt,
         model,
-        style: modelConfigs[model]?.category === "NSFW" ? null : style,
+        style: finalStyle,
         is_private: isPrivate
       }]);
 
@@ -136,7 +139,7 @@ export const useImageGeneration = ({
               height: finalHeight,
               model,
               quality,
-              style: modelConfigs[model]?.category === "NSFW" ? null : (style || 'general'),
+              style: finalStyle,
               aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
               is_private: isPrivate
             });
