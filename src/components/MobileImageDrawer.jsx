@@ -91,7 +91,7 @@ const MobileImageDrawer = ({
                   </Button>
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-md break-words">
+              <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md break-words">
                 {image.user_prompt || image.prompt}
               </p>
             </div>
@@ -113,7 +113,7 @@ const MobileImageDrawer = ({
               </Button>
             </div>
 
-            <div className="grid grid-cols-1 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               {detailItems.map((item, index) => (
                 <div key={index} className="space-y-1">
                   <p className="text-sm font-medium text-muted-foreground">{item.label}</p>

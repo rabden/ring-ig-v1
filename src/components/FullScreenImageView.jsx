@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Download, Trash2, RefreshCw, Copy, Share2, Check, ArrowLeft } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
@@ -111,54 +112,52 @@ const FullScreenImageView = ({
             <div className="bg-card h-[calc(100vh-32px)] rounded-lg border shadow-sm">
               <ScrollArea className="h-full">
                 <div className="p-6 space-y-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">Image Details</h3>
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-lg font-semibold">Prompt</h3>
                       <div className="flex gap-2">
-                        <Button variant="ghost" size="icon" onClick={handleCopyPrompt}>
+                        <Button variant="ghost" size="sm" onClick={handleCopyPrompt}>
                           {copyIcon === 'copy' ? <Copy className="h-4 w-4" /> : <Check className="h-4 w-4" />}
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={handleShare}>
+                        <Button variant="ghost" size="sm" onClick={handleShare}>
                           {shareIcon === 'share' ? <Share2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
                         </Button>
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">{image.user_prompt || image.prompt}</p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium">Settings</h4>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      {detailItems.map((item, index) => (
-                        <React.Fragment key={index}>
-                          <div>{item.label}:</div>
-                          <div className="text-muted-foreground">{item.value}</div>
-                        </React.Fragment>
-                      ))}
-                    </div>
+                    <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md break-words">
+                      {image.user_prompt || image.prompt}
+                    </p>
                   </div>
 
                   {session && (
-                    <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Actions</h4>
-                      <div className="grid grid-cols-1 gap-2">
-                        <Button onClick={handleDownload} className="w-full" variant="outline">
-                          <Download className="mr-2 h-4 w-4" />
-                          Download
+                    <div className="flex gap-2 justify-between">
+                      <Button onClick={handleDownload} className="flex-1" variant="ghost" size="sm">
+                        <Download className="mr-2 h-4 w-4" />
+                        Download
+                      </Button>
+                      {isOwner && (
+                        <Button onClick={handleDiscard} className="flex-1 text-destructive hover:text-destructive" variant="ghost" size="sm">
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Discard
                         </Button>
-                        {isOwner && (
-                          <Button onClick={handleDiscard} className="w-full" variant="destructive">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Discard
-                          </Button>
-                        )}
-                        <Button onClick={handleRemixClick} className="w-full" variant="outline">
-                          <RefreshCw className="mr-2 h-4 w-4" />
-                          Remix
-                        </Button>
-                      </div>
+                      )}
+                      <Button onClick={handleRemixClick} className="flex-1" variant="ghost" size="sm">
+                        <RefreshCw className="mr-2 h-4 w-4" />
+                        Remix
+                      </Button>
                     </div>
                   )}
+
+                  <div className="grid grid-cols-2 gap-3">
+                    {detailItems.map((item, index) => (
+                      <div key={index} className="space-y-1">
+                        <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
+                        <Badge variant="secondary" className="text-xs sm:text-sm font-normal w-full justify-center">
+                          {item.value}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </ScrollArea>
             </div>
