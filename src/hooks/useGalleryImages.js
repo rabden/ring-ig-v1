@@ -1,5 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
+
+const ITEMS_PER_PAGE = 20;
 
 export const useGalleryImages = ({
   userId,
@@ -9,15 +11,22 @@ export const useGalleryImages = ({
   activeFilters = {},
   searchQuery = ''
 }) => {
-  const { data: images, isLoading } = useQuery({
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteQuery({
     queryKey: ['galleryImages', userId, activeView, nsfwEnabled, showPrivate, activeFilters, searchQuery],
-    queryFn: async () => {
-      if (!userId) return [];
+    queryFn: async ({ pageParam = 0 }) => {
+      if (!userId) return { data: [], nextPage: null };
 
       let query = supabase
         .from('user_images')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false })
+        .range(pageParam * ITEMS_PER_PAGE, (pageParam + 1) * ITEMS_PER_PAGE - 1);
 
       // Filter by NSFW content
       const nsfwModels = ['nsfwMaster', 'animeNsfw'];
@@ -56,13 +65,27 @@ export const useGalleryImages = ({
         query = query.ilike('prompt', `%${searchQuery}%`);
       }
 
-      const { data, error } = await query;
+      const { data, error, count } = await query;
       
       if (error) throw error;
-      return data || [];
+
+      const hasMore = (pageParam + 1) * ITEMS_PER_PAGE < count;
+      return {
+        data: data || [],
+        nextPage: hasMore ? pageParam + 1 : null,
+        count
+      };
     },
-    enabled: !!userId,
+    getNextPageParam: (lastPage) => lastPage.nextPage,
   });
 
-  return { images, isLoading };
+  const images = data?.pages.flatMap(page => page.data) || [];
+
+  return { 
+    images, 
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  };
 };

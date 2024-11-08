@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import Masonry from 'react-masonry-css';
 import SkeletonImageCard from './SkeletonImageCard';
 import ImageCard from './ImageCard';
@@ -33,7 +33,13 @@ const ImageGallery = ({
   const { userLikes, toggleLike } = useLikes(userId);
   const isMobile = window.innerWidth <= 768;
   
-  const { images, isLoading } = useGalleryImages({
+  const { 
+    images, 
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage 
+  } = useGalleryImages({
     userId,
     activeView,
     nsfwEnabled,
@@ -42,6 +48,21 @@ const ImageGallery = ({
     searchQuery
   });
 
+  const observer = useRef();
+  const lastImageRef = useCallback(node => {
+    if (isLoading || isFetchingNextPage) return;
+    
+    if (observer.current) observer.current.disconnect();
+    
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasNextPage) {
+        fetchNextPage();
+      }
+    });
+    
+    if (node) observer.current.observe(node);
+  }, [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage]);
+
   const handleMobileMoreClick = (image) => {
     if (isMobile) {
       onViewDetails(image);
@@ -49,7 +70,7 @@ const ImageGallery = ({
   };
 
   const renderContent = () => {
-    if (isLoading) {
+    if (isLoading && !images.length) {
       return Array.from({ length: 8 }).map((_, index) => (
         <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
       ));
@@ -59,35 +80,46 @@ const ImageGallery = ({
       return [<NoResults key="no-results" />];
     }
     
-    return images.map((image) => (
-      <ImageCard
+    return images.map((image, index) => (
+      <div
         key={image.id}
-        image={image}
-        onImageClick={() => onImageClick(image)}
-        onDownload={onDownload}
-        onDiscard={onDiscard}
-        onRemix={onRemix}
-        onViewDetails={onViewDetails}
-        onMoreClick={handleMobileMoreClick}
-        userId={userId}
-        isMobile={isMobile}
-        isLiked={userLikes.includes(image.id)}
-        onToggleLike={toggleLike}
-        setActiveTab={setActiveTab}
-        setStyle={setStyle}
-        style={style}
-      />
+        ref={index === images.length - 1 ? lastImageRef : null}
+      >
+        <ImageCard
+          image={image}
+          onImageClick={() => onImageClick(image)}
+          onDownload={onDownload}
+          onDiscard={onDiscard}
+          onRemix={onRemix}
+          onViewDetails={onViewDetails}
+          onMoreClick={handleMobileMoreClick}
+          userId={userId}
+          isMobile={isMobile}
+          isLiked={userLikes.includes(image.id)}
+          onToggleLike={toggleLike}
+          setActiveTab={setActiveTab}
+          setStyle={setStyle}
+          style={style}
+        />
+      </div>
     ));
   };
 
   return (
-    <Masonry
-      breakpointCols={breakpointColumnsObj}
-      className="flex w-auto md:px-2 -mx-1 md:mx-0"
-      columnClassName="bg-clip-padding px-1 md:px-2"
-    >
-      {renderContent()}
-    </Masonry>
+    <>
+      <Masonry
+        breakpointCols={breakpointColumnsObj}
+        className="flex w-auto md:px-2 -mx-1 md:mx-0"
+        columnClassName="bg-clip-padding px-1 md:px-2"
+      >
+        {renderContent()}
+      </Masonry>
+      {isFetchingNextPage && (
+        <div className="flex justify-center my-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      )}
+    </>
   );
 };
 
