@@ -72,9 +72,14 @@ export const useImageGeneration = ({
 
       const makeRequest = async (needNewKey = false) => {
         try {
-          const { data: apiKeyData, error: apiKeyError } = await supabase.rpc('get_random_huggingface_api_key', {
-            exclude_key: needNewKey ? apiKeyData : null
-          });
+          // Get API key from huggingface_api_keys table directly instead of using RPC
+          const { data: apiKeyData, error: apiKeyError } = await supabase
+            .from('huggingface_api_keys')
+            .select('api_key')
+            .eq('is_active', true)
+            .order('last_used_at', { ascending: true })
+            .limit(1)
+            .single();
           
           if (apiKeyError) {
             setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
@@ -86,6 +91,12 @@ export const useImageGeneration = ({
             toast.error('No active API key available');
             throw new Error('No active API key available');
           }
+
+          // Update last_used_at timestamp
+          await supabase
+            .from('huggingface_api_keys')
+            .update({ last_used_at: new Date().toISOString() })
+            .eq('api_key', apiKeyData.api_key);
 
           const parameters = model === 'fluxDev' || model === 'preLar' ? {
             seed: actualSeed,
@@ -100,7 +111,7 @@ export const useImageGeneration = ({
 
           const response = await fetch(modelConfig?.apiUrl, {
             headers: {
-              Authorization: `Bearer ${apiKeyData}`,
+              Authorization: `Bearer ${apiKeyData.api_key}`,
               "Content-Type": "application/json",
               "x-wait-for-model": "true"
             },
