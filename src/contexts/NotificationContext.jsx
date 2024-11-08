@@ -38,7 +38,10 @@ export const NotificationProvider = ({ children }) => {
 
       // Filter out hidden global notifications
       const visibleGlobalNotifications = (allGlobalNotifications || [])
-        .filter(n => !n.hidden_by?.includes(session.user.id));
+        .filter(n => {
+          const hiddenUsers = (n.hidden_by || '').split(',').filter(Boolean);
+          return !hiddenUsers.includes(session.user.id);
+        });
 
       setNotifications(userNotifications || []);
       setGlobalNotifications(visibleGlobalNotifications);
@@ -123,8 +126,7 @@ export const NotificationProvider = ({ children }) => {
       }
 
       // Parse current hidden_by and add new user ID
-      const hiddenBy = notification.hidden_by || '';
-      const hiddenUsers = hiddenBy.split(',').filter(Boolean);
+      const hiddenUsers = (notification.hidden_by || '').split(',').filter(Boolean);
       
       if (!hiddenUsers.includes(session.user.id)) {
         hiddenUsers.push(session.user.id);
