@@ -12,33 +12,43 @@ export const useGalleryImages = ({
   const { data: images, isLoading } = useQuery({
     queryKey: ['galleryImages', userId, activeView, nsfwEnabled, showPrivate, activeFilters, searchQuery],
     queryFn: async () => {
+      if (!userId) return [];
+
       let query = supabase
         .from('user_images')
         .select('*')
         .order('created_at', { ascending: false });
 
-      // Filter based on active view
-      if (activeView === 'myImages' && userId) {
-        query = query.eq('user_id', userId);
+      // Filter by NSFW content
+      const nsfwModels = ['nsfwMaster', 'animeNsfw'];
+      if (nsfwEnabled) {
+        query = query.in('model', nsfwModels);
+      } else {
+        query = query.not('model', 'in', `(${nsfwModels.join(',')})`);
       }
 
-      // Handle private images
-      if (userId) {
-        // If showing private images, show user's private images and all public images
+      // Apply view-specific filters
+      if (activeView === 'myImages') {
+        query = query.eq('user_id', userId);
+        
+        // Filter private images
         if (showPrivate) {
-          query = query.or(`user_id.eq.${userId},is_private.eq.false`);
+          query = query.eq('is_private', true);
         } else {
-          // If not showing private images, only show public images
           query = query.eq('is_private', false);
         }
-      } else {
-        // For non-logged in users, only show public images
-        query = query.eq('is_private', false);
+      } else if (activeView === 'inspiration') {
+        query = query
+          .neq('user_id', userId)
+          .eq('is_private', false);
       }
 
-      // Apply NSFW filter if needed
-      if (!nsfwEnabled) {
-        query = query.neq('model', 'nsfwMaster');
+      // Apply style and model filters if present
+      if (activeFilters.style) {
+        query = query.eq('style', activeFilters.style);
+      }
+      if (activeFilters.model) {
+        query = query.eq('model', activeFilters.model);
       }
 
       // Apply search filter if present
@@ -46,22 +56,12 @@ export const useGalleryImages = ({
         query = query.ilike('prompt', `%${searchQuery}%`);
       }
 
-      // Apply active filters
-      Object.entries(activeFilters).forEach(([key, value]) => {
-        if (value) {
-          query = query.eq(key, value);
-        }
-      });
-
       const { data, error } = await query;
       
-      if (error) {
-        console.error('Error fetching images:', error);
-        return [];
-      }
-
+      if (error) throw error;
       return data || [];
-    }
+    },
+    enabled: !!userId,
   });
 
   return { images, isLoading };
