@@ -33,7 +33,7 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
   ];
 
   const handleCopyPrompt = async () => {
-    await navigator.clipboard.writeText(image.user_prompt || image.prompt);
+    await navigator.clipboard.writeText(image.user_prompt);
     setCopyIcon('check');
     toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
@@ -66,7 +66,7 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
                   </Button>
                 </div>
               </div>
-              <TruncatablePrompt prompt={image.user_prompt || image.prompt} />
+              <TruncatablePrompt prompt={image.user_prompt} />
             </div>
             <Separator />
             <div className="grid grid-cols-2 gap-4">
