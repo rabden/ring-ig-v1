@@ -13,6 +13,7 @@ import LikeButton from './LikeButton';
 import { useLikes } from '@/hooks/useLikes';
 import { useQuery } from '@tanstack/react-query';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { getCleanPrompt } from '@/utils/promptUtils';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -61,7 +62,7 @@ const MobileImageDrawer = ({
   if (!image) return null;
 
   const handleCopyPrompt = async () => {
-    await navigator.clipboard.writeText(image.user_prompt || image.prompt);
+    await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
     setCopyIcon('check');
     toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
@@ -133,7 +134,7 @@ const MobileImageDrawer = ({
                 </div>
               </div>
               <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md break-words">
-                {image.user_prompt || image.prompt}
+                {getCleanPrompt(image.user_prompt || image.prompt, image.style)}
               </p>
             </div>
             

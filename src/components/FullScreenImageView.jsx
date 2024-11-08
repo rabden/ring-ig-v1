@@ -14,6 +14,7 @@ import { useLikes } from '@/hooks/useLikes';
 import { useQuery } from '@tanstack/react-query';
 import ImagePromptSection from './image-view/ImagePromptSection';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
+import { getCleanPrompt } from '@/utils/promptUtils';
 
 const FullScreenImageView = ({ 
   image, 
@@ -61,7 +62,7 @@ const FullScreenImageView = ({
   if (!isOpen || !image) return null;
 
   const handleCopyPrompt = async () => {
-    await navigator.clipboard.writeText(image.user_prompt || image.prompt);
+    await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
     setCopyIcon('check');
     toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
@@ -125,7 +126,8 @@ const FullScreenImageView = ({
                   </div>
 
                   <ImagePromptSection 
-                    prompt={image.user_prompt || image.prompt}
+                    prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)}
+                    style={image.style}
                     copyIcon={copyIcon}
                     shareIcon={shareIcon}
                     onCopyPrompt={handleCopyPrompt}
