@@ -3,6 +3,7 @@ import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useProUser } from '@/hooks/useProUser'
 import { toast } from 'sonner'
 import { getCleanPrompt } from '@/utils/promptUtils'
+import { aspectRatios } from '@/utils/imageConfigs'
 
 export const useImageHandlers = ({
   generateImage,
@@ -19,7 +20,6 @@ export const useImageHandlers = ({
   setAspectRatio,
   setUseAspectRatio,
   setStyle,
-  aspectRatios,
   session,
   queryClient,
   activeView,
@@ -54,18 +54,15 @@ export const useImageHandlers = ({
       return;
     }
 
-    // Clean the prompt by removing any style suffix
     setPrompt(getCleanPrompt(image.user_prompt || image.prompt, image.style));
     setSeed(image.seed);
     setRandomizeSeed(false);
     setWidth(image.width);
     setHeight(image.height);
 
-    // Check if the original image was made with a pro model
     const isProModel = modelConfigs?.[image.model]?.isPremium;
     const isNsfwModel = modelConfigs?.[image.model]?.category === "NSFW";
 
-    // Set model based on NSFW status and pro status
     if (isNsfwModel) {
       setModel('nsfwMaster');
       setSteps(modelConfigs['nsfwMaster']?.defaultStep || 30);
@@ -81,10 +78,8 @@ export const useImageHandlers = ({
     } else {
       setModel(image.model);
       setSteps(image.steps);
-      if (typeof setStyle === 'function' && (!image.style || !modelConfigs?.[image.model]?.isPremium || isPro)) {
+      if (typeof setStyle === 'function') {
         setStyle(image.style);
-      } else if (typeof setStyle === 'function') {
-        setStyle(null);
       }
     }
 
@@ -94,13 +89,21 @@ export const useImageHandlers = ({
       setQuality(image.quality);
     }
 
-    const isPremiumRatio = ['9:21', '21:9', '3:2', '2:3', '4:5', '5:4', '10:16', '16:10'].includes(image.aspect_ratio);
-    if (isPremiumRatio && !isPro) {
-      setAspectRatio('1:1');
+    // Always set the aspect ratio from the image being remixed
+    if (image.aspect_ratio && image.aspect_ratio in aspectRatios) {
+      setAspectRatio(image.aspect_ratio);
       setUseAspectRatio(true);
     } else {
-      setAspectRatio(image.aspect_ratio);
-      setUseAspectRatio(image.aspect_ratio in aspectRatios);
+      // If the image doesn't have a valid aspect ratio, calculate it from dimensions
+      const ratio = `${image.width}:${image.height}`;
+      if (ratio in aspectRatios) {
+        setAspectRatio(ratio);
+        setUseAspectRatio(true);
+      } else {
+        // Default to 1:1 if no matching aspect ratio is found
+        setAspectRatio('1:1');
+        setUseAspectRatio(true);
+      }
     }
   }
 
