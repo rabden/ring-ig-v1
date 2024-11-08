@@ -19,6 +19,7 @@ export const useImageGeneration = ({
   setGeneratingImages,
   style,
   modelConfigs,
+  steps,
   imageCount = 1
 }) => {
   const generateImage = async (isPrivate = false) => {
@@ -62,6 +63,7 @@ export const useImageGeneration = ({
         maxDimension
       );
 
+      // Set default style to 'N/A' if not specified or if NSFW model
       const finalStyle = modelConfigs[model]?.category === "NSFW" ? 'N/A' : (style || 'N/A');
 
       setGeneratingImages(prev => [...prev, { 
@@ -100,10 +102,15 @@ export const useImageGeneration = ({
             .update({ last_used_at: new Date().toISOString() })
             .eq('api_key', apiKeyData.api_key);
 
-          const parameters = {
+          const parameters = model === 'fluxDev' || model === 'preLar' ? {
             seed: actualSeed,
             width: finalWidth,
             height: finalHeight
+          } : {
+            seed: actualSeed,
+            width: finalWidth,
+            height: finalHeight,
+            num_inference_steps: steps || modelConfig?.defaultStep || 30
           };
 
           const response = await fetch(modelConfig?.apiUrl, {
@@ -132,19 +139,16 @@ export const useImageGeneration = ({
             throw new Error('Generated image is empty or invalid');
           }
 
-          const timestamp = Date.now();
-          const filePath = `${session.user.id}/${timestamp}.png`;
-          
+          const filePath = `${session.user.id}/${Date.now()}.png`;
           const { error: uploadError } = await supabase.storage
             .from('user-images')
             .upload(filePath, imageBlob);
-            
           if (uploadError) throw uploadError;
 
-          // Insert the image record with explicit privacy setting
-          const { data: insertData, error: insertError } = await supabase
+          // Explicitly set is_private in the database insert
+          const { error: insertError } = await supabase
             .from('user_images')
-            .insert([{
+            .insert({
               user_id: session.user.id,
               storage_path: filePath,
               prompt: modifiedPrompt,
@@ -155,24 +159,12 @@ export const useImageGeneration = ({
               quality,
               style: finalStyle,
               aspect_ratio: finalAspectRatio,
-              is_private: isPrivate
-            }])
-            .select()
-            .single();
-
-          if (insertError) {
-            console.error('Error inserting image record:', insertError);
-            throw insertError;
-          }
-
-          // Verify the insert was successful and the privacy flag was set
-          if (!insertData || insertData.is_private !== isPrivate) {
-            console.error('Privacy flag mismatch:', { expected: isPrivate, actual: insertData?.is_private });
-            throw new Error('Failed to set image privacy correctly');
-          }
+              is_private: isPrivate // Ensure this is explicitly set
+            });
+          if (insertError) throw insertError;
 
           setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-          toast.success(`Image generated successfully! (${isPrivate ? 'Private' : 'Public'})`);
+          toast.success('Image generated successfully!');
 
         } catch (error) {
           console.error('Error generating image:', error);

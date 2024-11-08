@@ -14,7 +14,6 @@ import { useLikes } from '@/hooks/useLikes';
 import { useQuery } from '@tanstack/react-query';
 import ImagePromptSection from './image-view/ImagePromptSection';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
-import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
 import { getCleanPrompt } from '@/utils/promptUtils';
 
 const FullScreenImageView = ({ 
@@ -76,13 +75,6 @@ const FullScreenImageView = ({
     setTimeout(() => setShareIcon('share'), 1500);
   };
 
-  const handleRemix = () => {
-    onRemix(image);
-    setStyle(image.style);
-    setActiveTab('input');
-    onClose();
-  };
-
   const detailItems = [
     { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
     { label: "Seed", value: image.seed },
@@ -124,15 +116,12 @@ const FullScreenImageView = ({
                       <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
                       <span className="text-sm font-medium">{owner?.display_name}</span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <ImagePrivacyToggle image={image} isOwner={isOwner} />
-                      <div className="flex items-center gap-1">
-                        <LikeButton 
-                          isLiked={userLikes?.includes(image.id)} 
-                          onToggle={() => toggleLike(image.id)} 
-                        />
-                        <span className="text-xs text-muted-foreground">{likeCount}</span>
-                      </div>
+                    <div className="flex items-center gap-1">
+                      <LikeButton 
+                        isLiked={userLikes?.includes(image.id)} 
+                        onToggle={() => toggleLike(image.id)} 
+                      />
+                      <span className="text-xs text-muted-foreground">{likeCount}</span>
                     </div>
                   </div>
 
@@ -157,7 +146,7 @@ const FullScreenImageView = ({
                           Discard
                         </Button>
                       )}
-                      <Button onClick={handleRemix} className="flex-1" variant="ghost" size="sm">
+                      <Button onClick={onRemix} className="flex-1" variant="ghost" size="sm">
                         <RefreshCw className="mr-2 h-4 w-4" />
                         Remix
                       </Button>

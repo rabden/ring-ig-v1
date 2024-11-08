@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { X, ArrowRight } from "lucide-react";
+import { X, ArrowRight, Lock, Unlock } from "lucide-react";
+import { toast } from "sonner";
 
 const PromptInput = ({ 
   value = '', 
@@ -8,10 +9,19 @@ const PromptInput = ({
   onKeyDown, 
   onGenerate, 
   hasEnoughCredits, 
-  onClear
+  onClear, 
+  isPrivate, 
+  onPrivateChange 
 }) => {
   const handleGenerate = () => {
-    onGenerate();
+    onGenerate(isPrivate);
+  };
+
+  const handlePrivateToggle = () => {
+    if (typeof onPrivateChange === 'function') {
+      onPrivateChange(!isPrivate);
+      toast.success(`Image generation set to ${!isPrivate ? 'private' : 'public'}`);
+    }
   };
 
   return (
@@ -33,7 +43,28 @@ const PromptInput = ({
           />
         </div>
         
-        <div className="flex justify-end items-center mt-4">
+        <div className="flex justify-between items-center mt-4">
+          {typeof onPrivateChange === 'function' && (
+            <Button
+              size="sm"
+              variant={isPrivate ? "default" : "outline"}
+              className={`rounded-full flex items-center gap-2 ${isPrivate ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}`}
+              onClick={handlePrivateToggle}
+            >
+              {isPrivate ? (
+                <>
+                  <Lock className="h-4 w-4" />
+                  Private
+                </>
+              ) : (
+                <>
+                  <Unlock className="h-4 w-4" />
+                  Public
+                </>
+              )}
+            </Button>
+          )}
+          
           <div className="flex gap-2">
             {value?.length > 0 && (
               <Button

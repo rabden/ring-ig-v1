@@ -14,7 +14,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { getCleanPrompt } from '@/utils/promptUtils';
 import TruncatablePrompt from './TruncatablePrompt';
-import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -113,15 +112,12 @@ const MobileImageDrawer = ({
                 <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
                 <span className="text-sm font-medium">{owner?.display_name}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <ImagePrivacyToggle image={image} isOwner={isOwner} />
-                <div className="flex items-center gap-1">
-                  <LikeButton 
-                    isLiked={userLikes?.includes(image.id)} 
-                    onToggle={() => toggleLike(image.id)} 
-                  />
-                  <span className="text-xs text-muted-foreground">{likeCount}</span>
-                </div>
+              <div className="flex items-center gap-1">
+                <LikeButton 
+                  isLiked={userLikes?.includes(image.id)} 
+                  onToggle={() => toggleLike(image.id)} 
+                />
+                <span className="text-xs text-muted-foreground">{likeCount}</span>
               </div>
             </div>
 

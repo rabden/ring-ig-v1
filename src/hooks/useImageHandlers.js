@@ -1,6 +1,5 @@
 import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
-import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import { useProUser } from '@/hooks/useProUser'
 import { toast } from 'sonner'
 
@@ -26,9 +25,8 @@ export const useImageHandlers = ({
   setDetailsDialogOpen,
   setActiveView,
 }) => {
-  const { data: modelConfigs } = useModelConfigs() || {};
-  const { data: styleConfigs } = useStyleConfigs() || {};
-  const { data: isPro } = useProUser(session?.user?.id) || {};
+  const { data: modelConfigs } = useModelConfigs();
+  const { data: isPro } = useProUser(session?.user?.id);
 
   const handleGenerateImage = async () => {
     await generateImage()
@@ -61,34 +59,28 @@ export const useImageHandlers = ({
     setWidth(image.width);
     setHeight(image.height);
 
-    // Check if the original image was made with a pro model
     const isProModel = modelConfigs?.[image.model]?.isPremium;
-    const isNsfwModel = modelConfigs?.[image.model]?.category === "NSFW";
-
-    // Set model based on NSFW status and pro status
-    if (isNsfwModel) {
-      // For NSFW images, always use nsfwMaster for non-pro users
-      setModel('nsfwMaster');
-      setSteps(modelConfigs?.['nsfwMaster']?.defaultStep || 30);
-    } else if (isProModel && !isPro) {
-      // For non-NSFW pro models, fallback to turbo for non-pro users
+    if (isProModel && !isPro) {
       setModel('turbo');
-      setSteps(modelConfigs?.['turbo']?.defaultStep || 4);
+      setSteps(modelConfigs['turbo']?.defaultStep || 4);
     } else {
-      // Keep the original model if user has access to it
       setModel(image.model);
       setSteps(image.steps);
-    }
-
-    // Always reset style to null when remixing
-    if (typeof setStyle === 'function') {
-      setStyle(null);
     }
 
     if (image.quality === 'HD+' && !isPro) {
       setQuality('HD');
     } else {
       setQuality(image.quality);
+    }
+
+    const styleConfig = modelConfigs?.[image.model];
+    if (styleConfig?.noStyleSuffix) {
+      setStyle?.(null);
+    } else if (image.style) {
+      setStyle?.(isPro ? image.style : null);
+    } else {
+      setStyle?.(null);
     }
 
     const isPremiumRatio = ['9:21', '21:9', '3:2', '2:3', '4:5', '5:4', '10:16', '16:10'].includes(image.aspect_ratio);

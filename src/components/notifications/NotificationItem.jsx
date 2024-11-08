@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 
-const NotificationItem = ({ notification }) => {
+const NotificationItem = ({ notification, isGlobal = false }) => {
   const { markAsRead, deleteNotification, hideGlobalNotification } = useNotifications();
 
   const handleClick = (e) => {
@@ -20,9 +20,7 @@ const NotificationItem = ({ notification }) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // If notification has user_id, it's a personal notification
-    // If it doesn't, it's a global notification
-    if (!notification.user_id) {
+    if (isGlobal) {
       hideGlobalNotification(notification.id);
     } else {
       deleteNotification(notification.id);
