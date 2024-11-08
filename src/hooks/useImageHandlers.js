@@ -92,6 +92,9 @@ export const useImageHandlers = ({
       setAspectRatio(image.aspect_ratio);
       setUseAspectRatio(image.aspect_ratio in aspectRatios);
     }
+
+    // Always set style to null when remixing
+    setStyle(null);
   }
 
   const handleDownload = async (imageUrl, prompt) => {
