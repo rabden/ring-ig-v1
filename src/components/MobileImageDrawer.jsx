@@ -78,7 +78,7 @@ const MobileImageDrawer = ({
 
   const handleRemixClick = () => {
     onRemix(image);
-    setStyle(image.style);
+    // Remove the setStyle call here
     setActiveTab('input');
     onOpenChange(false);
   };

@@ -67,23 +67,18 @@ export const useImageHandlers = ({
 
     // Set model based on NSFW status and pro status
     if (isNsfwModel) {
-      // For NSFW images, always use nsfwMaster for non-pro users
       setModel('nsfwMaster');
       setSteps(modelConfigs?.['nsfwMaster']?.defaultStep || 30);
     } else if (isProModel && !isPro) {
-      // For non-NSFW pro models, fallback to turbo for non-pro users
       setModel('turbo');
       setSteps(modelConfigs?.['turbo']?.defaultStep || 4);
     } else {
-      // Keep the original model if user has access to it
       setModel(image.model);
       setSteps(image.steps);
     }
 
     // Always reset style to null when remixing
-    if (typeof setStyle === 'function') {
-      setStyle(null);
-    }
+    setStyle(null);
 
     if (image.quality === 'HD+' && !isPro) {
       setQuality('HD');

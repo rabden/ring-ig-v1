@@ -78,7 +78,7 @@ const FullScreenImageView = ({
 
   const handleRemix = () => {
     onRemix(image);
-    setStyle(image.style);
+    // Remove the setStyle call here
     setActiveTab('input');
     onClose();
   };
