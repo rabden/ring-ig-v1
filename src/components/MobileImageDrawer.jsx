@@ -14,7 +14,7 @@ import { useLikes } from '@/hooks/useLikes';
 import { useQuery } from '@tanstack/react-query';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { getCleanPrompt } from '@/utils/promptUtils';
-import TruncatablePrompt from '../TruncatablePrompt';
+import TruncatablePrompt from './TruncatablePrompt';
 
 const MobileImageDrawer = ({ 
   open, 
