@@ -64,6 +64,7 @@ export const useImageGeneration = ({
 
       const finalStyle = modelConfigs[model]?.category === "NSFW" ? 'N/A' : (style || 'N/A');
 
+      // Update the generating images state with the privacy flag
       setGeneratingImages(prev => [...prev, { 
         id: generationId, 
         width: finalWidth, 
@@ -141,6 +142,7 @@ export const useImageGeneration = ({
             
           if (uploadError) throw uploadError;
 
+          // Explicitly set is_private in the database record
           const { error: insertError } = await supabase
             .from('user_images')
             .insert([{
@@ -154,13 +156,16 @@ export const useImageGeneration = ({
               quality,
               style: finalStyle,
               aspect_ratio: finalAspectRatio,
-              is_private: isPrivate
+              is_private: isPrivate // Ensure this is explicitly set
             }]);
 
-          if (insertError) throw insertError;
+          if (insertError) {
+            console.error('Error inserting image record:', insertError);
+            throw insertError;
+          }
 
           setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-          toast.success('Image generated successfully!');
+          toast.success(`Image generated successfully! (${isPrivate ? 'Private' : 'Public'})`);
 
         } catch (error) {
           console.error('Error generating image:', error);
