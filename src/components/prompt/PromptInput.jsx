@@ -4,7 +4,7 @@ import { X, ArrowRight, Lock, Unlock } from "lucide-react";
 import { toast } from "sonner";
 
 const PromptInput = ({ 
-  value = '', 
+  value, 
   onChange, 
   onKeyDown, 
   onGenerate, 
@@ -66,7 +66,7 @@ const PromptInput = ({
           )}
           
           <div className="flex gap-2">
-            {value?.length > 0 && (
+            {value.length > 0 && (
               <Button
                 size="sm"
                 variant="outline"
@@ -80,7 +80,7 @@ const PromptInput = ({
               size="sm"
               className="rounded-full"
               onClick={handleGenerate}
-              disabled={!value?.length || !hasEnoughCredits}
+              disabled={!value.length || !hasEnoughCredits}
             >
               Generate
               <ArrowRight className="ml-2 h-4 w-4" />

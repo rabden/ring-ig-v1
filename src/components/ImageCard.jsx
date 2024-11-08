@@ -14,7 +14,6 @@ import MobileImageDrawer from './MobileImageDrawer';
 import ImageDetailsDialog from './ImageDetailsDialog';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { toast } from 'sonner';
-import { getCleanPrompt } from '@/utils/promptUtils';
 
 const ImageCard = ({ 
   image, 
@@ -150,7 +149,7 @@ const ImageCard = ({
           </CardContent>
         </Card>
         <div className="mt-1 flex items-center justify-between">
-          <p className="text-sm truncate w-[70%]">{getCleanPrompt(image.prompt, image.style)}</p>
+          <p className="text-sm truncate w-[70%]">{image.prompt}</p>
           <ImageCardActions
             image={image}
             isMobile={isMobile}

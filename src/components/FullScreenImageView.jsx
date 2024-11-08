@@ -14,7 +14,6 @@ import { useLikes } from '@/hooks/useLikes';
 import { useQuery } from '@tanstack/react-query';
 import ImagePromptSection from './image-view/ImagePromptSection';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
-import { getCleanPrompt } from '@/utils/promptUtils';
 
 const FullScreenImageView = ({ 
   image, 
@@ -58,11 +57,12 @@ const FullScreenImageView = ({
     },
     enabled: !!image?.id
   });
-  
+
   if (!isOpen || !image) return null;
 
   const handleCopyPrompt = async () => {
-    await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
+    // Always use user_prompt to ensure we're copying the original prompt without style suffix
+    await navigator.clipboard.writeText(image.user_prompt);
     setCopyIcon('check');
     toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
@@ -102,7 +102,7 @@ const FullScreenImageView = ({
           <div className="flex-1 relative flex items-center justify-center bg-black/10 dark:bg-black/30 p-8">
             <img
               src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-              alt={image.prompt}
+              alt={image.user_prompt}
               className="max-w-full max-h-[calc(100vh-4rem)] object-contain"
             />
           </div>
@@ -126,8 +126,7 @@ const FullScreenImageView = ({
                   </div>
 
                   <ImagePromptSection 
-                    prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)}
-                    style={image.style}
+                    prompt={image.user_prompt}
                     copyIcon={copyIcon}
                     shareIcon={shareIcon}
                     onCopyPrompt={handleCopyPrompt}

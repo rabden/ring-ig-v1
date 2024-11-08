@@ -2,18 +2,14 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Copy, Share2, Check } from "lucide-react";
 import TruncatablePrompt from '../TruncatablePrompt';
-import { getCleanPrompt } from '@/utils/promptUtils';
 
 const ImagePromptSection = ({ 
   prompt, 
-  style,
   copyIcon, 
   shareIcon, 
   onCopyPrompt, 
   onShare 
 }) => {
-  const cleanPrompt = getCleanPrompt(prompt, style);
-  
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
@@ -27,7 +23,7 @@ const ImagePromptSection = ({
           </Button>
         </div>
       </div>
-      <TruncatablePrompt prompt={cleanPrompt} />
+      <TruncatablePrompt prompt={prompt} />
     </div>
   );
 };
