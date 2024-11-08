@@ -72,7 +72,6 @@ export const useImageGeneration = ({
 
       const makeRequest = async (needNewKey = false) => {
         try {
-          // Get API key from huggingface_api_keys table directly instead of using RPC
           const { data: apiKeyData, error: apiKeyError } = await supabase
             .from('huggingface_api_keys')
             .select('api_key')
@@ -92,7 +91,6 @@ export const useImageGeneration = ({
             throw new Error('No active API key available');
           }
 
-          // Update last_used_at timestamp
           await supabase
             .from('huggingface_api_keys')
             .update({ last_used_at: new Date().toISOString() })
@@ -154,7 +152,6 @@ export const useImageGeneration = ({
               quality,
               style: finalStyle,
               aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
-              steps: steps || modelConfig?.defaultStep || 30,
               is_private: isPrivate
             });
           if (insertError) throw insertError;
