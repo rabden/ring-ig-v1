@@ -75,6 +75,13 @@ const FullScreenImageView = ({
     setTimeout(() => setShareIcon('share'), 1500);
   };
 
+  const handleRemix = () => {
+    onRemix(image);
+    setStyle(image.style);
+    setActiveTab('input');
+    onClose();
+  };
+
   const detailItems = [
     { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
     { label: "Seed", value: image.seed },
@@ -146,7 +153,7 @@ const FullScreenImageView = ({
                           Discard
                         </Button>
                       )}
-                      <Button onClick={onRemix} className="flex-1" variant="ghost" size="sm">
+                      <Button onClick={handleRemix} className="flex-1" variant="ghost" size="sm">
                         <RefreshCw className="mr-2 h-4 w-4" />
                         Remix
                       </Button>
