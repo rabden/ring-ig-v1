@@ -10,6 +10,10 @@ import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { toast } from 'sonner';
 import { downloadImage } from '@/utils/downloadUtils';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import ProfileAvatar from './profile/ProfileAvatar';
+import LikeButton from './LikeButton';
+import { useLikes } from '@/hooks/useLikes';
+import { useQuery } from '@tanstack/react-query';
 
 const FullScreenImageView = ({ 
   image, 
@@ -27,6 +31,32 @@ const FullScreenImageView = ({
   const { data: styleConfigs } = useStyleConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
+  const { userLikes, toggleLike } = useLikes(session?.user?.id);
+
+  const { data: owner } = useQuery({
+    queryKey: ['user', image?.user_id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', image.user_id)
+        .single();
+      return data;
+    },
+    enabled: !!image?.user_id
+  });
+
+  const { data: likeCount = 0 } = useQuery({
+    queryKey: ['likes', image?.id],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('user_image_likes')
+        .select('*', { count: 'exact' })
+        .eq('image_id', image.id);
+      return count;
+    },
+    enabled: !!image?.id
+  });
   
   if (!isOpen || !image) {
     return null;
@@ -112,6 +142,20 @@ const FullScreenImageView = ({
             <div className="bg-card h-[calc(100vh-32px)] rounded-lg border shadow-sm">
               <ScrollArea className="h-full">
                 <div className="p-6 space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
+                      <span className="text-sm font-medium">{owner?.display_name}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <LikeButton 
+                        isLiked={userLikes?.includes(image.id)} 
+                        onToggle={() => toggleLike(image.id)} 
+                      />
+                      <span className="text-xs text-muted-foreground">{likeCount}</span>
+                    </div>
+                  </div>
+
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="text-lg font-semibold">Prompt</h3>
