@@ -24,6 +24,11 @@ const ImageCardActions = ({
     }
   };
 
+  const handleViewDetails = (e) => {
+    e.stopPropagation();
+    onViewDetails(image);
+  };
+
   const handleDiscard = () => {
     if (!image?.id) {
       toast.error('Cannot delete image: Invalid image ID');
@@ -61,7 +66,7 @@ const ImageCardActions = ({
             <DropdownMenuItem onClick={() => onRemix(image)}>
               Remix
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onViewDetails(image)}>
+            <DropdownMenuItem onClick={handleViewDetails}>
               View Details
             </DropdownMenuItem>
           </DropdownMenuContent>
