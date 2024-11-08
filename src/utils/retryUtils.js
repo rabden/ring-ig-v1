@@ -15,7 +15,7 @@ export const shouldRetry = (statusCode, retryCount) => {
   return retryableStatuses.includes(statusCode) && retryCount < MAX_RETRIES;
 };
 
-export const handleApiResponse = async (response, retryCount, retryFn) => {
+export const handleApiResponse = async (response, retryCount = 0, retryFn) => {
   if (!response.ok) {
     let errorMessage;
     try {
@@ -29,8 +29,17 @@ export const handleApiResponse = async (response, retryCount, retryFn) => {
     if (shouldRetry(response.status, retryCount)) {
       const retryInterval = getRetryInterval(response.status);
       console.log(`Retrying image generation in ${retryInterval / 1000} seconds. Attempt ${retryCount + 1} of ${MAX_RETRIES}`);
-      await new Promise(resolve => setTimeout(resolve, retryInterval));
-      return retryFn();
+      
+      // For rate limit errors (429), get a new API key before retrying
+      if (response.status === 429) {
+        console.log('Rate limit reached, retrying with a different API key');
+        return new Promise(resolve => setTimeout(resolve, retryInterval))
+          .then(() => retryFn(true)); // Pass true to indicate we need a new API key
+      }
+      
+      // For other retryable errors, just wait and retry
+      return new Promise(resolve => setTimeout(resolve, retryInterval))
+        .then(() => retryFn());
     }
 
     throw new Error(`API error: ${errorMessage}`);

@@ -70,9 +70,12 @@ export const useImageGeneration = ({
         is_private: isPrivate
       }]);
 
-      const promise = (async () => {
+      const makeRequest = async (needNewKey = false) => {
         try {
-          const { data: apiKeyData, error: apiKeyError } = await supabase.rpc('get_random_huggingface_api_key');
+          const { data: apiKeyData, error: apiKeyError } = await supabase.rpc('get_random_huggingface_api_key', {
+            exclude_key: needNewKey ? apiKeyData : null
+          });
+          
           if (apiKeyError) {
             setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
             toast.error('Failed to get API key');
@@ -84,7 +87,6 @@ export const useImageGeneration = ({
             throw new Error('No active API key available');
           }
 
-          // Only include essential parameters for hyper and prelar models
           const parameters = model === 'fluxDev' || model === 'preLar' ? {
             seed: actualSeed,
             width: finalWidth,
@@ -109,7 +111,7 @@ export const useImageGeneration = ({
             }),
           });
 
-          const imageBlob = await handleApiResponse(response);
+          const imageBlob = await handleApiResponse(response, 0, () => makeRequest(response.status === 429));
           if (!imageBlob) {
             setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
             toast.error('Failed to generate image');
@@ -153,9 +155,9 @@ export const useImageGeneration = ({
           toast.error('Failed to generate image');
           setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
         }
-      })();
+      };
 
-      generationPromises.push(promise);
+      generationPromises.push(makeRequest());
     }
 
     try {
