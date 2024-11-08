@@ -17,21 +17,16 @@ const SingleImageView = () => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
 
-  const { data: image, isLoading, error } = useQuery({
+  const { data: image, isLoading } = useQuery({
     queryKey: ['singleImage', imageId],
     queryFn: async () => {
-      if (!imageId) return null;
-      
       const { data, error } = await supabase
         .from('user_images')
         .select('*')
         .eq('id', imageId)
-        .maybeSingle();
+        .single();
 
       if (error) throw error;
-      if (!data) {
-        throw new Error('Image not found');
-      }
       return data;
     },
   });

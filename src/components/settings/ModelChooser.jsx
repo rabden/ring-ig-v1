@@ -1,4 +1,5 @@
 import React from 'react';
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
 import SettingSection from './SettingSection';

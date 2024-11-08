@@ -57,7 +57,7 @@ const MobileImageDrawer = ({
         .eq('image_id', image.id);
       return count;
     },
-    enabled: !!image?.id && !!session
+    enabled: !!image?.id
   });
   
   if (!image) return null;
@@ -108,24 +108,22 @@ const MobileImageDrawer = ({
           )}
           
           <div className="space-y-8">
-            {session && (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
-                  <span className="text-sm font-medium">{owner?.display_name}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <ImagePrivacyToggle image={image} isOwner={isOwner} />
-                  <div className="flex items-center gap-1">
-                    <LikeButton 
-                      isLiked={userLikes?.includes(image.id)} 
-                      onToggle={() => toggleLike(image.id)} 
-                    />
-                    <span className="text-xs text-muted-foreground">{likeCount}</span>
-                  </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
+                <span className="text-sm font-medium">{owner?.display_name}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <ImagePrivacyToggle image={image} isOwner={isOwner} />
+                <div className="flex items-center gap-1">
+                  <LikeButton 
+                    isLiked={userLikes?.includes(image.id)} 
+                    onToggle={() => toggleLike(image.id)} 
+                  />
+                  <span className="text-xs text-muted-foreground">{likeCount}</span>
                 </div>
               </div>
-            )}
+            </div>
 
             <div>
               <div className="flex items-center justify-between mb-3">
@@ -147,20 +145,16 @@ const MobileImageDrawer = ({
                 <Download className="mr-2 h-4 w-4" />
                 Download
               </Button>
-              {session && (
-                <>
-                  {isOwner && (
-                    <Button variant="ghost" size="sm" className="flex-1 text-destructive hover:text-destructive" onClick={onDiscard}>
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Discard
-                    </Button>
-                  )}
-                  <Button variant="ghost" size="sm" className="flex-1" onClick={handleRemixClick}>
-                    <Wand2 className="mr-2 h-4 w-4" />
-                    Remix
-                  </Button>
-                </>
+              {isOwner && (
+                <Button variant="ghost" size="sm" className="flex-1 text-destructive hover:text-destructive" onClick={onDiscard}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Discard
+                </Button>
               )}
+              <Button variant="ghost" size="sm" className="flex-1" onClick={handleRemixClick}>
+                <Wand2 className="mr-2 h-4 w-4" />
+                Remix
+              </Button>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
