@@ -143,6 +143,7 @@ export const useImageGeneration = ({
               quality,
               style: finalStyle,
               aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
+              steps: steps || modelConfig?.defaultStep || 30,
               is_private: isPrivate
             });
           if (insertError) throw insertError;
