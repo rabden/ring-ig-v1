@@ -1,6 +1,14 @@
--- Add style column to user_images table
-ALTER TABLE public.user_images 
-ADD COLUMN style TEXT;
+-- Add style column to user_images table if it doesn't exist
+DO $$ 
+BEGIN 
+    IF NOT EXISTS (SELECT 1 
+                  FROM information_schema.columns 
+                  WHERE table_schema='public' 
+                  AND table_name='user_images' 
+                  AND column_name='style') THEN
+        ALTER TABLE public.user_images ADD COLUMN style TEXT;
+    END IF;
+END $$;
 
 -- Remove steps column as it's no longer needed in details
 ALTER TABLE public.user_images 
