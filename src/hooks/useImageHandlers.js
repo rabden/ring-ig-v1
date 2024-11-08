@@ -26,9 +26,9 @@ export const useImageHandlers = ({
   setDetailsDialogOpen,
   setActiveView,
 }) => {
-  const { data: modelConfigs } = useModelConfigs();
-  const { data: styleConfigs } = useStyleConfigs();
-  const { data: isPro } = useProUser(session?.user?.id);
+  const { data: modelConfigs } = useModelConfigs() || {};
+  const { data: styleConfigs } = useStyleConfigs() || {};
+  const { data: isPro } = useProUser(session?.user?.id) || {};
 
   const handleGenerateImage = async () => {
     await generateImage()
@@ -69,7 +69,7 @@ export const useImageHandlers = ({
     if (isNsfwModel) {
       // For NSFW images, always use nsfwMaster for non-pro users
       setModel('nsfwMaster');
-      setSteps(modelConfigs['nsfwMaster']?.defaultStep || 30);
+      setSteps(modelConfigs?.['nsfwMaster']?.defaultStep || 30);
       // NSFW models should never have styles
       if (typeof setStyle === 'function') {
         setStyle(null);
@@ -77,7 +77,7 @@ export const useImageHandlers = ({
     } else if (isProModel && !isPro) {
       // For non-NSFW pro models, fallback to turbo for non-pro users
       setModel('turbo');
-      setSteps(modelConfigs['turbo']?.defaultStep || 4);
+      setSteps(modelConfigs?.['turbo']?.defaultStep || 4);
       if (typeof setStyle === 'function') {
         setStyle(null);
       }
