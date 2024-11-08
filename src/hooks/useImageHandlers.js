@@ -18,7 +18,6 @@ export const useImageHandlers = ({
   setQuality,
   setAspectRatio,
   setUseAspectRatio,
-  setStyle,
   aspectRatios,
   session,
   queryClient,
@@ -76,9 +75,6 @@ export const useImageHandlers = ({
       setModel(image.model);
       setSteps(image.steps);
     }
-
-    // Always reset style to null when remixing
-    setStyle(null);
 
     if (image.quality === 'HD+' && !isPro) {
       setQuality('HD');
