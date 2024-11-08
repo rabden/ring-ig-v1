@@ -22,21 +22,39 @@ const NavButton = memo(({ icon: Icon, isActive, onClick, children, badge, onLong
   const [isPressed, setIsPressed] = useState(false);
   const pressTimer = useRef(null);
   const touchStartTime = useRef(0);
+  const isMoved = useRef(false);
 
-  const handleTouchStart = () => {
+  const handleTouchStart = (e) => {
+    isMoved.current = false;
     touchStartTime.current = Date.now();
-    pressTimer.current = setTimeout(() => {
-      setIsPressed(true);
-      onLongPress?.();
-    }, 500);
+    if (onLongPress) {
+      pressTimer.current = setTimeout(() => {
+        if (!isMoved.current) {
+          setIsPressed(true);
+          onLongPress();
+        }
+      }, 500);
+    }
   };
 
-  const handleTouchEnd = () => {
+  const handleTouchMove = () => {
+    isMoved.current = true;
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+      setIsPressed(false);
+    }
+  };
+
+  const handleTouchEnd = (e) => {
     const touchDuration = Date.now() - touchStartTime.current;
-    clearTimeout(pressTimer.current);
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+    }
     setIsPressed(false);
-    if (touchDuration < 500) {
-      onClick?.();
+
+    // Only trigger click if it wasn't a long press and the touch didn't move
+    if (touchDuration < 500 && !isMoved.current) {
+      onClick?.(e);
     }
   };
 
@@ -51,10 +69,13 @@ const NavButton = memo(({ icon: Icon, isActive, onClick, children, badge, onLong
   return (
     <button
       onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      onTouchCancel={() => {
-        clearTimeout(pressTimer.current);
-        setIsPressed(false);
+      onClick={(e) => {
+        // Only handle click for non-touch devices
+        if (e.pointerType !== 'touch') {
+          onClick?.(e);
+        }
       }}
       className={cn(
         "flex items-center justify-center w-14 h-12 transition-all relative",
