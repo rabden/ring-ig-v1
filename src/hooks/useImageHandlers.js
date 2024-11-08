@@ -3,6 +3,7 @@ import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useProUser } from '@/hooks/useProUser'
 import { toast } from 'sonner'
 import { getCleanPrompt } from '@/utils/promptUtils'
+import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 
 export const useImageHandlers = ({
   generateImage,
@@ -27,6 +28,7 @@ export const useImageHandlers = ({
   setActiveView,
 }) => {
   const { data: modelConfigs } = useModelConfigs();
+  const { data: styleConfigs } = useStyleConfigs();
   const { data: isPro } = useProUser(session?.user?.id);
 
   const handleGenerateImage = async () => {
@@ -84,8 +86,15 @@ export const useImageHandlers = ({
       // Keep the original model if user has access to it
       setModel(image.model);
       setSteps(image.steps);
+      
+      // Check if the style is premium before setting it
       if (typeof setStyle === 'function') {
-        setStyle(image.style);
+        const isStylePremium = styleConfigs?.[image.style]?.isPremium;
+        if (!isStylePremium || isPro) {
+          setStyle(image.style);
+        } else {
+          setStyle(null); // Reset style if it's premium and user is not pro
+        }
       }
     }
 
