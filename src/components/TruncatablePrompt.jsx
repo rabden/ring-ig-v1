@@ -9,7 +9,7 @@ const TruncatablePrompt = ({ prompt, className }) => {
     <div className={cn("relative", className)}>
       <p 
         className={cn(
-          "text-sm text-muted-foreground bg-secondary p-3 rounded-md break-words transition-all duration-200",
+          "text-sm text-muted-foreground",
           !isExpanded && shouldTruncate && "line-clamp-3"
         )}
       >
