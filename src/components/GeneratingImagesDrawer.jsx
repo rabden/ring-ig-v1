@@ -29,9 +29,9 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
                   {img.width}x{img.height}
                 </Badge>
               </div>
-              {img.prompt && (
+              {img.originalPrompt && (
                 <p className="text-sm text-muted-foreground">
-                  {img.prompt.length > 100 ? `${img.prompt.substring(0, 100)}...` : img.prompt}
+                  {img.originalPrompt.length > 100 ? `${img.originalPrompt.substring(0, 100)}...` : img.originalPrompt}
                 </p>
               )}
               <div className="flex gap-2 text-xs text-muted-foreground">
