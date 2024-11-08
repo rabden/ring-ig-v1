@@ -57,12 +57,11 @@ const FullScreenImageView = ({
     },
     enabled: !!image?.id
   });
-
+  
   if (!isOpen || !image) return null;
 
   const handleCopyPrompt = async () => {
-    // Always use user_prompt to ensure we're copying the original prompt without style suffix
-    await navigator.clipboard.writeText(image.user_prompt);
+    await navigator.clipboard.writeText(image.user_prompt || image.prompt);
     setCopyIcon('check');
     toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
@@ -102,7 +101,7 @@ const FullScreenImageView = ({
           <div className="flex-1 relative flex items-center justify-center bg-black/10 dark:bg-black/30 p-8">
             <img
               src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-              alt={image.user_prompt}
+              alt={image.prompt}
               className="max-w-full max-h-[calc(100vh-4rem)] object-contain"
             />
           </div>
@@ -126,7 +125,7 @@ const FullScreenImageView = ({
                   </div>
 
                   <ImagePromptSection 
-                    prompt={image.user_prompt}
+                    prompt={image.user_prompt || image.prompt}
                     copyIcon={copyIcon}
                     shareIcon={shareIcon}
                     onCopyPrompt={handleCopyPrompt}

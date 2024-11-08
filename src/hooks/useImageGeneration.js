@@ -1,7 +1,7 @@
 import { supabase } from '@/integrations/supabase/supabase';
 import { toast } from 'sonner';
 import { qualityOptions } from '@/utils/imageConfigs';
-import { calculateDimensions, getModifiedPrompt, getAspectRatioString } from '@/utils/imageUtils';
+import { calculateDimensions, getModifiedPrompt } from '@/utils/imageUtils';
 import { handleApiResponse } from '@/utils/retryUtils';
 
 export const useImageGeneration = ({
@@ -64,7 +64,6 @@ export const useImageGeneration = ({
         id: generationId, 
         width: finalWidth, 
         height: finalHeight,
-        originalPrompt: prompt,
         prompt: modifiedPrompt,
         model,
         style: finalStyle,
@@ -140,13 +139,13 @@ export const useImageGeneration = ({
             .upload(filePath, imageBlob);
           if (uploadError) throw uploadError;
 
+          // Explicitly set is_private in the database insert
           const { error: insertError } = await supabase
             .from('user_images')
             .insert({
               user_id: session.user.id,
               storage_path: filePath,
               prompt: modifiedPrompt,
-              original_prompt: prompt,
               seed: actualSeed,
               width: finalWidth,
               height: finalHeight,
@@ -154,7 +153,7 @@ export const useImageGeneration = ({
               quality,
               style: finalStyle,
               aspect_ratio: useAspectRatio ? aspectRatio : `${finalWidth}:${finalHeight}`,
-              is_private: isPrivate
+              is_private: isPrivate // Ensure this is explicitly set
             });
           if (insertError) throw insertError;
 

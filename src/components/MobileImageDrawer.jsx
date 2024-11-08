@@ -61,7 +61,7 @@ const MobileImageDrawer = ({
   if (!image) return null;
 
   const handleCopyPrompt = async () => {
-    await navigator.clipboard.writeText(image.original_prompt || image.prompt);
+    await navigator.clipboard.writeText(image.user_prompt || image.prompt);
     setCopyIcon('check');
     toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
@@ -99,7 +99,7 @@ const MobileImageDrawer = ({
             <div className="relative rounded-lg overflow-hidden mb-6">
               <img
                 src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                alt={image.original_prompt || image.prompt}
+                alt={image.prompt}
                 className="w-full h-auto"
               />
             </div>
@@ -133,7 +133,7 @@ const MobileImageDrawer = ({
                 </div>
               </div>
               <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md break-words">
-                {image.original_prompt || image.prompt}
+                {image.user_prompt || image.prompt}
               </p>
             </div>
             
