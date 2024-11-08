@@ -43,6 +43,11 @@ const ImageGeneratorSettings = ({
   const isNsfwModel = modelConfigs?.[model]?.category === "NSFW";
 
   const handleModelChange = (newModel) => {
+    if (typeof setModel !== 'function') {
+      console.error('setModel is not a function');
+      return;
+    }
+
     if ((newModel === 'turbo' || newModel === 'preLar') && quality === 'HD+') {
       setQuality('HD');
     }
