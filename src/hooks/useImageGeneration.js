@@ -1,7 +1,7 @@
 import { supabase } from '@/integrations/supabase/supabase';
 import { toast } from 'sonner';
 import { qualityOptions } from '@/utils/imageConfigs';
-import { calculateDimensions, getModifiedPrompt } from '@/utils/imageUtils';
+import { calculateDimensions, getModifiedPrompt, getAspectRatioString } from '@/utils/imageUtils';
 import { handleApiResponse } from '@/utils/retryUtils';
 
 export const useImageGeneration = ({

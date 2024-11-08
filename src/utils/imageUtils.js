@@ -45,3 +45,32 @@ export const getModifiedPrompt = async (prompt, style, model, modelConfigs) => {
   
   return modifiedPrompt;
 };
+
+export const getAspectRatioString = (width, height, useAspectRatio, selectedAspectRatio) => {
+  if (useAspectRatio && aspectRatios[selectedAspectRatio]) {
+    return selectedAspectRatio;
+  }
+  
+  // Find the closest matching aspect ratio
+  const ratio = width / height;
+  let closestRatio = null;
+  let minDifference = Infinity;
+  
+  Object.entries(aspectRatios).forEach(([ratioString, dimensions]) => {
+    const currentRatio = dimensions.width / dimensions.height;
+    const difference = Math.abs(currentRatio - ratio);
+    
+    if (difference < minDifference) {
+      minDifference = difference;
+      closestRatio = ratioString;
+    }
+  });
+  
+  // If we found a very close match (within 1% difference), use that ratio
+  if (minDifference < 0.01 && closestRatio) {
+    return closestRatio;
+  }
+  
+  // Otherwise, return the actual dimensions as the ratio
+  return `${width}:${height}`;
+};
