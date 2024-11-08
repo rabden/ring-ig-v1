@@ -54,36 +54,37 @@ export const useImageHandlers = ({
       return;
     }
 
+    // Clean the prompt by removing any style suffix
     setPrompt(getCleanPrompt(image.user_prompt || image.prompt, image.style));
     setSeed(image.seed);
     setRandomizeSeed(false);
     setWidth(image.width);
     setHeight(image.height);
 
+    // Check if the original image was made with a pro model
     const isProModel = modelConfigs?.[image.model]?.isPremium;
     const isNsfwModel = modelConfigs?.[image.model]?.category === "NSFW";
 
-    // Handle model and style based on conditions
+    // Set model based on NSFW status and pro status
     if (isNsfwModel) {
       setModel('nsfwMaster');
       setSteps(modelConfigs['nsfwMaster']?.defaultStep || 30);
       if (typeof setStyle === 'function') {
-        setStyle(null); // NSFW models don't use styles
+        setStyle(null);
       }
     } else if (isProModel && !isPro) {
       setModel('turbo');
       setSteps(modelConfigs['turbo']?.defaultStep || 4);
       if (typeof setStyle === 'function') {
-        setStyle(null); // Reset style when downgrading to non-pro model
+        setStyle(null);
       }
     } else {
       setModel(image.model);
       setSteps(image.steps);
-      
-      // Only set style if it exists and user has access to it
-      if (typeof setStyle === 'function' && image.style) {
-        const canUseStyle = !modelConfigs?.[image.model]?.isPremium || isPro;
-        setStyle(canUseStyle ? image.style : null);
+      if (typeof setStyle === 'function' && (!image.style || !modelConfigs?.[image.model]?.isPremium || isPro)) {
+        setStyle(image.style);
+      } else if (typeof setStyle === 'function') {
+        setStyle(null);
       }
     }
 
