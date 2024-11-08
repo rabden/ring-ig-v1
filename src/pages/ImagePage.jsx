@@ -7,6 +7,7 @@ import { useImageHandlers } from '@/hooks/useImageHandlers';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import FullScreenImageView from '@/components/FullScreenImageView';
 import MobileImageDrawer from '@/components/MobileImageDrawer';
+import { toast } from 'sonner';
 
 const ImagePage = () => {
   const { imageId } = useParams();
@@ -14,28 +15,51 @@ const ImagePage = () => {
   const { session } = useSupabaseAuth();
   const isMobile = useMediaQuery('(max-width: 768px)');
   
-  const { data: image, isLoading } = useQuery({
+  const { data: image, isLoading, error } = useQuery({
     queryKey: ['singleImage', imageId],
     queryFn: async () => {
+      if (!imageId) return null;
+      
       const { data, error } = await supabase
         .from('user_images')
         .select('*')
         .eq('id', imageId)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        toast.error('Error loading image');
+        throw error;
+      }
+      
+      if (!data) {
+        toast.error('Image not found');
+        navigate('/');
+        return null;
+      }
+
       return data;
     },
+    retry: false
   });
 
   const handlers = useImageHandlers({
     session,
-    queryClient: null, // We don't need queryClient for these operations
+    queryClient: null,
   });
 
-  const isOwner = session?.user?.id === image?.user_id;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
-  if (isLoading || !image) return null;
+  if (error || !image) {
+    return null;
+  }
+
+  const isOwner = session?.user?.id === image?.user_id;
 
   return isMobile ? (
     <MobileImageDrawer
