@@ -83,7 +83,10 @@ const FullScreenImageView = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-background data-[state=open]:duration-0" hideCloseButton>
+      <DialogContent 
+        className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-background data-[state=open]:duration-0 [&>button]:hidden" 
+        hideCloseButton
+      >
         <Button 
           variant="ghost" 
           size="icon" 
