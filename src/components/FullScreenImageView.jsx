@@ -16,6 +16,7 @@ import ImagePromptSection from './image-view/ImagePromptSection';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
 import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
 import { getCleanPrompt } from '@/utils/promptUtils';
+import { deleteImageCompletely } from '@/integrations/supabase/imageUtils';
 
 const FullScreenImageView = ({ 
   image, 
@@ -71,6 +72,24 @@ const FullScreenImageView = ({
     setShareIcon('check');
     toast.success('Share link copied to clipboard');
     setTimeout(() => setShareIcon('share'), 1500);
+  };
+
+  const handleDiscard = async () => {
+    if (!image?.id) {
+      toast.error('Cannot delete image: Invalid image ID');
+      return;
+    }
+    try {
+      await deleteImageCompletely(image.id);
+      toast.success('Image deleted successfully');
+      onClose();
+      if (onDiscard) {
+        onDiscard(image);
+      }
+    } catch (error) {
+      toast.error('Failed to delete image');
+      console.error('Error deleting image:', error);
+    }
   };
 
   const detailItems = [
@@ -142,7 +161,7 @@ const FullScreenImageView = ({
                         Download
                       </Button>
                       {isOwner && (
-                        <Button onClick={onDiscard} className="flex-1 text-destructive hover:text-destructive" variant="ghost" size="sm">
+                        <Button onClick={handleDiscard} className="flex-1 text-destructive hover:text-destructive" variant="ghost" size="sm">
                           <Trash2 className="mr-2 h-4 w-4" />
                           Discard
                         </Button>
