@@ -28,7 +28,7 @@ export const useImageHandlers = ({
 }) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
-  const { data: isPro } = useProUser(session?.user?.id);
+  const { data: isPro = false } = useProUser(session?.user?.id);
 
   const handleGenerateImage = async () => {
     await generateImage()
