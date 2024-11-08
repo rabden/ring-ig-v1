@@ -27,7 +27,7 @@ export const useImageHandlers = ({
   setActiveView,
 }) => {
   const { data: modelConfigs } = useModelConfigs();
-  const { data: isPro } = useProUser(session?.user?.id);
+  const { data: isPro = false } = useProUser(session?.user?.id);
 
   const handleGenerateImage = async () => {
     await generateImage()
@@ -67,25 +67,24 @@ export const useImageHandlers = ({
 
     // Set model based on NSFW status and pro status
     if (isNsfwModel) {
-      // For NSFW images, always use nsfwMaster for non-pro users
       setModel('nsfwMaster');
       setSteps(modelConfigs['nsfwMaster']?.defaultStep || 30);
       if (typeof setStyle === 'function') {
         setStyle(null);
       }
     } else if (isProModel && !isPro) {
-      // For non-NSFW pro models, fallback to turbo for non-pro users
       setModel('turbo');
       setSteps(modelConfigs['turbo']?.defaultStep || 4);
       if (typeof setStyle === 'function') {
         setStyle(null);
       }
     } else {
-      // Keep the original model if user has access to it
       setModel(image.model);
       setSteps(image.steps);
-      if (typeof setStyle === 'function') {
+      if (typeof setStyle === 'function' && (!image.style || !modelConfigs?.[image.model]?.isPremium || isPro)) {
         setStyle(image.style);
+      } else if (typeof setStyle === 'function') {
+        setStyle(null);
       }
     }
 

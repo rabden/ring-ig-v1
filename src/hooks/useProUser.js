@@ -15,10 +15,11 @@ export const useProUser = (userId) => {
       
       return data?.is_pro || false;
     },
-    enabled: !!userId,
-    staleTime: 1000 * 60, // Cache for 1 minute
-    cacheTime: 1000 * 60 * 5, // Keep in cache for 5 minutes
+    enabled: Boolean(userId),
+    staleTime: 1000 * 60,
+    cacheTime: 1000 * 60 * 5,
     refetchOnMount: true,
-    refetchOnWindowFocus: true
+    refetchOnWindowFocus: true,
+    retry: false
   });
 };
