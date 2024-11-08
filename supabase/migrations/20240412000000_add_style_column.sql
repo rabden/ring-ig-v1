@@ -10,6 +10,14 @@ BEGIN
     END IF;
 END $$;
 
--- Remove steps column as it's no longer needed in details
-ALTER TABLE public.user_images 
-DROP COLUMN steps;
+-- Remove steps column if it exists
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 
+              FROM information_schema.columns 
+              WHERE table_schema='public' 
+              AND table_name='user_images' 
+              AND column_name='steps') THEN
+        ALTER TABLE public.user_images DROP COLUMN steps;
+    END IF;
+END $$;
