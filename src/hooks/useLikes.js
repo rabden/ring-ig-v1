@@ -37,7 +37,7 @@ export const useLikes = (userId) => {
           .select('id')
           .eq('user_id', userId)
           .eq('image_id', imageId)
-          .single();
+          .maybeSingle();
 
         // Only proceed with insert if like doesn't exist
         if (!existingLike) {
