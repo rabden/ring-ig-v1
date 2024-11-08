@@ -2,7 +2,6 @@ import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useProUser } from '@/hooks/useProUser'
 import { toast } from 'sonner'
-import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 
 export const useImageHandlers = ({
   generateImage,
@@ -27,8 +26,7 @@ export const useImageHandlers = ({
   setActiveView,
 }) => {
   const { data: modelConfigs } = useModelConfigs();
-  const { data: styleConfigs } = useStyleConfigs();
-  const { data: isPro = false } = useProUser(session?.user?.id);
+  const { data: isPro } = useProUser(session?.user?.id);
 
   const handleGenerateImage = async () => {
     await generateImage()
@@ -67,6 +65,7 @@ export const useImageHandlers = ({
 
     // Set model based on NSFW status and pro status
     if (isNsfwModel) {
+      // For NSFW images, always use nsfwMaster for non-pro users
       setModel('nsfwMaster');
       setSteps(modelConfigs['nsfwMaster']?.defaultStep || 30);
       // NSFW models should never have styles
@@ -74,23 +73,18 @@ export const useImageHandlers = ({
         setStyle(null);
       }
     } else if (isProModel && !isPro) {
+      // For non-NSFW pro models, fallback to turbo for non-pro users
       setModel('turbo');
       setSteps(modelConfigs['turbo']?.defaultStep || 4);
       if (typeof setStyle === 'function') {
         setStyle(null);
       }
     } else {
+      // Keep the original model if user has access to it
       setModel(image.model);
       setSteps(image.steps);
-      
-      // Clear style if it's a premium style and user is not pro
       if (typeof setStyle === 'function') {
-        const styleConfig = styleConfigs?.[image.style];
-        if (styleConfig?.isPremium && !isPro) {
-          setStyle(null);
-        } else {
-          setStyle(image.style);
-        }
+        setStyle(image.style);
       }
     }
 

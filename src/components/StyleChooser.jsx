@@ -17,9 +17,7 @@ const StyleChooser = ({ style, setStyle, proMode, isNsfwMode }) => {
       return;
     }
     
-    // If user clicks on currently selected style or a premium style without pro access,
-    // clear the style selection
-    if (style === key || (!proMode && styleConfigs[key]?.isPremium)) {
+    if (style === key) {
       setStyle(null);
     } else {
       setStyle(key);
