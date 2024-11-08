@@ -77,17 +77,14 @@ export const useImageHandlers = ({
       setModel('turbo');
       setSteps(modelConfigs['turbo']?.defaultStep || 4);
       if (typeof setStyle === 'function') {
-        setStyle('general');
+        setStyle(null);
       }
     } else {
       // Keep the original model if user has access to it
       setModel(image.model);
       setSteps(image.steps);
       if (typeof setStyle === 'function') {
-        // Check if the original style was premium and user is not pro
-        const styleConfigs = require('@/config/styleConfig').styleConfig;
-        const isStylePremium = styleConfigs[image.style]?.isPremium;
-        setStyle((!isPro && isStylePremium) ? 'general' : image.style);
+        setStyle(image.style);
       }
     }
 
