@@ -28,7 +28,11 @@ const ImagePage = () => {
     },
   });
 
-  const { handleDownload, handleDiscard, handleRemix } = useImageHandlers();
+  const handlers = useImageHandlers({
+    session,
+    queryClient: null, // We don't need queryClient for these operations
+  });
+
   const isOwner = session?.user?.id === image?.user_id;
 
   if (isLoading || !image) return null;
@@ -38,9 +42,9 @@ const ImagePage = () => {
       open={true}
       onOpenChange={() => navigate(-1)}
       image={image}
-      onDownload={() => handleDownload(image)}
-      onDiscard={() => handleDiscard(image)}
-      onRemix={handleRemix}
+      onDownload={() => handlers.handleDownload(image)}
+      onDiscard={() => handlers.handleDiscard(image)}
+      onRemix={() => handlers.handleRemix(image)}
       isOwner={isOwner}
       showFullImage={true}
     />
@@ -49,9 +53,9 @@ const ImagePage = () => {
       image={image}
       isOpen={true}
       onClose={() => navigate(-1)}
-      onDownload={() => handleDownload(image)}
-      onDiscard={() => handleDiscard(image)}
-      onRemix={handleRemix}
+      onDownload={() => handlers.handleDownload(image)}
+      onDiscard={() => handlers.handleDiscard(image)}
+      onRemix={() => handlers.handleRemix(image)}
       isOwner={isOwner}
     />
   );

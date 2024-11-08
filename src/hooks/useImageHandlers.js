@@ -5,7 +5,6 @@ import { useProUser } from '@/hooks/useProUser'
 import { toast } from 'sonner'
 
 export const useImageHandlers = ({
-  generateImage,
   setSelectedImage,
   setFullScreenViewOpen,
   setModel,
@@ -24,33 +23,44 @@ export const useImageHandlers = ({
   activeView,
   setDetailsDialogOpen,
   setActiveView,
+  generateImage = () => {} // Provide default empty function
 }) => {
   const { data: modelConfigs } = useModelConfigs() || {};
   const { data: styleConfigs } = useStyleConfigs() || {};
   const { data: isPro } = useProUser(session?.user?.id) || {};
 
-  const handleGenerateImage = async () => {
-    await generateImage()
-  }
-
-  const handleImageClick = (image) => {
-    setSelectedImage(image)
-    setFullScreenViewOpen(true)
-  }
-
-  const handleModelChange = (newModel) => {
-    setModel(newModel)
-  }
-
-  const handlePromptKeyDown = async (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      await handleGenerateImage()
+  const handleDownload = async (image) => {
+    if (!session) {
+      toast.error('Please sign in to download images');
+      return;
     }
-  }
+    const a = document.createElement('a');
+    a.href = image.url;
+    a.download = `${image.prompt}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  const handleDiscard = async (image) => {
+    if (!image?.id) {
+      toast.error('Cannot delete image: Invalid image ID');
+      return;
+    }
+    
+    try {
+      await deleteImageCompletely(image.id);
+      queryClient.invalidateQueries(['userImages']);
+      toast.success('Image deleted successfully');
+    } catch (error) {
+      console.error('Error deleting image:', error);
+      toast.error('Failed to delete image');
+    }
+  };
 
   const handleRemix = (image) => {
     if (!session) {
+      toast.error('Please sign in to remix images');
       return;
     }
 
@@ -90,45 +100,19 @@ export const useImageHandlers = ({
       setAspectRatio(image.aspect_ratio);
       setUseAspectRatio(image.aspect_ratio in aspectRatios);
     }
-  }
-
-  const handleDownload = async (imageUrl, prompt) => {
-    const a = document.createElement('a');
-    a.href = imageUrl;
-    a.download = `${prompt}.png`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }
-
-  const handleDiscard = async (image) => {
-    if (!image?.id) {
-      toast.error('Cannot delete image: Invalid image ID');
-      return;
-    }
-    
-    try {
-      await deleteImageCompletely(image.id);
-      queryClient.invalidateQueries(['userImages']);
-      toast.success('Image deleted successfully');
-    } catch (error) {
-      console.error('Error deleting image:', error);
-      toast.error('Failed to delete image');
-    }
-  }
-
-  const handleViewDetails = (image) => {
-    setSelectedImage(image);
-    setDetailsDialogOpen(true);
-  }
+  };
 
   return {
-    handleImageClick,
-    handleModelChange,
-    handlePromptKeyDown,
-    handleRemix,
+    handleImageClick: (image) => {
+      setSelectedImage(image);
+      setFullScreenViewOpen(true);
+    },
     handleDownload,
     handleDiscard,
-    handleViewDetails,
-  }
-}
+    handleRemix,
+    handleViewDetails: (image) => {
+      setSelectedImage(image);
+      setDetailsDialogOpen(true);
+    },
+  };
+};
