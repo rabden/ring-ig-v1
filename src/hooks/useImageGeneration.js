@@ -81,12 +81,12 @@ export const useImageGeneration = ({
             throw new Error('No active API key available');
           }
 
-          // Simplified API parameters
+          // Basic API parameters - only using essential parameters
           const parameters = {
             seed: actualSeed,
             width: finalWidth,
             height: finalHeight,
-            num_inference_steps: steps || modelConfig?.defaultStep || 30,
+            num_inference_steps: steps || modelConfig?.defaultStep || 30
           };
 
           const response = await fetch(modelConfig?.apiUrl, {
