@@ -3,7 +3,6 @@ import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useProUser } from '@/hooks/useProUser'
 import { toast } from 'sonner'
 import { getCleanPrompt } from '@/utils/promptUtils'
-import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 
 export const useImageHandlers = ({
   generateImage,
@@ -28,7 +27,6 @@ export const useImageHandlers = ({
   setActiveView,
 }) => {
   const { data: modelConfigs } = useModelConfigs();
-  const { data: styleConfigs } = useStyleConfigs();
   const { data: isPro } = useProUser(session?.user?.id);
 
   const handleGenerateImage = async () => {
@@ -66,7 +64,6 @@ export const useImageHandlers = ({
     // Check if the original image was made with a pro model
     const isProModel = modelConfigs?.[image.model]?.isPremium;
     const isNsfwModel = modelConfigs?.[image.model]?.category === "NSFW";
-    const isProStyle = styleConfigs?.[image.style]?.isPremium;
 
     // Set model based on NSFW status and pro status
     if (isNsfwModel) {
@@ -81,16 +78,14 @@ export const useImageHandlers = ({
       setModel('turbo');
       setSteps(modelConfigs['turbo']?.defaultStep || 4);
       if (typeof setStyle === 'function') {
-        // Don't set pro style for non-pro users
-        setStyle(isProStyle ? null : image.style);
+        setStyle(null);
       }
     } else {
       // Keep the original model if user has access to it
       setModel(image.model);
       setSteps(image.steps);
       if (typeof setStyle === 'function') {
-        // Don't set pro style for non-pro users
-        setStyle(isProStyle && !isPro ? null : image.style);
+        setStyle(image.style);
       }
     }
 
