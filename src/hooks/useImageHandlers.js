@@ -1,9 +1,8 @@
-import { useModelConfigs } from '@/hooks/useModelConfigs';
-import { useProUser } from '@/hooks/useProUser';
-import { toast } from 'sonner';
-import { getCleanPrompt } from '@/utils/promptUtils';
-import { useStyleConfigs } from '@/hooks/useStyleConfigs';
-import { supabase } from '@/integrations/supabase/supabase';
+import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
+import { useModelConfigs } from '@/hooks/useModelConfigs'
+import { useProUser } from '@/hooks/useProUser'
+import { toast } from 'sonner'
+import { getCleanPrompt } from '@/utils/promptUtils'
 
 export const useImageHandlers = ({
   generateImage,
@@ -19,150 +18,124 @@ export const useImageHandlers = ({
   setQuality,
   setAspectRatio,
   setUseAspectRatio,
+  setStyle,
   aspectRatios,
   session,
   queryClient,
   activeView,
   setDetailsDialogOpen,
   setActiveView,
-  setStyle,
 }) => {
   const { data: modelConfigs } = useModelConfigs();
-  const { data: styleConfigs } = useStyleConfigs();
-  const { data: isPro = false } = useProUser(session?.user?.id);
+  const { data: isPro } = useProUser(session?.user?.id);
 
   const handleGenerateImage = async () => {
-    if (generateImage) {
-      await generateImage();
-    }
-  };
+    await generateImage()
+  }
 
   const handleImageClick = (image) => {
-    if (setSelectedImage && setFullScreenViewOpen) {
-      setSelectedImage(image);
-      setFullScreenViewOpen(true);
-    }
-  };
+    setSelectedImage(image)
+    setFullScreenViewOpen(true)
+  }
 
   const handleModelChange = (newModel) => {
-    if (setModel && setSteps) {
-      setModel(newModel);
-      if (newModel === 'turbo') {
-        setSteps(4);
-      }
-    }
-  };
+    setModel(newModel)
+  }
 
   const handlePromptKeyDown = async (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      await handleGenerateImage();
+      e.preventDefault()
+      await handleGenerateImage()
     }
-  };
+  }
 
   const handleRemix = (image) => {
-    if (!image) return;
-
-    const cleanPrompt = getCleanPrompt(image.prompt, image.style);
-    if (setPrompt) {
-      setPrompt(cleanPrompt);
-    }
-
-    if (setSeed && setRandomizeSeed) {
-      setSeed(image.seed);
-      setRandomizeSeed(false);
-    }
-
-    if (setWidth && setHeight) {
-      setWidth(image.width);
-      setHeight(image.height);
-    }
-
-    if (setQuality) {
-      setQuality(image.quality);
-    }
-
-    if (setModel && modelConfigs) {
-      setModel(image.model);
-      setSteps(image.steps);
-      
-      if (typeof setStyle === 'function') {
-        const isStylePremium = styleConfigs?.[image.style]?.isPremium;
-        if (!isStylePremium || isPro) {
-          setStyle(image.style);
-        } else {
-          setStyle(null);
-        }
-      }
-    }
-
-    if (image.aspect_ratio && setAspectRatio && setUseAspectRatio) {
-      setAspectRatio(image.aspect_ratio);
-      setUseAspectRatio(true);
-    }
-  };
-
-  const handleDownload = async (image) => {
-    if (!image?.storage_path) {
-      toast.error('Cannot download image: Invalid image path');
+    if (!session) {
       return;
     }
 
-    try {
-      const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
-      const response = await fetch(imageUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${getCleanPrompt(image.prompt, image.style).slice(0, 30)}.png`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Error downloading image:', error);
-      toast.error('Failed to download image');
+    // Clean the prompt by removing any style suffix
+    setPrompt(getCleanPrompt(image.user_prompt || image.prompt, image.style));
+    setSeed(image.seed);
+    setRandomizeSeed(false);
+    setWidth(image.width);
+    setHeight(image.height);
+
+    // Check if the original image was made with a pro model
+    const isProModel = modelConfigs?.[image.model]?.isPremium;
+    const isNsfwModel = modelConfigs?.[image.model]?.category === "NSFW";
+
+    // Set model based on NSFW status and pro status
+    if (isNsfwModel) {
+      // For NSFW images, always use nsfwMaster for non-pro users
+      setModel('nsfwMaster');
+      setSteps(modelConfigs['nsfwMaster']?.defaultStep || 30);
+      if (typeof setStyle === 'function') {
+        setStyle(null);
+      }
+    } else if (isProModel && !isPro) {
+      // For non-NSFW pro models, fallback to turbo for non-pro users
+      setModel('turbo');
+      setSteps(modelConfigs['turbo']?.defaultStep || 4);
+      if (typeof setStyle === 'function') {
+        setStyle(null);
+      }
+    } else {
+      // Keep the original model if user has access to it
+      setModel(image.model);
+      setSteps(image.steps);
+      if (typeof setStyle === 'function') {
+        setStyle(image.style);
+      }
     }
-  };
+
+    if (image.quality === 'HD+' && !isPro) {
+      setQuality('HD');
+    } else {
+      setQuality(image.quality);
+    }
+
+    const isPremiumRatio = ['9:21', '21:9', '3:2', '2:3', '4:5', '5:4', '10:16', '16:10'].includes(image.aspect_ratio);
+    if (isPremiumRatio && !isPro) {
+      setAspectRatio('1:1');
+      setUseAspectRatio(true);
+    } else {
+      setAspectRatio(image.aspect_ratio);
+      setUseAspectRatio(image.aspect_ratio in aspectRatios);
+    }
+  }
+
+  const handleDownload = async (imageUrl, prompt) => {
+    const a = document.createElement('a');
+    a.href = imageUrl;
+    a.download = `${prompt}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
 
   const handleDiscard = async (image) => {
     if (!image?.id) {
       toast.error('Cannot delete image: Invalid image ID');
       return;
     }
-
+    
     try {
-      const { error } = await supabase
-        .from('user_images')
-        .delete()
-        .eq('id', image.id)
-        .eq('user_id', session?.user?.id);
-
-      if (error) throw error;
-
+      await deleteImageCompletely(image.id);
       queryClient.invalidateQueries(['userImages']);
-      queryClient.invalidateQueries(['galleryImages']);
-
-      if (activeView === 'myImages') {
-        setActiveView('trending');
-      }
-
+      toast.success('Image deleted successfully');
     } catch (error) {
       console.error('Error deleting image:', error);
-      throw error;
+      toast.error('Failed to delete image');
     }
-  };
+  }
 
   const handleViewDetails = (image) => {
-    if (setSelectedImage && setDetailsDialogOpen) {
-      setSelectedImage(image);
-      setDetailsDialogOpen(true);
-    }
-  };
+    setSelectedImage(image);
+    setDetailsDialogOpen(true);
+  }
 
   return {
-    handleGenerateImage,
     handleImageClick,
     handleModelChange,
     handlePromptKeyDown,
@@ -170,5 +143,5 @@ export const useImageHandlers = ({
     handleDownload,
     handleDiscard,
     handleViewDetails,
-  };
-};
+  }
+}
