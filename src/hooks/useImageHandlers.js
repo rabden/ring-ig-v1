@@ -1,7 +1,6 @@
 import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useProUser } from '@/hooks/useProUser'
-import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import { toast } from 'sonner'
 
 export const useImageHandlers = ({
@@ -27,7 +26,6 @@ export const useImageHandlers = ({
   setActiveView,
 }) => {
   const { data: modelConfigs } = useModelConfigs();
-  const { data: styleConfigs } = useStyleConfigs();
   const { data: isPro } = useProUser(session?.user?.id);
 
   const handleGenerateImage = async () => {
@@ -85,17 +83,8 @@ export const useImageHandlers = ({
       // Keep the original model if user has access to it
       setModel(image.model);
       setSteps(image.steps);
-      
-      // Handle style setting based on pro status
       if (typeof setStyle === 'function') {
-        const isStylePremium = styleConfigs?.[image.style]?.isPremium;
-        if (isStylePremium && !isPro) {
-          // If the style is premium and user is not pro, set to null
-          setStyle(null);
-        } else if (!isNsfwModel) {
-          // Only set style if not NSFW model
-          setStyle(image.style);
-        }
+        setStyle(image.style);
       }
     }
 
