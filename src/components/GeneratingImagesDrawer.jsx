@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import { Loader } from "lucide-react"
+import { getCleanPrompt } from '@/utils/promptUtils';
 
 const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) => {
   const { data: modelConfigs } = useModelConfigs();
@@ -31,7 +32,9 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
               </div>
               {img.prompt && (
                 <p className="text-sm text-muted-foreground">
-                  {img.prompt.length > 100 ? `${img.prompt.substring(0, 100)}...` : img.prompt}
+                  {getCleanPrompt(img.prompt, img.style).length > 100 
+                    ? `${getCleanPrompt(img.prompt, img.style).substring(0, 100)}...` 
+                    : getCleanPrompt(img.prompt, img.style)}
                 </p>
               )}
               <div className="flex gap-2 text-xs text-muted-foreground">

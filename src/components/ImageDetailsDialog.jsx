@@ -14,6 +14,7 @@ import { toast } from 'sonner'
 import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import TruncatablePrompt from './TruncatablePrompt'
+import { getCleanPrompt } from '@/utils/promptUtils'
 
 const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
   const { data: styleConfigs } = useStyleConfigs();
@@ -33,7 +34,8 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
   ];
 
   const handleCopyPrompt = async () => {
-    await navigator.clipboard.writeText(image.user_prompt || image.prompt);
+    const cleanPrompt = getCleanPrompt(image.user_prompt || image.prompt, image.style);
+    await navigator.clipboard.writeText(cleanPrompt);
     setCopyIcon('check');
     toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
@@ -66,7 +68,7 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
                   </Button>
                 </div>
               </div>
-              <TruncatablePrompt prompt={image.user_prompt || image.prompt} />
+              <TruncatablePrompt prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)} />
             </div>
             <Separator />
             <div className="grid grid-cols-2 gap-4">
