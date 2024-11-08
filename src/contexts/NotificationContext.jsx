@@ -30,14 +30,15 @@ export const NotificationProvider = ({ children }) => {
         .eq('user_id', session.user.id)
         .order('created_at', { ascending: false });
 
-      // Fetch global notifications that haven't been hidden by the current user
+      // Fetch global notifications
       const { data: allGlobalNotifications } = await supabase
         .from('global_notifications')
         .select('*')
         .order('created_at', { ascending: false });
 
+      // Filter out hidden global notifications
       const visibleGlobalNotifications = (allGlobalNotifications || [])
-        .filter(n => !n.hidden_by?.split(',').includes(session.user.id));
+        .filter(n => !n.hidden_by?.includes(session.user.id));
 
       setNotifications(userNotifications || []);
       setGlobalNotifications(visibleGlobalNotifications);
@@ -106,44 +107,47 @@ export const NotificationProvider = ({ children }) => {
   };
 
   const hideGlobalNotification = async (notificationId) => {
+    if (!session?.user?.id) return;
+
     try {
-      // Get current notification data
-      const { data: notification, error: fetchError } = await supabase
+      // Get the current notification
+      const { data: notification } = await supabase
         .from('global_notifications')
         .select('hidden_by')
         .eq('id', notificationId)
         .single();
 
-      if (fetchError) {
-        console.error('Error fetching notification:', fetchError);
+      if (!notification) {
+        toast.error('Notification not found');
+        return;
+      }
+
+      // Parse current hidden_by and add new user ID
+      const hiddenBy = notification.hidden_by || '';
+      const hiddenUsers = hiddenBy.split(',').filter(Boolean);
+      
+      if (!hiddenUsers.includes(session.user.id)) {
+        hiddenUsers.push(session.user.id);
+      }
+
+      // Update the notification with new hidden_by value
+      const { error } = await supabase
+        .from('global_notifications')
+        .update({ hidden_by: hiddenUsers.join(',') })
+        .eq('id', notificationId);
+
+      if (error) {
+        console.error('Error updating notification:', error);
         toast.error('Failed to hide notification');
         return;
       }
 
-      // Parse existing hidden users
-      const currentHidden = (notification?.hidden_by || '').split(',').filter(Boolean);
-
-      // Add new user ID if not already hidden
-      if (!currentHidden.includes(session.user.id)) {
-        const newHidden = [...currentHidden, session.user.id].join(',');
-
-        const { error: updateError } = await supabase
-          .from('global_notifications')
-          .update({ hidden_by: newHidden })
-          .eq('id', notificationId);
-
-        if (updateError) {
-          console.error('Error updating hidden notifications:', updateError);
-          toast.error('Failed to hide notification');
-          return;
-        }
-
-        setGlobalNotifications(prev => prev.filter(n => n.id !== notificationId));
-        setUnreadCount(prev => Math.max(0, prev - 1));
-        toast.success('Notification hidden successfully');
-      }
+      // Update local state
+      setGlobalNotifications(prev => prev.filter(n => n.id !== notificationId));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+      toast.success('Notification hidden successfully');
     } catch (error) {
-      console.error('Error hiding global notification:', error);
+      console.error('Error hiding notification:', error);
       toast.error('Failed to hide notification');
     }
   };
