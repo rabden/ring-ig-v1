@@ -16,18 +16,14 @@ export const useGalleryImages = ({
 
       let query = supabase
         .from('user_images')
-        .select('*')
+        .select('*, model_configs!inner(*)')
         .order('created_at', { ascending: false });
 
-      // Filter by NSFW content
-      const nsfwModels = ['nsfwMaster', 'animeNsfw'];
+      // Filter by NSFW content based on model category
       if (nsfwEnabled) {
-        query = query.in('model', nsfwModels);
+        query = query.eq('model_configs.category', 'NSFW');
       } else {
-        // Using a different approach to filter out NSFW models
-        query = query.or(
-          nsfwModels.map(model => `model.neq.${model}`).join(',')
-        );
+        query = query.neq('model_configs.category', 'NSFW');
       }
 
       // Apply view-specific filters
