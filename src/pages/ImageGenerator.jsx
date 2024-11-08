@@ -1,15 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useUserCredits } from '@/hooks/useUserCredits';
 import { useImageGeneration } from '@/hooks/useImageGeneration';
-import { useQueryClient } from '@tanstack/react-query';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { useImageGeneratorState } from '@/hooks/useImageGeneratorState';
 import { useProUser } from '@/hooks/useProUser';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/supabase';
 import { useImageActions } from '@/hooks/useImageActions';
 import { toast } from 'sonner';
 
@@ -25,8 +21,6 @@ import BottomNavbar from '@/components/BottomNavbar';
 import ImageGeneratorPanel from '@/components/ImageGeneratorPanel';
 
 const ImageGenerator = () => {
-  const { imageId } = useParams();
-  const location = useLocation();
   const [activeFilters, setActiveFilters] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
@@ -35,7 +29,6 @@ const ImageGenerator = () => {
   const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id);
   const { data: isPro } = useProUser(session?.user?.id);
   const { data: modelConfigs } = useModelConfigs();
-  const queryClient = useQueryClient();
   const [showPrivate, setShowPrivate] = useState(false);
 
   const state = useImageGeneratorState();
@@ -104,7 +97,6 @@ const ImageGenerator = () => {
     setFullScreenViewOpen,
     setDetailsDialogOpen,
     session,
-    queryClient,
   });
 
   const handleFilterChange = (type, value) => {
@@ -122,38 +114,6 @@ const ImageGenerator = () => {
   const handleSearch = (query) => {
     setSearchQuery(query);
   };
-
-  const { data: remixImage } = useQuery({
-    queryKey: ['remixImage', imageId],
-    queryFn: async () => {
-      if (!imageId) return null;
-      const { data, error } = await supabase
-        .from('user_images')
-        .select('*')
-        .eq('id', imageId)
-        .single();
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!imageId && isRemixRoute,
-  });
-
-  useEffect(() => {
-    if (remixImage && isRemixRoute) {
-      setPrompt(remixImage.prompt);
-      setSeed(remixImage.seed);
-      setRandomizeSeed(false);
-      setWidth(remixImage.width);
-      setHeight(remixImage.height);
-      setModel(remixImage.model);
-      setQuality(remixImage.quality);
-      setStyle(remixImage.style);
-      if (remixImage.aspect_ratio) {
-        setAspectRatio(remixImage.aspect_ratio);
-        setUseAspectRatio(true);
-      }
-    }
-  }, [remixImage, isRemixRoute]);
 
   const settings = {
     prompt, setPrompt,
