@@ -36,11 +36,11 @@ export const getModifiedPrompt = async (prompt, style, model, modelConfigs) => {
     return prompt;
   }
   
-  // Get style suffix from styleConfig, defaulting to general style if none selected
-  const selectedStyle = style && styleConfig[style] ? styleConfig[style] : styleConfig.general;
-  const styleSuffix = selectedStyle?.suffix || '';
+  if (!style || !styleConfig[style]) {
+    return prompt;
+  }
   
-  // Combine prompt with style suffix and model-specific suffix
+  const styleSuffix = styleConfig[style]?.suffix || '';
   const modifiedPrompt = `${prompt}, ${styleSuffix}${modelConfig?.promptSuffix || ''}`;
   
   return modifiedPrompt;
