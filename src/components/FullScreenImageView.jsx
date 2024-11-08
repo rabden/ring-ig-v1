@@ -87,14 +87,16 @@ const FullScreenImageView = ({
         className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-background data-[state=open]:duration-0 [&>button]:hidden" 
         hideCloseButton
       >
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="absolute left-4 top-4 z-50" 
-          onClick={onClose}
-        >
-          <ArrowLeft className="h-6 w-6" />
-        </Button>
+        <div className="absolute left-4 top-4 z-50">
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={onClose}
+            className="bg-background/80 backdrop-blur-sm hover:bg-background/90"
+          >
+            <ArrowLeft className="h-6 w-6" />
+          </Button>
+        </div>
         
         <div className="flex h-full">
           <div className="flex-1 relative flex items-center justify-center bg-black/10 dark:bg-black/30">
