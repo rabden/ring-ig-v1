@@ -66,6 +66,7 @@ export const useImageGeneration = ({
       // Set default style to 'N/A' if not specified or if NSFW model
       const finalStyle = modelConfigs[model]?.category === "NSFW" ? 'N/A' : (style || 'N/A');
 
+      // Add the private flag to the generating images state
       setGeneratingImages(prev => [...prev, { 
         id: generationId, 
         width: finalWidth, 
@@ -73,7 +74,7 @@ export const useImageGeneration = ({
         prompt: modifiedPrompt,
         model,
         style: finalStyle,
-        is_private: isPrivate
+        is_private: isPrivate // Ensure is_private is included in the state
       }]);
 
       const makeRequest = async (needNewKey = false) => {
@@ -145,7 +146,7 @@ export const useImageGeneration = ({
             .upload(filePath, imageBlob);
           if (uploadError) throw uploadError;
 
-          // Ensure is_private is set correctly in the database insert
+          // Insert the image record with the correct is_private flag
           const { error: insertError } = await supabase
             .from('user_images')
             .insert({
