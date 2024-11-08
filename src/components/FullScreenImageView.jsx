@@ -2,18 +2,18 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Download, Trash2, RefreshCw, Copy, Share2, Check, ArrowLeft } from "lucide-react";
+import { Download, Trash2, RefreshCw, ArrowLeft } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { toast } from 'sonner';
-import { downloadImage } from '@/utils/downloadUtils';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import ProfileAvatar from './profile/ProfileAvatar';
 import LikeButton from './LikeButton';
 import { useLikes } from '@/hooks/useLikes';
 import { useQuery } from '@tanstack/react-query';
+import ImagePromptSection from './image-view/ImagePromptSection';
+import ImageDetailsSection from './image-view/ImageDetailsSection';
 
 const FullScreenImageView = ({ 
   image, 
@@ -58,9 +58,7 @@ const FullScreenImageView = ({
     enabled: !!image?.id
   });
   
-  if (!isOpen || !image) {
-    return null;
-  }
+  if (!isOpen || !image) return null;
 
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(image.user_prompt || image.prompt);
@@ -76,33 +74,6 @@ const FullScreenImageView = ({
     setTimeout(() => setShareIcon('share'), 1500);
   };
 
-  const handleDownload = async () => {
-    const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
-    await downloadImage(imageUrl, image.user_prompt || image.prompt);
-  };
-
-  const handleRemixClick = () => {
-    onRemix(image);
-    setStyle(image.style);
-    setActiveTab('input');
-    onClose();
-  };
-
-  const handleDiscard = async () => {
-    if (!image?.id) {
-      toast.error('Cannot delete image: Invalid image ID');
-      return;
-    }
-    try {
-      await onDiscard(image);
-      toast.success('Image deleted successfully');
-      onClose();
-    } catch (error) {
-      toast.error('Failed to delete image');
-      console.error('Error deleting image:', error);
-    }
-  };
-
   const detailItems = [
     { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
     { label: "Seed", value: image.seed },
@@ -114,10 +85,7 @@ const FullScreenImageView = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent 
-        className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-background data-[state=open]:duration-0 [&>button]:hidden" 
-        hideCloseButton
-      >
+      <DialogContent className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-background data-[state=open]:duration-0 [&>button]:hidden">
         <div className="absolute left-4 top-4 z-50">
           <Button 
             variant="ghost" 
@@ -156,52 +124,34 @@ const FullScreenImageView = ({
                     </div>
                   </div>
 
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-lg font-semibold">Prompt</h3>
-                      <div className="flex gap-2">
-                        <Button variant="ghost" size="sm" onClick={handleCopyPrompt}>
-                          {copyIcon === 'copy' ? <Copy className="h-4 w-4" /> : <Check className="h-4 w-4" />}
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={handleShare}>
-                          {shareIcon === 'share' ? <Share2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
-                        </Button>
-                      </div>
-                    </div>
-                    <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md break-words">
-                      {image.user_prompt || image.prompt}
-                    </p>
-                  </div>
+                  <ImagePromptSection 
+                    prompt={image.user_prompt || image.prompt}
+                    copyIcon={copyIcon}
+                    shareIcon={shareIcon}
+                    onCopyPrompt={handleCopyPrompt}
+                    onShare={handleShare}
+                  />
 
                   {session && (
                     <div className="flex gap-2 justify-between">
-                      <Button onClick={handleDownload} className="flex-1" variant="ghost" size="sm">
+                      <Button onClick={onDownload} className="flex-1" variant="ghost" size="sm">
                         <Download className="mr-2 h-4 w-4" />
                         Download
                       </Button>
                       {isOwner && (
-                        <Button onClick={handleDiscard} className="flex-1 text-destructive hover:text-destructive" variant="ghost" size="sm">
+                        <Button onClick={onDiscard} className="flex-1 text-destructive hover:text-destructive" variant="ghost" size="sm">
                           <Trash2 className="mr-2 h-4 w-4" />
                           Discard
                         </Button>
                       )}
-                      <Button onClick={handleRemixClick} className="flex-1" variant="ghost" size="sm">
+                      <Button onClick={onRemix} className="flex-1" variant="ghost" size="sm">
                         <RefreshCw className="mr-2 h-4 w-4" />
                         Remix
                       </Button>
                     </div>
                   )}
 
-                  <div className="grid grid-cols-2 gap-3">
-                    {detailItems.map((item, index) => (
-                      <div key={index} className="space-y-1">
-                        <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
-                        <Badge variant="secondary" className="text-xs sm:text-sm font-normal w-full justify-center">
-                          {item.value}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
+                  <ImageDetailsSection detailItems={detailItems} />
                 </div>
               </ScrollArea>
             </div>

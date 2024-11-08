@@ -13,6 +13,7 @@ import { Copy, Share2, Check } from "lucide-react"
 import { toast } from 'sonner'
 import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
+import TruncatablePrompt from './TruncatablePrompt'
 
 const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
   const { data: styleConfigs } = useStyleConfigs();
@@ -65,7 +66,7 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
                   </Button>
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md">{image.user_prompt || image.prompt}</p>
+              <TruncatablePrompt prompt={image.user_prompt || image.prompt} />
             </div>
             <Separator />
             <div className="grid grid-cols-2 gap-4">
