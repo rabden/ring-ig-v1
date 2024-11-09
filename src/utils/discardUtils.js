@@ -8,12 +8,11 @@ export const handleImageDiscard = async (image, queryClient) => {
   }
 
   try {
-    // First check if the image exists
     const { data: imageData, error: fetchError } = await supabase
       .from('user_images')
       .select('storage_path')
       .eq('id', image.id)
-      .maybeSingle(); // Use maybeSingle instead of single to handle non-existent records
+      .maybeSingle();
 
     if (fetchError) {
       console.error('Error fetching image:', fetchError);
@@ -21,7 +20,6 @@ export const handleImageDiscard = async (image, queryClient) => {
       return;
     }
 
-    // If image doesn't exist in database, just invalidate queries
     if (!imageData) {
       if (queryClient) {
         queryClient.invalidateQueries({ queryKey: ['galleryImages'] });
@@ -29,7 +27,6 @@ export const handleImageDiscard = async (image, queryClient) => {
       return;
     }
 
-    // Delete from storage first
     const { error: storageError } = await supabase.storage
       .from('user-images')
       .remove([imageData.storage_path]);
@@ -40,7 +37,6 @@ export const handleImageDiscard = async (image, queryClient) => {
       return;
     }
 
-    // Then delete from database
     const { error: dbError } = await supabase
       .from('user_images')
       .delete()
@@ -52,7 +48,6 @@ export const handleImageDiscard = async (image, queryClient) => {
       return;
     }
 
-    // Invalidate queries to refresh the UI
     if (queryClient) {
       queryClient.invalidateQueries({ queryKey: ['galleryImages'] });
     }

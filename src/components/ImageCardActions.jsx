@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { MoreVertical } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import LikeButton from './LikeButton';
-import { toast } from 'sonner';
 import { useImageRemix } from '@/hooks/useImageRemix';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
@@ -39,10 +38,7 @@ const ImageCardActions = ({
   };
 
   const handleDiscard = () => {
-    if (!image?.id) {
-      toast.error('Cannot delete image: Invalid image ID');
-      return;
-    }
+    if (!image?.id) return;
     onDiscard(image);
   };
 
