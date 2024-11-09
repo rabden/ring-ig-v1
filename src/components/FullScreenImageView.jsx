@@ -6,20 +6,16 @@ import { Download, Trash2, RefreshCw, ArrowLeft } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
-import { toast } from 'sonner';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import ProfileAvatar from './profile/ProfileAvatar';
-import LikeButton from './LikeButton';
 import { useLikes } from '@/hooks/useLikes';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import ImagePromptSection from './image-view/ImagePromptSection';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
-import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
 import { getCleanPrompt } from '@/utils/promptUtils';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import { useImageRemix } from '@/hooks/useImageRemix';
 import HeartAnimation from './animations/HeartAnimation';
-import FollowButton from './social/FollowButton';
+import ImageHeader from './image-view/ImageHeader';
 
 const FullScreenImageView = ({ 
   image, 
@@ -67,8 +63,6 @@ const FullScreenImageView = ({
     enabled: !!image?.id
   });
   
-  if (!isOpen || !image) return null;
-
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
     setCopyIcon('check');
@@ -92,15 +86,6 @@ const FullScreenImageView = ({
     }
   };
 
-  const detailItems = [
-    { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
-    { label: "Seed", value: image.seed },
-    { label: "Size", value: `${image.width}x${image.height}` },
-    { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
-    { label: "Quality", value: image.quality },
-    { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
-  ];
-
   const handleDoubleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -112,6 +97,15 @@ const FullScreenImageView = ({
       }, 800);
     }
   };
+
+  const detailItems = [
+    { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
+    { label: "Seed", value: image.seed },
+    { label: "Size", value: `${image.width}x${image.height}` },
+    { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
+    { label: "Quality", value: image.quality },
+    { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
+  ];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -142,23 +136,14 @@ const FullScreenImageView = ({
             <div className="bg-card h-[calc(100vh-32px)] rounded-lg border shadow-sm">
               <ScrollArea className="h-full">
                 <div className="p-6 space-y-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
-                      <span className="text-sm font-medium">{owner?.display_name}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <FollowButton targetUserId={image.user_id} />
-                      <ImagePrivacyToggle image={image} isOwner={isOwner} />
-                      <div className="flex items-center gap-1">
-                        <LikeButton 
-                          isLiked={userLikes?.includes(image.id)} 
-                          onToggle={() => toggleLike(image.id)} 
-                        />
-                        <span className="text-xs text-muted-foreground">{likeCount}</span>
-                      </div>
-                    </div>
-                  </div>
+                  <ImageHeader 
+                    owner={owner}
+                    image={image}
+                    isOwner={isOwner}
+                    userLikes={userLikes}
+                    toggleLike={toggleLike}
+                    likeCount={likeCount}
+                  />
 
                   <ImagePromptSection 
                     prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)}
