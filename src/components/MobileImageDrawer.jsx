@@ -7,14 +7,10 @@ import { toast } from 'sonner';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
-import ProfileAvatar from './profile/ProfileAvatar';
-import LikeButton from './LikeButton';
-import { useLikes } from '@/hooks/useLikes';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { getCleanPrompt } from '@/utils/promptUtils';
 import TruncatablePrompt from './TruncatablePrompt';
-import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import { useImageRemix } from '@/hooks/useImageRemix';
 
@@ -35,36 +31,7 @@ const MobileImageDrawer = ({
   const { data: styleConfigs } = useStyleConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
-  const { userLikes, toggleLike } = useLikes(session?.user?.id);
   const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, () => onOpenChange(false));
-  const queryClient = useQueryClient();
-  
-  const { data: owner } = useQuery({
-    queryKey: ['user', image?.user_id],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', image.user_id)
-        .single();
-      return data;
-    },
-    enabled: !!image?.user_id
-  });
-
-  const { data: likeCount = 0 } = useQuery({
-    queryKey: ['likes', image?.id],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from('user_image_likes')
-        .select('*', { count: 'exact' })
-        .eq('image_id', image.id);
-      return count;
-    },
-    enabled: !!image?.id
-  });
-
-  if (!image) return null;
 
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
@@ -82,7 +49,7 @@ const MobileImageDrawer = ({
 
   const handleDiscard = async () => {
     try {
-      await handleImageDiscard(image, queryClient);
+      await handleImageDiscard(image);
       onOpenChange(false);
     } catch (error) {
       console.error('Error in handleDiscard:', error);
