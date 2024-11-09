@@ -43,7 +43,7 @@ const ImageGenerator = () => {
   const [isPrivate, setIsPrivate] = useState(false);
   const isHeaderVisible = useScrollDirection();
   const { session } = useSupabaseAuth();
-  const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id);
+  const { credits = 0, bonusCredits = 0, updateCredits } = useUserCredits(session?.user?.id);
   const { data: isPro } = useProUser(session?.user?.id);
   const { data: modelConfigs } = useModelConfigs();
   const queryClient = useQueryClient();
@@ -102,7 +102,7 @@ const ImageGenerator = () => {
           return;
         }
         finalPrompt = improved;
-        setPrompt(improved); // Update the prompt in the UI
+        setPrompt(improved);
       }
 
       await generateImage(isPrivate, finalPrompt);
@@ -195,7 +195,7 @@ const ImageGenerator = () => {
   const headers = (
     <>
       <DesktopHeader
-        user={session.user}
+        user={session?.user}
         credits={credits}
         bonusCredits={bonusCredits}
         activeView={activeView}
