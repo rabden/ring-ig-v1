@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { MoreVertical } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import LikeButton from './LikeButton';
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from 'sonner';
 import { useImageRemix } from '@/hooks/useImageRemix';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
@@ -21,7 +21,6 @@ const ImageCardActions = ({
   setStyle,
   setActiveTab
 }) => {
-  const { toast } = useToast();
   const { session } = useSupabaseAuth();
   const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, () => {});
 
@@ -41,11 +40,7 @@ const ImageCardActions = ({
 
   const handleDiscard = () => {
     if (!image?.id) {
-      toast({
-        title: "Error",
-        description: "Cannot delete image: Invalid image ID",
-        variant: "destructive"
-      });
+      toast.error('Cannot delete image: Invalid image ID');
       return;
     }
     onDiscard(image);
