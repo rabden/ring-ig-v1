@@ -7,15 +7,17 @@ import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { downloadImage } from '@/utils/downloadUtils';
-import PublicDesktopView from '@/components/public-image/PublicDesktopView';
-import PublicMobileView from '@/components/public-image/PublicMobileView';
+import MobileImageDrawer from '@/components/MobileImageDrawer';
+import FullScreenImageView from '@/components/FullScreenImageView';
+import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { useImageRemix } from '@/hooks/useImageRemix';
 
 const PublicImageView = () => {
   const { imageId } = useParams();
   const navigate = useNavigate();
-  const { data: modelConfigs } = useModelConfigs();
-  const { data: styleConfigs } = useStyleConfigs();
+  const { session } = useSupabaseAuth();
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const { handleRemix } = useImageRemix(session);
 
   const { data: image, isLoading } = useQuery({
     queryKey: ['publicImage', imageId],
@@ -32,12 +34,13 @@ const PublicImageView = () => {
   });
 
   const handleDownload = async () => {
+    if (!image) return;
     const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
     await downloadImage(imageUrl, image.prompt);
   };
 
-  const handleRemix = () => {
-    navigate(`/remix/${image.id}`);
+  const handleRemixClick = () => {
+    handleRemix(image);
   };
 
   if (isLoading) {
@@ -57,21 +60,28 @@ const PublicImageView = () => {
   }
 
   return isMobile ? (
-    <PublicMobileView
+    <MobileImageDrawer
+      open={true}
+      onOpenChange={() => navigate(-1)}
       image={image}
-      modelConfigs={modelConfigs}
-      styleConfigs={styleConfigs}
+      showFullImage={true}
       onDownload={handleDownload}
-      onRemix={handleRemix}
+      onRemix={handleRemixClick}
+      isOwner={image.user_id === session?.user?.id}
+      setActiveTab={() => {}}
+      setStyle={() => {}}
     />
   ) : (
-    <PublicDesktopView
+    <FullScreenImageView
       image={image}
-      modelConfigs={modelConfigs}
-      styleConfigs={styleConfigs}
+      isOpen={true}
+      onClose={() => navigate(-1)}
       onDownload={handleDownload}
-      onRemix={handleRemix}
-      onBack={() => navigate(-1)}
+      onDiscard={() => {}}
+      onRemix={handleRemixClick}
+      isOwner={image.user_id === session?.user?.id}
+      setStyle={() => {}}
+      setActiveTab={() => {}}
     />
   );
 };
