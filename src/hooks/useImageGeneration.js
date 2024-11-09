@@ -48,8 +48,6 @@ export const useImageGeneration = ({
     }
 
     const generationPromises = [];
-    let successfulGenerations = 0;
-
     for (let i = 0; i < imageCount; i++) {
       const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed + i;
       const generationId = Date.now().toString() + i;
@@ -143,6 +141,7 @@ export const useImageGeneration = ({
             
           if (uploadError) throw uploadError;
 
+          // Insert the image record with explicit privacy setting
           const { data: insertData, error: insertError } = await supabase
             .from('user_images')
             .insert([{
@@ -166,6 +165,7 @@ export const useImageGeneration = ({
             throw insertError;
           }
 
+          // Verify the insert was successful and the privacy flag was set
           if (!insertData || insertData.is_private !== isPrivate) {
             console.error('Privacy flag mismatch:', { expected: isPrivate, actual: insertData?.is_private });
             throw new Error('Failed to set image privacy correctly');
@@ -173,7 +173,6 @@ export const useImageGeneration = ({
 
           setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
           toast.success(`Image generated successfully! (${isPrivate ? 'Private' : 'Public'})`);
-          successfulGenerations++;
 
         } catch (error) {
           console.error('Error generating image:', error);
@@ -187,12 +186,7 @@ export const useImageGeneration = ({
 
     try {
       await Promise.all(generationPromises);
-      // Only deduct credits for successful generations
-      if (successfulGenerations > 0) {
-        const actualCreditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality] * successfulGenerations;
-        await updateCredits(quality, successfulGenerations);
-        toast.success(`Credits deducted: ${actualCreditCost}`);
-      }
+      await updateCredits(quality, imageCount);
     } catch (error) {
       console.error('Error in batch generation:', error);
     }

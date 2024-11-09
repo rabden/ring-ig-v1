@@ -17,13 +17,13 @@ export const useUserCredits = (userId) => {
     return data;
   };
 
-  const updateCredits = async (quality, successCount) => {
+  const updateCredits = async (quality) => {
     const creditCost = {
       "SD": 1,
       "HD": 2,
       "HD+": 3,
       "4K": 4
-    }[quality] * successCount;
+    }[quality];
 
     const { data: profile } = await supabase
       .from('profiles')
