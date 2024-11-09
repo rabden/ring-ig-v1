@@ -1,5 +1,5 @@
 import React, { memo, useState, useRef, useEffect } from 'react';
-import { Image, Plus, Rss, Bell, User } from 'lucide-react';
+import { Image, Plus, Sparkles, Bell, User } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import NotificationList from './notifications/NotificationList';
 import { useNotifications } from '@/contexts/NotificationContext';
@@ -124,11 +124,11 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
             }}
           />
           <NavButton
-            icon={Rss}
-            isActive={activeTab === 'images' && activeView === 'feed'}
+            icon={Sparkles}
+            isActive={activeTab === 'images' && activeView === 'inspiration'}
             onClick={() => {
               setActiveTab('images');
-              setActiveView('feed');
+              setActiveView('inspiration');
             }}
           />
           <NavButton
