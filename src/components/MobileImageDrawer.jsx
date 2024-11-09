@@ -19,6 +19,7 @@ import ProfileAvatar from './profile/ProfileAvatar';
 import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
 import { useLikes } from '@/hooks/useLikes';
 import LikeButton from './LikeButton';
+import FollowButton from './social/FollowButton';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -138,6 +139,7 @@ const MobileImageDrawer = ({
               <span className="text-sm font-medium">{owner?.display_name}</span>
             </div>
             <div className="flex items-center gap-2">
+              <FollowButton targetUserId={image.user_id} />
               <ImagePrivacyToggle image={image} isOwner={isOwner} />
               <div className="flex items-center gap-1">
                 <LikeButton 
