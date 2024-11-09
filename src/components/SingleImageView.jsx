@@ -2,20 +2,20 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
-import { useModelConfigs } from '@/hooks/useModelConfigs';
-import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { useImageViewHandlers } from './image-view/ImageViewHandlers';
-import DesktopImageView from './image-view/DesktopImageView';
-import MobileImageView from './image-view/MobileImageView';
+import { downloadImage } from '@/utils/downloadUtils';
+import { useImageRemix } from '@/hooks/useImageRemix';
+import MobileImageDrawer from '@/components/MobileImageDrawer';
+import FullScreenImageView from '@/components/FullScreenImageView';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const SingleImageView = () => {
   const { imageId } = useParams();
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
-  const { data: modelConfigs } = useModelConfigs();
-  const { data: styleConfigs } = useStyleConfigs();
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const { handleRemix } = useImageRemix(session);
 
   const { data: image, isLoading } = useQuery({
     queryKey: ['singleImage', imageId],
@@ -31,8 +31,11 @@ const SingleImageView = () => {
     },
   });
 
-  const handlers = useImageViewHandlers(image, session, navigate);
-  const isMobile = window.innerWidth <= 768;
+  const handleDownload = async () => {
+    if (!image) return;
+    const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
+    await downloadImage(imageUrl, image.prompt);
+  };
 
   if (isLoading) {
     return (
@@ -51,21 +54,28 @@ const SingleImageView = () => {
   }
 
   return isMobile ? (
-    <MobileImageView
+    <MobileImageDrawer
+      open={true}
+      onOpenChange={() => navigate(-1)}
       image={image}
-      session={session}
-      modelConfigs={modelConfigs}
-      styleConfigs={styleConfigs}
-      handlers={handlers}
+      showFullImage={true}
+      onDownload={handleDownload}
+      onRemix={handleRemix}
+      isOwner={image.user_id === session?.user?.id}
+      setActiveTab={() => {}}
+      setStyle={() => {}}
     />
   ) : (
-    <DesktopImageView
+    <FullScreenImageView
       image={image}
-      session={session}
-      modelConfigs={modelConfigs}
-      styleConfigs={styleConfigs}
-      handlers={handlers}
-      onBack={() => navigate(-1)}
+      isOpen={true}
+      onClose={() => navigate(-1)}
+      onDownload={handleDownload}
+      onDiscard={() => {}}
+      onRemix={handleRemix}
+      isOwner={image.user_id === session?.user?.id}
+      setStyle={() => {}}
+      setActiveTab={() => {}}
     />
   );
 };
