@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Download, Trash2, RefreshCw, Copy, Share2, Check, Image, GalleryHorizontal } from "lucide-react";
+import { Download, Trash2, Wand2, Copy, Share2, Check } from "lucide-react";
 import { toast } from 'sonner';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
@@ -58,83 +58,72 @@ const MobileImageDrawer = ({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="h-[100dvh] bg-background">
-        <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mt-4" />
-        
-        <div className="flex flex-col h-[calc(100dvh-24px)]">
-          {/* Image Section */}
-          <div className="relative bg-black/5 dark:bg-black/20">
-            <img
-              src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-              alt={image.prompt}
-              className="w-full h-auto max-h-[40vh] object-contain"
-            />
-          </div>
-
-          {/* Content Section */}
-          <div className="flex-1 overflow-hidden">
-            <ScrollArea className="h-full px-4">
-              {/* Action Buttons */}
-              {session && (
-                <div className="flex gap-2 justify-between py-4 border-b">
-                  <Button variant="outline" size="sm" className="flex-1" onClick={onDownload}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Download
-                  </Button>
-                  {isOwner && (
-                    <Button variant="outline" size="sm" className="flex-1 text-destructive hover:text-destructive" onClick={handleDiscard}>
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Discard
-                    </Button>
-                  )}
-                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleRemix(image)}>
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Remix
-                  </Button>
-                </div>
+      <DrawerContent className="h-[100vh] bg-background">
+        <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mt-4 mb-2" />
+        <ScrollArea className="h-[calc(96vh-32px)] px-4 pb-8">
+          {showFullImage && (
+            <div className="relative rounded-lg overflow-hidden mb-6">
+              <img
+                src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                alt={image.prompt}
+                className="w-full h-auto"
+              />
+            </div>
+          )}
+          
+          {session && (
+            <div className="flex gap-2 justify-between mb-6">
+              <Button variant="ghost" size="sm" className="flex-1" onClick={onDownload}>
+                <Download className="mr-2 h-4 w-4" />
+                Download
+              </Button>
+              {isOwner && (
+                <Button variant="ghost" size="sm" className="flex-1 text-destructive hover:text-destructive" onClick={handleDiscard}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Discard
+                </Button>
               )}
+              <Button variant="ghost" size="sm" className="flex-1" onClick={() => handleRemix(image)}>
+                <Wand2 className="mr-2 h-4 w-4" />
+                Remix
+              </Button>
+            </div>
+          )}
 
-              {/* Prompt Section */}
-              <div className="py-4 border-b">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-medium text-muted-foreground">Prompt</h3>
-                  <div className="flex gap-2">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleCopyPrompt}>
-                      {copyIcon === 'copy' ? <Copy className="h-4 w-4" /> : <Check className="h-4 w-4" />}
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleShare}>
-                      {shareIcon === 'share' ? <Share2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                </div>
-                <TruncatablePrompt prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)} />
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Prompt</h3>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="sm" onClick={handleCopyPrompt}>
+                  {copyIcon === 'copy' ? <Copy className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleShare}>
+                  {shareIcon === 'share' ? <Share2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+                </Button>
               </div>
-
-              {/* Details Section */}
-              <div className="py-4 space-y-4">
-                <h3 className="text-sm font-medium text-muted-foreground mb-3">Image Details</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Model</p>
-                    <p className="text-sm font-medium">{modelConfigs?.[image.model]?.name || image.model}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Style</p>
-                    <p className="text-sm font-medium">{styleConfigs?.[image.style]?.name || 'General'}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Size</p>
-                    <p className="text-sm font-medium">{image.width}x{image.height}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs text-muted-foreground">Quality</p>
-                    <p className="text-sm font-medium">{image.quality}</p>
-                  </div>
-                </div>
-              </div>
-            </ScrollArea>
+            </div>
+            <TruncatablePrompt prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)} />
           </div>
-        </div>
+
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Model</p>
+              <p className="text-sm font-medium">{modelConfigs?.[image.model]?.name || image.model}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Style</p>
+              <p className="text-sm font-medium">{styleConfigs?.[image.style]?.name || 'General'}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Size</p>
+              <p className="text-sm font-medium">{image.width}x{image.height}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Quality</p>
+              <p className="text-sm font-medium">{image.quality}</p>
+            </div>
+          </div>
+        </ScrollArea>
       </DrawerContent>
     </Drawer>
   );
