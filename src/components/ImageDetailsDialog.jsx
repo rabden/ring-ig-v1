@@ -8,13 +8,14 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Copy, Share2, Check } from "lucide-react"
-import { toast } from 'sonner'
+import { useToast } from "@/components/ui/use-toast"
 import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import TruncatablePrompt from './TruncatablePrompt'
 import { getCleanPrompt } from '@/utils/promptUtils'
 
 const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
+  const { toast } = useToast();
   const { data: styleConfigs } = useStyleConfigs();
   const { data: modelConfigs } = useModelConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
@@ -35,14 +36,20 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
     const cleanPrompt = getCleanPrompt(image.user_prompt || image.prompt, image.style);
     await navigator.clipboard.writeText(cleanPrompt);
     setCopyIcon('check');
-    toast.success('Prompt copied to clipboard');
+    toast({
+      title: "Success",
+      description: "Prompt copied to clipboard"
+    });
     setTimeout(() => setCopyIcon('copy'), 1500);
   };
 
   const handleShare = async () => {
     await navigator.clipboard.writeText(`${window.location.origin}/image/${image.id}`);
     setShareIcon('check');
-    toast.success('Share link copied to clipboard');
+    toast({
+      title: "Success",
+      description: "Share link copied to clipboard"
+    });
     setTimeout(() => setShareIcon('share'), 1500);
   };
 

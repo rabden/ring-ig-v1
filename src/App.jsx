@@ -3,12 +3,12 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/sonner";
 import { SupabaseAuthProvider } from '@/integrations/supabase/auth';
 import { NotificationProvider } from './contexts/NotificationContext';
 import ImageGenerator from './pages/ImageGenerator';
 import Documentation from './pages/Documentation';
 import SingleImageView from './components/SingleImageView';
+import { Toaster } from "@/components/ui/toaster";
 import '@/styles/shadcn-overrides.css';
 
 const queryClient = new QueryClient({
@@ -37,7 +37,7 @@ function App() {
                   <Route path="/image/:imageId" element={<SingleImageView />} />
                   <Route path="/remix/:imageId" element={<ImageGenerator />} />
                 </Routes>
-                <Toaster />
+                <Toaster position="top-center" />
               </BrowserRouter>
             </TooltipProvider>
           </NotificationProvider>

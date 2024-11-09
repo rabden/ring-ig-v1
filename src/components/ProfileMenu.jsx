@@ -13,9 +13,10 @@ import DisplayNameEditor from './profile/DisplayNameEditor';
 import { useRealtimeProfile } from '@/hooks/useRealtimeProfile';
 import { handleAvatarUpload } from '@/utils/profileUtils';
 import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner'; // Importing toast here
+import { useToast } from "@/components/ui/use-toast";
 
 const ProfileMenu = ({ user, credits, bonusCredits }) => {
+  const { toast } = useToast();
   const { logout } = useSupabaseAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [upgradeFormOpen, setUpgradeFormOpen] = useState(false);
@@ -59,10 +60,17 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
         .update({ display_name: displayName })
         .eq('id', user.id);
 
-      toast.success("Display name updated successfully"); // Using toast here
+      toast({
+        title: "Success",
+        description: "Display name updated successfully"
+      });
       setIsEditing(false);
     } catch (error) {
-      toast.error("Failed to update display name"); // Using toast here
+      toast({
+        title: "Error",
+        description: "Failed to update display name",
+        variant: "destructive"
+      });
       console.error('Error updating display name:', error);
     }
   };
