@@ -16,6 +16,8 @@ import { handleImageDiscard } from '@/utils/discardUtils';
 import { useImageRemix } from '@/hooks/useImageRemix';
 import HeartAnimation from './animations/HeartAnimation';
 import ImageHeader from './image-view/ImageHeader';
+import ImageSocialShare from './image-view/ImageSocialShare';
+import RelatedImages from './image-view/RelatedImages';
 import { toast } from 'sonner';
 
 const FullScreenImageView = ({ 
@@ -150,6 +152,11 @@ const FullScreenImageView = ({
                     likeCount={likeCount}
                   />
 
+                  <ImageSocialShare 
+                    imageId={image.id} 
+                    imageUrl={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                  />
+
                   <ImagePromptSection 
                     prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)}
                     style={image.style}
@@ -179,6 +186,8 @@ const FullScreenImageView = ({
                   )}
 
                   <ImageDetailsSection detailItems={detailItems} />
+
+                  <RelatedImages image={image} userId={image.user_id} />
                 </div>
               </ScrollArea>
             </div>
