@@ -2,7 +2,6 @@ import React from 'react';
 import { Drawer } from 'vaul';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Download, RefreshCw } from "lucide-react";
 import { supabase } from '@/integrations/supabase/supabase';
 import { useQuery } from '@tanstack/react-query';
@@ -21,8 +20,9 @@ const MobileImageDrawer = ({
   setStyle,
 }) => {
   const { data: owner } = useQuery({
-    queryKey: ['profile', image.user_id],
+    queryKey: ['profile', image?.user_id],
     queryFn: async () => {
+      if (!image?.user_id) return null;
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -32,7 +32,10 @@ const MobileImageDrawer = ({
       if (error) throw error;
       return data;
     },
+    enabled: !!image?.user_id,
   });
+
+  if (!image) return null;
 
   return (
     <Drawer.Root open={open} onOpenChange={onOpenChange}>
@@ -52,12 +55,14 @@ const MobileImageDrawer = ({
                 </div>
               )}
               
-              <div className="flex items-center gap-2 mb-6">
-                <Link to={`/profile/${image.user_id}`} className="flex items-center gap-2">
-                  <ProfileAvatar user={owner} size="sm" />
-                  <span className="text-sm font-medium">{owner?.display_name}</span>
-                </Link>
-              </div>
+              {owner && (
+                <div className="flex items-center gap-2 mb-6">
+                  <Link to={`/profile/${image.user_id}`} className="flex items-center gap-2">
+                    <ProfileAvatar user={owner} size="sm" />
+                    <span className="text-sm font-medium">{owner.display_name}</span>
+                  </Link>
+                </div>
+              )}
 
               <div className="flex gap-2 justify-between mb-6">
                 <Button variant="outline" size="sm" className="flex-1" onClick={onDownload}>
