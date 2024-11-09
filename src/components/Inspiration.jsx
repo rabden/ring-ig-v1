@@ -22,11 +22,13 @@ const Inspiration = ({ userId, onImageClick, onDownload, onRemix, onViewDetails 
       const { data, error } = await supabase
         .from('user_images')
         .select('*')
-        .neq('user_id', userId)
+        .neq('user_id', userId)  // Exclude user's own images
+        .eq('is_private', false) // Only show public images
         .order('created_at', { ascending: false })
-        .limit(50)  // Limit to 50 images for performance
+        .limit(50)
+      
       if (error) throw error
-      return data
+      return data || []
     },
     enabled: !!userId,
   })
