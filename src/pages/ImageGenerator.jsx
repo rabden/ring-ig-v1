@@ -5,6 +5,7 @@ import { useUserCredits } from '@/hooks/useUserCredits';
 import { useImageGeneration } from '@/hooks/useImageGeneration';
 import { useQueryClient } from '@tanstack/react-query';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
+import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 import AuthOverlay from '@/components/AuthOverlay';
 import BottomNavbar from '@/components/BottomNavbar';
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings';
@@ -27,6 +28,15 @@ const ImageGenerator = () => {
   const { imageId } = useParams();
   const location = useLocation();
   const isRemixRoute = location.pathname.startsWith('/remix/');
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const {
+    isImproving,
+    setIsImproving,
+    improvedPrompt,
+    setImprovedPrompt,
+    improveCurrentPrompt
+  } = usePromptImprovement();
 
   const [activeFilters, setActiveFilters] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
@@ -71,10 +81,37 @@ const ImageGenerator = () => {
     imageCount
   });
 
-  const handleGenerateImage = async (improvedPrompt) => {
-    // Use the improved prompt if provided, otherwise use the original prompt
-    const finalPrompt = improvedPrompt || prompt;
-    await generateImage(isPrivate);
+  const handleGenerateImage = async () => {
+    if (!prompt.trim()) {
+      toast.error('Please enter a prompt');
+      return;
+    }
+    if (!session) {
+      toast.error('Please sign in to generate images');
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      let finalPrompt = prompt;
+      
+      if (isImproving) {
+        const improved = await improveCurrentPrompt(prompt);
+        if (!improved) {
+          setIsGenerating(false);
+          return;
+        }
+        finalPrompt = improved;
+        setPrompt(improved); // Update the prompt in the UI
+      }
+
+      await generateImage(isPrivate, finalPrompt);
+    } catch (error) {
+      toast.error('Failed to generate image');
+      console.error(error);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const {
@@ -252,6 +289,9 @@ const ImageGenerator = () => {
           setIsPrivate={setIsPrivate}
           imageCount={imageCount}
           setImageCount={setImageCount}
+          isImproving={isImproving}
+          setIsImproving={setIsImproving}
+          isGenerating={isGenerating}
         />
       </div>
 

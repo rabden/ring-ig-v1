@@ -1,52 +1,26 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight, Sparkles } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 import { toast } from "sonner";
-import { improvePrompt } from '@/utils/promptImprovement';
 
 const PromptInput = ({ 
   value = '', 
   onChange, 
   onKeyDown, 
   onGenerate, 
-  hasEnoughCredits, 
-  onClear
+  hasEnoughCredits,
+  onClear,
+  isImproving,
+  setIsImproving,
+  isGenerating
 }) => {
-  const [isImproving, setIsImproving] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
-
   const handleGenerate = async () => {
     if (!value.trim()) {
       toast.error('Please enter a prompt');
       return;
     }
-
-    setIsGenerating(true);
-    try {
-      // If improving is enabled, improve the prompt first
-      if (isImproving) {
-        const toastId = toast.loading('Improving prompt...');
-        try {
-          const improvedPrompt = await improvePrompt(value);
-          toast.success('Prompt improved!', { id: toastId });
-          // Generate with the improved prompt
-          await onGenerate(improvedPrompt);
-        } catch (error) {
-          toast.error('Failed to improve prompt', { id: toastId });
-          setIsGenerating(false);
-          return;
-        }
-      } else {
-        // Generate with original prompt if not improving
-        await onGenerate(value);
-      }
-    } catch (error) {
-      toast.error('Failed to process prompt');
-      console.error(error);
-    } finally {
-      setIsGenerating(false);
-    }
+    await onGenerate();
   };
 
   return (

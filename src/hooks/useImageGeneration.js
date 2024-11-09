@@ -21,7 +21,7 @@ export const useImageGeneration = ({
   modelConfigs,
   imageCount = 1
 }) => {
-  const generateImage = async (isPrivate = false) => {
+  const generateImage = async (isPrivate = false, finalPrompt = null) => {
     if (!session || !prompt || !modelConfigs) {
       !session && toast.error('Please sign in to generate images');
       !prompt && toast.error('Please enter a prompt');
@@ -52,7 +52,7 @@ export const useImageGeneration = ({
       const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed + i;
       const generationId = Date.now().toString() + i;
       
-      const modifiedPrompt = await getModifiedPrompt(prompt, style, model, modelConfigs);
+      const modifiedPrompt = await getModifiedPrompt(finalPrompt || prompt, style, model, modelConfigs);
       const maxDimension = qualityOptions[quality];
       const { width: finalWidth, height: finalHeight, aspectRatio: finalAspectRatio } = calculateDimensions(
         useAspectRatio, 
