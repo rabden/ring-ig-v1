@@ -27,6 +27,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<ImageGenerator />} />
                 <Route path="/image/:imageId" element={<SingleImageView />} />
+                <Route path="/remix/:imageId" element={<ImageGenerator />} />
                 <Route path="/profile/:userId" element={<PublicProfile />} />
               </Routes>
               <Toaster />

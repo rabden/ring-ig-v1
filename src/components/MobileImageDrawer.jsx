@@ -11,12 +11,12 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { getCleanPrompt } from '@/utils/promptUtils';
 import TruncatablePrompt from './TruncatablePrompt';
 import { handleImageDiscard } from '@/utils/discardUtils';
-import { useImageRemix } from '@/hooks/useImageRemix';
-import ImageDetailsSection from './image-view/ImageDetailsSection';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import HeartAnimation from './animations/HeartAnimation';
 import { useLikes } from '@/hooks/useLikes';
 import ImageOwnerHeader from './image-view/ImageOwnerHeader';
+import { useNavigate } from 'react-router-dom';
+import ImageDetailsSection from './image-view/ImageDetailsSection';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -24,19 +24,18 @@ const MobileImageDrawer = ({
   image, 
   onDownload, 
   onDiscard, 
-  onRemix, 
   isOwner,
   setActiveTab,
   setStyle,
   showFullImage = false
 }) => {
+  const navigate = useNavigate();
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   const [isAnimating, setIsAnimating] = useState(false);
-  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, () => onOpenChange(false));
   const queryClient = useQueryClient();
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
 
@@ -90,6 +89,14 @@ const MobileImageDrawer = ({
       console.error('Error in handleDiscard:', error);
       toast.error('Failed to delete image');
     }
+  };
+
+  const handleRemix = () => {
+    if (!session) {
+      toast.error('Please sign in to remix images');
+      return;
+    }
+    navigate(`/remix/${image.id}`);
   };
 
   const handleDoubleClick = (e) => {
@@ -151,7 +158,7 @@ const MobileImageDrawer = ({
                   Discard
                 </Button>
               )}
-              <Button variant="ghost" size="sm" className="flex-1" onClick={() => handleRemix(image)}>
+              <Button variant="ghost" size="sm" className="flex-1" onClick={handleRemix}>
                 <Wand2 className="mr-2 h-4 w-4" />
                 Remix
               </Button>
