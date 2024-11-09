@@ -28,7 +28,8 @@ const ImageGallery = ({
   setActiveTab,
   setStyle,
   style,
-  showPrivate
+  showPrivate,
+  profileUserId // New prop for profile page filtering
 }) => {
   const { userLikes, toggleLike } = useLikes(userId);
   const isMobile = window.innerWidth <= 768;
@@ -40,18 +41,18 @@ const ImageGallery = ({
     hasNextPage,
     isFetchingNextPage 
   } = useGalleryImages({
-    userId,
+    userId: profileUserId || userId, // Use profileUserId if available
     activeView,
     nsfwEnabled,
-    showPrivate,
+    showPrivate: false, // Always false for public profile
     activeFilters,
     searchQuery
   });
 
-  // Scroll to top when view changes or filters update
+  // Only scroll to top when view changes or filters update, not during pagination
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [activeView, activeFilters, searchQuery, showPrivate]);
+  }, [activeView, activeFilters, searchQuery]);
 
   const observer = useRef();
   const lastImageRef = useCallback(node => {
@@ -85,10 +86,15 @@ const ImageGallery = ({
       return [<NoResults key="no-results" />];
     }
     
-    return images.map((image, index) => (
+    // Filter out private images when viewing a profile
+    const filteredImages = profileUserId 
+      ? images.filter(img => !img.is_private && img.user_id === profileUserId)
+      : images;
+    
+    return filteredImages.map((image, index) => (
       <div
         key={image.id}
-        ref={index === images.length - 1 ? lastImageRef : null}
+        ref={index === filteredImages.length - 1 ? lastImageRef : null}
       >
         <ImageCard
           image={image}

@@ -34,7 +34,7 @@ const PublicProfile = () => {
   const { data: stats, isLoading: isStatsLoading } = useQuery({
     queryKey: ['userStats', userId],
     queryFn: async () => {
-      // Get total images
+      // Get total images (only public ones)
       const { count: totalImages } = await supabase
         .from('user_images')
         .select('*', { count: 'exact' })
@@ -104,7 +104,8 @@ const PublicProfile = () => {
       </Card>
 
       <ImageGallery 
-        userId={userId}
+        userId={currentUserId}
+        profileUserId={userId}
         showPrivate={false}
         activeView="inspiration"
       />
