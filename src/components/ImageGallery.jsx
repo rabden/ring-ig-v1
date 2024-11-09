@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, { useRef, useCallback } from 'react';
 import Masonry from 'react-masonry-css';
 import SkeletonImageCard from './SkeletonImageCard';
 import ImageCard from './ImageCard';
@@ -48,13 +48,6 @@ const ImageGallery = ({
     activeFilters,
     searchQuery
   });
-
-  // Only scroll to top when view changes or filters update, not during pagination
-  useEffect(() => {
-    if (!isFetchingNextPage) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }, [activeView, activeFilters, searchQuery]);
 
   const observer = useRef();
   const lastImageRef = useCallback(node => {
