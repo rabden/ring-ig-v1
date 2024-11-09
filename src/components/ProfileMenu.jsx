@@ -15,10 +15,8 @@ import { CreditCard, LogOut } from 'lucide-react';
 import ProfileHeader from './profile/ProfileHeader';
 import ProfileStats from './profile/ProfileStats';
 import ProfileAvatar from './profile/ProfileAvatar';
-import { useNavigate } from 'react-router-dom';
 
 const ProfileMenu = ({ user, credits, bonusCredits }) => {
-  const navigate = useNavigate();
   const { logout } = useSupabaseAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -101,18 +99,13 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
     }
   };
 
-  const handleProfileClick = () => {
-    setIsOpen(false);
-    navigate(`/profile/${user.id}`);
-  };
-
   if (!user) return null;
 
   return (
     <>
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-7 w-7 p-0" onClick={handleProfileClick}>
+          <Button variant="ghost" size="icon" className="h-7 w-7 p-0">
             <ProfileAvatar user={user} isPro={isPro} size="sm" showEditOnHover={false} />
           </Button>
         </SheetTrigger>

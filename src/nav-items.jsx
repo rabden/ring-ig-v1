@@ -14,6 +14,6 @@ export const navItems = [
     to: "/profile/:userId",
     icon: null,
     page: <PublicProfile />,
-    hidden: false,
+    hidden: true,
   },
 ];

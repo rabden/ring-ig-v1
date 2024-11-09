@@ -35,8 +35,9 @@ const FullScreenImageView = ({
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   const [isAnimating, setIsAnimating] = useState(false);
-  const queryClient = useQueryClient();
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
+  const queryClient = useQueryClient();
+  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, onClose);
 
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],
@@ -147,7 +148,6 @@ const FullScreenImageView = ({
                     userLikes={userLikes}
                     toggleLike={toggleLike}
                     likeCount={likeCount}
-                    onClose={onClose}
                   />
 
                   <ImagePromptSection 
