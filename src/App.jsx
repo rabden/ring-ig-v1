@@ -3,6 +3,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/integrations/supabase/components/AuthProvider';
+import { NotificationProvider } from '@/contexts/NotificationContext';
 import ImageGenerator from '@/pages/ImageGenerator';
 
 const queryClient = new QueryClient({
@@ -20,8 +21,10 @@ function App() {
       <BrowserRouter>
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
           <AuthProvider>
-            <ImageGenerator />
-            <Toaster />
+            <NotificationProvider>
+              <ImageGenerator />
+              <Toaster />
+            </NotificationProvider>
           </AuthProvider>
         </ThemeProvider>
       </BrowserRouter>
