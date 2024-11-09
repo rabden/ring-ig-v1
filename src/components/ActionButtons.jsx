@@ -14,12 +14,12 @@ const ActionButtons = ({ activeView, setActiveView, generatingImages }) => {
         My Images
       </Button>
       <Button
-        variant={activeView === 'feed' ? 'default' : 'outline'}
-        onClick={() => setActiveView('feed')}
+        variant={activeView === 'inspiration' ? 'default' : 'outline'}
+        onClick={() => setActiveView('inspiration')}
         className="text-xs px-2 py-1 h-8 transition-colors hover:bg-accent hover:text-accent-foreground"
-        aria-pressed={activeView === 'feed'}
+        aria-pressed={activeView === 'inspiration'}
       >
-        Feed
+        Inspiration
       </Button>
       <GeneratingImagesDropdown generatingImages={generatingImages} />
     </div>

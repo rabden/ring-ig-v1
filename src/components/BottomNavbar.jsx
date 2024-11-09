@@ -72,6 +72,7 @@ const NavButton = memo(({ icon: Icon, isActive, onClick, children, badge, onLong
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       onClick={(e) => {
+        // Only handle click for non-touch devices
         if (e.pointerType !== 'touch') {
           onClick?.(e);
         }
@@ -124,10 +125,10 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
           />
           <NavButton
             icon={Sparkles}
-            isActive={activeTab === 'images' && activeView === 'feed'}
+            isActive={activeTab === 'images' && activeView === 'inspiration'}
             onClick={() => {
               setActiveTab('images');
-              setActiveView('feed');
+              setActiveView('inspiration');
             }}
           />
           <NavButton
