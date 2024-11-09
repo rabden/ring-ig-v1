@@ -19,6 +19,7 @@ import { getCleanPrompt } from '@/utils/promptUtils';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import { useImageRemix } from '@/hooks/useImageRemix';
 import HeartAnimation from './animations/HeartAnimation';
+import FollowButton from './profile/FollowButton';
 
 const FullScreenImageView = ({ 
   image, 
@@ -147,6 +148,9 @@ const FullScreenImageView = ({
                       <span className="text-sm font-medium">{owner?.display_name}</span>
                     </div>
                     <div className="flex items-center gap-2">
+                      {session?.user?.id !== image.user_id && (
+                        <FollowButton userId={image.user_id} />
+                      )}
                       <ImagePrivacyToggle image={image} isOwner={isOwner} />
                       <div className="flex items-center gap-1">
                         <LikeButton 

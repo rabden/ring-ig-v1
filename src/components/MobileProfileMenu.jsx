@@ -16,6 +16,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { Settings, CreditCard, Heart, LogOut } from 'lucide-react';
+import FollowStats from './profile/FollowStats';
+import { useFollows } from '@/hooks/useFollows';
 
 const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const { logout } = useSupabaseAuth();
@@ -25,6 +27,7 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const [displayName, setDisplayName] = React.useState('');
   const [showImageDialog, setShowImageDialog] = React.useState(false);
   const queryClient = useQueryClient();
+  const { followers_count = 0, following_count = 0 } = user.user_metadata || {};
 
   React.useEffect(() => {
     if (user) {
@@ -84,23 +87,6 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
     }
   };
 
-  const handleProRequest = async () => {
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ is_pro_request: true })
-        .eq('id', user.id);
-
-      if (error) throw error;
-      
-      toast.success("Pro request submitted successfully");
-      queryClient.invalidateQueries(['proRequest', user.id]);
-    } catch (error) {
-      toast.error("Failed to submit pro request");
-      console.error('Error submitting pro request:', error);
-    }
-  };
-
   if (activeTab !== 'profile') return null;
 
   return (
@@ -130,18 +116,11 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
                   />
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>
+                <FollowStats 
+                  followersCount={followers_count}
+                  followingCount={following_count}
+                />
               </div>
-
-              <Card className="p-4 grid grid-cols-2 gap-4">
-                <div className="text-center space-y-1">
-                  <p className="text-2xl font-bold">{credits}+{bonusCredits}</p>
-                  <p className="text-sm text-muted-foreground">Credits</p>
-                </div>
-                <div className="text-center space-y-1">
-                  <p className="text-2xl font-bold">{totalLikes}</p>
-                  <p className="text-sm text-muted-foreground">Likes</p>
-                </div>
-              </Card>
 
               <div className="space-y-2">
                 {!isPro && !proRequest && (

@@ -13,7 +13,9 @@ import DisplayNameEditor from './profile/DisplayNameEditor';
 import { useRealtimeProfile } from '@/hooks/useRealtimeProfile';
 import { handleAvatarUpload } from '@/utils/profileUtils';
 import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner'; // Importing toast here
+import { toast } from 'sonner';
+import FollowStats from './profile/FollowStats';
+import FollowButton from './profile/FollowButton';
 
 const ProfileMenu = ({ user, credits, bonusCredits }) => {
   const { logout } = useSupabaseAuth();
@@ -59,10 +61,10 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
         .update({ display_name: displayName })
         .eq('id', user.id);
 
-      toast.success("Display name updated successfully"); // Using toast here
+      toast.success("Display name updated successfully");
       setIsEditing(false);
     } catch (error) {
-      toast.error("Failed to update display name"); // Using toast here
+      toast.error("Failed to update display name");
       console.error('Error updating display name:', error);
     }
   };
@@ -108,6 +110,10 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
                 <p className="text-sm text-muted-foreground">{user.email}</p>
                 {isPro && <p className="text-sm text-primary mt-1">Pro User</p>}
               </div>
+              <FollowStats 
+                followersCount={user.user_metadata?.followers_count || 0}
+                followingCount={user.user_metadata?.following_count || 0}
+              />
             </div>
             
             <div className="space-y-4">

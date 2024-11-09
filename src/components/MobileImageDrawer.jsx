@@ -19,6 +19,8 @@ import ProfileAvatar from './profile/ProfileAvatar';
 import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
 import { useLikes } from '@/hooks/useLikes';
 import LikeButton from './LikeButton';
+import FollowButton from './profile/FollowButton';
+import FollowStats from './profile/FollowStats';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -138,6 +140,9 @@ const MobileImageDrawer = ({
               <span className="text-sm font-medium">{owner?.display_name}</span>
             </div>
             <div className="flex items-center gap-2">
+              {session?.user?.id !== image.user_id && (
+                <FollowButton userId={image.user_id} />
+              )}
               <ImagePrivacyToggle image={image} isOwner={isOwner} />
               <div className="flex items-center gap-1">
                 <LikeButton 
@@ -172,10 +177,10 @@ const MobileImageDrawer = ({
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Prompt</h3>
               <div className="flex gap-2">
-                <Button variant="ghost" size="sm" onClick={handleCopyPrompt}>
+                <Button variant="ghost" size="icon" onClick={handleCopyPrompt}>
                   {copyIcon === 'copy' ? <Copy className="h-4 w-4" /> : <Check className="h-4 w-4" />}
                 </Button>
-                <Button variant="ghost" size="sm" onClick={handleShare}>
+                <Button variant="ghost" size="icon" onClick={handleShare}>
                   {shareIcon === 'share' ? <Share2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
                 </Button>
               </div>
