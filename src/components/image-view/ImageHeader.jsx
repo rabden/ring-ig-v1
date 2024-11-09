@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import ProfileAvatar from '../profile/ProfileAvatar';
 import FollowButton from '../social/FollowButton';
 import ImagePrivacyToggle from './ImagePrivacyToggle';
@@ -7,12 +8,12 @@ import LikeButton from '../LikeButton';
 const ImageHeader = ({ owner, image, isOwner, userLikes, toggleLike, likeCount }) => {
   return (
     <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
+      <Link to={`/profile/${owner?.display_name}`} className="flex items-center gap-2 hover:opacity-80">
         <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
         <span className="text-sm font-medium">{owner?.display_name}</span>
-      </div>
+      </Link>
       <div className="flex items-center gap-2">
-        <FollowButton targetUserId={image.user_id} />
+        {!isOwner && owner && <FollowButton targetUserId={owner.id} />}
         <ImagePrivacyToggle image={image} isOwner={isOwner} />
         <div className="flex items-center gap-1">
           <LikeButton 
