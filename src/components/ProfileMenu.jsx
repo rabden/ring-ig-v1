@@ -32,6 +32,8 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
 
   // Enable real-time updates
   useRealtimeProfile(user?.id);
+  const followers_count = user?.user_metadata?.followers_count || 0;
+  const following_count = user?.user_metadata?.following_count || 0;
 
   const { data: totalLikes = 0 } = useQuery({
     queryKey: ['totalLikes', user?.id],
@@ -111,8 +113,8 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
                 {isPro && <p className="text-sm text-primary mt-1">Pro User</p>}
               </div>
               <FollowStats 
-                followersCount={user.user_metadata?.followers_count || 0}
-                followingCount={user.user_metadata?.following_count || 0}
+                followersCount={followers_count}
+                followingCount={following_count}
               />
             </div>
             

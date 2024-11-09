@@ -40,7 +40,6 @@ export const useFollows = (targetUserId) => {
       }
 
       if (isFollowing) {
-        // Unfollow: Delete the follow relationship
         const { error } = await supabase
           .from('user_follows')
           .delete()
@@ -49,7 +48,6 @@ export const useFollows = (targetUserId) => {
 
         if (error) throw error;
       } else {
-        // Follow: Create new follow relationship
         const { error } = await supabase
           .from('user_follows')
           .insert({ 
@@ -59,12 +57,29 @@ export const useFollows = (targetUserId) => {
 
         if (error) throw error;
       }
+
+      // Get updated counts after follow/unfollow
+      const { data: updatedProfile } = await supabase
+        .from('profiles')
+        .select('followers_count, following_count')
+        .eq('id', currentUserId)
+        .single();
+
+      if (updatedProfile) {
+        await supabase.auth.updateUser({
+          data: { 
+            followers_count: updatedProfile.followers_count,
+            following_count: updatedProfile.following_count
+          }
+        });
+      }
     },
     onSuccess: () => {
-      // Invalidate relevant queries
       queryClient.invalidateQueries(['isFollowing', currentUserId, targetUserId]);
       queryClient.invalidateQueries(['user', targetUserId]);
       queryClient.invalidateQueries(['user', currentUserId]);
+      queryClient.invalidateQueries(['profile', targetUserId]);
+      queryClient.invalidateQueries(['profile', currentUserId]);
       
       toast.success(isFollowing ? 'Unfollowed successfully' : 'Followed successfully');
     },

@@ -27,6 +27,9 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const [displayName, setDisplayName] = React.useState('');
   const [showImageDialog, setShowImageDialog] = React.useState(false);
   const queryClient = useQueryClient();
+
+  // Enable real-time updates for profile and follows
+  useRealtimeProfile(user?.id);
   const followers_count = user?.user_metadata?.followers_count || 0;
   const following_count = user?.user_metadata?.following_count || 0;
 
@@ -39,9 +42,6 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
       );
     }
   }, [user]);
-
-  // Enable real-time updates
-  useRealtimeProfile(user?.id);
 
   const { data: totalLikes = 0 } = useQuery({
     queryKey: ['totalLikes', user?.id],
