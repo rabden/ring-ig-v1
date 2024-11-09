@@ -1,11 +1,9 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import ImageStatusIndicators from './ImageStatusIndicators';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery } from '@tanstack/react-query';
 import { downloadImage } from '@/utils/downloadUtils';
 import ImageCardActions from './ImageCardActions';
 import { supabase } from '@/integrations/supabase/supabase';
@@ -15,7 +13,8 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import { getCleanPrompt } from '@/utils/promptUtils';
 import { toast } from 'sonner';
-import HeartAnimation from './animations/HeartAnimation';
+import ImageCardMedia from './image-card/ImageCardMedia';
+import ImageCardBadges from './image-card/ImageCardBadges';
 
 const ImageCard = ({ 
   image, 
@@ -29,17 +28,14 @@ const ImageCard = ({
   setActiveTab,
   setStyle,
 }) => {
-  const imageRef = useRef(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [isDeleted, setIsDeleted] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
-  const queryClient = useQueryClient();
-  
+
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['imageLikes', image.id],
     queryFn: async () => {
@@ -52,10 +48,6 @@ const ImageCard = ({
       return count || 0;
     },
   });
-
-  const handleImageLoad = () => {
-    setIsLoading(false);
-  };
 
   const handleImageClick = (e) => {
     e.preventDefault();
@@ -94,7 +86,7 @@ const ImageCard = ({
   const handleDiscard = async () => {
     try {
       setIsDeleted(true);
-      await handleImageDiscard(image, queryClient);
+      await handleImageDiscard(image);
       toast.success('Image deleted successfully');
     } catch (error) {
       console.error('Error in handleDiscard:', error);
@@ -103,61 +95,32 @@ const ImageCard = ({
     }
   };
 
-  const handleViewDetails = (img, isMobileView = isMobileDevice) => {
-    if (isMobileView) {
-      setDrawerOpen(true);
-    } else {
-      setDetailsDialogOpen(true);
-    }
-  };
-
-  if (isDeleted) {
-    return null;
-  }
+  if (isDeleted) return null;
 
   const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
   const modelName = modelConfigs?.[image.model]?.name || image.model;
   const styleName = styleConfigs?.[image.style]?.name || 'General';
 
-  const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
-
   return (
     <>
       <div className="mb-2">
         <Card className="overflow-hidden">
-          <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
+          <CardContent className="p-0 relative">
             <ImageStatusIndicators 
               isTrending={image.is_trending} 
               isHot={image.is_hot} 
             />
-            <div ref={imageRef} className="absolute inset-0">
-              {isLoading && (
-                <div className="absolute inset-0 bg-muted animate-pulse">
-                  <Skeleton className="w-full h-full" />
-                </div>
-              )}
-              <img 
-                src={imageUrl}
-                alt={image.prompt} 
-                className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-                onClick={handleImageClick}
-                onDoubleClick={handleDoubleClick}
-                onLoad={handleImageLoad}
-                loading="lazy"
-                decoding="async"
-              />
-              <HeartAnimation isAnimating={isAnimating} />
-            </div>
-            <div className="absolute bottom-2 left-2 flex gap-1">
-              <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
-                {modelName}
-              </Badge>
-              {!isNsfw && (
-                <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
-                  {styleName}
-                </Badge>
-              )}
-            </div>
+            <ImageCardMedia
+              image={image}
+              onImageClick={handleImageClick}
+              onDoubleClick={handleDoubleClick}
+              isAnimating={isAnimating}
+            />
+            <ImageCardBadges
+              modelName={modelName}
+              styleName={styleName}
+              isNsfw={isNsfw}
+            />
           </CardContent>
         </Card>
         <div className="mt-1 flex items-center justify-between">
@@ -167,16 +130,7 @@ const ImageCard = ({
             isMobile={isMobile}
             isLiked={isLiked}
             likeCount={likeCount}
-            onToggleLike={(id) => {
-              if (!isLiked) {
-                setIsAnimating(true);
-                setTimeout(() => {
-                  setIsAnimating(false);
-                }, 800);
-              }
-              onToggleLike(id);
-            }}
-            onViewDetails={handleViewDetails}
+            onToggleLike={onToggleLike}
             onDownload={handleDownload}
             onDiscard={handleDiscard}
             onRemix={handleRemixClick}
