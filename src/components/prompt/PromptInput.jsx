@@ -75,7 +75,7 @@ const PromptInput = ({
           pressed={isImproving}
           onPressedChange={setIsImproving}
           size="sm"
-          className="rounded-full"
+          className={`rounded-full ${isImproving ? 'bg-primary text-primary-foreground' : ''}`}
         >
           <Sparkles className="h-4 w-4" />
         </Toggle>
