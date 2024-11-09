@@ -8,15 +8,13 @@ import { useProUser } from '@/hooks/useProUser';
 import { useProRequest } from '@/hooks/useProRequest';
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import ProfileAvatar from './profile/ProfileAvatar';
-import DisplayNameEditor from './profile/DisplayNameEditor';
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { CreditCard, LogOut } from 'lucide-react';
+import ProfileHeader from './profile/ProfileHeader';
+import ProfileStats from './profile/ProfileStats';
 import { useRealtimeProfile } from '@/hooks/useRealtimeProfile';
 import { handleAvatarUpload } from '@/utils/profileUtils';
 import { useQueryClient } from '@tanstack/react-query';
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card } from "@/components/ui/card";
-import { Settings, CreditCard, Heart, LogOut } from 'lucide-react';
-import FollowStats from './profile/FollowStats';
 
 const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const { logout } = useSupabaseAuth();
@@ -27,7 +25,6 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const [showImageDialog, setShowImageDialog] = React.useState(false);
   const queryClient = useQueryClient();
 
-  // Enable real-time updates for profile and follows
   useRealtimeProfile(user?.id);
 
   const { data: followCounts = { followers: 0, following: 0 } } = useQuery({
@@ -50,6 +47,21 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
         followers: followersResult.count || 0,
         following: followingResult.count || 0
       };
+    },
+    enabled: !!user?.id
+  });
+
+  const { data: totalLikes = 0 } = useQuery({
+    queryKey: ['totalLikes', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return 0;
+      const { count, error } = await supabase
+        .from('user_image_likes')
+        .select('*', { count: 'exact' })
+        .eq('created_by', user.id);
+      
+      if (error) throw error;
+      return count || 0;
     },
     enabled: !!user?.id
   });
@@ -104,32 +116,32 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
         </div>
         <ScrollArea className="flex-1">
           {user ? (
-            <div className="p-4 space-y-4">
-              <div className="flex flex-col items-center space-y-3">
-                <ProfileAvatar 
-                  user={user} 
-                  isPro={isPro} 
-                  size="lg" 
-                  onEditClick={() => setShowImageDialog(true)}
-                />
-                <div className="text-center space-y-1">
-                  <DisplayNameEditor
-                    isEditing={isEditing}
-                    displayName={displayName}
-                    setDisplayName={setDisplayName}
-                    onEdit={() => setIsEditing(true)}
-                    onUpdate={handleDisplayNameUpdate}
-                    size="lg"
-                  />
-                  <p className="text-sm text-muted-foreground">{user.email}</p>
-                </div>
-                <FollowStats 
-                  followersCount={followCounts.followers}
-                  followingCount={followCounts.following}
-                />
-              </div>
+            <div className="p-4 space-y-6">
+              <ProfileHeader 
+                user={user}
+                isPro={isPro}
+                displayName={displayName}
+                isEditing={isEditing}
+                setIsEditing={setIsEditing}
+                setDisplayName={setDisplayName}
+                onUpdate={handleDisplayNameUpdate}
+                onAvatarEdit={() => setShowImageDialog(true)}
+              />
+              
+              <ProfileStats 
+                followersCount={followCounts.followers}
+                followingCount={followCounts.following}
+                totalLikes={totalLikes}
+              />
 
               <div className="space-y-2">
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Credits</span>
+                    <span className="text-sm">{credits}+ B{bonusCredits}</span>
+                  </div>
+                </div>
+
                 {!isPro && !proRequest && (
                   <Button 
                     variant="default" 

@@ -8,20 +8,17 @@ import { useProUser } from '@/hooks/useProUser';
 import { useProRequest } from '@/hooks/useProRequest';
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import ProfileAvatar from './profile/ProfileAvatar';
-import DisplayNameEditor from './profile/DisplayNameEditor';
 import { useRealtimeProfile } from '@/hooks/useRealtimeProfile';
 import { handleAvatarUpload } from '@/utils/profileUtils';
 import { useQueryClient } from '@tanstack/react-query';
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Card } from "@/components/ui/card";
-import { Settings, CreditCard, Heart, LogOut } from 'lucide-react';
-import FollowStats from './profile/FollowStats';
+import { CreditCard, LogOut } from 'lucide-react';
+import ProfileHeader from './profile/ProfileHeader';
+import ProfileStats from './profile/ProfileStats';
+import ProfileAvatar from './profile/ProfileAvatar';
 
 const ProfileMenu = ({ user, credits, bonusCredits }) => {
   const { logout } = useSupabaseAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [upgradeFormOpen, setUpgradeFormOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(
     user?.user_metadata?.display_name || user?.email?.split('@')[0] || ''
@@ -31,7 +28,6 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
   const { data: proRequest } = useProRequest(user?.id);
   const queryClient = useQueryClient();
 
-  // Enable real-time updates
   useRealtimeProfile(user?.id);
 
   const { data: followCounts = { followers: 0, following: 0 } } = useQuery({
@@ -115,44 +111,28 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
         </SheetTrigger>
         <SheetContent side="left" className="w-[400px] sm:w-[540px] p-6 m-4 rounded-lg border max-h-[calc(100vh-2rem)] overflow-y-auto">
           <div className="space-y-6">
-            <div className="flex flex-col items-center space-y-4">
-              <ProfileAvatar 
-                user={user} 
-                isPro={isPro} 
-                size="md" 
-                onEditClick={() => setShowImageDialog(true)}
-                showEditOnHover={true}
-              />
-              <div className="text-center">
-                <DisplayNameEditor
-                  isEditing={isEditing}
-                  displayName={displayName}
-                  setDisplayName={setDisplayName}
-                  onEdit={() => setIsEditing(true)}
-                  onUpdate={handleDisplayNameUpdate}
-                  size="md"
-                />
-                <p className="text-sm text-muted-foreground">{user.email}</p>
-                {isPro && <p className="text-sm text-primary mt-1">Pro User</p>}
-              </div>
-              <FollowStats 
-                followersCount={followCounts.followers}
-                followingCount={followCounts.following}
-              />
-            </div>
+            <ProfileHeader 
+              user={user}
+              isPro={isPro}
+              displayName={displayName}
+              isEditing={isEditing}
+              setIsEditing={setIsEditing}
+              setDisplayName={setDisplayName}
+              onUpdate={handleDisplayNameUpdate}
+              onAvatarEdit={() => setShowImageDialog(true)}
+            />
+            
+            <ProfileStats 
+              followersCount={followCounts.followers}
+              followingCount={followCounts.following}
+              totalLikes={totalLikes}
+            />
             
             <div className="space-y-4">
               <div className="bg-muted/50 p-4 rounded-lg">
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Credits</span>
-                    <span className="text-sm">{credits}+ B{bonusCredits}</span>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Total Likes</span>
-                    <span className="text-sm">{totalLikes}</span>
-                  </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium">Credits</span>
+                  <span className="text-sm">{credits}+ B{bonusCredits}</span>
                 </div>
               </div>
               
