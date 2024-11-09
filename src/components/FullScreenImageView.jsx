@@ -94,6 +94,7 @@ const FullScreenImageView = ({
       return;
     }
     navigate(`/remix/${image.id}`);
+    onClose();
   };
 
   const handleDoubleClick = (e) => {

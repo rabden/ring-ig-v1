@@ -97,6 +97,7 @@ const MobileImageDrawer = ({
       return;
     }
     navigate(`/remix/${image.id}`);
+    onOpenChange(false);
   };
 
   const handleDoubleClick = (e) => {
