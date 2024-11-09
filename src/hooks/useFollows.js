@@ -38,6 +38,13 @@ export const useFollows = (targetUserId) => {
 
       const isCurrentlyFollowing = followData?.isFollowing;
 
+      // Get current user's profile for notification
+      const { data: currentUserProfile } = await supabase
+        .from('profiles')
+        .select('display_name, avatar_url')
+        .eq('id', currentUserId)
+        .single();
+
       if (isCurrentlyFollowing) {
         const { error } = await supabase
           .from('user_follows')
@@ -55,6 +62,20 @@ export const useFollows = (targetUserId) => {
           });
 
         if (error) throw error;
+
+        // Create notification for the followed user
+        const { error: notificationError } = await supabase
+          .from('notifications')
+          .insert([{
+            user_id: targetUserId,
+            title: 'New Follower',
+            message: `${currentUserProfile?.display_name || 'Someone'} started following you`,
+            image_url: currentUserProfile?.avatar_url || '',
+            link: `/profile/${currentUserId}`,
+            link_names: 'View Profile'
+          }]);
+        
+        if (notificationError) throw notificationError;
       }
 
       // Get updated counts after follow/unfollow
