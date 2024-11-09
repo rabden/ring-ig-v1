@@ -61,3 +61,14 @@
     box-shadow: none !important;
   }
 }
+
+/* Hide all toasts by default */
+[data-sonner-toaster] {
+  display: none !important;
+}
+
+/* Show only specific toasts */
+[data-sonner-toaster][data-type="prompt-improvement"],
+[data-sonner-toaster][data-type="generation-complete"] {
+  display: flex !important;
+}
