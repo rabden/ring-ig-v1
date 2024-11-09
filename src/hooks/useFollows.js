@@ -26,7 +26,7 @@ export const useFollows = (targetUserId) => {
       
       return data.length > 0;
     },
-    enabled: !!currentUserId && !!targetUserId
+    enabled: !!currentUserId && !!targetUserId && currentUserId !== targetUserId
   });
 
   const { mutate: toggleFollow } = useMutation({
@@ -35,21 +35,37 @@ export const useFollows = (targetUserId) => {
         throw new Error('User must be logged in to follow others');
       }
 
+      if (currentUserId === targetUserId) {
+        throw new Error('Users cannot follow themselves');
+      }
+
       if (isFollowing) {
-        await supabase
+        // Unfollow: Delete the follow relationship
+        const { error } = await supabase
           .from('user_follows')
           .delete()
           .eq('follower_id', currentUserId)
           .eq('following_id', targetUserId);
+
+        if (error) throw error;
       } else {
-        await supabase
+        // Follow: Create new follow relationship
+        const { error } = await supabase
           .from('user_follows')
-          .insert({ follower_id: currentUserId, following_id: targetUserId });
+          .insert({ 
+            follower_id: currentUserId, 
+            following_id: targetUserId 
+          });
+
+        if (error) throw error;
       }
     },
     onSuccess: () => {
+      // Invalidate relevant queries
       queryClient.invalidateQueries(['isFollowing', currentUserId, targetUserId]);
       queryClient.invalidateQueries(['user', targetUserId]);
+      queryClient.invalidateQueries(['user', currentUserId]);
+      
       toast.success(isFollowing ? 'Unfollowed successfully' : 'Followed successfully');
     },
     onError: (error) => {
