@@ -58,9 +58,9 @@ const MobileImageDrawer = ({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="h-[95vh] bg-background">
+      <DrawerContent className="h-[100vh] bg-background">
         <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mt-4 mb-2" />
-        <ScrollArea className="h-[calc(95vh-24px)] px-4 pb-4">
+        <ScrollArea className="h-[calc(96vh-32px)] px-4 pb-8">
           {showFullImage && (
             <div className="relative rounded-lg overflow-hidden mb-6">
               <img
