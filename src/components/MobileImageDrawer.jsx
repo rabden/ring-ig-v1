@@ -60,7 +60,7 @@ const MobileImageDrawer = ({
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="h-[100vh] bg-background">
         <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mt-4 mb-2" />
-        <ScrollArea className="h-[calc(96vh-32px)] px-4 pb-8">
+        <ScrollArea className="h-[calc(100vh-32px)] px-4 pb-20">
           {showFullImage && (
             <div className="relative rounded-lg overflow-hidden mb-6">
               <img
@@ -90,7 +90,7 @@ const MobileImageDrawer = ({
             </div>
           )}
 
-          <div>
+          <div className="mb-8">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Prompt</h3>
               <div className="flex gap-2">
@@ -105,7 +105,7 @@ const MobileImageDrawer = ({
             <TruncatablePrompt prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)} />
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-2 gap-4 mb-24">
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground uppercase tracking-wider">Model</p>
               <p className="text-sm font-medium">{modelConfigs?.[image.model]?.name || image.model}</p>
