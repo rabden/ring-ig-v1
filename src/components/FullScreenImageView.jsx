@@ -17,6 +17,8 @@ import ImageDetailsSection from './image-view/ImageDetailsSection';
 import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
 import { getCleanPrompt } from '@/utils/promptUtils';
 import { handleImageDiscard } from '@/utils/discardUtils';
+import { handleImageRemix } from '@/utils/remixUtils';
+import { useProUser } from '@/hooks/useProUser';
 
 const FullScreenImageView = ({ 
   image, 
@@ -24,10 +26,19 @@ const FullScreenImageView = ({
   onClose,
   onDownload,
   onDiscard,
-  onRemix,
   isOwner,
   setStyle,
-  setActiveTab 
+  setActiveTab,
+  setPrompt,
+  setSeed,
+  setRandomizeSeed,
+  setWidth,
+  setHeight,
+  setModel,
+  setSteps,
+  setQuality,
+  setAspectRatio,
+  setUseAspectRatio
 }) => {
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
@@ -35,6 +46,7 @@ const FullScreenImageView = ({
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
+  const { data: isPro } = useProUser(session?.user?.id);
   const queryClient = useQueryClient();
 
   const { data: owner } = useQuery({
@@ -79,9 +91,26 @@ const FullScreenImageView = ({
   };
 
   const handleRemix = () => {
-    onRemix(image);
-    setStyle(image.style);
-    setActiveTab('input');
+    handleImageRemix({
+      image,
+      session,
+      isPro,
+      modelConfigs,
+      setters: {
+        setPrompt,
+        setSeed,
+        setRandomizeSeed,
+        setWidth,
+        setHeight,
+        setModel,
+        setSteps,
+        setStyle,
+        setQuality,
+        setAspectRatio,
+        setUseAspectRatio,
+        setActiveTab
+      }
+    });
     onClose();
   };
 
@@ -99,7 +128,6 @@ const FullScreenImageView = ({
       await handleImageDiscard(image, queryClient);
       onClose();
     } catch (error) {
-      // Error is already handled by handleImageDiscard
       console.error('Error in handleDiscard:', error);
     }
   };
