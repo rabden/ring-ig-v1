@@ -5,10 +5,13 @@ import FollowButton from '../profile/FollowButton';
 import ImagePrivacyToggle from './ImagePrivacyToggle';
 import LikeButton from '../LikeButton';
 
-const ImageOwnerHeader = ({ owner, image, isOwner, userLikes, toggleLike, likeCount }) => {
+const ImageOwnerHeader = ({ owner, image, isOwner, userLikes, toggleLike, likeCount, onClose }) => {
   const navigate = useNavigate();
 
   const handleProfileClick = () => {
+    if (onClose) {
+      onClose();
+    }
     navigate(`/profile/${image.user_id}`);
   };
 

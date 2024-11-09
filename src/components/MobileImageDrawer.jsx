@@ -137,6 +137,7 @@ const MobileImageDrawer = ({
             userLikes={userLikes}
             toggleLike={toggleLike}
             likeCount={likeCount}
+            onClose={() => onOpenChange(false)}
           />
           
           {session && (
