@@ -15,6 +15,10 @@ import { useImageRemix } from '@/hooks/useImageRemix';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
 import { useQueryClient } from '@tanstack/react-query';
 import HeartAnimation from './animations/HeartAnimation';
+import ProfileAvatar from './profile/ProfileAvatar';
+import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
+import { useLikes } from '@/hooks/useLikes';
+import LikeButton from './LikeButton';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -36,6 +40,7 @@ const MobileImageDrawer = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, () => onOpenChange(false));
   const queryClient = useQueryClient();
+  const { userLikes, toggleLike } = useLikes(session?.user?.id);
 
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
@@ -67,10 +72,13 @@ const MobileImageDrawer = ({
   const handleDoubleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsAnimating(true);
-    setTimeout(() => {
-      setIsAnimating(false);
-    }, 800);
+    if (!userLikes?.includes(image.id)) {
+      setIsAnimating(true);
+      toggleLike(image.id);
+      setTimeout(() => {
+        setIsAnimating(false);
+      }, 800);
+    }
   };
 
   const detailItems = [
@@ -98,6 +106,27 @@ const MobileImageDrawer = ({
               <HeartAnimation isAnimating={isAnimating} />
             </div>
           )}
+
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <ProfileAvatar 
+                user={{ id: image.user_id, user_metadata: image.user_metadata }}
+                size="sm"
+              />
+              <span className="text-sm font-medium">
+                {image.user_metadata?.display_name || 'Anonymous'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <ImagePrivacyToggle image={image} isOwner={isOwner} />
+              {session && (
+                <LikeButton
+                  isLiked={userLikes?.includes(image.id)}
+                  onToggle={() => toggleLike(image.id)}
+                />
+              )}
+            </div>
+          </div>
           
           {session && (
             <div className="flex gap-2 justify-between mb-6">
