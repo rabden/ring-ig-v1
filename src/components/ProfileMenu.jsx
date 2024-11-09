@@ -6,16 +6,17 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
 import { useProRequest } from '@/hooks/useProRequest';
-import ProUpgradeForm from './pro/ProUpgradeForm';
+import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import ProfileAvatar from './profile/ProfileAvatar';
 import DisplayNameEditor from './profile/DisplayNameEditor';
 import { useRealtimeProfile } from '@/hooks/useRealtimeProfile';
 import { handleAvatarUpload } from '@/utils/profileUtils';
 import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card } from "@/components/ui/card";
+import { Settings, CreditCard, Heart, LogOut } from 'lucide-react';
 import FollowStats from './profile/FollowStats';
-import FollowButton from './profile/FollowButton';
 
 const ProfileMenu = ({ user, credits, bonusCredits }) => {
   const { logout } = useSupabaseAuth();
@@ -32,8 +33,30 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
 
   // Enable real-time updates
   useRealtimeProfile(user?.id);
-  const followers_count = user?.user_metadata?.followers_count || 0;
-  const following_count = user?.user_metadata?.following_count || 0;
+
+  const { data: followCounts = { followers: 0, following: 0 } } = useQuery({
+    queryKey: ['followCounts', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return { followers: 0, following: 0 };
+      
+      const [followersResult, followingResult] = await Promise.all([
+        supabase
+          .from('user_follows')
+          .select('*', { count: 'exact' })
+          .eq('following_id', user.id),
+        supabase
+          .from('user_follows')
+          .select('*', { count: 'exact' })
+          .eq('follower_id', user.id)
+      ]);
+      
+      return {
+        followers: followersResult.count || 0,
+        following: followingResult.count || 0
+      };
+    },
+    enabled: !!user?.id
+  });
 
   const { data: totalLikes = 0 } = useQuery({
     queryKey: ['totalLikes', user?.id],
@@ -73,7 +96,7 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
 
   const onAvatarUpload = async (event) => {
     const file = event.target.files?.[0];
-    const newAvatarUrl = await handleAvatarUpload(file, user.id);
+    const newAvatarUrl = await handleAvatarUpload(file, user?.id);
     if (newAvatarUrl) {
       queryClient.invalidateQueries(['user']);
       setShowImageDialog(false);
@@ -113,8 +136,8 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
                 {isPro && <p className="text-sm text-primary mt-1">Pro User</p>}
               </div>
               <FollowStats 
-                followersCount={followers_count}
-                followingCount={following_count}
+                followersCount={followCounts.followers}
+                followingCount={followCounts.following}
               />
             </div>
             
@@ -137,20 +160,20 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
                 <Button 
                   variant="default" 
                   className="w-full bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 hover:from-yellow-400 hover:via-yellow-600 hover:to-amber-600"
-                  onClick={() => setUpgradeFormOpen(true)}
+                  onClick={() => toast.error("Pro request feature not implemented")}
                 >
-                  Upgrade to Pro
+                  <CreditCard className="w-4 h-4 mr-2" />
+                  Request Pro Access
                 </Button>
               )}
-
               {!isPro && proRequest && (
-                <div className="text-sm text-center text-muted-foreground p-2 bg-muted rounded-lg">
-                  Your request to upgrade to Pro is being reviewed by our team
+                <div className="text-sm text-center text-muted-foreground p-3 bg-muted rounded-lg">
+                  Pro request under review
                 </div>
               )}
-              
               <Button variant="outline" className="w-full" onClick={() => logout()}>
-                Sign Out
+                <LogOut className="w-4 h-4 mr-2" />
+                Log out
               </Button>
             </div>
           </div>
@@ -179,11 +202,6 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <ProUpgradeForm 
-        open={upgradeFormOpen}
-        onOpenChange={setUpgradeFormOpen}
-      />
     </>
   );
 };

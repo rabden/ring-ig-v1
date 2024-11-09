@@ -17,7 +17,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
 import { Settings, CreditCard, Heart, LogOut } from 'lucide-react';
 import FollowStats from './profile/FollowStats';
-import { useFollows } from '@/hooks/useFollows';
 
 const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const { logout } = useSupabaseAuth();
@@ -30,8 +29,30 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
 
   // Enable real-time updates for profile and follows
   useRealtimeProfile(user?.id);
-  const followers_count = user?.user_metadata?.followers_count || 0;
-  const following_count = user?.user_metadata?.following_count || 0;
+
+  const { data: followCounts = { followers: 0, following: 0 } } = useQuery({
+    queryKey: ['followCounts', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return { followers: 0, following: 0 };
+      
+      const [followersResult, followingResult] = await Promise.all([
+        supabase
+          .from('user_follows')
+          .select('*', { count: 'exact' })
+          .eq('following_id', user.id),
+        supabase
+          .from('user_follows')
+          .select('*', { count: 'exact' })
+          .eq('follower_id', user.id)
+      ]);
+      
+      return {
+        followers: followersResult.count || 0,
+        following: followingResult.count || 0
+      };
+    },
+    enabled: !!user?.id
+  });
 
   React.useEffect(() => {
     if (user) {
@@ -42,21 +63,6 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
       );
     }
   }, [user]);
-
-  const { data: totalLikes = 0 } = useQuery({
-    queryKey: ['totalLikes', user?.id],
-    queryFn: async () => {
-      if (!user?.id) return 0;
-      const { count, error } = await supabase
-        .from('user_image_likes')
-        .select('*', { count: 'exact' })
-        .eq('created_by', user.id);
-      
-      if (error) throw error;
-      return count || 0;
-    },
-    enabled: !!user?.id
-  });
 
   const handleDisplayNameUpdate = async () => {
     try {
@@ -118,8 +124,8 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
                   <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>
                 <FollowStats 
-                  followersCount={followers_count}
-                  followingCount={following_count}
+                  followersCount={followCounts.followers}
+                  followingCount={followCounts.following}
                 />
               </div>
 
