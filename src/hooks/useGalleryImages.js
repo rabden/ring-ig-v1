@@ -41,7 +41,7 @@ export const useGalleryImages = ({
           baseQuery = baseQuery.not('model', 'in', '(' + NSFW_MODELS.join(',') + ')');
         }
 
-        const { data: allImages, error, count } = await baseQuery;
+        const { data: allImages, error } = await baseQuery;
         
         if (error) throw error;
         if (!allImages) return { data: [], nextPage: null };
