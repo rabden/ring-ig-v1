@@ -8,7 +8,7 @@ import { CalendarDays, Image, Heart } from 'lucide-react';
 import ProfileAvatar from '@/components/profile/ProfileAvatar';
 import FollowButton from '@/components/profile/FollowButton';
 import FollowStats from '@/components/profile/FollowStats';
-import { format } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
 const PublicProfile = () => {
@@ -63,6 +63,12 @@ const PublicProfile = () => {
     return <div>User not found</div>;
   }
 
+  const formatJoinDate = (dateString) => {
+    if (!dateString) return 'Unknown';
+    const date = parseISO(dateString);
+    return isValid(date) ? format(date, 'MMMM yyyy') : 'Unknown';
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <Card className="p-6 mb-8">
@@ -88,7 +94,7 @@ const PublicProfile = () => {
               </div>
               <div className="flex items-center justify-center md:justify-start gap-2">
                 <CalendarDays className="w-4 h-4" />
-                <span>Joined {format(new Date(profile.created_at), 'MMMM yyyy')}</span>
+                <span>Joined {formatJoinDate(profile.created_at)}</span>
               </div>
             </div>
 
