@@ -2,13 +2,20 @@ import { useState } from 'react';
 import { improvePrompt } from '@/utils/promptImprovement';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/supabase';
+import { useAuth } from '@/integrations/supabase/hooks/useAuth';
 
 export const usePromptImprovement = () => {
   const [isImproving, setIsImproving] = useState(false);
+  const { user } = useAuth();
 
   const improveCurrentPrompt = async (prompt, onSuccess) => {
     if (!prompt.trim()) {
       toast.error('Please enter a prompt');
+      return;
+    }
+
+    if (!user) {
+      toast.error('Please sign in to improve prompts');
       return;
     }
 
@@ -20,6 +27,7 @@ export const usePromptImprovement = () => {
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('credit_count, bonus_credits')
+        .eq('id', user.id)
         .single();
 
       if (profileError) throw profileError;
@@ -40,7 +48,8 @@ export const usePromptImprovement = () => {
           .update({
             credit_count: profile.credit_count > 0 ? profile.credit_count - 1 : profile.credit_count,
             bonus_credits: profile.credit_count > 0 ? profile.bonus_credits : profile.bonus_credits - 1
-          });
+          })
+          .eq('id', user.id);
 
         if (updateError) throw updateError;
 
