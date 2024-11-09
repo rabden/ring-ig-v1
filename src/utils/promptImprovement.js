@@ -31,7 +31,7 @@ export const improvePrompt = async (originalPrompt) => {
       messages: [
         {
           role: "system",
-          content: "You are an AI that enhances image generation prompts. Add details and enhance prompts. Example: Basic prompt: \"Create a dinosaur image.\" improved prompt: \"Create a realistic image of a dinosaur in a dynamic pose within its natural habitat. Include intricate scales or feathers and a prehistoric landscape, like a jungle or desert, with natural lighting and atmospheric effects\""
+          content: "You are an AI that enhances image generation prompts. Your task is to add descriptive details to make the prompt more specific and vivid. Only respond with the improved prompt, nothing else. No explanations, no commentary, just the enhanced prompt text."
         },
         {
           role: "user",
