@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -16,11 +16,12 @@ export const useRealtimeProfile = (userId) => {
           event: '*',
           schema: 'public',
           table: 'profiles',
-          filter: `id=eq.${userId}`,
+          filter: `id=eq.${userId}`
         },
-        () => {
-          // Invalidate and refetch user data
-          queryClient.invalidateQueries(['user']);
+        (payload) => {
+          queryClient.invalidateQueries(['user', userId]);
+          queryClient.invalidateQueries(['proUser', userId]);
+          queryClient.invalidateQueries(['proRequest', userId]);
         }
       )
       .subscribe();

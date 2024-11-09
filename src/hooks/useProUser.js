@@ -9,7 +9,7 @@ export const useProUser = (userId) => {
       
       const { data } = await supabase
         .from('profiles')
-        .select('is_pro')
+        .select('is_pro, updated_at')
         .eq('id', userId)
         .single();
       
