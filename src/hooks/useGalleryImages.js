@@ -35,13 +35,24 @@ export const useGalleryImages = ({
           .neq('user_id', userId)
           .eq('is_private', false);
 
+        // Apply NSFW filter
+        if (!nsfwEnabled) {
+          baseQuery = baseQuery.not('model', 'in', '(nsfwMaster,animeNsfw)');
+        }
+
         const { data: allImages, error, count } = await baseQuery;
         
         if (error) throw error;
         if (!allImages) return { data: [], nextPage: null };
 
+        // Filter NSFW images based on nsfwEnabled state
+        const filteredImages = allImages.filter(img => {
+          const isNsfwModel = ['nsfwMaster', 'animeNsfw'].includes(img.model);
+          return nsfwEnabled ? true : !isNsfwModel;
+        });
+
         // Separate and sort images
-        const trendingHotImages = allImages.filter(img => img.is_trending || img.is_hot)
+        const trendingHotImages = filteredImages.filter(img => img.is_trending || img.is_hot)
           .sort((a, b) => {
             if (a.is_hot && a.is_trending && (!b.is_hot || !b.is_trending)) return -1;
             if (b.is_hot && b.is_trending && (!a.is_hot || !a.is_trending)) return 1;
@@ -52,12 +63,12 @@ export const useGalleryImages = ({
             return new Date(b.created_at) - new Date(a.created_at);
           });
 
-        const followingImages = allImages.filter(img => 
+        const followingImages = filteredImages.filter(img => 
           following?.includes(img.user_id) && 
           !trendingHotImages.some(t => t.id === img.id)
         );
 
-        const otherImages = allImages.filter(img => 
+        const otherImages = filteredImages.filter(img => 
           !trendingHotImages.some(t => t.id === img.id) && 
           !followingImages.some(f => f.id === img.id)
         ).slice(0, 30);
@@ -82,14 +93,11 @@ export const useGalleryImages = ({
         baseQuery = baseQuery
           .eq('user_id', userId)
           .eq('is_private', showPrivate);
-      }
 
-      // Apply NSFW filter
-      const nsfwModels = ['nsfwMaster', 'animeNsfw'];
-      if (nsfwEnabled) {
-        baseQuery = baseQuery.in('model', nsfwModels);
-      } else {
-        baseQuery = baseQuery.not('model', 'in', `(${nsfwModels.join(',')})`);
+        // Apply NSFW filter
+        if (!nsfwEnabled) {
+          baseQuery = baseQuery.not('model', 'in', '(nsfwMaster,animeNsfw)');
+        }
       }
 
       // Apply style and model filters
