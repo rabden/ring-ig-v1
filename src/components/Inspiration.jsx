@@ -21,56 +21,46 @@ const Inspiration = ({ userId, onImageClick, onDownload, onRemix, onViewDetails 
   const { data: inspirationImages, isLoading } = useQuery({
     queryKey: ['inspirationImages', userId, following],
     queryFn: async () => {
-      if (!userId) return []
-      
-      // First, get trending and hot images
-      const { data: trendingHotImages, error: trendingError } = await supabase
+      if (!userId) return [];
+
+      // Fetch all public images that aren't the user's own
+      const { data: allImages, error } = await supabase
         .from('user_images')
         .select('*')
         .neq('user_id', userId)
         .eq('is_private', false)
-        .or('is_hot.eq.true,is_trending.eq.true')
         .order('created_at', { ascending: false });
 
-      if (trendingError) throw trendingError;
+      if (error) throw error;
+      if (!allImages) return [];
 
-      // Then, get images from followed users
-      const { data: followingImages, error: followingError } = await supabase
-        .from('user_images')
-        .select('*')
-        .neq('user_id', userId)
-        .eq('is_private', false)
-        .in('user_id', following || [])
-        .not('id', 'in', `(${(trendingHotImages || []).map(img => img.id).join(',') || '0'})`)
-        .order('created_at', { ascending: false });
+      // Separate images into categories
+      const trendingHotImages = allImages.filter(img => img.is_trending || img.is_hot);
+      const followingImages = allImages.filter(img => 
+        following?.includes(img.user_id) && 
+        !trendingHotImages.some(t => t.id === img.id)
+      );
+      const otherImages = allImages.filter(img => 
+        !trendingHotImages.some(t => t.id === img.id) && 
+        !followingImages.some(f => f.id === img.id)
+      ).slice(0, 30); // Limit other images to 30
 
-      if (followingError) throw followingError;
+      // Sort trending/hot images to prioritize those that are both
+      const sortedTrendingHot = trendingHotImages.sort((a, b) => {
+        if (a.is_hot && a.is_trending && (!b.is_hot || !b.is_trending)) return -1;
+        if (b.is_hot && b.is_trending && (!a.is_hot || !a.is_trending)) return 1;
+        if (a.is_hot && !b.is_hot) return -1;
+        if (b.is_hot && !a.is_hot) return 1;
+        if (a.is_trending && !b.is_trending) return -1;
+        if (b.is_trending && !a.is_trending) return 1;
+        return new Date(b.created_at) - new Date(a.created_at);
+      });
 
-      // Finally, get other public images
-      const { data: otherImages, error: otherError } = await supabase
-        .from('user_images')
-        .select('*')
-        .neq('user_id', userId)
-        .eq('is_private', false)
-        .not('id', 'in', 
-          `(${[...(trendingHotImages || []), ...(followingImages || [])]
-            .map(img => img.id)
-            .join(',') || '0'})`
-        )
-        .order('created_at', { ascending: false })
-        .limit(30);
-
-      if (otherError) throw otherError;
-
-      // Combine all images in the desired order
-      return [
-        ...(trendingHotImages || []),
-        ...(followingImages || []),
-        ...(otherImages || [])
-      ];
+      // Combine all categories in the desired order
+      return [...sortedTrendingHot, ...followingImages, ...otherImages];
     },
     enabled: !!userId,
-  })
+  });
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -128,7 +118,7 @@ const Inspiration = ({ userId, onImageClick, onDownload, onRemix, onViewDetails 
         </div>
       ))}
     </Masonry>
-  )
-}
+  );
+};
 
-export default Inspiration
+export default Inspiration;
