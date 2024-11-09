@@ -28,6 +28,7 @@ const ImageCard = ({
   onToggleLike,
   setActiveTab,
   setStyle,
+  fallback
 }) => {
   const imageRef = useRef(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -35,6 +36,7 @@ const ImageCard = ({
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleted, setIsDeleted] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
@@ -55,10 +57,17 @@ const ImageCard = ({
 
   const handleImageLoad = () => {
     setIsLoading(false);
+    setLoadError(false);
+  };
+
+  const handleImageError = () => {
+    setIsLoading(false);
+    setLoadError(true);
   };
 
   const handleImageClick = (e) => {
     e.preventDefault();
+    if (loadError) return;
     if (isMobileDevice) {
       setDrawerOpen(true);
     } else {
@@ -82,7 +91,7 @@ const ImageCard = ({
   const handleDoubleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!isLiked) {
+    if (!isLiked && !loadError) {
       setIsAnimating(true);
       onToggleLike(image.id);
       setTimeout(() => {
@@ -121,6 +130,10 @@ const ImageCard = ({
 
   const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
 
+  if (loadError && fallback) {
+    return fallback;
+  }
+
   return (
     <>
       <div className="mb-2">
@@ -143,6 +156,7 @@ const ImageCard = ({
                 onClick={handleImageClick}
                 onDoubleClick={handleDoubleClick}
                 onLoad={handleImageLoad}
+                onError={handleImageError}
                 loading="lazy"
                 decoding="async"
               />

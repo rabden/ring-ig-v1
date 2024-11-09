@@ -5,6 +5,7 @@ import ImageCard from './ImageCard';
 import { useLikes } from '@/hooks/useLikes';
 import NoResults from './NoResults';
 import { useGalleryImages } from '@/hooks/useGalleryImages';
+import { AlertTriangle } from 'lucide-react';
 
 const breakpointColumnsObj = {
   default: 4,
@@ -12,6 +13,21 @@ const breakpointColumnsObj = {
   700: 2,
   500: 2
 };
+
+const ImageLoadError = ({ onRetry }) => (
+  <div className="flex flex-col items-center justify-center p-4 bg-muted/30 rounded-lg border border-border/30">
+    <AlertTriangle className="w-8 h-8 text-yellow-500 mb-2" />
+    <p className="text-sm text-muted-foreground mb-2">Failed to load image</p>
+    {onRetry && (
+      <button
+        onClick={onRetry}
+        className="text-xs text-primary hover:underline"
+      >
+        Retry
+      </button>
+    )}
+  </div>
+);
 
 const ImageGallery = ({ 
   userId, 
@@ -38,7 +54,8 @@ const ImageGallery = ({
     isLoading,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage 
+    isFetchingNextPage,
+    refetch 
   } = useGalleryImages({
     userId,
     activeView,
@@ -105,6 +122,7 @@ const ImageGallery = ({
           setActiveTab={setActiveTab}
           setStyle={setStyle}
           style={style}
+          fallback={<ImageLoadError onRetry={() => refetch()} />}
         />
       </div>
     ));
