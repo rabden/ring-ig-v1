@@ -1,44 +1,34 @@
-import React, { useEffect, useRef, useCallback } from 'react';
-import Masonry from 'react-masonry-css';
-import SkeletonImageCard from './SkeletonImageCard';
-import ImageCard from './ImageCard';
-import { useLikes } from '@/hooks/useLikes';
-import NoResults from './NoResults';
+import React from 'react';
 import { useGalleryImages } from '@/hooks/useGalleryImages';
+import ImageCard from './ImageCard';
+import { toast } from "@/components/ui/use-toast";
+import NoResults from './NoResults';
+import SkeletonImageCard from './SkeletonImageCard';
 
-const breakpointColumnsObj = {
-  default: 4,
-  1100: 3,
-  700: 2,
-  500: 2
-};
-
-const ImageGallery = ({ 
-  userId, 
-  onImageClick, 
-  onDownload, 
-  onDiscard, 
-  onRemix, 
-  onViewDetails, 
-  activeView, 
-  generatingImages = [], 
+const ImageGallery = ({
+  userId,
+  onImageClick,
+  onDownload,
+  onDiscard,
+  onRemix,
+  onViewDetails,
+  activeView,
+  generatingImages,
   nsfwEnabled,
-  activeFilters = {},
-  searchQuery = '',
+  modelConfigs,
+  activeFilters,
+  searchQuery,
   setActiveTab,
   setStyle,
-  style,
   showPrivate
 }) => {
-  const { userLikes, toggleLike } = useLikes(userId);
-  const isMobile = window.innerWidth <= 768;
-  
-  const { 
-    images, 
+  const {
+    images,
     isLoading,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage 
+    isFetchingNextPage,
+    error
   } = useGalleryImages({
     userId,
     activeView,
@@ -48,83 +38,73 @@ const ImageGallery = ({
     searchQuery
   });
 
-  // Scroll to top when view changes or filters update
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [activeView, activeFilters, searchQuery, showPrivate]);
-
-  const observer = useRef();
-  const lastImageRef = useCallback(node => {
-    if (isLoading || isFetchingNextPage) return;
-    
-    if (observer.current) observer.current.disconnect();
-    
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasNextPage) {
-        fetchNextPage();
-      }
-    });
-    
-    if (node) observer.current.observe(node);
-  }, [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage]);
-
-  const handleMobileMoreClick = (image) => {
-    if (isMobile) {
-      onViewDetails(image);
-    }
-  };
-
-  const renderContent = () => {
-    if (isLoading && !images.length) {
-      return Array.from({ length: 8 }).map((_, index) => (
-        <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
-      ));
-    }
-    
-    if (!images || images.length === 0) {
-      return [<NoResults key="no-results" />];
-    }
-    
-    return images.map((image, index) => (
-      <div
-        key={image.id}
-        ref={index === images.length - 1 ? lastImageRef : null}
-      >
-        <ImageCard
-          image={image}
-          onImageClick={() => onImageClick(image)}
-          onDownload={onDownload}
-          onDiscard={onDiscard}
-          onRemix={onRemix}
-          onViewDetails={onViewDetails}
-          onMoreClick={handleMobileMoreClick}
-          userId={userId}
-          isMobile={isMobile}
-          isLiked={userLikes.includes(image.id)}
-          onToggleLike={toggleLike}
-          setActiveTab={setActiveTab}
-          setStyle={setStyle}
-          style={style}
-        />
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-destructive">Failed to load images. Please try again later.</p>
       </div>
-    ));
-  };
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {[...Array(8)].map((_, i) => (
+          <SkeletonImageCard key={i} />
+        ))}
+      </div>
+    );
+  }
+
+  if (!images?.length && !generatingImages?.length) {
+    return <NoResults />;
+  }
 
   return (
-    <>
-      <Masonry
-        breakpointCols={breakpointColumnsObj}
-        className="flex w-auto md:px-2 -mx-1 md:mx-0"
-        columnClassName="bg-clip-padding px-1 md:px-2"
-      >
-        {renderContent()}
-      </Masonry>
-      {isFetchingNextPage && (
-        <div className="flex justify-center my-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {generatingImages?.map((image) => (
+          <ImageCard
+            key={image.id}
+            image={image}
+            isGenerating={true}
+            userId={userId}
+            onImageClick={onImageClick}
+            onDownload={onDownload}
+            onDiscard={onDiscard}
+            onRemix={onRemix}
+            onViewDetails={onViewDetails}
+            setActiveTab={setActiveTab}
+            setStyle={setStyle}
+          />
+        ))}
+        {images?.map((image) => (
+          <ImageCard
+            key={image.id}
+            image={image}
+            userId={userId}
+            onImageClick={onImageClick}
+            onDownload={onDownload}
+            onDiscard={onDiscard}
+            onRemix={onRemix}
+            onViewDetails={onViewDetails}
+            setActiveTab={setActiveTab}
+            setStyle={setStyle}
+          />
+        ))}
+      </div>
+      {hasNextPage && (
+        <div className="flex justify-center pt-4">
+          <button
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50"
+          >
+            {isFetchingNextPage ? 'Loading more...' : 'Load more'}
+          </button>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
