@@ -4,9 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import ImageStatusIndicators from './ImageStatusIndicators';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Skeleton } from "@/components/ui/skeleton";
-import { downloadImage } from '@/utils/downloadUtils';
 import ImageCardActions from './ImageCardActions';
 import { supabase } from '@/integrations/supabase/supabase';
 import MobileImageDrawer from './MobileImageDrawer';
@@ -16,6 +15,7 @@ import { handleImageDiscard } from '@/utils/discardUtils';
 import { getCleanPrompt } from '@/utils/promptUtils';
 import { toast } from 'sonner';
 import HeartAnimation from './animations/HeartAnimation';
+import ImageCardUserInfo from './image-card/ImageCardUserInfo';
 
 const ImageCard = ({ 
   image, 
@@ -38,7 +38,18 @@ const ImageCard = ({
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
-  const queryClient = useQueryClient();
+  const { data: owner } = useQuery({
+    queryKey: ['user', image?.user_id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', image.user_id)
+        .single();
+      return data;
+    },
+    enabled: !!image?.user_id
+  });
   
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['imageLikes', image.id],
@@ -94,7 +105,7 @@ const ImageCard = ({
   const handleDiscard = async () => {
     try {
       setIsDeleted(true);
-      await handleImageDiscard(image, queryClient);
+      await handleImageDiscard(image);
       toast.success('Image deleted successfully');
     } catch (error) {
       console.error('Error in handleDiscard:', error);
@@ -160,30 +171,25 @@ const ImageCard = ({
             </div>
           </CardContent>
         </Card>
-        <div className="mt-1 flex items-center justify-between">
-          <p className="text-sm truncate w-[70%]">{getCleanPrompt(image.prompt, image.style)}</p>
-          <ImageCardActions
-            image={image}
-            isMobile={isMobile}
-            isLiked={isLiked}
-            likeCount={likeCount}
-            onToggleLike={(id) => {
-              if (!isLiked) {
-                setIsAnimating(true);
-                setTimeout(() => {
-                  setIsAnimating(false);
-                }, 800);
-              }
-              onToggleLike(id);
-            }}
-            onViewDetails={handleViewDetails}
-            onDownload={handleDownload}
-            onDiscard={handleDiscard}
-            onRemix={handleRemixClick}
-            userId={userId}
-            setStyle={setStyle}
-            setActiveTab={setActiveTab}
-          />
+        <div className="mt-2 space-y-2">
+          <ImageCardUserInfo owner={owner} image={image} />
+          <div className="flex items-center justify-between">
+            <p className="text-sm truncate w-[70%]">{getCleanPrompt(image.prompt, image.style)}</p>
+            <ImageCardActions
+              image={image}
+              isMobile={isMobile}
+              isLiked={isLiked}
+              likeCount={likeCount}
+              onToggleLike={onToggleLike}
+              onViewDetails={handleViewDetails}
+              onDownload={handleDownload}
+              onDiscard={handleDiscard}
+              onRemix={handleRemixClick}
+              userId={userId}
+              setStyle={setStyle}
+              setActiveTab={setActiveTab}
+            />
+          </div>
         </div>
       </div>
 

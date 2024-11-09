@@ -13,7 +13,8 @@ import DisplayNameEditor from './profile/DisplayNameEditor';
 import { useRealtimeProfile } from '@/hooks/useRealtimeProfile';
 import { handleAvatarUpload } from '@/utils/profileUtils';
 import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner'; // Importing toast here
+import { toast } from 'sonner';
+import FollowStats from './social/FollowStats';
 
 const ProfileMenu = ({ user, credits, bonusCredits }) => {
   const { logout } = useSupabaseAuth();
@@ -96,7 +97,7 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
                 onEditClick={() => setShowImageDialog(true)}
                 showEditOnHover={true}
               />
-              <div className="text-center">
+              <div className="text-center space-y-2">
                 <DisplayNameEditor
                   isEditing={isEditing}
                   displayName={displayName}
@@ -107,6 +108,7 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
                 />
                 <p className="text-sm text-muted-foreground">{user.email}</p>
                 {isPro && <p className="text-sm text-primary mt-1">Pro User</p>}
+                <FollowStats userId={user.id} />
               </div>
             </div>
             
