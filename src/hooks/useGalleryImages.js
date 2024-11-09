@@ -27,8 +27,21 @@ export const useGalleryImages = ({
 
       let query = supabase
         .from('user_images')
-        .select('*', { count: 'exact' })
-        .eq('is_private', false);
+        .select('*', { count: 'exact' });
+
+      // Apply privacy filter
+      if (activeView === 'myImages') {
+        query = query.eq('user_id', userId);
+        if (showPrivate) {
+          query = query.eq('is_private', true);
+        } else {
+          query = query.eq('is_private', false);
+        }
+      } else {
+        query = query
+          .neq('user_id', userId)
+          .eq('is_private', false);
+      }
 
       // Filter by NSFW content
       const nsfwModels = ['nsfwMaster', 'animeNsfw'];
@@ -36,113 +49,6 @@ export const useGalleryImages = ({
         query = query.in('model', nsfwModels);
       } else {
         query = query.not('model', 'in', `(${nsfwModels.join(',')})`);
-      }
-
-      // Apply view-specific filters
-      if (activeView === 'myImages') {
-        query = query.eq('user_id', userId);
-        
-        // Filter private images
-        if (showPrivate) {
-          query = query.eq('is_private', true);
-        } else {
-          query = query.eq('is_private', false);
-        }
-      } else if (activeView === 'inspiration') {
-        query = query
-          .neq('user_id', userId)
-          .eq('is_private', false);
-
-        // Get images from followed users first
-        if (following?.length > 0) {
-          const followedUsersImages = await query
-            .in('user_id', following)
-            .order('created_at', { ascending: false })
-            .range(pageParam * ITEMS_PER_PAGE, (pageParam + 1) * ITEMS_PER_PAGE - 1);
-
-          if (followedUsersImages.data?.length >= ITEMS_PER_PAGE) {
-            return {
-              data: followedUsersImages.data,
-              nextPage: pageParam + 1,
-              count: followedUsersImages.count || 0
-            };
-          }
-
-          // If we don't have enough images from followed users, get trending/hot images
-          const remainingItems = ITEMS_PER_PAGE - (followedUsersImages.data?.length || 0);
-          const trendingImages = await query
-            .not('user_id', 'in', `(${following.join(',')})`)
-            .or('is_hot.eq.true,is_trending.eq.true')
-            .order('is_hot', { ascending: false })
-            .order('is_trending', { ascending: false })
-            .order('created_at', { ascending: false })
-            .limit(remainingItems);
-
-          // Combine followed users' images with trending images
-          const combinedImages = [
-            ...(followedUsersImages.data || []),
-            ...(trendingImages.data || [])
-          ];
-
-          if (combinedImages.length >= ITEMS_PER_PAGE) {
-            return {
-              data: combinedImages,
-              nextPage: pageParam + 1,
-              count: combinedImages.length
-            };
-          }
-
-          // If we still don't have enough images, get regular images
-          const remainingCount = ITEMS_PER_PAGE - combinedImages.length;
-          const regularImages = await query
-            .not('user_id', 'in', `(${following.join(',')})`)
-            .is('is_hot', false)
-            .is('is_trending', false)
-            .order('created_at', { ascending: false })
-            .limit(remainingCount);
-
-          return {
-            data: [
-              ...combinedImages,
-              ...(regularImages.data || [])
-            ],
-            nextPage: pageParam + 1,
-            count: combinedImages.length + (regularImages.count || 0)
-          };
-        } else {
-          // If user doesn't follow anyone, get trending/hot images first
-          const trendingImages = await query
-            .or('is_hot.eq.true,is_trending.eq.true')
-            .order('is_hot', { ascending: false })
-            .order('is_trending', { ascending: false })
-            .order('created_at', { ascending: false })
-            .range(pageParam * ITEMS_PER_PAGE, (pageParam + 1) * ITEMS_PER_PAGE - 1);
-
-          if (trendingImages.data?.length >= ITEMS_PER_PAGE) {
-            return {
-              data: trendingImages.data,
-              nextPage: pageParam + 1,
-              count: trendingImages.count || 0
-            };
-          }
-
-          // Get regular images if needed
-          const remainingItems = ITEMS_PER_PAGE - (trendingImages.data?.length || 0);
-          const regularImages = await query
-            .is('is_hot', false)
-            .is('is_trending', false)
-            .order('created_at', { ascending: false })
-            .limit(remainingItems);
-
-          return {
-            data: [
-              ...(trendingImages.data || []),
-              ...(regularImages.data || [])
-            ],
-            nextPage: pageParam + 1,
-            count: (trendingImages.count || 0) + (regularImages.count || 0)
-          };
-        }
       }
 
       // Apply style and model filters
@@ -158,29 +64,65 @@ export const useGalleryImages = ({
         query = query.ilike('prompt', `%${searchQuery}%`);
       }
 
-      const { data: images, error, count } = await query
-        .range(pageParam * ITEMS_PER_PAGE, (pageParam + 1) * ITEMS_PER_PAGE - 1)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
+      let result;
+      if (activeView === 'inspiration' && following?.length > 0) {
+        // Get images from followed users
+        const followedUsersImages = await query
+          .in('user_id', following)
+          .order('created_at', { ascending: false })
+          .range(pageParam * ITEMS_PER_PAGE, (pageParam + 1) * ITEMS_PER_PAGE - 1);
+
+        if (followedUsersImages.data?.length >= ITEMS_PER_PAGE) {
+          result = followedUsersImages;
+        } else {
+          // Get trending/hot images excluding followed users
+          const trendingImages = await query
+            .not('user_id', 'in', `(${following.join(',')})`)
+            .or('is_hot.eq.true,is_trending.eq.true')
+            .order('created_at', { ascending: false })
+            .limit(ITEMS_PER_PAGE - (followedUsersImages.data?.length || 0));
+
+          // Get regular images if needed
+          const remainingCount = ITEMS_PER_PAGE - (followedUsersImages.data?.length || 0) - (trendingImages.data?.length || 0);
+          let regularImages = { data: [] };
+          
+          if (remainingCount > 0) {
+            regularImages = await query
+              .not('user_id', 'in', `(${following.join(',')})`)
+              .is('is_hot', false)
+              .is('is_trending', false)
+              .order('created_at', { ascending: false })
+              .limit(remainingCount);
+          }
+
+          result = {
+            data: [
+              ...(followedUsersImages.data || []),
+              ...(trendingImages.data || []),
+              ...(regularImages.data || [])
+            ],
+            count: (followedUsersImages.count || 0) + (trendingImages.count || 0) + (regularImages.count || 0)
+          };
+        }
+      } else {
+        // Default ordering for non-following cases
+        result = await query
+          .order('created_at', { ascending: false })
+          .range(pageParam * ITEMS_PER_PAGE, (pageParam + 1) * ITEMS_PER_PAGE - 1);
+      }
 
       // Transform the data to include public URLs
-      const transformedData = images?.map(image => {
-        const { data: { publicUrl } } = supabase.storage
+      const transformedData = result.data?.map(image => ({
+        ...image,
+        image_url: supabase.storage
           .from('user-images')
-          .getPublicUrl(image.storage_path);
-          
-        return {
-          ...image,
-          image_url: publicUrl
-        };
-      }) || [];
+          .getPublicUrl(image.storage_path).data.publicUrl
+      })) || [];
 
-      const hasMore = count ? (pageParam + 1) * ITEMS_PER_PAGE < count : false;
       return {
         data: transformedData,
-        nextPage: hasMore ? pageParam + 1 : undefined,
-        count: count || 0
+        nextPage: transformedData.length === ITEMS_PER_PAGE ? pageParam + 1 : undefined,
+        count: result.count || 0
       };
     },
     getNextPageParam: (lastPage) => lastPage?.nextPage,

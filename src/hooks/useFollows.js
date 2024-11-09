@@ -8,25 +8,22 @@ export const useFollows = (targetUserId) => {
   const currentUserId = session?.user?.id;
   const queryClient = useQueryClient();
 
-  const { data: isFollowing = false } = useQuery({
-    queryKey: ['isFollowing', currentUserId, targetUserId],
+  const { data: followData } = useQuery({
+    queryKey: ['follows', currentUserId],
     queryFn: async () => {
-      if (!currentUserId || !targetUserId) return false;
+      if (!currentUserId) return { isFollowing: false, following: [] };
       
-      const { data, error } = await supabase
+      const { data: followingData } = await supabase
         .from('user_follows')
-        .select('id')
-        .eq('follower_id', currentUserId)
-        .eq('following_id', targetUserId);
+        .select('following_id')
+        .eq('follower_id', currentUserId);
+        
+      const following = followingData?.map(f => f.following_id) || [];
+      const isFollowing = targetUserId ? following.includes(targetUserId) : false;
       
-      if (error) {
-        console.error('Error checking follow status:', error);
-        return false;
-      }
-      
-      return data.length > 0;
+      return { isFollowing, following };
     },
-    enabled: !!currentUserId && !!targetUserId && currentUserId !== targetUserId
+    enabled: !!currentUserId
   });
 
   const { mutate: toggleFollow } = useMutation({
@@ -39,7 +36,9 @@ export const useFollows = (targetUserId) => {
         throw new Error('Users cannot follow themselves');
       }
 
-      if (isFollowing) {
+      const isCurrentlyFollowing = followData?.isFollowing;
+
+      if (isCurrentlyFollowing) {
         const { error } = await supabase
           .from('user_follows')
           .delete()
@@ -75,13 +74,13 @@ export const useFollows = (targetUserId) => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['isFollowing', currentUserId, targetUserId]);
+      queryClient.invalidateQueries(['follows', currentUserId]);
       queryClient.invalidateQueries(['user', targetUserId]);
       queryClient.invalidateQueries(['user', currentUserId]);
       queryClient.invalidateQueries(['profile', targetUserId]);
       queryClient.invalidateQueries(['profile', currentUserId]);
       
-      toast.success(isFollowing ? 'Unfollowed successfully' : 'Followed successfully');
+      toast.success(followData?.isFollowing ? 'Unfollowed successfully' : 'Followed successfully');
     },
     onError: (error) => {
       toast.error('Failed to update follow status');
@@ -89,5 +88,9 @@ export const useFollows = (targetUserId) => {
     }
   });
 
-  return { isFollowing, toggleFollow };
+  return { 
+    isFollowing: followData?.isFollowing || false, 
+    following: followData?.following || [],
+    toggleFollow 
+  };
 };
