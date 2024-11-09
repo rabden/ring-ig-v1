@@ -15,6 +15,9 @@ import ImageDetailsDialog from './ImageDetailsDialog';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import { getCleanPrompt } from '@/utils/promptUtils';
+import { handleImageRemix } from '@/utils/remixUtils';
+import { useProUser } from '@/hooks/useProUser';
+import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
 const ImageCard = ({ 
   image, 
@@ -27,6 +30,16 @@ const ImageCard = ({
   onToggleLike,
   setActiveTab,
   setStyle,
+  setPrompt,
+  setSeed,
+  setRandomizeSeed,
+  setWidth,
+  setHeight,
+  setModel,
+  setSteps,
+  setQuality,
+  setAspectRatio,
+  setUseAspectRatio
 }) => {
   const imageRef = useRef(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -64,11 +77,22 @@ const ImageCard = ({
   };
 
   const handleRemixClick = () => {
-    if (typeof onRemix === 'function' && typeof setStyle === 'function') {
-      onRemix(image);
-      setStyle(image.style);
-      setActiveTab('input');
-    }
+    handleImageRemix(image, {
+      setPrompt,
+      setSeed,
+      setRandomizeSeed,
+      setWidth,
+      setHeight,
+      setModel,
+      setSteps,
+      setStyle,
+      setQuality,
+      setAspectRatio,
+      setUseAspectRatio,
+      setActiveTab,
+      modelConfigs,
+      isPro: useProUser(session?.user?.id).data
+    });
   };
 
   const handleDownload = async () => {
@@ -88,7 +112,6 @@ const ImageCard = ({
     try {
       await handleImageDiscard(image, queryClient);
     } catch (error) {
-      // Error is already handled by handleImageDiscard
       console.error('Error in handleDiscard:', error);
     }
   };
@@ -174,6 +197,16 @@ const ImageCard = ({
           isOwner={image.user_id === userId}
           setActiveTab={setActiveTab}
           setStyle={setStyle}
+          setPrompt={setPrompt}
+          setSeed={setSeed}
+          setRandomizeSeed={setRandomizeSeed}
+          setWidth={setWidth}
+          setHeight={setHeight}
+          setModel={setModel}
+          setSteps={setSteps}
+          setQuality={setQuality}
+          setAspectRatio={setAspectRatio}
+          setUseAspectRatio={setUseAspectRatio}
         />
       )}
 
