@@ -1,5 +1,4 @@
 import { supabase } from './supabase';
-import { toast } from 'sonner';
 
 export const deleteImageFromStorage = async (storagePath) => {
   if (!storagePath) {
@@ -30,36 +29,24 @@ export const deleteImageRecord = async (imageId) => {
   }
 };
 
-export const getImageRecord = async (imageId) => {
-  if (!imageId) {
-    throw new Error('Image ID is required');
-  }
-
-  const { data, error } = await supabase
-    .from('user_images')
-    .select('storage_path')
-    .eq('id', imageId)
-    .maybeSingle();
-
-  if (error) {
-    throw new Error(`Failed to fetch image record: ${error.message}`);
-  }
-
-  return data;
-};
-
 export const deleteImageCompletely = async (imageId) => {
   if (!imageId) {
     throw new Error('Image ID is required for deletion');
   }
 
   // First, fetch the image record to get the storage path
-  const imageRecord = await getImageRecord(imageId);
+  const { data: imageRecord, error: fetchError } = await supabase
+    .from('user_images')
+    .select('storage_path')
+    .eq('id', imageId)
+    .single();
+
+  if (fetchError) {
+    throw new Error(`Failed to fetch image record: ${fetchError.message}`);
+  }
 
   if (!imageRecord?.storage_path) {
-    // If the image record doesn't exist, we can consider it already deleted
-    toast.error('Image not found or already deleted');
-    return;
+    throw new Error('Image record or storage path not found');
   }
 
   // Delete the image from storage first
