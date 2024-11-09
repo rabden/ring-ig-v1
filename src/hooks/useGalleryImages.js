@@ -31,19 +31,17 @@ export const useGalleryImages = ({
         .select('*', { count: 'exact' });
 
       if (activeView === 'inspiration') {
-        // For inspiration view, get all public images except user's own
         baseQuery = baseQuery
           .neq('user_id', userId)
           .eq('is_private', false);
 
-        // Apply NSFW filter for inspiration view
         if (nsfwEnabled) {
           baseQuery = baseQuery.in('model', NSFW_MODELS);
         } else {
           baseQuery = baseQuery.not('model', 'in', '(' + NSFW_MODELS.join(',') + ')');
         }
 
-        const { data: allImages, error } = await baseQuery;
+        const { data: allImages, error, count } = await baseQuery;
         
         if (error) throw error;
         if (!allImages) return { data: [], nextPage: null };
@@ -72,9 +70,9 @@ export const useGalleryImages = ({
 
         const sortedImages = [...trendingHotImages, ...followingImages, ...otherImages];
         
-        // Apply pagination to the sorted results
         const start = pageParam.page * ITEMS_PER_PAGE;
-        const paginatedImages = sortedImages.slice(start, start + ITEMS_PER_PAGE);
+        const end = Math.min(start + ITEMS_PER_PAGE, sortedImages.length);
+        const paginatedImages = sortedImages.slice(start, end);
 
         return {
           data: paginatedImages.map(image => ({
@@ -83,7 +81,7 @@ export const useGalleryImages = ({
               .from('user-images')
               .getPublicUrl(image.storage_path).data.publicUrl
           })),
-          nextPage: paginatedImages.length === ITEMS_PER_PAGE ? { page: pageParam.page + 1 } : undefined
+          nextPage: end < sortedImages.length ? { page: pageParam.page + 1 } : undefined
         };
       } else {
         // For myImages view
@@ -91,14 +89,12 @@ export const useGalleryImages = ({
           .eq('user_id', userId)
           .eq('is_private', showPrivate);
 
-        // Apply NSFW filter for myImages view
         if (nsfwEnabled) {
           baseQuery = baseQuery.in('model', NSFW_MODELS);
         } else {
           baseQuery = baseQuery.not('model', 'in', '(' + NSFW_MODELS.join(',') + ')');
         }
 
-        // Apply style and model filters
         if (activeFilters.style) {
           baseQuery = baseQuery.eq('style', activeFilters.style);
         }
@@ -106,13 +102,25 @@ export const useGalleryImages = ({
           baseQuery = baseQuery.eq('model', activeFilters.model);
         }
 
-        // Apply search filter
         if (searchQuery) {
           baseQuery = baseQuery.ilike('prompt', `%${searchQuery}%`);
         }
 
+        // First get the total count
+        const { count } = await baseQuery.count();
+        
+        // Then get the paginated data
         const start = pageParam.page * ITEMS_PER_PAGE;
-        const { data: result, error, count } = await baseQuery
+        
+        // Only fetch if start is less than total count
+        if (count === 0 || start >= count) {
+          return {
+            data: [],
+            nextPage: undefined
+          };
+        }
+
+        const { data: result, error } = await baseQuery
           .order('created_at', { ascending: false })
           .range(start, start + ITEMS_PER_PAGE - 1);
 
