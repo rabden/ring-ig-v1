@@ -21,6 +21,7 @@ import { useProUser } from '@/hooks/useProUser';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
+import { toast } from 'sonner';
 
 const ImageGenerator = () => {
   const { imageId } = useParams();
@@ -70,8 +71,8 @@ const ImageGenerator = () => {
     imageCount
   });
 
-  const handleGenerateImage = async () => {
-    if (!prompt.trim()) {
+  const handleGenerateImage = async (finalPrompt) => {
+    if (!finalPrompt?.trim()) {
       toast.error('Please enter a prompt');
       return;
     }
@@ -79,7 +80,12 @@ const ImageGenerator = () => {
       toast.error('Please sign in to generate images');
       return;
     }
+    
+    // Use the finalPrompt instead of the prompt state
+    const tempPrompt = prompt;
+    setPrompt(finalPrompt);
     await generateImage();
+    setPrompt(tempPrompt);
   };
 
   const {

@@ -33,7 +33,7 @@ const PromptInput = ({
         toast.success('Prompt improved!');
       }
       
-      await onGenerate();
+      await onGenerate(finalPrompt); // Pass the finalPrompt to onGenerate
     } catch (error) {
       toast.error('Failed to process prompt');
       console.error(error);
