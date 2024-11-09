@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
@@ -12,12 +12,14 @@ import FollowStats from '@/components/profile/FollowStats';
 import { format, isValid, parseISO } from 'date-fns';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { Separator } from '@/components/ui/separator';
+import FullScreenImageView from '@/components/FullScreenImageView';
 
 const PublicProfile = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
   const currentUserId = session?.user?.id;
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: ['profile', userId],
@@ -56,6 +58,12 @@ const PublicProfile = () => {
     enabled: !!userId
   });
 
+  const formatJoinDate = (dateString) => {
+    if (!dateString) return 'Unknown';
+    const date = parseISO(dateString);
+    return isValid(date) ? format(date, 'MMMM yyyy') : 'Unknown';
+  };
+
   if (isProfileLoading || isStatsLoading) {
     return <div>Loading...</div>;
   }
@@ -64,61 +72,49 @@ const PublicProfile = () => {
     return <div>User not found</div>;
   }
 
-  const formatJoinDate = (dateString) => {
-    if (!dateString) return 'Unknown';
-    const date = parseISO(dateString);
-    return isValid(date) ? format(date, 'MMMM yyyy') : 'Unknown';
+  const handleImageClick = (image) => {
+    setSelectedImage(image);
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-4 sm:py-8">
       <Button 
         variant="ghost" 
-        className="mb-6 hover:bg-accent"
+        className="mb-4 hover:bg-accent"
         onClick={() => navigate(-1)}
       >
         <ChevronLeft className="h-4 w-4 mr-2" />
         Back
       </Button>
 
-      <Card className="p-8 mb-8">
-        <div className="flex flex-col md:flex-row gap-8">
-          {/* Left column - Avatar and follow button */}
-          <div className="flex flex-col items-center gap-4">
+      <Card className="p-4 sm:p-6 mb-6">
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <div className="flex-shrink-0">
             <ProfileAvatar 
               user={{ user_metadata: { avatar_url: profile.avatar_url } }} 
               size="lg" 
             />
-            {currentUserId && currentUserId !== userId && (
-              <FollowButton userId={userId} />
-            )}
           </div>
-
-          {/* Right column - User info */}
-          <div className="flex-1 space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">{profile.display_name}</h1>
-              <p className="text-muted-foreground">Joined {formatJoinDate(profile.created_at)}</p>
-            </div>
-
-            <Separator />
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div className="flex items-center gap-2">
-                <Image className="w-5 h-5 text-muted-foreground" />
-                <div>
-                  <p className="font-semibold">{stats.totalImages}</p>
-                  <p className="text-sm text-muted-foreground">Images</p>
-                </div>
+          
+          <div className="flex-1 text-center sm:text-left">
+            <h1 className="text-2xl font-bold mb-1">{profile.display_name}</h1>
+            <p className="text-sm text-muted-foreground mb-2">Joined {formatJoinDate(profile.created_at)}</p>
+            
+            <div className="flex flex-wrap justify-center sm:justify-start gap-4 items-center">
+              <div className="flex items-center gap-1">
+                <Image className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium">{stats.totalImages}</span>
+                <span className="text-xs text-muted-foreground ml-1">Images</span>
               </div>
-              <div className="flex items-center gap-2">
-                <Heart className="w-5 h-5 text-muted-foreground" />
-                <div>
-                  <p className="font-semibold">{stats.totalLikes}</p>
-                  <p className="text-sm text-muted-foreground">Likes</p>
-                </div>
+              <div className="flex items-center gap-1">
+                <Heart className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium">{stats.totalLikes}</span>
+                <span className="text-xs text-muted-foreground ml-1">Likes</span>
               </div>
               <FollowStats userId={userId} />
+              {currentUserId && currentUserId !== userId && (
+                <FollowButton userId={userId} />
+              )}
             </div>
           </div>
         </div>
@@ -130,7 +126,20 @@ const PublicProfile = () => {
         activeView="myImages"
         nsfwEnabled={false}
         showPrivate={false}
+        onImageClick={handleImageClick}
       />
+
+      {selectedImage && (
+        <FullScreenImageView
+          image={selectedImage}
+          isOpen={!!selectedImage}
+          onClose={() => setSelectedImage(null)}
+          onDownload={() => {}}
+          onDiscard={() => {}}
+          onRemix={() => {}}
+          isOwner={currentUserId === selectedImage.user_id}
+        />
+      )}
     </div>
   );
 };
