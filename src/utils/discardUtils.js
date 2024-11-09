@@ -3,53 +3,63 @@ import { toast } from 'sonner';
 
 export const handleImageDiscard = async (image, queryClient) => {
   if (!image?.id) {
-    throw new Error('Cannot delete image: Invalid image ID');
+    toast.error('Invalid image data');
+    return;
   }
 
   try {
-    // First, fetch the image record to get the storage path
-    const { data: imageRecord, error: fetchError } = await supabase
+    // First check if the image exists
+    const { data: imageData, error: fetchError } = await supabase
       .from('user_images')
       .select('storage_path')
       .eq('id', image.id)
-      .single();
+      .maybeSingle(); // Use maybeSingle instead of single to handle non-existent records
 
     if (fetchError) {
-      throw new Error(`Failed to fetch image record: ${fetchError.message}`);
+      console.error('Error fetching image:', fetchError);
+      toast.error('Failed to verify image');
+      return;
     }
 
-    if (!imageRecord?.storage_path) {
-      throw new Error('Image record or storage path not found');
+    // If image doesn't exist in database, just invalidate queries
+    if (!imageData) {
+      if (queryClient) {
+        queryClient.invalidateQueries({ queryKey: ['galleryImages'] });
+      }
+      return;
     }
 
-    // Delete the image from storage first
+    // Delete from storage first
     const { error: storageError } = await supabase.storage
       .from('user-images')
-      .remove([imageRecord.storage_path]);
+      .remove([imageData.storage_path]);
 
     if (storageError) {
-      throw new Error(`Failed to delete image from storage: ${storageError.message}`);
+      console.error('Error deleting from storage:', storageError);
+      toast.error('Failed to delete image file');
+      return;
     }
 
-    // Then delete the database record
-    const { error: deleteError } = await supabase
+    // Then delete from database
+    const { error: dbError } = await supabase
       .from('user_images')
       .delete()
       .eq('id', image.id);
 
-    if (deleteError) {
-      throw new Error(`Failed to delete image record: ${deleteError.message}`);
+    if (dbError) {
+      console.error('Error deleting from database:', dbError);
+      toast.error('Failed to delete image record');
+      return;
     }
 
     // Invalidate queries to refresh the UI
     if (queryClient) {
-      queryClient.invalidateQueries(['userImages']);
-      queryClient.invalidateQueries(['galleryImages']);
-      queryClient.invalidateQueries(['imageLikes', image.id]);
+      queryClient.invalidateQueries({ queryKey: ['galleryImages'] });
     }
 
+    toast.success('Image deleted successfully');
   } catch (error) {
-    console.error('Error deleting image:', error);
-    throw error;
+    console.error('Error in handleImageDiscard:', error);
+    toast.error('Failed to delete image');
   }
 };
