@@ -15,12 +15,8 @@ import { useImageRemix } from '@/hooks/useImageRemix';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import HeartAnimation from './animations/HeartAnimation';
-import ProfileAvatar from './profile/ProfileAvatar';
-import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
 import { useLikes } from '@/hooks/useLikes';
-import LikeButton from './LikeButton';
-import FollowButton from './profile/FollowButton';
-import FollowStats from './profile/FollowStats';
+import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -134,25 +130,14 @@ const MobileImageDrawer = ({
             </div>
           )}
 
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
-              <span className="text-sm font-medium">{owner?.display_name}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              {session?.user?.id !== image.user_id && (
-                <FollowButton userId={image.user_id} />
-              )}
-              <ImagePrivacyToggle image={image} isOwner={isOwner} />
-              <div className="flex items-center gap-1">
-                <LikeButton 
-                  isLiked={userLikes?.includes(image.id)} 
-                  onToggle={() => toggleLike(image.id)} 
-                />
-                <span className="text-xs text-muted-foreground">{likeCount}</span>
-              </div>
-            </div>
-          </div>
+          <ImageOwnerHeader 
+            owner={owner}
+            image={image}
+            isOwner={isOwner}
+            userLikes={userLikes}
+            toggleLike={toggleLike}
+            likeCount={likeCount}
+          />
           
           {session && (
             <div className="flex gap-2 justify-between mb-6">

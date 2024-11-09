@@ -8,18 +8,15 @@ import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { toast } from 'sonner';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import ProfileAvatar from './profile/ProfileAvatar';
-import LikeButton from './LikeButton';
 import { useLikes } from '@/hooks/useLikes';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import ImagePromptSection from './image-view/ImagePromptSection';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
-import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
 import { getCleanPrompt } from '@/utils/promptUtils';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import { useImageRemix } from '@/hooks/useImageRemix';
 import HeartAnimation from './animations/HeartAnimation';
-import FollowButton from './profile/FollowButton';
+import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 
 const FullScreenImageView = ({ 
   image, 
@@ -66,8 +63,6 @@ const FullScreenImageView = ({
     },
     enabled: !!image?.id
   });
-  
-  if (!isOpen || !image) return null;
 
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
@@ -142,25 +137,14 @@ const FullScreenImageView = ({
             <div className="bg-card h-[calc(100vh-32px)] rounded-lg border shadow-sm">
               <ScrollArea className="h-full">
                 <div className="p-6 space-y-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
-                      <span className="text-sm font-medium">{owner?.display_name}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {session?.user?.id !== image.user_id && (
-                        <FollowButton userId={image.user_id} />
-                      )}
-                      <ImagePrivacyToggle image={image} isOwner={isOwner} />
-                      <div className="flex items-center gap-1">
-                        <LikeButton 
-                          isLiked={userLikes?.includes(image.id)} 
-                          onToggle={() => toggleLike(image.id)} 
-                        />
-                        <span className="text-xs text-muted-foreground">{likeCount}</span>
-                      </div>
-                    </div>
-                  </div>
+                  <ImageOwnerHeader 
+                    owner={owner}
+                    image={image}
+                    isOwner={isOwner}
+                    userLikes={userLikes}
+                    toggleLike={toggleLike}
+                    likeCount={likeCount}
+                  />
 
                   <ImagePromptSection 
                     prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)}
