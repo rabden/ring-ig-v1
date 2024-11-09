@@ -39,14 +39,14 @@ export const deleteImageCompletely = async (imageId) => {
     .from('user_images')
     .select('storage_path')
     .eq('id', imageId)
-    .maybeSingle();  // Using maybeSingle() instead of single() to handle not found case
+    .single();
 
   if (fetchError) {
     throw new Error(`Failed to fetch image record: ${fetchError.message}`);
   }
 
-  if (!imageRecord) {
-    throw new Error('Image not found');
+  if (!imageRecord?.storage_path) {
+    throw new Error('Image record or storage path not found');
   }
 
   // Delete the image from storage first
