@@ -9,6 +9,7 @@ import { NotificationProvider } from './contexts/NotificationContext';
 import ImageGenerator from './pages/ImageGenerator';
 import Documentation from './pages/Documentation';
 import SingleImageView from './components/SingleImageView';
+import PublicImageView from './pages/PublicImageView';
 import '@/styles/shadcn-overrides.css';
 
 const queryClient = new QueryClient({
@@ -34,7 +35,7 @@ function App() {
                 <Routes>
                   <Route path="/" element={<ImageGenerator />} />
                   <Route path="/docs" element={<Documentation />} />
-                  <Route path="/image/:imageId" element={<SingleImageView />} />
+                  <Route path="/image/:imageId" element={<PublicImageView />} />
                   <Route path="/remix/:imageId" element={<ImageGenerator />} />
                 </Routes>
                 <Toaster 
