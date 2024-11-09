@@ -29,7 +29,7 @@ const ImageGallery = ({
   setStyle,
   style,
   showPrivate,
-  profileUserId // New prop for profile page filtering
+  profileUserId
 }) => {
   const { userLikes, toggleLike } = useLikes(userId);
   const isMobile = window.innerWidth <= 768;
@@ -41,17 +41,19 @@ const ImageGallery = ({
     hasNextPage,
     isFetchingNextPage 
   } = useGalleryImages({
-    userId: profileUserId || userId, // Use profileUserId if available
+    userId: profileUserId || userId,
     activeView,
     nsfwEnabled,
-    showPrivate: false, // Always false for public profile
+    showPrivate,
     activeFilters,
     searchQuery
   });
 
   // Only scroll to top when view changes or filters update, not during pagination
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!isFetchingNextPage) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }, [activeView, activeFilters, searchQuery]);
 
   const observer = useRef();
