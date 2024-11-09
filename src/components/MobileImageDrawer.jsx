@@ -13,6 +13,7 @@ import TruncatablePrompt from './TruncatablePrompt';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import { useImageRemix } from '@/hooks/useImageRemix';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
+import { useQueryClient } from '@tanstack/react-query';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -32,6 +33,7 @@ const MobileImageDrawer = ({
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, () => onOpenChange(false));
+  const queryClient = useQueryClient();
 
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
@@ -49,10 +51,14 @@ const MobileImageDrawer = ({
 
   const handleDiscard = async () => {
     try {
-      await handleImageDiscard(image);
+      await handleImageDiscard(image, queryClient);
       onOpenChange(false);
+      if (onDiscard) {
+        onDiscard(image.id);
+      }
     } catch (error) {
       console.error('Error in handleDiscard:', error);
+      toast.error('Failed to delete image');
     }
   };
 
