@@ -17,7 +17,7 @@ import ImageDetailsSection from './image-view/ImageDetailsSection';
 import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
 import { getCleanPrompt } from '@/utils/promptUtils';
 import { handleImageDiscard } from '@/utils/discardUtils';
-import { useProUser } from '@/hooks/useProUser';
+import { useImageRemix } from '@/hooks/useImageRemix';
 
 const FullScreenImageView = ({ 
   image, 
@@ -37,7 +37,7 @@ const FullScreenImageView = ({
   const [shareIcon, setShareIcon] = useState('share');
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
   const queryClient = useQueryClient();
-  const { data: isPro = false } = useProUser(session?.user?.id);
+  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, onClose);
 
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],
@@ -80,32 +80,13 @@ const FullScreenImageView = ({
     setTimeout(() => setShareIcon('share'), 1500);
   };
 
-  const handleRemix = () => {
-    if (!session) {
-      toast.error('Please sign in to remix images');
-      return;
+  const handleDiscard = async () => {
+    try {
+      await handleImageDiscard(image, queryClient);
+      onClose();
+    } catch (error) {
+      console.error('Error in handleDiscard:', error);
     }
-
-    onRemix(image);
-
-    // Check if the original image was made with a pro style
-    const isProStyle = styleConfigs?.[image.style]?.isPremium;
-    const isNsfwModel = modelConfigs?.[image.model]?.category === "NSFW";
-
-    // Set style based on NSFW status and pro status
-    if (isNsfwModel) {
-      // For NSFW models, don't use any style
-      setStyle(null);
-    } else if (isProStyle && !isPro) {
-      // If it's a pro style and user is not pro, reset to no style
-      setStyle(null);
-    } else {
-      // Otherwise keep the original style
-      setStyle(image.style);
-    }
-
-    setActiveTab('input');
-    onClose();
   };
 
   const detailItems = [
@@ -116,15 +97,6 @@ const FullScreenImageView = ({
     { label: "Quality", value: image.quality },
     { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
   ];
-
-  const handleDiscard = async () => {
-    try {
-      await handleImageDiscard(image, queryClient);
-      onClose();
-    } catch (error) {
-      console.error('Error in handleDiscard:', error);
-    }
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -191,7 +163,7 @@ const FullScreenImageView = ({
                           Discard
                         </Button>
                       )}
-                      <Button onClick={handleRemix} className="flex-1" variant="ghost" size="sm">
+                      <Button onClick={() => handleRemix(image)} className="flex-1" variant="ghost" size="sm">
                         <RefreshCw className="mr-2 h-4 w-4" />
                         Remix
                       </Button>
