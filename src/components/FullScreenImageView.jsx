@@ -26,7 +26,6 @@ const FullScreenImageView = ({
   onClose,
   onDownload,
   onDiscard,
-  onRemix,
   isOwner,
   setStyle,
   setActiveTab,
@@ -74,7 +73,7 @@ const FullScreenImageView = ({
     },
     enabled: !!image?.id
   });
-
+  
   if (!isOpen || !image) return null;
 
   const handleCopyPrompt = async () => {
@@ -105,9 +104,9 @@ const FullScreenImageView = ({
       setAspectRatio,
       setUseAspectRatio,
       setActiveTab,
-      onClose,
       modelConfigs,
-      isPro
+      isPro,
+      onClose
     });
   };
 
