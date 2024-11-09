@@ -5,6 +5,7 @@ import ImageCard from './ImageCard';
 import { useLikes } from '@/hooks/useLikes';
 import NoResults from './NoResults';
 import { useGalleryImages } from '@/hooks/useGalleryImages';
+import Feed from './Feed';
 
 const breakpointColumnsObj = {
   default: 4,
@@ -30,6 +31,22 @@ const ImageGallery = ({
   style,
   showPrivate
 }) => {
+  if (activeView === 'feed') {
+    return (
+      <Feed
+        userId={userId}
+        onImageClick={onImageClick}
+        onDownload={onDownload}
+        onDiscard={onDiscard}
+        onRemix={onRemix}
+        onViewDetails={onViewDetails}
+        setActiveTab={setActiveTab}
+        setStyle={setStyle}
+        style={style}
+      />
+    );
+  }
+
   const { userLikes, toggleLike } = useLikes(userId);
   const isMobile = window.innerWidth <= 768;
   
