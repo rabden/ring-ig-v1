@@ -6,7 +6,6 @@ import { Download, Trash2, RefreshCw, ArrowLeft } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
-import { toast } from 'sonner';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useLikes } from '@/hooks/useLikes';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -69,14 +68,12 @@ const FullScreenImageView = ({
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
     setCopyIcon('check');
-    toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
   };
 
   const handleShare = async () => {
     await navigator.clipboard.writeText(`${window.location.origin}/image/${image.id}`);
     setShareIcon('check');
-    toast.success('Share link copied to clipboard');
     setTimeout(() => setShareIcon('share'), 1500);
   };
 
