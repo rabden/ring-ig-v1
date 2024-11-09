@@ -20,30 +20,6 @@ import { handleImageDiscard } from '@/utils/discardUtils';
 import { useImageRemix } from '@/hooks/useImageRemix';
 import HeartAnimation from './animations/HeartAnimation';
 import FollowButton from './social/FollowButton';
-import FollowStats from './social/FollowStats';
-
-const ImageHeader = ({ owner, image, session, userLikes, toggleLike, likeCount, isOwner }) => (
-  <div className="flex items-center justify-between">
-    <div className="flex items-center gap-2">
-      <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
-      <div className="flex flex-col">
-        <span className="text-sm font-medium">{owner?.display_name}</span>
-        <FollowStats userId={image.user_id} />
-      </div>
-    </div>
-    <div className="flex items-center gap-2">
-      {!isOwner && <FollowButton targetUserId={image.user_id} />}
-      <ImagePrivacyToggle image={image} isOwner={isOwner} />
-      <div className="flex items-center gap-1">
-        <LikeButton 
-          isLiked={userLikes?.includes(image.id)} 
-          onToggle={() => toggleLike(image.id)} 
-        />
-        <span className="text-xs text-muted-foreground">{likeCount}</span>
-      </div>
-    </div>
-  </div>
-);
 
 const FullScreenImageView = ({ 
   image, 
@@ -166,15 +142,23 @@ const FullScreenImageView = ({
             <div className="bg-card h-[calc(100vh-32px)] rounded-lg border shadow-sm">
               <ScrollArea className="h-full">
                 <div className="p-6 space-y-6">
-                  <ImageHeader 
-                    owner={owner} 
-                    image={image} 
-                    session={session} 
-                    userLikes={userLikes} 
-                    toggleLike={toggleLike} 
-                    likeCount={likeCount} 
-                    isOwner={isOwner} 
-                  />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
+                      <span className="text-sm font-medium">{owner?.display_name}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FollowButton targetUserId={image.user_id} />
+                      <ImagePrivacyToggle image={image} isOwner={isOwner} />
+                      <div className="flex items-center gap-1">
+                        <LikeButton 
+                          isLiked={userLikes?.includes(image.id)} 
+                          onToggle={() => toggleLike(image.id)} 
+                        />
+                        <span className="text-xs text-muted-foreground">{likeCount}</span>
+                      </div>
+                    </div>
+                  </div>
 
                   <ImagePromptSection 
                     prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import SignInDialog from '@/components/SignInDialog';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
@@ -8,29 +8,51 @@ import { useProUser } from '@/hooks/useProUser';
 import { useProRequest } from '@/hooks/useProRequest';
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import ProfileAvatar from './profile/ProfileAvatar';
+import DisplayNameEditor from './profile/DisplayNameEditor';
 import { useRealtimeProfile } from '@/hooks/useRealtimeProfile';
 import { handleAvatarUpload } from '@/utils/profileUtils';
 import { useQueryClient } from '@tanstack/react-query';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
-import { CreditCard, LogOut } from 'lucide-react';
-import ProfileHeader from './profile/ProfileHeader';
-import FollowStats from './social/FollowStats';
+import { Settings, CreditCard, Heart, LogOut } from 'lucide-react';
 
 const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const { logout } = useSupabaseAuth();
   const { data: isPro } = useProUser(user?.id);
   const { data: proRequest } = useProRequest(user?.id);
-  const [isEditing, setIsEditing] = useState(false);
-  const [displayName, setDisplayName] = useState(
-    user?.user_metadata?.display_name || 
-    (user?.email ? user.email.split('@')[0] : '') || 
-    ''
-  );
-  const [showImageDialog, setShowImageDialog] = useState(false);
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [displayName, setDisplayName] = React.useState('');
+  const [showImageDialog, setShowImageDialog] = React.useState(false);
   const queryClient = useQueryClient();
 
+  React.useEffect(() => {
+    if (user) {
+      setDisplayName(
+        user.user_metadata?.display_name || 
+        (user.email ? user.email.split('@')[0] : '') || 
+        ''
+      );
+    }
+  }, [user]);
+
+  // Enable real-time updates
   useRealtimeProfile(user?.id);
+
+  const { data: totalLikes = 0 } = useQuery({
+    queryKey: ['totalLikes', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return 0;
+      const { count, error } = await supabase
+        .from('user_image_likes')
+        .select('*', { count: 'exact' })
+        .eq('created_by', user.id);
+      
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!user?.id
+  });
 
   const handleDisplayNameUpdate = async () => {
     try {
@@ -62,6 +84,23 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
     }
   };
 
+  const handleProRequest = async () => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_pro_request: true })
+        .eq('id', user.id);
+
+      if (error) throw error;
+      
+      toast.success("Pro request submitted successfully");
+      queryClient.invalidateQueries(['proRequest', user.id]);
+    } catch (error) {
+      toast.error("Failed to submit pro request");
+      console.error('Error submitting pro request:', error);
+    }
+  };
+
   if (activeTab !== 'profile') return null;
 
   return (
@@ -73,22 +112,34 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
         <ScrollArea className="flex-1">
           {user ? (
             <div className="p-4 space-y-4">
-              <ProfileHeader 
-                user={user}
-                isPro={isPro}
-                isEditing={isEditing}
-                displayName={displayName}
-                setDisplayName={setDisplayName}
-                onEdit={() => setIsEditing(true)}
-                onUpdate={handleDisplayNameUpdate}
-                onEditClick={() => setShowImageDialog(true)}
-                showEditOnHover={true}
-              />
+              <div className="flex flex-col items-center space-y-3">
+                <ProfileAvatar 
+                  user={user} 
+                  isPro={isPro} 
+                  size="lg" 
+                  onEditClick={() => setShowImageDialog(true)}
+                />
+                <div className="text-center space-y-1">
+                  <DisplayNameEditor
+                    isEditing={isEditing}
+                    displayName={displayName}
+                    setDisplayName={setDisplayName}
+                    onEdit={() => setIsEditing(true)}
+                    onUpdate={handleDisplayNameUpdate}
+                    size="lg"
+                  />
+                  <p className="text-sm text-muted-foreground">{user.email}</p>
+                </div>
+              </div>
 
               <Card className="p-4 grid grid-cols-2 gap-4">
                 <div className="text-center space-y-1">
                   <p className="text-2xl font-bold">{credits}+{bonusCredits}</p>
                   <p className="text-sm text-muted-foreground">Credits</p>
+                </div>
+                <div className="text-center space-y-1">
+                  <p className="text-2xl font-bold">{totalLikes}</p>
+                  <p className="text-sm text-muted-foreground">Likes</p>
                 </div>
               </Card>
 
