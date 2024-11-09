@@ -15,30 +15,18 @@ import ImageDetailsDialog from './ImageDetailsDialog';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import { getCleanPrompt } from '@/utils/promptUtils';
-import { handleImageRemix } from '@/utils/remixUtils';
-import { useProUser } from '@/hooks/useProUser';
-import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
 const ImageCard = ({ 
   image, 
   onImageClick, 
   onDiscard, 
+  onRemix, 
   userId,
   isMobile,
   isLiked,
   onToggleLike,
   setActiveTab,
   setStyle,
-  setPrompt,
-  setSeed,
-  setRandomizeSeed,
-  setWidth,
-  setHeight,
-  setModel,
-  setSteps,
-  setQuality,
-  setAspectRatio,
-  setUseAspectRatio
 }) => {
   const imageRef = useRef(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -76,26 +64,11 @@ const ImageCard = ({
   };
 
   const handleRemixClick = () => {
-    handleImageRemix({
-      image,
-      session: useSupabaseAuth().session,
-      isPro: useProUser().data,
-      modelConfigs,
-      setters: {
-        setPrompt,
-        setSeed,
-        setRandomizeSeed,
-        setWidth,
-        setHeight,
-        setModel,
-        setSteps,
-        setStyle,
-        setQuality,
-        setAspectRatio,
-        setUseAspectRatio,
-        setActiveTab
-      }
-    });
+    if (typeof onRemix === 'function' && typeof setStyle === 'function') {
+      onRemix(image);
+      setStyle(image.style);
+      setActiveTab('input');
+    }
   };
 
   const handleDownload = async () => {
@@ -115,6 +88,7 @@ const ImageCard = ({
     try {
       await handleImageDiscard(image, queryClient);
     } catch (error) {
+      // Error is already handled by handleImageDiscard
       console.error('Error in handleDiscard:', error);
     }
   };
@@ -200,16 +174,6 @@ const ImageCard = ({
           isOwner={image.user_id === userId}
           setActiveTab={setActiveTab}
           setStyle={setStyle}
-          setPrompt={setPrompt}
-          setSeed={setSeed}
-          setRandomizeSeed={setRandomizeSeed}
-          setWidth={setWidth}
-          setHeight={setHeight}
-          setModel={setModel}
-          setSteps={setSteps}
-          setQuality={setQuality}
-          setAspectRatio={setAspectRatio}
-          setUseAspectRatio={setUseAspectRatio}
         />
       )}
 
