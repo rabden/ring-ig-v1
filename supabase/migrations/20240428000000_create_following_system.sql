@@ -27,7 +27,7 @@ CREATE POLICY "Users can unfollow"
     ON public.user_follows FOR DELETE 
     USING (auth.uid() = follower_id);
 
--- Add follow counts to profiles table
+-- Add follow counts to profiles table if they don't exist
 ALTER TABLE public.profiles
 ADD COLUMN IF NOT EXISTS followers_count INTEGER DEFAULT 0,
 ADD COLUMN IF NOT EXISTS following_count INTEGER DEFAULT 0;
@@ -50,9 +50,23 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Triggers for maintaining follow counts
+DROP TRIGGER IF EXISTS on_follow_changed ON public.user_follows;
 CREATE TRIGGER on_follow_changed
     AFTER INSERT OR DELETE ON public.user_follows
     FOR EACH ROW EXECUTE FUNCTION update_follow_counts();
 
 -- Enable realtime for follows
 ALTER PUBLICATION supabase_realtime ADD TABLE user_follows;
+
+-- Create explicit foreign key relationships for profiles
+ALTER TABLE public.user_follows
+DROP CONSTRAINT IF EXISTS user_follows_follower_id_fkey,
+DROP CONSTRAINT IF EXISTS user_follows_following_id_fkey,
+ADD CONSTRAINT user_follows_follower_id_fkey
+    FOREIGN KEY (follower_id)
+    REFERENCES profiles(id)
+    ON DELETE CASCADE,
+ADD CONSTRAINT user_follows_following_id_fkey
+    FOREIGN KEY (following_id)
+    REFERENCES profiles(id)
+    ON DELETE CASCADE;

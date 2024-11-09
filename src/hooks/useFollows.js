@@ -11,7 +11,7 @@ export const useFollows = (userId) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('user_follows')
-        .select('follower_id, profiles!user_follows_follower_id_fkey(*)')
+        .select('follower_id, profiles!user_follows_follower_id_fkey(display_name, avatar_url)')
         .eq('following_id', userId);
       
       if (error) throw error;
@@ -26,7 +26,7 @@ export const useFollows = (userId) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('user_follows')
-        .select('following_id, profiles!user_follows_following_id_fkey(*)')
+        .select('following_id, profiles!user_follows_following_id_fkey(display_name, avatar_url)')
         .eq('follower_id', userId);
       
       if (error) throw error;
