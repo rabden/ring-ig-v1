@@ -1,21 +1,16 @@
 import React, { useRef, useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import ImageStatusIndicators from './ImageStatusIndicators';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Skeleton } from "@/components/ui/skeleton";
-import { downloadImage } from '@/utils/downloadUtils';
-import ImageCardActions from './ImageCardActions';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import MobileImageDrawer from './MobileImageDrawer';
 import ImageDetailsDialog from './ImageDetailsDialog';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { handleImageDiscard } from '@/utils/discardUtils';
-import { getCleanPrompt } from '@/utils/promptUtils';
 import { toast } from 'sonner';
-import HeartAnimation from './animations/HeartAnimation';
+import ImageCardContent from './image-card/ImageCardContent';
+import ImageCardFooter from './image-card/ImageCardFooter';
 
 const ImageCard = ({ 
   image, 
@@ -39,6 +34,8 @@ const ImageCard = ({
   const { data: styleConfigs } = useStyleConfigs();
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
   const queryClient = useQueryClient();
+
+  const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
   
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['imageLikes', image.id],
@@ -53,9 +50,7 @@ const ImageCard = ({
     },
   });
 
-  const handleImageLoad = () => {
-    setIsLoading(false);
-  };
+  const handleImageLoad = () => setIsLoading(false);
 
   const handleImageClick = (e) => {
     e.preventDefault();
@@ -75,7 +70,6 @@ const ImageCard = ({
   };
 
   const handleDownload = async () => {
-    const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
     await downloadImage(imageUrl, image.prompt);
   };
 
@@ -111,80 +105,46 @@ const ImageCard = ({
     }
   };
 
-  if (isDeleted) {
-    return null;
-  }
+  if (isDeleted) return null;
 
   const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
   const modelName = modelConfigs?.[image.model]?.name || image.model;
   const styleName = styleConfigs?.[image.style]?.name || 'General';
 
-  const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
-
   return (
     <>
       <div className="mb-2">
         <Card className="overflow-hidden">
-          <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-            <ImageStatusIndicators 
-              isTrending={image.is_trending} 
-              isHot={image.is_hot} 
+          <CardContent className="p-0">
+            <ImageCardContent
+              image={image}
+              imageUrl={imageUrl}
+              isLoading={isLoading}
+              handleImageLoad={handleImageLoad}
+              handleImageClick={handleImageClick}
+              handleDoubleClick={handleDoubleClick}
+              isAnimating={isAnimating}
+              modelName={modelName}
+              styleName={styleName}
+              isNsfw={isNsfw}
             />
-            <div ref={imageRef} className="absolute inset-0">
-              {isLoading && (
-                <div className="absolute inset-0 bg-muted animate-pulse">
-                  <Skeleton className="w-full h-full" />
-                </div>
-              )}
-              <img 
-                src={imageUrl}
-                alt={image.prompt} 
-                className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-                onClick={handleImageClick}
-                onDoubleClick={handleDoubleClick}
-                onLoad={handleImageLoad}
-                loading="lazy"
-                decoding="async"
-              />
-              <HeartAnimation isAnimating={isAnimating} />
-            </div>
-            <div className="absolute bottom-2 left-2 flex gap-1">
-              <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
-                {modelName}
-              </Badge>
-              {!isNsfw && (
-                <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
-                  {styleName}
-                </Badge>
-              )}
-            </div>
           </CardContent>
         </Card>
-        <div className="mt-1 flex items-center justify-between">
-          <p className="text-sm truncate w-[70%]">{getCleanPrompt(image.prompt, image.style)}</p>
-          <ImageCardActions
-            image={image}
-            isMobile={isMobile}
-            isLiked={isLiked}
-            likeCount={likeCount}
-            onToggleLike={(id) => {
-              if (!isLiked) {
-                setIsAnimating(true);
-                setTimeout(() => {
-                  setIsAnimating(false);
-                }, 800);
-              }
-              onToggleLike(id);
-            }}
-            onViewDetails={handleViewDetails}
-            onDownload={handleDownload}
-            onDiscard={handleDiscard}
-            onRemix={handleRemixClick}
-            userId={userId}
-            setStyle={setStyle}
-            setActiveTab={setActiveTab}
-          />
-        </div>
+        <ImageCardFooter
+          image={image}
+          isMobile={isMobile}
+          isLiked={isLiked}
+          likeCount={likeCount}
+          onToggleLike={onToggleLike}
+          onViewDetails={handleViewDetails}
+          onDownload={handleDownload}
+          onDiscard={handleDiscard}
+          onRemix={handleRemixClick}
+          userId={userId}
+          setStyle={setStyle}
+          setActiveTab={setActiveTab}
+          imageUrl={imageUrl}
+        />
       </div>
 
       {isMobileDevice && (
