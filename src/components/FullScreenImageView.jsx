@@ -85,15 +85,6 @@ const FullScreenImageView = ({
     onClose();
   };
 
-  const detailItems = [
-    { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
-    { label: "Seed", value: image.seed },
-    { label: "Size", value: `${image.width}x${image.height}` },
-    { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
-    { label: "Quality", value: image.quality },
-    { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
-  ];
-
   const handleDiscard = async () => {
     try {
       await handleImageDiscard(image);
@@ -104,6 +95,15 @@ const FullScreenImageView = ({
   };
 
   if (!isOpen || !image) return null;
+
+  const detailItems = [
+    { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
+    { label: "Seed", value: image.seed },
+    { label: "Size", value: `${image.width}x${image.height}` },
+    { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
+    { label: "Quality", value: image.quality },
+    { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
+  ];
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -134,8 +134,8 @@ const FullScreenImageView = ({
                 <div className="p-6 space-y-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
-                      <span className="text-sm font-medium">{owner?.display_name}</span>
+                      <ProfileAvatar user={{ user_metadata: { avatar_url: image.owner?.avatar_url } }} size="sm" />
+                      <span className="text-sm font-medium">{image.owner?.display_name}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <ImagePrivacyToggle image={image} isOwner={isOwner} />
@@ -144,7 +144,7 @@ const FullScreenImageView = ({
                           isLiked={userLikes?.includes(image.id)} 
                           onToggle={() => toggleLike(image.id)} 
                         />
-                        <span className="text-xs text-muted-foreground">{likeCount}</span>
+                        <span className="text-xs text-muted-foreground">{image.likeCount}</span>
                       </div>
                     </div>
                   </div>
