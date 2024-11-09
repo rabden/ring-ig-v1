@@ -6,6 +6,7 @@ import { AuthProvider } from '@/integrations/supabase/components/AuthProvider';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import ImageGenerator from '@/pages/ImageGenerator';
 import SingleImageView from '@/components/SingleImageView';
+import PublicProfile from '@/pages/PublicProfile';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,6 +27,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<ImageGenerator />} />
                 <Route path="/image/:imageId" element={<SingleImageView />} />
+                <Route path="/profile/:userId" element={<PublicProfile />} />
               </Routes>
               <Toaster />
             </NotificationProvider>
