@@ -14,6 +14,7 @@ import { handleImageDiscard } from '@/utils/discardUtils';
 import { useImageRemix } from '@/hooks/useImageRemix';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
 import { useQueryClient } from '@tanstack/react-query';
+import HeartAnimation from './animations/HeartAnimation';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -32,6 +33,7 @@ const MobileImageDrawer = ({
   const { data: styleConfigs } = useStyleConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
+  const [isAnimating, setIsAnimating] = useState(false);
   const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, () => onOpenChange(false));
   const queryClient = useQueryClient();
 
@@ -62,6 +64,15 @@ const MobileImageDrawer = ({
     }
   };
 
+  const handleDoubleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsAnimating(true);
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 800);
+  };
+
   const detailItems = [
     { label: 'Model', value: modelConfigs?.[image.model]?.name || image.model },
     { label: 'Style', value: styleConfigs?.[image.style]?.name || 'General' },
@@ -82,7 +93,9 @@ const MobileImageDrawer = ({
                 src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
                 alt={image.prompt}
                 className="w-full h-auto"
+                onDoubleClick={handleDoubleClick}
               />
+              <HeartAnimation isAnimating={isAnimating} />
             </div>
           )}
           

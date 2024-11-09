@@ -18,6 +18,7 @@ import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
 import { getCleanPrompt } from '@/utils/promptUtils';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import { useImageRemix } from '@/hooks/useImageRemix';
+import HeartAnimation from './animations/HeartAnimation';
 
 const FullScreenImageView = ({ 
   image, 
@@ -35,6 +36,7 @@ const FullScreenImageView = ({
   const { data: styleConfigs } = useStyleConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
+  const [isAnimating, setIsAnimating] = useState(false);
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
   const queryClient = useQueryClient();
   const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, onClose);
@@ -98,6 +100,18 @@ const FullScreenImageView = ({
     { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
   ];
 
+  const handleDoubleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!userLikes?.includes(image.id)) {
+      setIsAnimating(true);
+      toggleLike(image.id);
+      setTimeout(() => {
+        setIsAnimating(false);
+      }, 800);
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-background data-[state=open]:duration-0 [&>button]:hidden">
@@ -118,7 +132,9 @@ const FullScreenImageView = ({
               src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
               alt={image.prompt}
               className="max-w-full max-h-[calc(100vh-4rem)] object-contain"
+              onDoubleClick={handleDoubleClick}
             />
+            <HeartAnimation isAnimating={isAnimating} />
           </div>
 
           <div className="w-[400px] p-4">
