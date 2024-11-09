@@ -13,7 +13,7 @@ import TruncatablePrompt from './TruncatablePrompt';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import { useImageRemix } from '@/hooks/useImageRemix';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import HeartAnimation from './animations/HeartAnimation';
 import ProfileAvatar from './profile/ProfileAvatar';
 import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
@@ -41,6 +41,31 @@ const MobileImageDrawer = ({
   const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, () => onOpenChange(false));
   const queryClient = useQueryClient();
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
+
+  const { data: owner } = useQuery({
+    queryKey: ['user', image?.user_id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', image.user_id)
+        .single();
+      return data;
+    },
+    enabled: !!image?.user_id
+  });
+
+  const { data: likeCount = 0 } = useQuery({
+    queryKey: ['likes', image?.id],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('user_image_likes')
+        .select('*', { count: 'exact' })
+        .eq('image_id', image.id);
+      return count;
+    },
+    enabled: !!image?.id
+  });
 
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
@@ -109,22 +134,18 @@ const MobileImageDrawer = ({
 
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <ProfileAvatar 
-                user={{ id: image.user_id, user_metadata: image.user_metadata }}
-                size="sm"
-              />
-              <span className="text-sm font-medium">
-                {image.user_metadata?.display_name || 'Anonymous'}
-              </span>
+              <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
+              <span className="text-sm font-medium">{owner?.display_name}</span>
             </div>
             <div className="flex items-center gap-2">
               <ImagePrivacyToggle image={image} isOwner={isOwner} />
-              {session && (
-                <LikeButton
-                  isLiked={userLikes?.includes(image.id)}
-                  onToggle={() => toggleLike(image.id)}
+              <div className="flex items-center gap-1">
+                <LikeButton 
+                  isLiked={userLikes?.includes(image.id)} 
+                  onToggle={() => toggleLike(image.id)} 
                 />
-              )}
+                <span className="text-xs text-muted-foreground">{likeCount}</span>
+              </div>
             </div>
           </div>
           
