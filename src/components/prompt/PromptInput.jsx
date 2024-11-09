@@ -33,7 +33,7 @@ const PromptInput = ({
         toast.success('Prompt improved!');
       }
       
-      await onGenerate(finalPrompt); // Pass the finalPrompt to onGenerate
+      await onGenerate(finalPrompt);
     } catch (error) {
       toast.error('Failed to process prompt');
       console.error(error);
@@ -81,8 +81,8 @@ const PromptInput = ({
         </Toggle>
         <Button
           size="sm"
-          variant="default"  // Ensure default variant for consistent styling
-          className="rounded-full bg-white text-black hover:bg-gray-100"
+          variant={isImproving ? "default" : "secondary"}
+          className={`rounded-full ${isImproving ? 'bg-white text-black hover:bg-gray-100' : ''}`}
           onClick={handleGenerate}
           disabled={!value?.length || !hasEnoughCredits || isGenerating}
         >
