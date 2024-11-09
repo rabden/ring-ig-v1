@@ -1,93 +1,184 @@
-import React from 'react';
-import { Drawer } from 'vaul';
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
-import { Download, RefreshCw } from "lucide-react";
+import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/supabase';
-import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
-import ProfileAvatar from './profile/ProfileAvatar';
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Download, Trash2, Wand2, Copy, Share2, Check } from "lucide-react";
+import { toast } from 'sonner';
+import { useStyleConfigs } from '@/hooks/useStyleConfigs';
+import { useModelConfigs } from '@/hooks/useModelConfigs';
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { getCleanPrompt } from '@/utils/promptUtils';
+import TruncatablePrompt from './TruncatablePrompt';
+import { handleImageDiscard } from '@/utils/discardUtils';
+import { useImageRemix } from '@/hooks/useImageRemix';
+import ImageDetailsSection from './image-view/ImageDetailsSection';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import HeartAnimation from './animations/HeartAnimation';
+import { useLikes } from '@/hooks/useLikes';
+import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 
 const MobileImageDrawer = ({ 
   open, 
   onOpenChange, 
   image, 
-  showFullImage = true,
-  onDownload,
-  onRemix,
+  onDownload, 
+  onDiscard, 
+  onRemix, 
   isOwner,
   setActiveTab,
   setStyle,
+  showFullImage = false
 }) => {
+  const { session } = useSupabaseAuth();
+  const { data: modelConfigs } = useModelConfigs();
+  const { data: styleConfigs } = useStyleConfigs();
+  const [copyIcon, setCopyIcon] = useState('copy');
+  const [shareIcon, setShareIcon] = useState('share');
+  const [isAnimating, setIsAnimating] = useState(false);
+  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, () => onOpenChange(false));
+  const queryClient = useQueryClient();
+  const { userLikes, toggleLike } = useLikes(session?.user?.id);
+
   const { data: owner } = useQuery({
-    queryKey: ['profile', image?.user_id],
+    queryKey: ['user', image?.user_id],
     queryFn: async () => {
-      if (!image?.user_id) return null;
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', image.user_id)
         .single();
-      
-      if (error) throw error;
       return data;
     },
-    enabled: !!image?.user_id,
+    enabled: !!image?.user_id
   });
 
-  if (!image) return null;
+  const { data: likeCount = 0 } = useQuery({
+    queryKey: ['likes', image?.id],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('user_image_likes')
+        .select('*', { count: 'exact' })
+        .eq('image_id', image.id);
+      return count;
+    },
+    enabled: !!image?.id
+  });
+
+  const handleCopyPrompt = async () => {
+    await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
+    setCopyIcon('check');
+    toast.success('Prompt copied to clipboard');
+    setTimeout(() => setCopyIcon('copy'), 1500);
+  };
+
+  const handleShare = async () => {
+    await navigator.clipboard.writeText(`${window.location.origin}/image/${image.id}`);
+    setShareIcon('check');
+    toast.success('Share link copied to clipboard');
+    setTimeout(() => setShareIcon('share'), 1500);
+  };
+
+  const handleDiscard = async () => {
+    try {
+      await handleImageDiscard(image, queryClient);
+      onOpenChange(false);
+      if (onDiscard) {
+        onDiscard(image.id);
+      }
+    } catch (error) {
+      console.error('Error in handleDiscard:', error);
+      toast.error('Failed to delete image');
+    }
+  };
+
+  const handleDoubleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!userLikes?.includes(image.id)) {
+      setIsAnimating(true);
+      toggleLike(image.id);
+      setTimeout(() => {
+        setIsAnimating(false);
+      }, 800);
+    }
+  };
+
+  const detailItems = [
+    { label: 'Model', value: modelConfigs?.[image.model]?.name || image.model },
+    { label: 'Style', value: styleConfigs?.[image.style]?.name || 'General' },
+    { label: 'Size', value: `${image.width}x${image.height}` },
+    { label: 'Quality', value: image.quality },
+    { label: 'Seed', value: image.seed },
+    { label: 'Aspect Ratio', value: image.aspect_ratio }
+  ];
 
   return (
-    <Drawer.Root open={open} onOpenChange={onOpenChange}>
-      <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-        <Drawer.Content className="bg-background fixed bottom-0 left-0 right-0 mt-24 rounded-t-[10px] flex flex-col">
-          <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted my-4" />
-          <ScrollArea className="flex-1 overflow-y-auto">
-            <div className="px-4 pb-8">
-              {showFullImage && (
-                <div className="relative rounded-lg overflow-hidden mb-4">
-                  <img
-                    src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                    alt={image.prompt}
-                    className="w-full h-auto"
-                  />
-                </div>
-              )}
-              
-              {owner && (
-                <div className="flex items-center gap-2 mb-6">
-                  <Link to={`/profile/${image.user_id}`} className="flex items-center gap-2">
-                    <ProfileAvatar user={owner} size="sm" />
-                    <span className="text-sm font-medium">{owner.display_name}</span>
-                  </Link>
-                </div>
-              )}
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent className="h-[100vh] bg-background">
+        <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mt-4 mb-2" />
+        <ScrollArea className="h-[calc(96vh-32px)] px-4">
+          {showFullImage && (
+            <div className="relative rounded-lg overflow-hidden mb-6">
+              <img
+                src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                alt={image.prompt}
+                className="w-full h-auto"
+                onDoubleClick={handleDoubleClick}
+              />
+              <HeartAnimation isAnimating={isAnimating} />
+            </div>
+          )}
 
-              <div className="flex gap-2 justify-between mb-6">
-                <Button variant="outline" size="sm" className="flex-1" onClick={onDownload}>
-                  <Download className="mr-2 h-4 w-4" />
-                  Download
+          <ImageOwnerHeader 
+            owner={owner}
+            image={image}
+            isOwner={isOwner}
+            userLikes={userLikes}
+            toggleLike={toggleLike}
+            likeCount={likeCount}
+          />
+          
+          {session && (
+            <div className="flex gap-2 justify-between mb-6">
+              <Button variant="ghost" size="sm" className="flex-1" onClick={onDownload}>
+                <Download className="mr-2 h-4 w-4" />
+                Download
+              </Button>
+              {isOwner && (
+                <Button variant="ghost" size="sm" className="flex-1 text-destructive hover:text-destructive" onClick={handleDiscard}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Discard
                 </Button>
-                {!isOwner && (
-                  <Button variant="outline" size="sm" className="flex-1" onClick={onRemix}>
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Remix
-                  </Button>
-                )}
-              </div>
+              )}
+              <Button variant="ghost" size="sm" className="flex-1" onClick={() => handleRemix(image)}>
+                <Wand2 className="mr-2 h-4 w-4" />
+                Remix
+              </Button>
+            </div>
+          )}
 
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Prompt</h3>
-                <p className="text-sm text-muted-foreground bg-secondary p-3 rounded-md break-words">
-                  {image.prompt}
-                </p>
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Prompt</h3>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="icon" onClick={handleCopyPrompt}>
+                  {copyIcon === 'copy' ? <Copy className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+                </Button>
+                <Button variant="ghost" size="icon" onClick={handleShare}>
+                  {shareIcon === 'share' ? <Share2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+                </Button>
               </div>
             </div>
-          </ScrollArea>
-        </Drawer.Content>
-      </Drawer.Portal>
-    </Drawer.Root>
+            <TruncatablePrompt prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)} />
+          </div>
+
+          <div className="mt-4">
+            <ImageDetailsSection detailItems={detailItems} />
+          </div>
+        </ScrollArea>
+      </DrawerContent>
+    </Drawer>
   );
 };
 
