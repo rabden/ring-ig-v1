@@ -37,7 +37,7 @@ const ImageGeneratorSettings = ({
   setImageCount
 }) => {
   const { isImproving, improveCurrentPrompt } = usePromptImprovement();
-  const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality] * imageCount;
+  const creditCost = { "HD": 1, "HD+": 2 }[quality] * imageCount;
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
   const showGuidanceScale = model === 'fluxDev';
@@ -55,7 +55,7 @@ const ImageGeneratorSettings = ({
 
   const getAvailableQualities = () => {
     if (model === 'turbo' || model === 'preLar') {
-      return ["SD", "HD"];
+      return ["HD"];
     }
     return Object.keys(qualityOptions);
   };
