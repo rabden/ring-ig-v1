@@ -15,6 +15,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import { getCleanPrompt } from '@/utils/promptUtils';
 import { toast } from 'sonner';
+import HeartAnimation from './animations/HeartAnimation';
 
 const ImageCard = ({ 
   image, 
@@ -33,6 +34,7 @@ const ImageCard = ({
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleted, setIsDeleted] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
@@ -81,7 +83,11 @@ const ImageCard = ({
     e.preventDefault();
     e.stopPropagation();
     if (!isLiked) {
+      setIsAnimating(true);
       onToggleLike(image.id);
+      setTimeout(() => {
+        setIsAnimating(false);
+      }, 800);
     }
   };
 
@@ -140,6 +146,7 @@ const ImageCard = ({
                 loading="lazy"
                 decoding="async"
               />
+              <HeartAnimation isAnimating={isAnimating} />
             </div>
             <div className="absolute bottom-2 left-2 flex gap-1">
               <Badge variant="secondary" className="bg-black/50 text-white border-none text-[8px] md:text-[10px] py-0.5">
@@ -160,7 +167,15 @@ const ImageCard = ({
             isMobile={isMobile}
             isLiked={isLiked}
             likeCount={likeCount}
-            onToggleLike={onToggleLike}
+            onToggleLike={(id) => {
+              if (!isLiked) {
+                setIsAnimating(true);
+                setTimeout(() => {
+                  setIsAnimating(false);
+                }, 800);
+              }
+              onToggleLike(id);
+            }}
             onViewDetails={handleViewDetails}
             onDownload={handleDownload}
             onDiscard={handleDiscard}
