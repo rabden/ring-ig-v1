@@ -23,6 +23,7 @@ import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { toast } from 'sonner';
+import Feed from '@/components/Feed';
 
 const ImageGenerator = () => {
   const { imageId } = useParams();
@@ -114,35 +115,36 @@ const ImageGenerator = () => {
     }
   };
 
-  const {
-    handleImageClick,
-    handleModelChange,
-    handlePromptKeyDown,
-    handleRemix,
-    handleDownload,
-    handleDiscard,
-    handleViewDetails,
-  } = useImageHandlers({
-    generateImage: handleGenerateImage,
-    setSelectedImage,
-    setFullScreenViewOpen,
-    setModel,
-    setSteps,
-    setPrompt,
-    setSeed,
-    setRandomizeSeed,
-    setWidth,
-    setHeight,
-    setQuality,
-    setAspectRatio,
-    setUseAspectRatio,
-    aspectRatios: [],
-    session,
-    queryClient,
-    activeView,
-    setDetailsDialogOpen,
-    setActiveView,
-  });
+  const handleImageClick = (image) => {
+    // Handle image click logic
+  };
+
+  const handleModelChange = (model) => {
+    setModel(model);
+  };
+
+  const handlePromptKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      handleGenerateImage();
+    }
+  };
+
+  const handleRemix = (image) => {
+    // Handle remix logic
+  };
+
+  const handleDownload = (imageUrl, prompt) => {
+    // Handle download logic
+  };
+
+  const handleDiscard = (image) => {
+    // Handle discard logic
+  };
+
+  const handleViewDetails = (image) => {
+    setSelectedImage(image);
+    setDetailsDialogOpen(true);
+  };
 
   const handleFilterChange = (type, value) => {
     setActiveFilters(prev => ({ ...prev, [type]: value }));
@@ -227,23 +229,33 @@ const ImageGenerator = () => {
         )}
 
         <div className="md:mt-16 mt-12">
-          <ImageGallery
-            userId={session?.user?.id}
-            onImageClick={handleImageClick}
-            onDownload={handleDownload}
-            onDiscard={handleDiscard}
-            onRemix={handleRemix}
-            onViewDetails={handleViewDetails}
-            activeView={activeView}
-            generatingImages={generatingImages}
-            nsfwEnabled={nsfwEnabled}
-            modelConfigs={modelConfigs}
-            activeFilters={activeFilters}
-            searchQuery={searchQuery}
-            setActiveTab={setActiveTab}
-            setStyle={setStyle}
-            showPrivate={showPrivate}
-          />
+          {activeView === 'feed' ? (
+            <Feed
+              userId={session?.user?.id}
+              onImageClick={handleImageClick}
+              onDownload={handleDownload}
+              onRemix={handleRemix}
+              onViewDetails={handleViewDetails}
+            />
+          ) : (
+            <ImageGallery
+              userId={session?.user?.id}
+              onImageClick={handleImageClick}
+              onDownload={handleDownload}
+              onDiscard={handleDiscard}
+              onRemix={handleRemix}
+              onViewDetails={handleViewDetails}
+              activeView={activeView}
+              generatingImages={generatingImages}
+              nsfwEnabled={nsfwEnabled}
+              modelConfigs={modelConfigs}
+              activeFilters={activeFilters}
+              searchQuery={searchQuery}
+              setActiveTab={setActiveTab}
+              setStyle={setStyle}
+              showPrivate={showPrivate}
+            />
+          )}
         </div>
       </div>
 
