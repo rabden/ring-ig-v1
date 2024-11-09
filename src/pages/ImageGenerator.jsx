@@ -8,6 +8,7 @@ import { useProUser } from '@/hooks/useProUser';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useImageActions } from '@/hooks/useImageActions';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 
 // Components
 import ImageGallery from '@/components/ImageGallery';
@@ -30,6 +31,7 @@ const ImageGenerator = () => {
   const { data: isPro } = useProUser(session?.user?.id);
   const { data: modelConfigs } = useModelConfigs();
   const [showPrivate, setShowPrivate] = useState(false);
+  const queryClient = useQueryClient();
 
   const state = useImageGeneratorState();
   const {
@@ -92,11 +94,23 @@ const ImageGenerator = () => {
     }
   };
 
+  const handleDiscard = async (image) => {
+    try {
+      await imageActions.handleDiscard(image);
+      queryClient.invalidateQueries({ queryKey: ['userImages'] });
+      setFullScreenViewOpen(false);
+    } catch (error) {
+      console.error('Error discarding image:', error);
+      toast.error('Failed to discard image');
+    }
+  };
+
   const imageActions = useImageActions({
     setSelectedImage,
     setFullScreenViewOpen,
     setDetailsDialogOpen,
     session,
+    queryClient,
   });
 
   const handleFilterChange = (type, value) => {
@@ -178,7 +192,7 @@ const ImageGenerator = () => {
             userId={session?.user?.id}
             onImageClick={imageActions.handleImageClick}
             onDownload={imageActions.handleDownload}
-            onDiscard={imageActions.handleDiscard}
+            onDiscard={handleDiscard}
             onViewDetails={imageActions.handleViewDetails}
             activeView={activeView}
             generatingImages={generatingImages}
@@ -232,7 +246,7 @@ const ImageGenerator = () => {
         isOpen={fullScreenViewOpen}
         onClose={() => setFullScreenViewOpen(false)}
         onDownload={imageActions.handleDownload}
-        onDiscard={imageActions.handleDiscard}
+        onDiscard={handleDiscard}
         isOwner={selectedImage?.user_id === session?.user?.id}
         setStyle={setStyle}
         setActiveTab={setActiveTab}
