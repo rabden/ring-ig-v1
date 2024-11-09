@@ -11,12 +11,12 @@ const ImageCardActions = ({
   image, 
   isMobile, 
   isLiked, 
-  likeCount, 
-  onToggleLike, 
-  onViewDetails,
-  onDownload,
-  onDiscard,
-  onRemix,
+  likeCount = 0, 
+  onToggleLike = () => {},
+  onViewDetails = () => {},
+  onDownload = () => {},
+  onDiscard = () => {},
+  onRemix = () => {},
   userId,
   setStyle,
   setActiveTab
@@ -26,14 +26,14 @@ const ImageCardActions = ({
 
   const handleMoreClick = (e) => {
     e.stopPropagation();
-    if (isMobile) {
+    if (isMobile && typeof onViewDetails === 'function') {
       onViewDetails(image);
     }
   };
 
   const handleViewDetails = (e) => {
     e.stopPropagation();
-    if (!isMobile) {
+    if (!isMobile && typeof onViewDetails === 'function') {
       onViewDetails(image, false);
     }
   };

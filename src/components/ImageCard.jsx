@@ -18,15 +18,16 @@ import ImageCardBadges from './image-card/ImageCardBadges';
 
 const ImageCard = ({ 
   image, 
-  onImageClick, 
-  onDiscard, 
-  onRemix, 
+  onImageClick = () => {}, 
+  onDiscard = () => {}, 
+  onRemix = () => {}, 
   userId,
   isMobile,
   isLiked,
-  onToggleLike,
+  onToggleLike = () => {},
   setActiveTab,
   setStyle,
+  onViewDetails = () => {},
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
@@ -134,6 +135,7 @@ const ImageCard = ({
             onDownload={handleDownload}
             onDiscard={handleDiscard}
             onRemix={handleRemixClick}
+            onViewDetails={onViewDetails}
             userId={userId}
             setStyle={setStyle}
             setActiveTab={setActiveTab}
