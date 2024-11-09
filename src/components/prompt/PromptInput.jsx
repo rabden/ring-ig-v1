@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight, Sparkles } from "lucide-react";
-import { Toggle } from "@/components/ui/toggle";
 import { toast } from "sonner";
 
 const PromptInput = ({ 
@@ -11,9 +10,9 @@ const PromptInput = ({
   onGenerate, 
   hasEnoughCredits,
   onClear,
-  isImproving,
-  setIsImproving,
-  isGenerating
+  onImprove,
+  isGenerating,
+  isImproving
 }) => {
   const handleGenerate = async () => {
     if (!value.trim()) {
@@ -52,14 +51,16 @@ const PromptInput = ({
             <X className="h-4 w-4" />
           </Button>
         )}
-        <Toggle
-          pressed={isImproving}
-          onPressedChange={setIsImproving}
+        <Button
           size="sm"
-          className={`rounded-full ${isImproving ? 'bg-primary text-primary-foreground' : ''}`}
+          variant="outline"
+          className="rounded-full"
+          onClick={onImprove}
+          disabled={!value?.length || isImproving}
         >
-          <Sparkles className="h-4 w-4" />
-        </Toggle>
+          <Sparkles className="h-4 w-4 mr-2" />
+          Improve
+        </Button>
         <Button
           size="sm"
           className="rounded-full"

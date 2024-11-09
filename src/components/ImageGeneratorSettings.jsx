@@ -11,7 +11,7 @@ import ImageCountChooser from './settings/ImageCountChooser';
 import PromptInput from './prompt/PromptInput';
 import StyledScrollArea from './style/StyledScrollArea';
 import { qualityOptions } from '@/utils/imageConfigs';
-import { toast } from 'sonner';
+import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -34,8 +34,10 @@ const ImageGeneratorSettings = ({
   proMode,
   modelConfigs,
   imageCount = 1,
-  setImageCount
+  setImageCount,
+  isGenerating
 }) => {
+  const { isImproving, improveCurrentPrompt } = usePromptImprovement();
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality] * imageCount;
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
@@ -80,9 +82,15 @@ const ImageGeneratorSettings = ({
     setPrompt('');
   };
 
+  const handleImprovePrompt = async () => {
+    await improveCurrentPrompt(prompt, (improvedPrompt) => {
+      setPrompt(improvedPrompt);
+    });
+  };
+
   const handleAspectRatioChange = (newRatio) => {
     setAspectRatio(newRatio);
-    setUseAspectRatio(true); // Ensure aspect ratio is enabled when changed
+    setUseAspectRatio(true);
   };
 
   return (
@@ -107,6 +115,9 @@ const ImageGeneratorSettings = ({
         onGenerate={generateImage}
         hasEnoughCredits={hasEnoughCredits}
         onClear={handleClearPrompt}
+        onImprove={handleImprovePrompt}
+        isGenerating={isGenerating}
+        isImproving={isImproving}
       />
 
       <ModelChooser

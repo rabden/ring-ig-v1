@@ -4,31 +4,32 @@ import { toast } from 'sonner';
 
 export const usePromptImprovement = () => {
   const [isImproving, setIsImproving] = useState(false);
-  const [improvedPrompt, setImprovedPrompt] = useState('');
 
-  const improveCurrentPrompt = async (prompt) => {
+  const improveCurrentPrompt = async (prompt, onSuccess) => {
     if (!prompt.trim()) {
       toast.error('Please enter a prompt');
-      return null;
+      return;
     }
 
+    setIsImproving(true);
     const toastId = toast.loading('Improving prompt...');
+    
     try {
       const result = await improvePrompt(prompt);
-      setImprovedPrompt(result);
-      toast.success('Prompt improved!', { id: toastId });
-      return result;
+      if (result) {
+        onSuccess(result);
+        toast.success('Prompt improved!', { id: toastId });
+      }
     } catch (error) {
+      console.error('Error improving prompt:', error);
       toast.error('Failed to improve prompt', { id: toastId });
-      return null;
+    } finally {
+      setIsImproving(false);
     }
   };
 
   return {
     isImproving,
-    setIsImproving,
-    improvedPrompt,
-    setImprovedPrompt,
     improveCurrentPrompt
   };
 };
