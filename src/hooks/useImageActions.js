@@ -1,5 +1,6 @@
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/supabase';
+import { deleteImageCompletely } from '@/integrations/supabase/imageUtils';
 
 export const useImageActions = ({
   setSelectedImage,
@@ -31,19 +32,17 @@ export const useImageActions = ({
   };
 
   const handleDiscard = async (image) => {
-    if (!session || session.user.id !== image.user_id) return;
+    if (!session || session.user.id !== image.user_id) {
+      toast.error('You do not have permission to delete this image');
+      return;
+    }
     
     try {
-      const { error } = await supabase
-        .from('user_images')
-        .delete()
-        .eq('id', image.id);
-
-      if (error) throw error;
-
+      await deleteImageCompletely(image.id);
       queryClient.invalidateQueries({ queryKey: ['userImages'] });
       toast.success('Image deleted successfully');
     } catch (error) {
+      console.error('Error deleting image:', error);
       toast.error('Failed to delete image');
     }
   };
