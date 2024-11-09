@@ -81,10 +81,13 @@ const ImageGallery = ({
       return [<NoResults key="no-results" />];
     }
     
-    // Filter out private images when viewing a profile
-    const filteredImages = profileUserId 
-      ? images.filter(img => !img.is_private && img.user_id === profileUserId)
-      : images;
+    // Filter images based on privacy setting
+    const filteredImages = images.filter(img => {
+      if (activeView === 'myImages') {
+        return showPrivate ? img.is_private : !img.is_private;
+      }
+      return !img.is_private;
+    });
     
     return filteredImages.map((image, index) => (
       <div

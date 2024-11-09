@@ -27,8 +27,17 @@ export const useGalleryImages = ({
 
       let baseQuery = supabase
         .from('user_images')
-        .select('*', { count: 'exact' })
-        .eq('is_private', false);
+        .select('*', { count: 'exact' });
+
+      // Apply privacy filter
+      if (activeView === 'myImages') {
+        baseQuery = baseQuery
+          .eq('user_id', userId)
+          .eq('is_private', showPrivate);
+      } else {
+        baseQuery = baseQuery
+          .eq('is_private', false);
+      }
 
       // Apply NSFW filter
       const nsfwModels = ['nsfwMaster', 'animeNsfw'];
@@ -51,114 +60,24 @@ export const useGalleryImages = ({
         baseQuery = baseQuery.ilike('prompt', `%${searchQuery}%`);
       }
 
-      if (activeView === 'inspiration') {
-        try {
-          let images = [];
-          let nextPage = null;
-          const start = pageParam.page * ITEMS_PER_PAGE;
+      const start = pageParam.page * ITEMS_PER_PAGE;
+      const { data: result, error, count } = await baseQuery
+        .order('created_at', { ascending: false })
+        .range(start, start + ITEMS_PER_PAGE - 1);
 
-          // Get trending and hot images
-          if (pageParam.type === 'trending') {
-            const { data: trendingHotImages, error: trendingError, count } = await baseQuery
-              .or('is_hot.eq.true,is_trending.eq.true')
-              .neq('user_id', userId)
-              .order('created_at', { ascending: false })
-              .range(start, start + ITEMS_PER_PAGE - 1);
+      if (error) throw error;
 
-            if (trendingError) throw trendingError;
-            
-            images = trendingHotImages || [];
-            
-            if (images.length === ITEMS_PER_PAGE) {
-              nextPage = { page: pageParam.page + 1, type: 'trending' };
-            } else if (following?.length > 0) {
-              nextPage = { page: 0, type: 'following' };
-            } else {
-              nextPage = { page: 0, type: 'regular' };
-            }
-          }
-          
-          // Get following users' images
-          else if (pageParam.type === 'following' && following?.length > 0) {
-            const { data: followingImages, error: followingError, count } = await baseQuery
-              .in('user_id', following)
-              .is('is_hot', false)
-              .is('is_trending', false)
-              .order('created_at', { ascending: false })
-              .range(start, start + ITEMS_PER_PAGE - 1);
-
-            if (followingError) throw followingError;
-            
-            images = followingImages || [];
-            
-            // Only move to next page of following if we have more results
-            if (images.length === ITEMS_PER_PAGE && (count > start + ITEMS_PER_PAGE)) {
-              nextPage = { page: pageParam.page + 1, type: 'following' };
-            } else {
-              nextPage = { page: 0, type: 'regular' };
-            }
-          }
-          
-          // Get regular images
-          else if (pageParam.type === 'regular') {
-            const { data: regularImages, error: regularError, count } = await baseQuery
-              .not('user_id', 'in', `(${[userId, ...(following || [])].join(',')})`)
-              .is('is_hot', false)
-              .is('is_trending', false)
-              .order('created_at', { ascending: false })
-              .range(start, start + ITEMS_PER_PAGE - 1);
-
-            if (regularError) throw regularError;
-            
-            images = regularImages || [];
-            
-            // Only set next page if we have more results
-            if (images.length === ITEMS_PER_PAGE && (count > start + ITEMS_PER_PAGE)) {
-              nextPage = { page: pageParam.page + 1, type: 'regular' };
-            }
-          }
-
-          return {
-            data: images.map(image => ({
-              ...image,
-              image_url: supabase.storage
-                .from('user-images')
-                .getPublicUrl(image.storage_path).data.publicUrl
-            })),
-            nextPage
-          };
-
-        } catch (error) {
-          console.error('Error fetching inspiration images:', error);
-          return { data: [], nextPage: undefined };
-        }
-      } else {
-        // For non-inspiration views (e.g., myImages)
-        try {
-          const start = pageParam.page * ITEMS_PER_PAGE;
-          const { data: result, error, count } = await baseQuery
-            .eq('user_id', userId)
-            .order('created_at', { ascending: false })
-            .range(start, start + ITEMS_PER_PAGE - 1);
-
-          if (error) throw error;
-
-          return {
-            data: result?.map(image => ({
-              ...image,
-              image_url: supabase.storage
-                .from('user-images')
-                .getPublicUrl(image.storage_path).data.publicUrl
-            })) || [],
-            nextPage: (result?.length === ITEMS_PER_PAGE && count > start + ITEMS_PER_PAGE) 
-              ? { page: pageParam.page + 1 } 
-              : undefined
-          };
-        } catch (error) {
-          console.error('Error fetching user images:', error);
-          return { data: [], nextPage: undefined };
-        }
-      }
+      return {
+        data: result?.map(image => ({
+          ...image,
+          image_url: supabase.storage
+            .from('user-images')
+            .getPublicUrl(image.storage_path).data.publicUrl
+        })) || [],
+        nextPage: (result?.length === ITEMS_PER_PAGE && count > start + ITEMS_PER_PAGE) 
+          ? { page: pageParam.page + 1 } 
+          : undefined
+      };
     },
     getNextPageParam: (lastPage) => lastPage?.nextPage,
     initialPageParam: { page: 0, type: 'trending' }

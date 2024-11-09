@@ -5,7 +5,7 @@ import { Lock, Unlock } from "lucide-react";
 const PrivateFilterButton = ({ showPrivate, onToggle }) => {
   return (
     <Button
-      variant="ghost"
+      variant={showPrivate ? "default" : "ghost"}
       size="sm"
       onClick={onToggle}
       className="h-8 px-3 flex items-center gap-1"
