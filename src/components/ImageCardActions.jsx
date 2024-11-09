@@ -1,5 +1,4 @@
 import React from 'react';
-import { Button } from "@/components/ui/button";
 import { MoreVertical } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import LikeButton from './LikeButton';
@@ -8,33 +7,24 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
 const ImageCardActions = ({ 
   image, 
-  isMobile, 
-  isLiked, 
-  likeCount = 0, 
-  onToggleLike = () => {},
-  onViewDetails = () => {},
-  onDownload = () => {},
-  onDiscard = () => {},
-  onRemix = () => {},
-  userId,
+  onDiscard, 
+  onDownload, 
+  onViewDetails, 
+  isOwner,
   setStyle,
-  setActiveTab
+  setActiveTab 
 }) => {
   const { session } = useSupabaseAuth();
-  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, () => {});
+  const { handleRemix } = useImageRemix(session, null, setStyle, setActiveTab);
 
-  const handleMoreClick = (e) => {
-    e.stopPropagation();
-    if (isMobile && typeof onViewDetails === 'function') {
-      onViewDetails(image);
-    }
+  const handleDownloadClick = () => {
+    if (!session) return;
+    onDownload();
   };
 
-  const handleViewDetails = (e) => {
-    e.stopPropagation();
-    if (!isMobile && typeof onViewDetails === 'function') {
-      onViewDetails(image, false);
-    }
+  const handleRemixClick = () => {
+    if (!session) return;
+    handleRemix(image);
   };
 
   const handleDiscard = () => {
@@ -43,40 +33,39 @@ const ImageCardActions = ({
   };
 
   return (
-    <div className="flex items-center gap-1">
-      <div className="flex items-center gap-1">
-        <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
-        <span className="text-xs text-muted-foreground">{likeCount}</span>
-      </div>
-      {isMobile ? (
-        <Button variant="ghost" className="h-6 w-6 p-0" onClick={handleMoreClick}>
-          <MoreVertical className="h-4 w-4" />
-        </Button>
-      ) : (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-6 w-6 p-0">
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={onDownload}>
-              Download
-            </DropdownMenuItem>
-            {image.user_id === userId && (
-              <DropdownMenuItem onClick={handleDiscard}>
-                Discard
+    <div className="flex items-center gap-2">
+      <LikeButton imageId={image.id} />
+      
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="p-2 hover:bg-accent rounded-full">
+            <MoreVertical className="h-4 w-4" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          {session && (
+            <>
+              <DropdownMenuItem onClick={handleDownloadClick}>
+                Download
               </DropdownMenuItem>
-            )}
-            <DropdownMenuItem onClick={() => handleRemix(image)}>
-              Remix
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleViewDetails}>
-              View Details
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+              <DropdownMenuItem onClick={handleRemixClick}>
+                Remix
+              </DropdownMenuItem>
+              {isOwner && (
+                <DropdownMenuItem 
+                  onClick={handleDiscard}
+                  className="text-destructive"
+                >
+                  Discard
+                </DropdownMenuItem>
+              )}
+            </>
+          )}
+          <DropdownMenuItem onClick={onViewDetails}>
+            View Details
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };

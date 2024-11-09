@@ -1,9 +1,7 @@
 import { supabase } from '@/integrations/supabase/supabase';
-import { toast } from 'sonner';
 
 export const handleImageDiscard = async (image, queryClient) => {
   if (!image?.id) {
-    toast.error('Invalid image data');
     return;
   }
 
@@ -16,7 +14,6 @@ export const handleImageDiscard = async (image, queryClient) => {
 
     if (fetchError) {
       console.error('Error fetching image:', fetchError);
-      toast.error('Failed to verify image');
       return;
     }
 
@@ -32,8 +29,7 @@ export const handleImageDiscard = async (image, queryClient) => {
       .remove([imageData.storage_path]);
 
     if (storageError) {
-      console.error('Error deleting from storage:', storageError);
-      toast.error('Failed to delete image file');
+      console.error('Error deleting image from storage:', storageError);
       return;
     }
 
@@ -43,18 +39,14 @@ export const handleImageDiscard = async (image, queryClient) => {
       .eq('id', image.id);
 
     if (dbError) {
-      console.error('Error deleting from database:', dbError);
-      toast.error('Failed to delete image record');
+      console.error('Error deleting image from database:', dbError);
       return;
     }
 
     if (queryClient) {
       queryClient.invalidateQueries({ queryKey: ['galleryImages'] });
     }
-
-    toast.success('Image deleted successfully');
   } catch (error) {
     console.error('Error in handleImageDiscard:', error);
-    toast.error('Failed to delete image');
   }
 };

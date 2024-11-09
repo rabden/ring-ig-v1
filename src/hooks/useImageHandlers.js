@@ -1,7 +1,6 @@
 import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useProUser } from '@/hooks/useProUser'
-import { toast } from 'sonner'
 import { getCleanPrompt } from '@/utils/promptUtils'
 import { handleImageDiscard } from '@/utils/discardUtils'
 
@@ -103,6 +102,7 @@ export const useImageHandlers = ({
   }
 
   const handleDownload = async (imageUrl, prompt) => {
+    if (!session) return;
     const a = document.createElement('a');
     a.href = imageUrl;
     a.download = `${prompt}.png`;
@@ -112,16 +112,11 @@ export const useImageHandlers = ({
   }
 
   const handleDiscard = async (imageId) => {
-    if (!imageId) {
-      toast.error('Cannot delete image: Invalid image ID');
-      return;
-    }
-    
+    if (!imageId) return;
     try {
       await handleImageDiscard({ id: imageId }, queryClient);
     } catch (error) {
       console.error('Error deleting image:', error);
-      toast.error('Failed to delete image');
     }
   }
 
