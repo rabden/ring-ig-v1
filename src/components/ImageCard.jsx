@@ -20,10 +20,13 @@ const ImageCard = ({
   image, 
   onImageClick, 
   onDiscard, 
+  onRemix, 
   userId,
   isMobile,
   isLiked,
   onToggleLike,
+  setActiveTab,
+  setStyle,
 }) => {
   const imageRef = useRef(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -56,6 +59,14 @@ const ImageCard = ({
       setDrawerOpen(true);
     } else {
       onImageClick(image);
+    }
+  };
+
+  const handleRemixClick = () => {
+    if (typeof onRemix === 'function' && typeof setStyle === 'function') {
+      onRemix(image);
+      setStyle(image.style);
+      setActiveTab('input');
     }
   };
 
@@ -149,6 +160,7 @@ const ImageCard = ({
             onViewDetails={handleViewDetails}
             onDownload={handleDownload}
             onDiscard={handleDiscard}
+            onRemix={handleRemixClick}
             userId={userId}
           />
         </div>
@@ -162,7 +174,10 @@ const ImageCard = ({
           showFullImage={true}
           onDownload={handleDownload}
           onDiscard={handleDiscard}
+          onRemix={handleRemixClick}
           isOwner={image.user_id === userId}
+          setActiveTab={setActiveTab}
+          setStyle={setStyle}
         />
       )}
 
