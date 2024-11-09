@@ -10,11 +10,11 @@ import { toast } from 'sonner';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useLikes } from '@/hooks/useLikes';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
 import ImagePromptSection from './image-view/ImagePromptSection';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
 import { getCleanPrompt } from '@/utils/promptUtils';
 import { handleImageDiscard } from '@/utils/discardUtils';
+import { useImageRemix } from '@/hooks/useImageRemix';
 import HeartAnimation from './animations/HeartAnimation';
 import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 
@@ -24,11 +24,11 @@ const FullScreenImageView = ({
   onClose,
   onDownload,
   onDiscard,
+  onRemix,
   isOwner,
   setStyle,
   setActiveTab 
 }) => {
-  const navigate = useNavigate();
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
@@ -37,6 +37,7 @@ const FullScreenImageView = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
   const queryClient = useQueryClient();
+  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, onClose);
 
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],
@@ -88,14 +89,14 @@ const FullScreenImageView = ({
     }
   };
 
-  const handleRemix = () => {
-    if (!session) {
-      toast.error('Please sign in to remix images');
-      return;
-    }
-    navigate(`/remix/${image.id}`);
-    onClose();
-  };
+  const detailItems = image ? [
+    { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
+    { label: "Seed", value: image.seed },
+    { label: "Size", value: `${image.width}x${image.height}` },
+    { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
+    { label: "Quality", value: image.quality },
+    { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
+  ] : [];
 
   const handleDoubleClick = (e) => {
     e.preventDefault();
@@ -108,15 +109,6 @@ const FullScreenImageView = ({
       }, 800);
     }
   };
-
-  const detailItems = image ? [
-    { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
-    { label: "Seed", value: image.seed },
-    { label: "Size", value: `${image.width}x${image.height}` },
-    { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
-    { label: "Quality", value: image.quality },
-    { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
-  ] : [];
 
   if (!image) return null;
 
@@ -179,7 +171,7 @@ const FullScreenImageView = ({
                           Discard
                         </Button>
                       )}
-                      <Button onClick={handleRemix} className="flex-1" variant="ghost" size="sm">
+                      <Button onClick={() => handleRemix(image)} className="flex-1" variant="ghost" size="sm">
                         <RefreshCw className="mr-2 h-4 w-4" />
                         Remix
                       </Button>
