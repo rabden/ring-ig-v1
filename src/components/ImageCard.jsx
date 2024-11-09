@@ -4,9 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import ImageStatusIndicators from './ImageStatusIndicators';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Skeleton } from "@/components/ui/skeleton";
 import { downloadImage } from '@/utils/downloadUtils';
+import { useImageLoader } from '@/hooks/useImageLoader';
 import ImageCardActions from './ImageCardActions';
 import { supabase } from '@/integrations/supabase/supabase';
 import MobileImageDrawer from './MobileImageDrawer';
@@ -46,8 +47,7 @@ const ImageCard = ({
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
-  const { session } = useSupabaseAuth();
-  const { data: isPro } = useProUser(session?.user?.id);
+  const queryClient = useQueryClient();
   
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['imageLikes', image.id],
@@ -78,8 +78,8 @@ const ImageCard = ({
   const handleRemixClick = () => {
     handleImageRemix({
       image,
-      session,
-      isPro,
+      session: useSupabaseAuth().session,
+      isPro: useProUser().data,
       modelConfigs,
       setters: {
         setPrompt,
@@ -113,7 +113,7 @@ const ImageCard = ({
 
   const handleDiscard = async () => {
     try {
-      await handleImageDiscard(image);
+      await handleImageDiscard(image, queryClient);
     } catch (error) {
       console.error('Error in handleDiscard:', error);
     }
