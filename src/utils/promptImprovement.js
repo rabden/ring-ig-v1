@@ -25,9 +25,8 @@ export const improvePrompt = async (originalPrompt) => {
       .eq('api_key', apiKeyData.api_key);
 
     const client = new HfInference(apiKeyData.api_key);
-    let improvedPrompt = "";
     
-    const stream = await client.chatCompletionStream({
+    const response = await client.chatCompletion({
       model: "01-ai/Yi-1.5-34B-Chat",
       messages: [
         {
@@ -39,17 +38,11 @@ export const improvePrompt = async (originalPrompt) => {
           content: originalPrompt
         }
       ],
-      max_tokens: 2048
+      max_tokens: 2048,
+      temperature: 0.7
     });
 
-    for await (const chunk of stream) {
-      if (chunk.choices && chunk.choices.length > 0) {
-        const newContent = chunk.choices[0].delta.content;
-        improvedPrompt += newContent;
-      }
-    }
-
-    return improvedPrompt.trim();
+    return response.choices[0].message.content.trim();
   } catch (error) {
     console.error('Error improving prompt:', error);
     throw error;
