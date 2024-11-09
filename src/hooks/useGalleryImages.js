@@ -22,21 +22,66 @@ export const useGalleryImages = ({
     isLoading,
   } = useInfiniteQuery({
     queryKey: ['galleryImages', userId, activeView, nsfwEnabled, showPrivate, activeFilters, searchQuery, following],
-    queryFn: async ({ pageParam = { page: 0, type: 'trending' } }) => {
+    queryFn: async ({ pageParam = { page: 0 } }) => {
       if (!userId) return { data: [], nextPage: null };
 
       let baseQuery = supabase
         .from('user_images')
         .select('*', { count: 'exact' });
 
-      // Apply privacy filter
-      if (activeView === 'myImages') {
+      if (activeView === 'inspiration') {
+        // For inspiration view, get all public images except user's own
+        baseQuery = baseQuery
+          .neq('user_id', userId)
+          .eq('is_private', false);
+
+        const { data: allImages, error, count } = await baseQuery;
+        
+        if (error) throw error;
+        if (!allImages) return { data: [], nextPage: null };
+
+        // Separate and sort images
+        const trendingHotImages = allImages.filter(img => img.is_trending || img.is_hot)
+          .sort((a, b) => {
+            if (a.is_hot && a.is_trending && (!b.is_hot || !b.is_trending)) return -1;
+            if (b.is_hot && b.is_trending && (!a.is_hot || !a.is_trending)) return 1;
+            if (a.is_hot && !b.is_hot) return -1;
+            if (b.is_hot && !a.is_hot) return 1;
+            if (a.is_trending && !b.is_trending) return -1;
+            if (b.is_trending && !a.is_trending) return 1;
+            return new Date(b.created_at) - new Date(a.created_at);
+          });
+
+        const followingImages = allImages.filter(img => 
+          following?.includes(img.user_id) && 
+          !trendingHotImages.some(t => t.id === img.id)
+        );
+
+        const otherImages = allImages.filter(img => 
+          !trendingHotImages.some(t => t.id === img.id) && 
+          !followingImages.some(f => f.id === img.id)
+        ).slice(0, 30);
+
+        const sortedImages = [...trendingHotImages, ...followingImages, ...otherImages];
+        
+        // Apply pagination to the sorted results
+        const start = pageParam.page * ITEMS_PER_PAGE;
+        const paginatedImages = sortedImages.slice(start, start + ITEMS_PER_PAGE);
+
+        return {
+          data: paginatedImages.map(image => ({
+            ...image,
+            image_url: supabase.storage
+              .from('user-images')
+              .getPublicUrl(image.storage_path).data.publicUrl
+          })),
+          nextPage: paginatedImages.length === ITEMS_PER_PAGE ? { page: pageParam.page + 1 } : undefined
+        };
+      } else {
+        // For myImages view
         baseQuery = baseQuery
           .eq('user_id', userId)
           .eq('is_private', showPrivate);
-      } else {
-        baseQuery = baseQuery
-          .eq('is_private', false);
       }
 
       // Apply NSFW filter
@@ -80,7 +125,7 @@ export const useGalleryImages = ({
       };
     },
     getNextPageParam: (lastPage) => lastPage?.nextPage,
-    initialPageParam: { page: 0, type: 'trending' }
+    initialPageParam: { page: 0 }
   });
 
   const images = data?.pages?.flatMap(page => page.data) || [];
