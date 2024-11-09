@@ -12,7 +12,7 @@ const MobileNotificationsMenu = ({ activeTab }) => {
           <h2 className="text-lg font-semibold">Notifications</h2>
         </div>
         <ScrollArea className="flex-1 px-2">
-          <div className="py-2">
+          <div className="py-2 pb-[calc(4rem+env(safe-area-inset-bottom))]">
             <NotificationList />
           </div>
         </ScrollArea>
