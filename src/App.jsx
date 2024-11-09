@@ -1,25 +1,15 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ThemeProvider } from "@/components/theme-provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/sonner";
-import { SupabaseAuthProvider } from '@/integrations/supabase/auth';
-import { NotificationProvider } from './contexts/NotificationContext';
-import ImageGenerator from './pages/ImageGenerator';
-import Documentation from './pages/Documentation';
-import SingleImageView from './components/SingleImageView';
-import PublicImageView from './pages/PublicImageView';
-import '@/styles/shadcn-overrides.css';
+import { BrowserRouter } from 'react-router-dom';
+import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from 'sonner';
+import { AuthProvider } from '@/integrations/supabase/components/AuthProvider';
+import ImageGenerator from '@/pages/ImageGenerator';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: false,
+      retry: 1,
       refetchOnWindowFocus: false,
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      cacheTime: 1000 * 60 * 30, // 30 minutes
-      suspense: false,
     },
   },
 });
@@ -27,27 +17,14 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <SupabaseAuthProvider>
-          <NotificationProvider>
-            <TooltipProvider>
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<ImageGenerator />} />
-                  <Route path="/docs" element={<Documentation />} />
-                  <Route path="/image/:imageId" element={<PublicImageView />} />
-                  <Route path="/remix/:imageId" element={<ImageGenerator />} />
-                </Routes>
-                <Toaster 
-                  position="top-center"
-                  expand={false}
-                  richColors
-                />
-              </BrowserRouter>
-            </TooltipProvider>
-          </NotificationProvider>
-        </SupabaseAuthProvider>
-      </ThemeProvider>
+      <BrowserRouter>
+        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+          <AuthProvider>
+            <ImageGenerator />
+            <Toaster />
+          </AuthProvider>
+        </ThemeProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 }

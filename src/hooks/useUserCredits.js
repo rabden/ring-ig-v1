@@ -5,7 +5,7 @@ export const useUserCredits = (userId) => {
   const queryClient = useQueryClient();
 
   const fetchCredits = async () => {
-    if (!userId) return null;
+    if (!userId) return { credit_count: 0, bonus_credits: 0, last_refill_time: null };
     
     const { data, error } = await supabase
       .from('profiles')
@@ -73,11 +73,12 @@ export const useUserCredits = (userId) => {
     return data.bonus_credits;
   };
 
-  const creditsQuery = useQuery({
+  const { data: creditsData, isLoading, error } = useQuery({
     queryKey: ['userCredits', userId],
     queryFn: fetchCredits,
     enabled: Boolean(userId),
     refetchInterval: 60000,
+    initialData: { credit_count: 0, bonus_credits: 0, last_refill_time: null }
   });
 
   const updateCreditsMutation = useMutation({
@@ -95,12 +96,12 @@ export const useUserCredits = (userId) => {
   });
 
   return {
-    credits: creditsQuery.data?.credit_count ?? 0,
-    bonusCredits: creditsQuery.data?.bonus_credits ?? 0,
-    totalCredits: (creditsQuery.data?.credit_count ?? 0) + (creditsQuery.data?.bonus_credits ?? 0),
-    lastRefillTime: creditsQuery.data?.last_refill_time,
-    isLoading: creditsQuery.isLoading,
-    error: creditsQuery.error,
+    credits: creditsData?.credit_count ?? 0,
+    bonusCredits: creditsData?.bonus_credits ?? 0,
+    totalCredits: (creditsData?.credit_count ?? 0) + (creditsData?.bonus_credits ?? 0),
+    lastRefillTime: creditsData?.last_refill_time,
+    isLoading,
+    error,
     updateCredits: updateCreditsMutation.mutate,
     addBonusCredits: addBonusCreditsMutation.mutate,
   };
