@@ -17,14 +17,16 @@ const PromptInput = ({
 }) => {
   const [isTemporarilyDisabled, setIsTemporarilyDisabled] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [timerActive, setTimerActive] = useState(false);
   const waitTime = isPro ? 30 : 60;
 
   useEffect(() => {
     let timeoutId;
     let countdownInterval;
     
-    if (isGenerating) {
+    if (isGenerating && !timerActive) {
       setIsTemporarilyDisabled(true);
+      setTimerActive(true);
       setCountdown(waitTime);
       
       // Start countdown
@@ -41,18 +43,23 @@ const PromptInput = ({
       // Set timeout to re-enable generation
       timeoutId = setTimeout(() => {
         setIsTemporarilyDisabled(false);
-        setCountdown(0);
       }, waitTime * 1000);
-    } else {
+    } else if (!isGenerating && !timerActive) {
       setIsTemporarilyDisabled(false);
-      setCountdown(0);
     }
 
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
       if (countdownInterval) clearInterval(countdownInterval);
     };
-  }, [isGenerating, waitTime]);
+  }, [isGenerating, waitTime, timerActive]);
+
+  // Reset timer active state when countdown reaches 0
+  useEffect(() => {
+    if (countdown === 0 && timerActive) {
+      setTimerActive(false);
+    }
+  }, [countdown, timerActive]);
 
   const handleGenerate = async () => {
     if (!value.trim()) {
@@ -61,6 +68,9 @@ const PromptInput = ({
     }
     await onGenerate();
   };
+
+  const isButtonDisabled = !value?.length || !hasEnoughCredits || isTemporarilyDisabled || isGenerating;
+  const showCountdown = timerActive && countdown > 0;
 
   return (
     <div className="relative mb-8">
@@ -105,9 +115,9 @@ const PromptInput = ({
           size="sm"
           className="rounded-full min-w-[120px]"
           onClick={handleGenerate}
-          disabled={!value?.length || !hasEnoughCredits || isTemporarilyDisabled}
+          disabled={isButtonDisabled}
         >
-          {isTemporarilyDisabled && countdown > 0 ? (
+          {showCountdown ? (
             `Wait ${countdown}s`
           ) : (
             <>
