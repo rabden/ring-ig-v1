@@ -13,6 +13,11 @@ export const handleImageRemix = ({
     return;
   }
 
+  if (!setters || typeof setters.setPrompt !== 'function') {
+    console.error('Required setters not provided to handleImageRemix');
+    return;
+  }
+
   const {
     setPrompt,
     setSeed,

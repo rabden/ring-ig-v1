@@ -6,12 +6,11 @@ import { Download, Trash2, RefreshCw, ArrowLeft } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
-import { toast } from 'sonner';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import ProfileAvatar from './profile/ProfileAvatar';
 import LikeButton from './LikeButton';
 import { useLikes } from '@/hooks/useLikes';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import ImagePromptSection from './image-view/ImagePromptSection';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
 import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
@@ -47,34 +46,6 @@ const FullScreenImageView = ({
   const [shareIcon, setShareIcon] = useState('share');
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
   const { data: isPro } = useProUser(session?.user?.id);
-  const queryClient = useQueryClient();
-
-  const { data: owner } = useQuery({
-    queryKey: ['user', image?.user_id],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', image.user_id)
-        .single();
-      return data;
-    },
-    enabled: !!image?.user_id
-  });
-
-  const { data: likeCount = 0 } = useQuery({
-    queryKey: ['likes', image?.id],
-    queryFn: async () => {
-      const { count } = await supabase
-        .from('user_image_likes')
-        .select('*', { count: 'exact' })
-        .eq('image_id', image.id);
-      return count;
-    },
-    enabled: !!image?.id
-  });
-  
-  if (!isOpen || !image) return null;
 
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
@@ -125,12 +96,14 @@ const FullScreenImageView = ({
 
   const handleDiscard = async () => {
     try {
-      await handleImageDiscard(image, queryClient);
+      await handleImageDiscard(image);
       onClose();
     } catch (error) {
       console.error('Error in handleDiscard:', error);
     }
   };
+
+  if (!isOpen || !image) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
