@@ -42,6 +42,7 @@ const FullScreenImageView = ({
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],
     queryFn: async () => {
+      if (!image?.user_id) return null;
       const { data } = await supabase
         .from('profiles')
         .select('*')
@@ -55,11 +56,12 @@ const FullScreenImageView = ({
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['likes', image?.id],
     queryFn: async () => {
+      if (!image?.id) return 0;
       const { count } = await supabase
         .from('user_image_likes')
         .select('*', { count: 'exact' })
         .eq('image_id', image.id);
-      return count;
+      return count || 0;
     },
     enabled: !!image?.id
   });
@@ -87,26 +89,28 @@ const FullScreenImageView = ({
     }
   };
 
-  const detailItems = [
+  const detailItems = image ? [
     { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
     { label: "Seed", value: image.seed },
     { label: "Size", value: `${image.width}x${image.height}` },
     { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
     { label: "Quality", value: image.quality },
     { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
-  ];
+  ] : [];
 
   const handleDoubleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!userLikes?.includes(image.id)) {
+    if (!userLikes?.includes(image?.id)) {
       setIsAnimating(true);
-      toggleLike(image.id);
+      toggleLike(image?.id);
       setTimeout(() => {
         setIsAnimating(false);
       }, 800);
     }
   };
+
+  if (!image) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>

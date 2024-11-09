@@ -27,7 +27,8 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const [displayName, setDisplayName] = React.useState('');
   const [showImageDialog, setShowImageDialog] = React.useState(false);
   const queryClient = useQueryClient();
-  const { followers_count = 0, following_count = 0 } = user.user_metadata || {};
+  const followers_count = user?.user_metadata?.followers_count || 0;
+  const following_count = user?.user_metadata?.following_count || 0;
 
   React.useEffect(() => {
     if (user) {
@@ -127,7 +128,7 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
                   <Button 
                     variant="default" 
                     className="w-full bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 hover:from-yellow-400 hover:via-yellow-600 hover:to-amber-600"
-                    onClick={handleProRequest}
+                    onClick={() => toast.error("Pro request feature not implemented")}
                   >
                     <CreditCard className="w-4 h-4 mr-2" />
                     Request Pro Access
