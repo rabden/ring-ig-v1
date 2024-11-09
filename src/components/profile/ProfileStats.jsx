@@ -1,5 +1,5 @@
 import React from 'react';
-import { Heart, Users, UserPlus, Image } from 'lucide-react';
+import { Heart, Users, UserPlus } from 'lucide-react';
 
 const StatItem = ({ icon: Icon, label, value }) => (
   <div className="flex items-center gap-1.5">
@@ -9,15 +9,12 @@ const StatItem = ({ icon: Icon, label, value }) => (
   </div>
 );
 
-const ProfileStats = ({ followersCount, followingCount, totalLikes, totalImages }) => {
+const ProfileStats = ({ followersCount, followingCount, totalLikes }) => {
   return (
-    <div className="flex gap-4 justify-center flex-wrap">
+    <div className="flex gap-4 justify-center">
       <StatItem icon={Users} label="followers" value={followersCount} />
       <StatItem icon={UserPlus} label="following" value={followingCount} />
       <StatItem icon={Heart} label="likes" value={totalLikes} />
-      {totalImages !== undefined && (
-        <StatItem icon={Image} label="images" value={totalImages} />
-      )}
     </div>
   );
 };
