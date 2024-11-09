@@ -174,9 +174,6 @@ export const useImageGeneration = ({
           setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
           toast.success(`Image generated successfully! (${isPrivate ? 'Private' : 'Public'})`);
 
-          // Only deduct credits after successful generation
-          await updateCredits(quality, 1);
-
         } catch (error) {
           console.error('Error generating image:', error);
           toast.error('Failed to generate image');
@@ -189,6 +186,7 @@ export const useImageGeneration = ({
 
     try {
       await Promise.all(generationPromises);
+      await updateCredits(quality, imageCount);
     } catch (error) {
       console.error('Error in batch generation:', error);
     }
