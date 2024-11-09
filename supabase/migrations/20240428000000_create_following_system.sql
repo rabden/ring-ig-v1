@@ -14,6 +14,11 @@ CREATE INDEX IF NOT EXISTS idx_user_follows_following ON user_follows(following_
 -- Enable RLS
 ALTER TABLE public.user_follows ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can view all follows" ON public.user_follows;
+DROP POLICY IF EXISTS "Users can follow others" ON public.user_follows;
+DROP POLICY IF EXISTS "Users can unfollow" ON public.user_follows;
+
 -- Policies for user_follows
 CREATE POLICY "Users can view all follows" 
     ON public.user_follows FOR SELECT 
