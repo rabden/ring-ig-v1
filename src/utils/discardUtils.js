@@ -23,7 +23,7 @@ export const handleImageDiscard = async (image, queryClient) => {
       throw new Error('Image record or storage path not found');
     }
 
-    // Delete the image from storage
+    // Delete the image from storage first
     const { error: storageError } = await supabase.storage
       .from('user-images')
       .remove([imageRecord.storage_path]);
@@ -32,7 +32,7 @@ export const handleImageDiscard = async (image, queryClient) => {
       throw new Error(`Failed to delete image from storage: ${storageError.message}`);
     }
 
-    // Delete the database record
+    // Then delete the database record
     const { error: deleteError } = await supabase
       .from('user_images')
       .delete()

@@ -3,6 +3,7 @@ import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useProUser } from '@/hooks/useProUser'
 import { toast } from 'sonner'
 import { getCleanPrompt } from '@/utils/promptUtils'
+import { handleImageDiscard } from '@/utils/discardUtils'
 
 export const useImageHandlers = ({
   generateImage,
@@ -54,18 +55,15 @@ export const useImageHandlers = ({
       return;
     }
 
-    // Clean the prompt by removing any style suffix
     setPrompt(getCleanPrompt(image.user_prompt || image.prompt, image.style));
     setSeed(image.seed);
     setRandomizeSeed(false);
     setWidth(image.width);
     setHeight(image.height);
 
-    // Check if the original image was made with a pro model
     const isProModel = modelConfigs?.[image.model]?.isPremium;
     const isNsfwModel = modelConfigs?.[image.model]?.category === "NSFW";
 
-    // Set model based on NSFW status and pro status
     if (isNsfwModel) {
       setModel('nsfwMaster');
       setSteps(modelConfigs['nsfwMaster']?.defaultStep || 30);
@@ -113,16 +111,14 @@ export const useImageHandlers = ({
     document.body.removeChild(a);
   }
 
-  const handleDiscard = async (image) => {
-    if (!image?.id) {
+  const handleDiscard = async (imageId) => {
+    if (!imageId) {
       toast.error('Cannot delete image: Invalid image ID');
       return;
     }
     
     try {
-      await deleteImageCompletely(image.id);
-      queryClient.invalidateQueries(['userImages']);
-      toast.success('Image deleted successfully');
+      await handleImageDiscard({ id: imageId }, queryClient);
     } catch (error) {
       console.error('Error deleting image:', error);
       toast.error('Failed to delete image');
