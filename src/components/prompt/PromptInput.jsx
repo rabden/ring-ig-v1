@@ -22,40 +22,37 @@ const PromptInput = ({
 
   useEffect(() => {
     let timeoutId;
-    let countdownInterval;
-    
+    let intervalId;
+
     if (isGenerating && !timerActive) {
       setIsTemporarilyDisabled(true);
       setTimerActive(true);
       setCountdown(waitTime);
-      
-      countdownInterval = setInterval(() => {
+
+      intervalId = setInterval(() => {
         setCountdown((prevCount) => {
-          const newCount = prevCount - 1;
-          if (newCount <= 0) {
-            clearInterval(countdownInterval);
+          if (prevCount <= 1) {
+            clearInterval(intervalId);
+            setTimerActive(false);
+            setIsTemporarilyDisabled(false);
             return 0;
           }
-          return newCount;
+          return prevCount - 1;
         });
       }, 1000);
 
       timeoutId = setTimeout(() => {
+        clearInterval(intervalId);
         setIsTemporarilyDisabled(false);
+        setTimerActive(false);
       }, waitTime * 1000);
     }
 
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
-      if (countdownInterval) clearInterval(countdownInterval);
+      if (intervalId) clearInterval(intervalId);
     };
   }, [isGenerating, waitTime, timerActive]);
-
-  useEffect(() => {
-    if (countdown === 0 && timerActive) {
-      setTimerActive(false);
-    }
-  }, [countdown, timerActive]);
 
   const handleGenerate = async () => {
     if (!value.trim()) {
