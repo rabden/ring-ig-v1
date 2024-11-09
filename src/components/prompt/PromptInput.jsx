@@ -29,23 +29,20 @@ const PromptInput = ({
       setTimerActive(true);
       setCountdown(waitTime);
       
-      // Start countdown
       countdownInterval = setInterval(() => {
-        setCountdown(prev => {
-          if (prev <= 1) {
+        setCountdown((prevCount) => {
+          const newCount = prevCount - 1;
+          if (newCount <= 0) {
             clearInterval(countdownInterval);
             return 0;
           }
-          return prev - 1;
+          return newCount;
         });
       }, 1000);
 
-      // Set timeout to re-enable generation
       timeoutId = setTimeout(() => {
         setIsTemporarilyDisabled(false);
       }, waitTime * 1000);
-    } else if (!isGenerating && !timerActive) {
-      setIsTemporarilyDisabled(false);
     }
 
     return () => {
@@ -54,7 +51,6 @@ const PromptInput = ({
     };
   }, [isGenerating, waitTime, timerActive]);
 
-  // Reset timer active state when countdown reaches 0
   useEffect(() => {
     if (countdown === 0 && timerActive) {
       setTimerActive(false);
