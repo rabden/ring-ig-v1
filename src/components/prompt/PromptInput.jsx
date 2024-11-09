@@ -24,25 +24,23 @@ const PromptInput = ({
 
     setIsGenerating(true);
     try {
-      let finalPrompt = value;
-      
-      // Improve prompt first if the toggle is on
+      // If improving is enabled, improve the prompt first
       if (isImproving) {
         const toastId = toast.loading('Improving prompt...');
         try {
-          finalPrompt = await improvePrompt(value);
-          onChange({ target: { value: finalPrompt } });
+          const improvedPrompt = await improvePrompt(value);
           toast.success('Prompt improved!', { id: toastId });
-          // Wait a brief moment for the UI to update
-          await new Promise(resolve => setTimeout(resolve, 100));
+          // Generate with the improved prompt
+          await onGenerate(improvedPrompt);
         } catch (error) {
           toast.error('Failed to improve prompt', { id: toastId });
-          return; // Don't proceed with generation if improvement fails
+          setIsGenerating(false);
+          return;
         }
+      } else {
+        // Generate with original prompt if not improving
+        await onGenerate(value);
       }
-      
-      // Now generate with the final prompt
-      await onGenerate();
     } catch (error) {
       toast.error('Failed to process prompt');
       console.error(error);
