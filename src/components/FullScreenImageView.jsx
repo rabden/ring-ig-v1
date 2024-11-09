@@ -164,7 +164,7 @@ const FullScreenImageView = ({
                         Download
                       </Button>
                       {isOwner && (
-                        <Button onClick={onDiscard} className="flex-1 text-destructive hover:text-destructive" variant="ghost" size="sm">
+                        <Button onClick={handleDiscard} className="flex-1 text-destructive hover:text-destructive" variant="ghost" size="sm">
                           <Trash2 className="mr-2 h-4 w-4" />
                           Discard
                         </Button>
@@ -185,3 +185,6 @@ const FullScreenImageView = ({
       </DialogContent>
     </Dialog>
   );
+};
+
+export default FullScreenImageView;
