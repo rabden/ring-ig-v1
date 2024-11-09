@@ -16,8 +16,6 @@ import { getCleanPrompt } from '@/utils/promptUtils';
 import TruncatablePrompt from './TruncatablePrompt';
 import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
 import { handleImageDiscard } from '@/utils/discardUtils';
-import { handleImageRemix } from '@/utils/remixUtils';
-import { useProUser } from '@/hooks/useProUser';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -29,16 +27,6 @@ const MobileImageDrawer = ({
   isOwner,
   setActiveTab,
   setStyle,
-  setPrompt,
-  setSeed,
-  setRandomizeSeed,
-  setWidth,
-  setHeight,
-  setModel,
-  setSteps,
-  setQuality,
-  setAspectRatio,
-  setUseAspectRatio,
   showFullImage = false
 }) => {
   const { session } = useSupabaseAuth();
@@ -47,7 +35,6 @@ const MobileImageDrawer = ({
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
-  const { data: isPro } = useProUser(session?.user?.id);
   
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],
@@ -91,23 +78,10 @@ const MobileImageDrawer = ({
   };
 
   const handleRemixClick = () => {
-    handleImageRemix(image, {
-      setPrompt,
-      setSeed,
-      setRandomizeSeed,
-      setWidth,
-      setHeight,
-      setModel,
-      setSteps,
-      setStyle,
-      setQuality,
-      setAspectRatio,
-      setUseAspectRatio,
-      setActiveTab,
-      onClose: () => onOpenChange(false),
-      modelConfigs,
-      isPro
-    });
+    onRemix(image);
+    setStyle(image.style);
+    setActiveTab('input');
+    onOpenChange(false);
   };
 
   const detailItems = [
@@ -126,6 +100,7 @@ const MobileImageDrawer = ({
       await handleImageDiscard(image, queryClient);
       onOpenChange(false);
     } catch (error) {
+      // Error is already handled by handleImageDiscard
       console.error('Error in handleDiscard:', error);
     }
   };

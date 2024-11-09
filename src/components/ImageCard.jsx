@@ -4,9 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import ImageStatusIndicators from './ImageStatusIndicators';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Skeleton } from "@/components/ui/skeleton";
 import { downloadImage } from '@/utils/downloadUtils';
+import { useImageLoader } from '@/hooks/useImageLoader';
 import ImageCardActions from './ImageCardActions';
 import { supabase } from '@/integrations/supabase/supabase';
 import MobileImageDrawer from './MobileImageDrawer';
@@ -14,30 +15,18 @@ import ImageDetailsDialog from './ImageDetailsDialog';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import { getCleanPrompt } from '@/utils/promptUtils';
-import { handleImageRemix } from '@/utils/remixUtils';
-import { useProUser } from '@/hooks/useProUser';
-import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
 const ImageCard = ({ 
   image, 
   onImageClick, 
   onDiscard, 
+  onRemix, 
   userId,
   isMobile,
   isLiked,
   onToggleLike,
   setActiveTab,
   setStyle,
-  setPrompt,
-  setSeed,
-  setRandomizeSeed,
-  setWidth,
-  setHeight,
-  setModel,
-  setSteps,
-  setQuality,
-  setAspectRatio,
-  setUseAspectRatio
 }) => {
   const imageRef = useRef(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -46,8 +35,7 @@ const ImageCard = ({
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
-  const { session } = useSupabaseAuth();
-  const { data: isPro } = useProUser(session?.user?.id);
+  const queryClient = useQueryClient();
   
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['imageLikes', image.id],
@@ -76,22 +64,11 @@ const ImageCard = ({
   };
 
   const handleRemixClick = () => {
-    handleImageRemix(image, {
-      setPrompt,
-      setSeed,
-      setRandomizeSeed,
-      setWidth,
-      setHeight,
-      setModel,
-      setSteps,
-      setStyle,
-      setQuality,
-      setAspectRatio,
-      setUseAspectRatio,
-      setActiveTab,
-      modelConfigs,
-      isPro
-    });
+    if (typeof onRemix === 'function' && typeof setStyle === 'function') {
+      onRemix(image);
+      setStyle(image.style);
+      setActiveTab('input');
+    }
   };
 
   const handleDownload = async () => {
@@ -109,9 +86,9 @@ const ImageCard = ({
 
   const handleDiscard = async () => {
     try {
-      await handleImageDiscard(image);
-      if (onDiscard) onDiscard(image.id);
+      await handleImageDiscard(image, queryClient);
     } catch (error) {
+      // Error is already handled by handleImageDiscard
       console.error('Error in handleDiscard:', error);
     }
   };
@@ -197,16 +174,6 @@ const ImageCard = ({
           isOwner={image.user_id === userId}
           setActiveTab={setActiveTab}
           setStyle={setStyle}
-          setPrompt={setPrompt}
-          setSeed={setSeed}
-          setRandomizeSeed={setRandomizeSeed}
-          setWidth={setWidth}
-          setHeight={setHeight}
-          setModel={setModel}
-          setSteps={setSteps}
-          setQuality={setQuality}
-          setAspectRatio={setAspectRatio}
-          setUseAspectRatio={setUseAspectRatio}
         />
       )}
 
