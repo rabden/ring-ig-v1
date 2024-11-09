@@ -16,6 +16,7 @@ import { handleImageDiscard } from '@/utils/discardUtils';
 import { useImageRemix } from '@/hooks/useImageRemix';
 import HeartAnimation from './animations/HeartAnimation';
 import ImageHeader from './image-view/ImageHeader';
+import { toast } from 'sonner';
 
 const FullScreenImageView = ({ 
   image, 
@@ -41,6 +42,7 @@ const FullScreenImageView = ({
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],
     queryFn: async () => {
+      if (!image?.user_id) return null;
       const { data } = await supabase
         .from('profiles')
         .select('*')
@@ -54,6 +56,7 @@ const FullScreenImageView = ({
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['likes', image?.id],
     queryFn: async () => {
+      if (!image?.id) return 0;
       const { count } = await supabase
         .from('user_image_likes')
         .select('*', { count: 'exact' })
@@ -64,14 +67,14 @@ const FullScreenImageView = ({
   });
   
   const handleCopyPrompt = async () => {
-    await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
+    await navigator.clipboard.writeText(getCleanPrompt(image?.user_prompt || image?.prompt, image?.style));
     setCopyIcon('check');
     toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
   };
 
   const handleShare = async () => {
-    await navigator.clipboard.writeText(`${window.location.origin}/image/${image.id}`);
+    await navigator.clipboard.writeText(`${window.location.origin}/image/${image?.id}`);
     setShareIcon('check');
     toast.success('Share link copied to clipboard');
     setTimeout(() => setShareIcon('share'), 1500);
@@ -89,14 +92,16 @@ const FullScreenImageView = ({
   const handleDoubleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!userLikes?.includes(image.id)) {
+    if (!userLikes?.includes(image?.id)) {
       setIsAnimating(true);
-      toggleLike(image.id);
+      toggleLike(image?.id);
       setTimeout(() => {
         setIsAnimating(false);
       }, 800);
     }
   };
+
+  if (!image) return null;
 
   const detailItems = [
     { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
