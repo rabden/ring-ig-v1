@@ -13,6 +13,9 @@ import DisplayNameEditor from './profile/DisplayNameEditor';
 import { useRealtimeProfile } from '@/hooks/useRealtimeProfile';
 import { handleAvatarUpload } from '@/utils/profileUtils';
 import { useQueryClient } from '@tanstack/react-query';
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card } from "@/components/ui/card";
+import { Settings, CreditCard, Heart, LogOut } from 'lucide-react';
 
 const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const { logout } = useSupabaseAuth();
@@ -101,70 +104,77 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   if (activeTab !== 'profile') return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-background md:hidden pt-14 pb-20">
-      <div className="h-[calc(100vh-8.5rem)] overflow-y-auto">
-        <div className="p-6">
+    <div className="fixed inset-0 z-50 bg-background md:hidden">
+      <div className="flex flex-col h-full">
+        <div className="border-b px-4 py-3">
+          <h2 className="text-lg font-semibold">Profile</h2>
+        </div>
+        <ScrollArea className="flex-1">
           {user ? (
-            <div className="flex flex-col items-center space-y-8">
-              <ProfileAvatar 
-                user={user} 
-                isPro={isPro} 
-                size="lg" 
-                onEditClick={() => setShowImageDialog(true)}
-              />
-              <div className="text-center space-y-2">
-                <DisplayNameEditor
-                  isEditing={isEditing}
-                  displayName={displayName}
-                  setDisplayName={setDisplayName}
-                  onEdit={() => setIsEditing(true)}
-                  onUpdate={handleDisplayNameUpdate}
-                  size="lg"
+            <div className="p-4 space-y-4">
+              <div className="flex flex-col items-center space-y-3">
+                <ProfileAvatar 
+                  user={user} 
+                  isPro={isPro} 
+                  size="lg" 
+                  onEditClick={() => setShowImageDialog(true)}
                 />
-                <p className="text-sm text-muted-foreground">{user.email}</p>
-                {isPro && (
-                  <div className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-primary text-primary-foreground">
-                    Pro User
-                  </div>
-                )}
-              </div>
-              
-              <div className="w-full space-y-6">
-                <div className="grid grid-cols-2 gap-6 p-4 rounded-lg bg-muted/50">
-                  <div className="space-y-1.5 text-center">
-                    <p className="text-sm font-medium text-muted-foreground">Credits</p>
-                    <p className="text-2xl font-bold">{credits}+B{bonusCredits}</p>
-                  </div>
-                  <div className="space-y-1.5 text-center">
-                    <p className="text-sm font-medium text-muted-foreground">Total Likes</p>
-                    <p className="text-2xl font-bold">{totalLikes}</p>
-                  </div>
+                <div className="text-center space-y-1">
+                  <DisplayNameEditor
+                    isEditing={isEditing}
+                    displayName={displayName}
+                    setDisplayName={setDisplayName}
+                    onEdit={() => setIsEditing(true)}
+                    onUpdate={handleDisplayNameUpdate}
+                    size="lg"
+                  />
+                  <p className="text-sm text-muted-foreground">{user.email}</p>
                 </div>
+              </div>
+
+              <Card className="p-4 grid grid-cols-2 gap-4">
+                <div className="text-center space-y-1">
+                  <p className="text-2xl font-bold">{credits}+{bonusCredits}</p>
+                  <p className="text-sm text-muted-foreground">Credits</p>
+                </div>
+                <div className="text-center space-y-1">
+                  <p className="text-2xl font-bold">{totalLikes}</p>
+                  <p className="text-sm text-muted-foreground">Likes</p>
+                </div>
+              </Card>
+
+              <div className="space-y-2">
                 {!isPro && !proRequest && (
                   <Button 
                     variant="default" 
                     className="w-full bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 hover:from-yellow-400 hover:via-yellow-600 hover:to-amber-600"
                     onClick={handleProRequest}
                   >
+                    <CreditCard className="w-4 h-4 mr-2" />
                     Request Pro Access
                   </Button>
                 )}
                 {!isPro && proRequest && (
-                  <div className="text-sm text-center text-muted-foreground p-4 bg-muted rounded-lg">
-                    Your request to upgrade to Pro is being reviewed by our team
+                  <div className="text-sm text-center text-muted-foreground p-3 bg-muted rounded-lg">
+                    Pro request under review
                   </div>
                 )}
-                <Button onClick={() => logout()} variant="outline" className="w-full">
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  onClick={() => logout()}
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
                   Log out
                 </Button>
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center space-y-4 pt-8">
+            <div className="flex flex-col items-center p-8 space-y-4">
               <SignInDialog />
             </div>
           )}
-        </div>
+        </ScrollArea>
       </div>
 
       <AlertDialog open={showImageDialog} onOpenChange={setShowImageDialog}>
