@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight, Sparkles } from "lucide-react";
 import { toast } from "sonner";
@@ -14,6 +14,28 @@ const PromptInput = ({
   isGenerating,
   isImproving
 }) => {
+  const [isTemporarilyDisabled, setIsTemporarilyDisabled] = useState(false);
+
+  useEffect(() => {
+    let timeoutId;
+    
+    if (isGenerating) {
+      setIsTemporarilyDisabled(true);
+      // Set a 60-second timeout to re-enable generation
+      timeoutId = setTimeout(() => {
+        setIsTemporarilyDisabled(false);
+      }, 60000);
+    } else {
+      setIsTemporarilyDisabled(false);
+    }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [isGenerating]);
+
   const handleGenerate = async () => {
     if (!value.trim()) {
       toast.error('Please enter a prompt');
@@ -65,7 +87,7 @@ const PromptInput = ({
           size="sm"
           className="rounded-full"
           onClick={handleGenerate}
-          disabled={!value?.length || !hasEnoughCredits || isGenerating}
+          disabled={!value?.length || !hasEnoughCredits || isTemporarilyDisabled}
         >
           Generate
           <ArrowRight className="ml-2 h-4 w-4" />
