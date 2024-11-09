@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useCallback } from 'react';
-import Masonry from 'react-masonry-css';
+import { FixedSizeGrid as Grid } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
 import SkeletonImageCard from './SkeletonImageCard';
 import ImageCard from './ImageCard';
 import { useLikes } from '@/hooks/useLikes';
@@ -7,14 +8,7 @@ import NoResults from './NoResults';
 import { useGalleryImages } from '@/hooks/useGalleryImages';
 import { AlertTriangle } from 'lucide-react';
 
-const breakpointColumnsObj = {
-  default: 4,
-  1100: 3,
-  700: 2,
-  500: 2
-};
-
-const ImageLoadError = ({ onRetry }) => (
+const ImageLoadError = React.memo(({ onRetry }) => (
   <div className="flex flex-col items-center justify-center p-4 bg-muted/30 rounded-lg border border-border/30">
     <AlertTriangle className="w-8 h-8 text-yellow-500 mb-2" />
     <p className="text-sm text-muted-foreground mb-2">Failed to load image</p>
@@ -27,7 +21,9 @@ const ImageLoadError = ({ onRetry }) => (
       </button>
     )}
   </div>
-);
+));
+
+const MemoizedImageCard = React.memo(ImageCard);
 
 const ImageGallery = ({ 
   userId, 
@@ -65,49 +61,21 @@ const ImageGallery = ({
     searchQuery
   });
 
-  // Scroll to top when view changes or filters update
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [activeView, activeFilters, searchQuery, showPrivate]);
-
-  const observer = useRef();
-  const lastImageRef = useCallback(node => {
-    if (isLoading || isFetchingNextPage) return;
-    
-    if (observer.current) observer.current.disconnect();
-    
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasNextPage) {
-        fetchNextPage();
-      }
-    });
-    
-    if (node) observer.current.observe(node);
-  }, [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage]);
-
-  const handleMobileMoreClick = (image) => {
+  const handleMobileMoreClick = useCallback((image) => {
     if (isMobile) {
       onViewDetails(image);
     }
-  };
+  }, [isMobile, onViewDetails]);
 
-  const renderContent = () => {
-    if (isLoading && !images.length) {
-      return Array.from({ length: 8 }).map((_, index) => (
-        <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
-      ));
-    }
-    
-    if (!images || images.length === 0) {
-      return [<NoResults key="no-results" />];
-    }
-    
-    return images.map((image, index) => (
-      <div
-        key={image.id}
-        ref={index === images.length - 1 ? lastImageRef : null}
-      >
-        <ImageCard
+  const Cell = useCallback(({ columnIndex, rowIndex, style: gridStyle, data }) => {
+    const index = rowIndex * data.columnCount + columnIndex;
+    const image = data.images[index];
+
+    if (!image) return null;
+
+    return (
+      <div style={gridStyle}>
+        <MemoizedImageCard
           image={image}
           onImageClick={() => onImageClick(image)}
           onDownload={onDownload}
@@ -125,25 +93,57 @@ const ImageGallery = ({
           fallback={<ImageLoadError onRetry={() => refetch()} />}
         />
       </div>
-    ));
-  };
+    );
+  }, [onImageClick, onDownload, onDiscard, onRemix, onViewDetails, handleMobileMoreClick, userId, isMobile, userLikes, toggleLike, setActiveTab, setStyle, style, refetch]);
+
+  if (isLoading && !images.length) {
+    return (
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 8 }).map((_, index) => (
+          <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
+        ))}
+      </div>
+    );
+  }
+
+  if (!images || images.length === 0) {
+    return <NoResults />;
+  }
 
   return (
-    <>
-      <Masonry
-        breakpointCols={breakpointColumnsObj}
-        className="flex w-auto md:px-2 -mx-1 md:mx-0"
-        columnClassName="bg-clip-padding px-1 md:px-2"
-      >
-        {renderContent()}
-      </Masonry>
+    <div className="h-screen">
+      <AutoSizer>
+        {({ height, width }) => {
+          const columnCount = width < 768 ? 2 : width < 1024 ? 3 : 4;
+          const columnWidth = width / columnCount;
+          const rowCount = Math.ceil(images.length / columnCount);
+          const rowHeight = columnWidth;
+
+          return (
+            <Grid
+              columnCount={columnCount}
+              columnWidth={columnWidth}
+              height={height}
+              rowCount={rowCount}
+              rowHeight={rowHeight}
+              width={width}
+              itemData={{
+                images,
+                columnCount
+              }}
+            >
+              {Cell}
+            </Grid>
+          );
+        }}
+      </AutoSizer>
       {isFetchingNextPage && (
         <div className="flex justify-center my-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
-export default ImageGallery;
+export default React.memo(ImageGallery);

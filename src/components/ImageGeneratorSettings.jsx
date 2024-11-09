@@ -1,17 +1,15 @@
 import React from 'react';
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
 import StyleChooser from './StyleChooser';
 import AspectRatioChooser from './AspectRatioChooser';
 import SettingSection from './settings/SettingSection';
 import ModelChooser from './settings/ModelChooser';
 import ImageCountChooser from './settings/ImageCountChooser';
-import PromptInput from './prompt/PromptInput';
 import StyledScrollArea from './style/StyledScrollArea';
 import { qualityOptions } from '@/utils/imageConfigs';
-import { usePromptImprovement } from '@/hooks/usePromptImprovement';
+import PromptSection from './settings/PromptSection';
+import QualitySettings from './settings/QualitySettings';
+import PrivacySettings from './settings/PrivacySettings';
+import SeedSettings from './settings/SeedSettings';
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -37,7 +35,6 @@ const ImageGeneratorSettings = ({
   setImageCount,
   isGenerating
 }) => {
-  const { isImproving, improveCurrentPrompt } = usePromptImprovement();
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality] * imageCount;
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
@@ -61,33 +58,6 @@ const ImageGeneratorSettings = ({
     return Object.keys(qualityOptions);
   };
 
-  const handlePromptChange = (e) => {
-    setPrompt(e.target.value);
-    
-    if (model === 'turbo') {
-      const promptLength = e.target.value.length;
-      if (promptLength <= 100) {
-        setSteps(4);
-      } else if (promptLength <= 150) {
-        setSteps(8);
-      } else if (promptLength <= 200) {
-        setSteps(10);
-      } else {
-        setSteps(12);
-      }
-    }
-  };
-
-  const handleClearPrompt = () => {
-    setPrompt('');
-  };
-
-  const handleImprovePrompt = async () => {
-    await improveCurrentPrompt(prompt, (improvedPrompt) => {
-      setPrompt(improvedPrompt);
-    });
-  };
-
   const handleAspectRatioChange = (newRatio) => {
     setAspectRatio(newRatio);
     setUseAspectRatio(true);
@@ -108,16 +78,14 @@ const ImageGeneratorSettings = ({
         )}
       </div>
 
-      <PromptInput
-        value={prompt}
-        onChange={handlePromptChange}
-        onKeyDown={handlePromptKeyDown}
-        onGenerate={generateImage}
+      <PromptSection
+        prompt={prompt}
+        setPrompt={setPrompt}
+        handlePromptKeyDown={handlePromptKeyDown}
+        generateImage={generateImage}
         hasEnoughCredits={hasEnoughCredits}
-        onClear={handleClearPrompt}
-        onImprove={handleImprovePrompt}
         isGenerating={isGenerating}
-        isImproving={isImproving}
+        model={model}
       />
 
       <ModelChooser
@@ -148,15 +116,11 @@ const ImageGeneratorSettings = ({
         </SettingSection>
       )}
 
-      <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more credits.">
-        <Tabs value={quality} onValueChange={setQuality}>
-          <TabsList className="grid" style={{ gridTemplateColumns: `repeat(${getAvailableQualities().length}, 1fr)` }}>
-            {getAvailableQualities().map((q) => (
-              <TabsTrigger key={q} value={q}>{q}</TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-      </SettingSection>
+      <QualitySettings
+        quality={quality}
+        setQuality={setQuality}
+        availableQualities={getAvailableQualities()}
+      />
 
       <SettingSection label="Aspect Ratio" tooltip="Slide left for portrait, center for square, right for landscape">
         <AspectRatioChooser 
@@ -166,35 +130,19 @@ const ImageGeneratorSettings = ({
         />
       </SettingSection>
 
-      <SettingSection label="Seed" tooltip="A seed is a number that initializes the random generation process. Using the same seed with the same settings will produce the same image.">
-        <div className="flex items-center space-x-2">
-          <Input
-            type="number"
-            value={seed}
-            onChange={(e) => setSeed(parseInt(e.target.value))}
-            disabled={randomizeSeed}
-          />
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="randomizeSeed"
-              checked={randomizeSeed}
-              onCheckedChange={setRandomizeSeed}
-            />
-            <Label htmlFor="randomizeSeed">Random</Label>
-          </div>
-        </div>
-      </SettingSection>
+      <SeedSettings
+        seed={seed}
+        setSeed={setSeed}
+        randomizeSeed={randomizeSeed}
+        setRandomizeSeed={setRandomizeSeed}
+      />
 
-      <div className="flex items-center justify-between space-x-4">
-        <Label htmlFor="nsfwToggle" className="text-sm font-medium">Enable NSFW Content</Label>
-        <Switch
-          id="nsfwToggle"
-          checked={nsfwEnabled}
-          onCheckedChange={setNsfwEnabled}
-        />
-      </div>
+      <PrivacySettings
+        nsfwEnabled={nsfwEnabled}
+        setNsfwEnabled={setNsfwEnabled}
+      />
     </div>
   );
 };
 
-export default ImageGeneratorSettings;
+export default React.memo(ImageGeneratorSettings);
