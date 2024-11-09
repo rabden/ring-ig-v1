@@ -11,13 +11,3 @@
   outline: none !important;
   box-shadow: none !important;
 }
-
-/* Remove ring from all shadcn components */
-[class*='ring-offset-'],
-[class*='focus-visible:ring-'] {
-  --tw-ring-offset-width: 0px !important;
-  --tw-ring-offset-color: transparent !important;
-  --tw-ring-color: transparent !important;
-  outline: none !important;
-  box-shadow: none !important;
-}
