@@ -34,8 +34,7 @@ const ImageGeneratorSettings = ({
   proMode,
   modelConfigs,
   imageCount = 1,
-  setImageCount,
-  isGenerating
+  setImageCount
 }) => {
   const { isImproving, improveCurrentPrompt } = usePromptImprovement();
   const creditCost = { "SD": 1, "HD": 2, "HD+": 3 }[quality] * imageCount;
@@ -116,7 +115,6 @@ const ImageGeneratorSettings = ({
         hasEnoughCredits={hasEnoughCredits}
         onClear={handleClearPrompt}
         onImprove={handleImprovePrompt}
-        isGenerating={isGenerating}
         isImproving={isImproving}
       />
 

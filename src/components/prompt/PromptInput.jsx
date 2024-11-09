@@ -11,7 +11,6 @@ const PromptInput = ({
   hasEnoughCredits,
   onClear,
   onImprove,
-  isGenerating,
   isImproving
 }) => {
   const handleGenerate = async () => {
@@ -65,7 +64,7 @@ const PromptInput = ({
           size="sm"
           className="rounded-full"
           onClick={handleGenerate}
-          disabled={!value?.length || !hasEnoughCredits || isGenerating}
+          disabled={!value?.length || !hasEnoughCredits}
         >
           Generate
           <ArrowRight className="ml-2 h-4 w-4" />
