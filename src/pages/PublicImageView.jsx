@@ -37,10 +37,6 @@ const PublicImageView = () => {
     await downloadImage(imageUrl, image.prompt);
   };
 
-  const handleRemixClick = () => {
-    handleRemix(image);
-  };
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background p-4">
@@ -64,7 +60,7 @@ const PublicImageView = () => {
       image={image}
       showFullImage={true}
       onDownload={handleDownload}
-      onRemix={handleRemixClick}
+      onRemix={handleRemix}
       isOwner={image.user_id === session?.user?.id}
       setActiveTab={() => {}}
       setStyle={() => {}}
@@ -76,7 +72,7 @@ const PublicImageView = () => {
       onClose={() => navigate(-1)}
       onDownload={handleDownload}
       onDiscard={() => {}}
-      onRemix={handleRemixClick}
+      onRemix={handleRemix}
       isOwner={image.user_id === session?.user?.id}
       setStyle={() => {}}
       setActiveTab={() => {}}
