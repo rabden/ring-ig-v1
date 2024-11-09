@@ -16,6 +16,7 @@ import { getCleanPrompt } from '@/utils/promptUtils';
 import TruncatablePrompt from './TruncatablePrompt';
 import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
 import { handleImageDiscard } from '@/utils/discardUtils';
+import { useImageRemix } from '@/hooks/useImageRemix';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -35,6 +36,8 @@ const MobileImageDrawer = ({
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
+  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, () => onOpenChange(false));
+  const queryClient = useQueryClient();
   
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],
@@ -60,7 +63,7 @@ const MobileImageDrawer = ({
     },
     enabled: !!image?.id
   });
-  
+
   if (!image) return null;
 
   const handleCopyPrompt = async () => {
@@ -77,30 +80,11 @@ const MobileImageDrawer = ({
     setTimeout(() => setShareIcon('share'), 1500);
   };
 
-  const handleRemixClick = () => {
-    onRemix(image);
-    setStyle(image.style);
-    setActiveTab('input');
-    onOpenChange(false);
-  };
-
-  const detailItems = [
-    { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
-    { label: "Seed", value: image.seed },
-    { label: "Size", value: `${image.width}x${image.height}` },
-    { label: "Aspect Ratio", value: image.aspect_ratio },
-    { label: "Quality", value: image.quality },
-    { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' }
-  ];
-
-  const queryClient = useQueryClient();
-
   const handleDiscard = async () => {
     try {
       await handleImageDiscard(image, queryClient);
       onOpenChange(false);
     } catch (error) {
-      // Error is already handled by handleImageDiscard
       console.error('Error in handleDiscard:', error);
     }
   };
@@ -108,8 +92,8 @@ const MobileImageDrawer = ({
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="h-[100vh] bg-background">
-        <div className="mx-auto w-12 h-1 flex-shrink-0 rounded-full bg-muted mt-4 mb-2" />
-        <ScrollArea className="h-[calc(100vh-24px)] px-4 pb-8">
+        <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-muted mt-4 mb-2" />
+        <ScrollArea className="h-[calc(96vh-32px)] px-4 pb-8">
           {showFullImage && (
             <div className="relative rounded-lg overflow-hidden mb-6">
               <img
@@ -120,40 +104,8 @@ const MobileImageDrawer = ({
             </div>
           )}
           
-          <div className="space-y-8">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
-                <span className="text-sm font-medium">{owner?.display_name}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <ImagePrivacyToggle image={image} isOwner={isOwner} />
-                <div className="flex items-center gap-1">
-                  <LikeButton 
-                    isLiked={userLikes?.includes(image.id)} 
-                    onToggle={() => toggleLike(image.id)} 
-                  />
-                  <span className="text-xs text-muted-foreground">{likeCount}</span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Prompt</h3>
-                <div className="flex gap-2">
-                  <Button variant="ghost" size="sm" onClick={handleCopyPrompt}>
-                    {copyIcon === 'copy' ? <Copy className="h-4 w-4" /> : <Check className="h-4 w-4" />}
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={handleShare}>
-                    {shareIcon === 'share' ? <Share2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
-                  </Button>
-                </div>
-              </div>
-              <TruncatablePrompt prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)} />
-            </div>
-
-            <div className="flex gap-2 justify-between">
+          {session && (
+            <div className="flex gap-2 justify-between mb-6">
               <Button variant="ghost" size="sm" className="flex-1" onClick={onDownload}>
                 <Download className="mr-2 h-4 w-4" />
                 Download
@@ -164,19 +116,44 @@ const MobileImageDrawer = ({
                   Discard
                 </Button>
               )}
-              <Button variant="ghost" size="sm" className="flex-1" onClick={handleRemixClick}>
+              <Button variant="ghost" size="sm" className="flex-1" onClick={() => handleRemix(image)}>
                 <Wand2 className="mr-2 h-4 w-4" />
                 Remix
               </Button>
             </div>
+          )}
 
-            <div className="grid grid-cols-2 gap-4">
-              {detailItems.map((item, index) => (
-                <div key={index} className="space-y-1">
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider">{item.label}</p>
-                  <p className="text-sm font-medium">{item.value}</p>
-                </div>
-              ))}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Prompt</h3>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="sm" onClick={handleCopyPrompt}>
+                  {copyIcon === 'copy' ? <Copy className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleShare}>
+                  {shareIcon === 'share' ? <Share2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+            <TruncatablePrompt prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)} />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Model</p>
+              <p className="text-sm font-medium">{modelConfigs?.[image.model]?.name || image.model}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Style</p>
+              <p className="text-sm font-medium">{styleConfigs?.[image.style]?.name || 'General'}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Size</p>
+              <p className="text-sm font-medium">{image.width}x{image.height}</p>
+            </div>
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">Quality</p>
+              <p className="text-sm font-medium">{image.quality}</p>
             </div>
           </div>
         </ScrollArea>

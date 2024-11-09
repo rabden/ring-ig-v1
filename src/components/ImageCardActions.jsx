@@ -4,6 +4,8 @@ import { MoreVertical } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import LikeButton from './LikeButton';
 import { toast } from 'sonner';
+import { useImageRemix } from '@/hooks/useImageRemix';
+import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
 const ImageCardActions = ({ 
   image, 
@@ -15,8 +17,13 @@ const ImageCardActions = ({
   onDownload,
   onDiscard,
   onRemix,
-  userId
+  userId,
+  setStyle,
+  setActiveTab
 }) => {
+  const { session } = useSupabaseAuth();
+  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, () => {});
+
   const handleMoreClick = (e) => {
     e.stopPropagation();
     if (isMobile) {
@@ -27,7 +34,6 @@ const ImageCardActions = ({
   const handleViewDetails = (e) => {
     e.stopPropagation();
     if (!isMobile) {
-      // For desktop, trigger the details dialog
       onViewDetails(image, false);
     }
   };
@@ -66,7 +72,7 @@ const ImageCardActions = ({
                 Discard
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem onClick={() => onRemix(image)}>
+            <DropdownMenuItem onClick={() => handleRemix(image)}>
               Remix
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleViewDetails}>
