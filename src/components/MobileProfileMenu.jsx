@@ -14,8 +14,8 @@ import { useRealtimeProfile } from '@/hooks/useRealtimeProfile';
 import { handleAvatarUpload } from '@/utils/profileUtils';
 import { useQueryClient } from '@tanstack/react-query';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Settings, CreditCard, LogOut } from 'lucide-react';
-import MobileProfileStats from './mobile/MobileProfileStats';
+import { Card } from "@/components/ui/card";
+import { Settings, CreditCard, Heart, LogOut } from 'lucide-react';
 
 const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const { logout } = useSupabaseAuth();
@@ -132,12 +132,16 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
                 </div>
               </div>
 
-              <MobileProfileStats 
-                user={user}
-                credits={credits}
-                bonusCredits={bonusCredits}
-                totalLikes={totalLikes}
-              />
+              <Card className="p-4 grid grid-cols-2 gap-4">
+                <div className="text-center space-y-1">
+                  <p className="text-2xl font-bold">{credits}+{bonusCredits}</p>
+                  <p className="text-sm text-muted-foreground">Credits</p>
+                </div>
+                <div className="text-center space-y-1">
+                  <p className="text-2xl font-bold">{totalLikes}</p>
+                  <p className="text-sm text-muted-foreground">Likes</p>
+                </div>
+              </Card>
 
               <div className="space-y-2">
                 {!isPro && !proRequest && (

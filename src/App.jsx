@@ -1,11 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/integrations/supabase/components/AuthProvider';
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import ImageGenerator from '@/pages/ImageGenerator';
-import PublicProfile from '@/pages/PublicProfile';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,10 +22,7 @@ function App() {
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
           <AuthProvider>
             <NotificationProvider>
-              <Routes>
-                <Route path="/" element={<ImageGenerator />} />
-                <Route path="/profile/:username" element={<PublicProfile />} />
-              </Routes>
+              <ImageGenerator />
               <Toaster />
             </NotificationProvider>
           </AuthProvider>

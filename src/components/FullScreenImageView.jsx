@@ -6,19 +6,19 @@ import { Download, Trash2, RefreshCw, ArrowLeft } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
+import { toast } from 'sonner';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import ProfileAvatar from './profile/ProfileAvatar';
+import LikeButton from './LikeButton';
 import { useLikes } from '@/hooks/useLikes';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import ImagePromptSection from './image-view/ImagePromptSection';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
+import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
 import { getCleanPrompt } from '@/utils/promptUtils';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import { useImageRemix } from '@/hooks/useImageRemix';
 import HeartAnimation from './animations/HeartAnimation';
-import ImageHeader from './image-view/ImageHeader';
-import ImageSocialShare from './image-view/ImageSocialShare';
-import RelatedImages from './image-view/RelatedImages';
-import { toast } from 'sonner';
 
 const FullScreenImageView = ({ 
   image, 
@@ -44,7 +44,6 @@ const FullScreenImageView = ({
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],
     queryFn: async () => {
-      if (!image?.user_id) return null;
       const { data } = await supabase
         .from('profiles')
         .select('*')
@@ -58,7 +57,6 @@ const FullScreenImageView = ({
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['likes', image?.id],
     queryFn: async () => {
-      if (!image?.id) return 0;
       const { count } = await supabase
         .from('user_image_likes')
         .select('*', { count: 'exact' })
@@ -68,15 +66,17 @@ const FullScreenImageView = ({
     enabled: !!image?.id
   });
   
+  if (!isOpen || !image) return null;
+
   const handleCopyPrompt = async () => {
-    await navigator.clipboard.writeText(getCleanPrompt(image?.user_prompt || image?.prompt, image?.style));
+    await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
     setCopyIcon('check');
     toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
   };
 
   const handleShare = async () => {
-    await navigator.clipboard.writeText(`${window.location.origin}/image/${image?.id}`);
+    await navigator.clipboard.writeText(`${window.location.origin}/image/${image.id}`);
     setShareIcon('check');
     toast.success('Share link copied to clipboard');
     setTimeout(() => setShareIcon('share'), 1500);
@@ -91,20 +91,6 @@ const FullScreenImageView = ({
     }
   };
 
-  const handleDoubleClick = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!userLikes?.includes(image?.id)) {
-      setIsAnimating(true);
-      toggleLike(image?.id);
-      setTimeout(() => {
-        setIsAnimating(false);
-      }, 800);
-    }
-  };
-
-  if (!image) return null;
-
   const detailItems = [
     { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
     { label: "Seed", value: image.seed },
@@ -113,6 +99,18 @@ const FullScreenImageView = ({
     { label: "Quality", value: image.quality },
     { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
   ];
+
+  const handleDoubleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!userLikes?.includes(image.id)) {
+      setIsAnimating(true);
+      toggleLike(image.id);
+      setTimeout(() => {
+        setIsAnimating(false);
+      }, 800);
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -143,19 +141,22 @@ const FullScreenImageView = ({
             <div className="bg-card h-[calc(100vh-32px)] rounded-lg border shadow-sm">
               <ScrollArea className="h-full">
                 <div className="p-6 space-y-6">
-                  <ImageHeader 
-                    owner={owner}
-                    image={image}
-                    isOwner={isOwner}
-                    userLikes={userLikes}
-                    toggleLike={toggleLike}
-                    likeCount={likeCount}
-                  />
-
-                  <ImageSocialShare 
-                    imageId={image.id} 
-                    imageUrl={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                  />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
+                      <span className="text-sm font-medium">{owner?.display_name}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <ImagePrivacyToggle image={image} isOwner={isOwner} />
+                      <div className="flex items-center gap-1">
+                        <LikeButton 
+                          isLiked={userLikes?.includes(image.id)} 
+                          onToggle={() => toggleLike(image.id)} 
+                        />
+                        <span className="text-xs text-muted-foreground">{likeCount}</span>
+                      </div>
+                    </div>
+                  </div>
 
                   <ImagePromptSection 
                     prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)}
@@ -186,8 +187,6 @@ const FullScreenImageView = ({
                   )}
 
                   <ImageDetailsSection detailItems={detailItems} />
-
-                  <RelatedImages image={image} userId={image.user_id} />
                 </div>
               </ScrollArea>
             </div>

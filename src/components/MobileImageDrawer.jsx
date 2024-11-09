@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/supabase';
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Copy, Share2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Download, Trash2, Wand2, Copy, Share2, Check } from "lucide-react";
 import { toast } from 'sonner';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
@@ -15,9 +15,10 @@ import { useImageRemix } from '@/hooks/useImageRemix';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import HeartAnimation from './animations/HeartAnimation';
-import ImageHeader from './image-view/ImageHeader';
-import MobileImageActions from './mobile/MobileImageActions';
+import ProfileAvatar from './profile/ProfileAvatar';
+import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
 import { useLikes } from '@/hooks/useLikes';
+import LikeButton from './LikeButton';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -131,22 +132,41 @@ const MobileImageDrawer = ({
             </div>
           )}
 
-          <ImageHeader 
-            owner={owner}
-            image={image}
-            isOwner={isOwner}
-            userLikes={userLikes}
-            toggleLike={toggleLike}
-            likeCount={likeCount}
-          />
-
-          <MobileImageActions 
-            session={session}
-            onDownload={onDownload}
-            isOwner={isOwner}
-            onDiscard={handleDiscard}
-            onRemix={() => handleRemix(image)}
-          />
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
+              <span className="text-sm font-medium">{owner?.display_name}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <ImagePrivacyToggle image={image} isOwner={isOwner} />
+              <div className="flex items-center gap-1">
+                <LikeButton 
+                  isLiked={userLikes?.includes(image.id)} 
+                  onToggle={() => toggleLike(image.id)} 
+                />
+                <span className="text-xs text-muted-foreground">{likeCount}</span>
+              </div>
+            </div>
+          </div>
+          
+          {session && (
+            <div className="flex gap-2 justify-between mb-6">
+              <Button variant="ghost" size="sm" className="flex-1" onClick={onDownload}>
+                <Download className="mr-2 h-4 w-4" />
+                Download
+              </Button>
+              {isOwner && (
+                <Button variant="ghost" size="sm" className="flex-1 text-destructive hover:text-destructive" onClick={handleDiscard}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Discard
+                </Button>
+              )}
+              <Button variant="ghost" size="sm" className="flex-1" onClick={() => handleRemix(image)}>
+                <Wand2 className="mr-2 h-4 w-4" />
+                Remix
+              </Button>
+            </div>
+          )}
 
           <div>
             <div className="flex items-center justify-between mb-3">
