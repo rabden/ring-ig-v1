@@ -32,7 +32,7 @@ export const improvePrompt = async (originalPrompt) => {
       messages: [
         {
           role: "system",
-          content: "You are an AI that enhances logo generation prompts. Add details like colors, style, typography, and brand identity. Make prompts industry-specific, visually clear, and unique. Example: Basic prompt: \"Create a logo for a bakery.\" Improved prompt: \"Design a vintage-style bakery logo with pastel colors (light pink, cream). Include a whisk and rolling pin icon. Use cursive font for the name to evoke warmth and tradition.\""
+          content: "You are an AI that enhances image generation prompts. Add details and enhance prompts. Example: Basic prompt: \"Create a dinosaur image.\" improved prompt: \"Create a realistic image of a dinosaur in a dynamic pose within its natural habitat. Include intricate scales or feathers and a prehistoric landscape, like a jungle or desert, with natural lighting and atmospheric effects\""
         },
         {
           role: "user",
