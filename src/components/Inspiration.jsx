@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { MoreVertical } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useFollows } from '@/hooks/useFollows'
 
 const breakpointColumnsObj = {
   default: 4,
@@ -15,20 +16,58 @@ const breakpointColumnsObj = {
 }
 
 const Inspiration = ({ userId, onImageClick, onDownload, onRemix, onViewDetails }) => {
+  const { following } = useFollows(userId);
+
   const { data: inspirationImages, isLoading } = useQuery({
-    queryKey: ['inspirationImages', userId],
+    queryKey: ['inspirationImages', userId, following],
     queryFn: async () => {
       if (!userId) return []
-      const { data, error } = await supabase
+      
+      // First, get trending and hot images
+      const { data: trendingHotImages, error: trendingError } = await supabase
         .from('user_images')
         .select('*')
-        .neq('user_id', userId)  // Exclude user's own images
-        .eq('is_private', false) // Only show public images
+        .neq('user_id', userId)
+        .eq('is_private', false)
+        .or('is_hot.eq.true,is_trending.eq.true')
+        .order('created_at', { ascending: false });
+
+      if (trendingError) throw trendingError;
+
+      // Then, get images from followed users
+      const { data: followingImages, error: followingError } = await supabase
+        .from('user_images')
+        .select('*')
+        .neq('user_id', userId)
+        .eq('is_private', false)
+        .in('user_id', following || [])
+        .not('id', 'in', `(${(trendingHotImages || []).map(img => img.id).join(',') || '0'})`)
+        .order('created_at', { ascending: false });
+
+      if (followingError) throw followingError;
+
+      // Finally, get other public images
+      const { data: otherImages, error: otherError } = await supabase
+        .from('user_images')
+        .select('*')
+        .neq('user_id', userId)
+        .eq('is_private', false)
+        .not('id', 'in', 
+          `(${[...(trendingHotImages || []), ...(followingImages || [])]
+            .map(img => img.id)
+            .join(',') || '0'})`
+        )
         .order('created_at', { ascending: false })
-        .limit(50)
-      
-      if (error) throw error
-      return data || []
+        .limit(30);
+
+      if (otherError) throw otherError;
+
+      // Combine all images in the desired order
+      return [
+        ...(trendingHotImages || []),
+        ...(followingImages || []),
+        ...(otherImages || [])
+      ];
     },
     enabled: !!userId,
   })
@@ -53,6 +92,16 @@ const Inspiration = ({ userId, onImageClick, onDownload, onRemix, onViewDetails 
                 className="absolute inset-0 w-full h-full object-cover cursor-pointer"
                 onClick={() => onImageClick(index)}
               />
+              {(image.is_hot || image.is_trending) && (
+                <div className="absolute top-2 right-2 flex gap-1">
+                  {image.is_hot && (
+                    <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">Hot</span>
+                  )}
+                  {image.is_trending && (
+                    <span className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full">Trending</span>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
           <div className="mt-2 flex items-center justify-between">
