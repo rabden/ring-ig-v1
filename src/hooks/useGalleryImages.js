@@ -31,10 +31,12 @@ export const useGalleryImages = ({
         .select('*', { count: 'exact' });
 
       if (activeView === 'inspiration') {
+        // For inspiration view, get all public images except user's own
         baseQuery = baseQuery
           .neq('user_id', userId)
           .eq('is_private', false);
 
+        // Apply NSFW filter for inspiration view
         if (nsfwEnabled) {
           baseQuery = baseQuery.in('model', NSFW_MODELS);
         } else {
@@ -46,6 +48,7 @@ export const useGalleryImages = ({
         if (error) throw error;
         if (!allImages) return { data: [], nextPage: null };
 
+        // Separate and sort images
         const trendingHotImages = allImages.filter(img => img.is_trending || img.is_hot)
           .sort((a, b) => {
             if (a.is_hot && a.is_trending && (!b.is_hot || !b.is_trending)) return -1;
@@ -69,9 +72,9 @@ export const useGalleryImages = ({
 
         const sortedImages = [...trendingHotImages, ...followingImages, ...otherImages];
         
+        // Apply pagination to the sorted results
         const start = pageParam.page * ITEMS_PER_PAGE;
-        const end = Math.min(start + ITEMS_PER_PAGE, sortedImages.length);
-        const paginatedImages = sortedImages.slice(start, end);
+        const paginatedImages = sortedImages.slice(start, start + ITEMS_PER_PAGE);
 
         return {
           data: paginatedImages.map(image => ({
@@ -80,62 +83,49 @@ export const useGalleryImages = ({
               .from('user-images')
               .getPublicUrl(image.storage_path).data.publicUrl
           })),
-          nextPage: end < sortedImages.length ? { page: pageParam.page + 1 } : undefined
+          nextPage: paginatedImages.length === ITEMS_PER_PAGE ? { page: pageParam.page + 1 } : undefined
         };
       } else {
         // For myImages view
-        baseQuery = baseQuery.eq('user_id', userId);
+        baseQuery = baseQuery
+          .eq('user_id', userId)
+          .eq('is_private', showPrivate);
 
-        // Handle private/public filter
-        baseQuery = baseQuery.eq('is_private', showPrivate);
-
-        // Handle NSFW filter
+        // Apply NSFW filter for myImages view
         if (nsfwEnabled) {
           baseQuery = baseQuery.in('model', NSFW_MODELS);
         } else {
           baseQuery = baseQuery.not('model', 'in', '(' + NSFW_MODELS.join(',') + ')');
         }
 
-        // Apply additional filters
+        // Apply style and model filters
         if (activeFilters.style) {
           baseQuery = baseQuery.eq('style', activeFilters.style);
         }
         if (activeFilters.model) {
           baseQuery = baseQuery.eq('model', activeFilters.model);
         }
+
+        // Apply search filter
         if (searchQuery) {
           baseQuery = baseQuery.ilike('prompt', `%${searchQuery}%`);
         }
 
-        // Get total count first
-        const { count } = await baseQuery.count();
-        
-        // Calculate pagination
         const start = pageParam.page * ITEMS_PER_PAGE;
-        
-        // Return early if no results or beyond total count
-        if (!count || start >= count) {
-          return {
-            data: [],
-            nextPage: undefined
-          };
-        }
-
-        // Fetch paginated data
-        const { data: images, error } = await baseQuery
+        const { data: result, error, count } = await baseQuery
           .order('created_at', { ascending: false })
           .range(start, start + ITEMS_PER_PAGE - 1);
 
         if (error) throw error;
 
         return {
-          data: images?.map(image => ({
+          data: result?.map(image => ({
             ...image,
             image_url: supabase.storage
               .from('user-images')
               .getPublicUrl(image.storage_path).data.publicUrl
           })) || [],
-          nextPage: images?.length === ITEMS_PER_PAGE && count > start + ITEMS_PER_PAGE 
+          nextPage: (result?.length === ITEMS_PER_PAGE && count > start + ITEMS_PER_PAGE) 
             ? { page: pageParam.page + 1 } 
             : undefined
         };
