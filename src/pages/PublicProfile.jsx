@@ -10,7 +10,6 @@ import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileStats from '@/components/profile/ProfileStats';
 import UserPreferences from '@/components/profile/UserPreferences';
-import { format } from 'date-fns';
 
 const PublicProfile = () => {
   const { username } = useParams();
@@ -20,12 +19,14 @@ const PublicProfile = () => {
   const { data: profile } = useQuery({
     queryKey: ['publicProfile', username],
     queryFn: async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('display_name', username)
-        .single();
-      return data;
+        .limit(1);
+
+      if (error) throw error;
+      return data?.[0] || null;
     },
   });
 
