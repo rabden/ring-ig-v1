@@ -3,8 +3,7 @@ import { toast } from 'sonner';
 
 export const handleImageDiscard = async (image, queryClient) => {
   if (!image?.id) {
-    toast.error('Cannot delete image: Invalid image ID');
-    return;
+    throw new Error('Cannot delete image: Invalid image ID');
   }
 
   try {
@@ -46,12 +45,11 @@ export const handleImageDiscard = async (image, queryClient) => {
     if (queryClient) {
       queryClient.invalidateQueries(['userImages']);
       queryClient.invalidateQueries(['galleryImages']);
+      queryClient.invalidateQueries(['imageLikes', image.id]);
     }
 
-    toast.success('Image deleted successfully');
   } catch (error) {
     console.error('Error deleting image:', error);
-    toast.error('Failed to delete image');
     throw error;
   }
 };

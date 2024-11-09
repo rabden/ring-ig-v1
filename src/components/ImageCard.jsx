@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import ImageStatusIndicators from './ImageStatusIndicators';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Skeleton } from "@/components/ui/skeleton";
 import { downloadImage } from '@/utils/downloadUtils';
 import ImageCardActions from './ImageCardActions';
@@ -14,6 +14,7 @@ import ImageDetailsDialog from './ImageDetailsDialog';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import { getCleanPrompt } from '@/utils/promptUtils';
+import { toast } from 'sonner';
 
 const ImageCard = ({ 
   image, 
@@ -31,9 +32,11 @@ const ImageCard = ({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleted, setIsDeleted] = useState(false);
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
+  const queryClient = useQueryClient();
   
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['imageLikes', image.id],
@@ -84,9 +87,13 @@ const ImageCard = ({
 
   const handleDiscard = async () => {
     try {
-      await handleImageDiscard(image);
+      setIsDeleted(true);
+      await handleImageDiscard(image, queryClient);
+      toast.success('Image deleted successfully');
     } catch (error) {
       console.error('Error in handleDiscard:', error);
+      setIsDeleted(false);
+      toast.error('Failed to delete image');
     }
   };
 
@@ -97,6 +104,10 @@ const ImageCard = ({
       setDetailsDialogOpen(true);
     }
   };
+
+  if (isDeleted) {
+    return null;
+  }
 
   const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
   const modelName = modelConfigs?.[image.model]?.name || image.model;
