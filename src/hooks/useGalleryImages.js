@@ -46,7 +46,6 @@ export const useGalleryImages = ({
         if (error) throw error;
         if (!allImages) return { data: [], nextPage: null };
 
-        // Separate and sort images
         const trendingHotImages = allImages.filter(img => img.is_trending || img.is_hot)
           .sort((a, b) => {
             if (a.is_hot && a.is_trending && (!b.is_hot || !b.is_trending)) return -1;
@@ -85,55 +84,58 @@ export const useGalleryImages = ({
         };
       } else {
         // For myImages view
-        baseQuery = baseQuery
-          .eq('user_id', userId)
-          .eq('is_private', showPrivate);
+        baseQuery = baseQuery.eq('user_id', userId);
 
+        // Handle private/public filter
+        baseQuery = baseQuery.eq('is_private', showPrivate);
+
+        // Handle NSFW filter
         if (nsfwEnabled) {
           baseQuery = baseQuery.in('model', NSFW_MODELS);
         } else {
           baseQuery = baseQuery.not('model', 'in', '(' + NSFW_MODELS.join(',') + ')');
         }
 
+        // Apply additional filters
         if (activeFilters.style) {
           baseQuery = baseQuery.eq('style', activeFilters.style);
         }
         if (activeFilters.model) {
           baseQuery = baseQuery.eq('model', activeFilters.model);
         }
-
         if (searchQuery) {
           baseQuery = baseQuery.ilike('prompt', `%${searchQuery}%`);
         }
 
-        // First get the total count
+        // Get total count first
         const { count } = await baseQuery.count();
         
-        // Then get the paginated data
+        // Calculate pagination
         const start = pageParam.page * ITEMS_PER_PAGE;
         
-        // Only fetch if start is less than total count
-        if (count === 0 || start >= count) {
+        // Return early if no results or beyond total count
+        if (!count || start >= count) {
           return {
             data: [],
             nextPage: undefined
           };
         }
 
-        const { data: result, error } = await baseQuery
+        // Fetch paginated data
+        const { data: images, error } = await baseQuery
           .order('created_at', { ascending: false })
           .range(start, start + ITEMS_PER_PAGE - 1);
 
         if (error) throw error;
 
         return {
-          data: result?.map(image => ({
+          data: images?.map(image => ({
             ...image,
             image_url: supabase.storage
               .from('user-images')
               .getPublicUrl(image.storage_path).data.publicUrl
           })) || [],
-          nextPage: (result?.length === ITEMS_PER_PAGE && count > start + ITEMS_PER_PAGE) 
+          nextPage: images?.length === ITEMS_PER_PAGE && count > start + ITEMS_PER_PAGE 
             ? { page: pageParam.page + 1 } 
             : undefined
         };
