@@ -6,7 +6,8 @@ import { useImageGeneration } from '@/hooks/useImageGeneration';
 import { useQueryClient } from '@tanstack/react-query';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
-import GeneratorLayout from '@/components/generator/GeneratorLayout';
+import AuthOverlay from '@/components/AuthOverlay';
+import BottomNavbar from '@/components/BottomNavbar';
 import ImageGeneratorSettings from '@/components/ImageGeneratorSettings';
 import ImageGallery from '@/components/ImageGallery';
 import ImageDetailsDialog from '@/components/ImageDetailsDialog';
@@ -15,7 +16,6 @@ import DesktopHeader from '@/components/header/DesktopHeader';
 import MobileHeader from '@/components/header/MobileHeader';
 import MobileNotificationsMenu from '@/components/MobileNotificationsMenu';
 import MobileProfileMenu from '@/components/MobileProfileMenu';
-import BottomNavbar from '@/components/BottomNavbar';
 import { useImageGeneratorState } from '@/hooks/useImageGeneratorState';
 import { useImageHandlers } from '@/hooks/useImageHandlers';
 import { useProUser } from '@/hooks/useProUser';
@@ -43,7 +43,7 @@ const ImageGenerator = () => {
   const [isPrivate, setIsPrivate] = useState(false);
   const isHeaderVisible = useScrollDirection();
   const { session } = useSupabaseAuth();
-  const { credits = 0, bonusCredits = 0, updateCredits } = useUserCredits(session?.user?.id);
+  const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id);
   const { data: isPro } = useProUser(session?.user?.id);
   const { data: modelConfigs } = useModelConfigs();
   const queryClient = useQueryClient();
@@ -102,7 +102,7 @@ const ImageGenerator = () => {
           return;
         }
         finalPrompt = improved;
-        setPrompt(improved);
+        setPrompt(improved); // Update the prompt in the UI
       }
 
       await generateImage(isPrivate, finalPrompt);
@@ -192,39 +192,109 @@ const ImageGenerator = () => {
     }
   }, [remixImage, isRemixRoute]);
 
-  const headers = (
-    <>
-      <DesktopHeader
-        user={session?.user}
-        credits={credits}
-        bonusCredits={bonusCredits}
-        activeView={activeView}
-        setActiveView={setActiveView}
-        generatingImages={generatingImages}
-        activeFilters={activeFilters}
-        onFilterChange={handleFilterChange}
-        onRemoveFilter={handleRemoveFilter}
-        onSearch={handleSearch}
-        nsfwEnabled={nsfwEnabled}
-        showPrivate={showPrivate}
-        onTogglePrivate={() => setShowPrivate(!showPrivate)}
-      />
-      <MobileHeader
-        activeFilters={activeFilters}
-        onFilterChange={handleFilterChange}
-        onRemoveFilter={handleRemoveFilter}
-        onSearch={handleSearch}
-        isVisible={isHeaderVisible}
-        nsfwEnabled={nsfwEnabled}
-        showPrivate={showPrivate}
-        onTogglePrivate={() => setShowPrivate(!showPrivate)}
-        activeView={activeView}
-      />
-    </>
-  );
+  return (
+    <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
+      <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
+        {session && (
+          <>
+            <DesktopHeader
+              user={session.user}
+              credits={credits}
+              bonusCredits={bonusCredits}
+              activeView={activeView}
+              setActiveView={setActiveView}
+              generatingImages={generatingImages}
+              activeFilters={activeFilters}
+              onFilterChange={handleFilterChange}
+              onRemoveFilter={handleRemoveFilter}
+              onSearch={handleSearch}
+              nsfwEnabled={nsfwEnabled}
+              showPrivate={showPrivate}
+              onTogglePrivate={() => setShowPrivate(!showPrivate)}
+            />
+            <MobileHeader
+              activeFilters={activeFilters}
+              onFilterChange={handleFilterChange}
+              onRemoveFilter={handleRemoveFilter}
+              onSearch={handleSearch}
+              isVisible={isHeaderVisible}
+              nsfwEnabled={nsfwEnabled}
+              showPrivate={showPrivate}
+              onTogglePrivate={() => setShowPrivate(!showPrivate)}
+              activeView={activeView}
+            />
+          </>
+        )}
 
-  const mobile = (
-    <>
+        <div className="md:mt-16 mt-12">
+          <ImageGallery
+            userId={session?.user?.id}
+            onImageClick={handleImageClick}
+            onDownload={handleDownload}
+            onDiscard={handleDiscard}
+            onRemix={handleRemix}
+            onViewDetails={handleViewDetails}
+            activeView={activeView}
+            generatingImages={generatingImages}
+            nsfwEnabled={nsfwEnabled}
+            modelConfigs={modelConfigs}
+            activeFilters={activeFilters}
+            searchQuery={searchQuery}
+            setActiveTab={setActiveTab}
+            setStyle={setStyle}
+            showPrivate={showPrivate}
+          />
+        </div>
+      </div>
+
+      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-4 md:p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
+        {!session && (
+          <div className="absolute inset-0 z-10">
+            <AuthOverlay />
+          </div>
+        )}
+        <ImageGeneratorSettings
+          prompt={prompt}
+          setPrompt={setPrompt}
+          handlePromptKeyDown={handlePromptKeyDown}
+          generateImage={handleGenerateImage}
+          model={model}
+          setModel={handleModelChange}
+          seed={seed}
+          setSeed={setSeed}
+          randomizeSeed={randomizeSeed}
+          setRandomizeSeed={setRandomizeSeed}
+          quality={quality}
+          setQuality={setQuality}
+          useAspectRatio={useAspectRatio}
+          setUseAspectRatio={setUseAspectRatio}
+          aspectRatio={aspectRatio}
+          setAspectRatio={setAspectRatio}
+          width={width}
+          setWidth={setWidth}
+          height={height}
+          setHeight={setHeight}
+          session={session}
+          credits={credits}
+          bonusCredits={bonusCredits}
+          nsfwEnabled={nsfwEnabled}
+          setNsfwEnabled={setNsfwEnabled}
+          style={style}
+          setStyle={setStyle}
+          steps={steps}
+          setSteps={setSteps}
+          proMode={isPro}
+          modelConfigs={modelConfigs}
+          isPrivate={isPrivate}
+          setIsPrivate={setIsPrivate}
+          imageCount={imageCount}
+          setImageCount={setImageCount}
+          isImproving={isImproving}
+          setIsImproving={setIsImproving}
+          isGenerating={isGenerating}
+        />
+      </div>
+
       <MobileNotificationsMenu activeTab={activeTab} />
       <MobileProfileMenu 
         user={session?.user}
@@ -232,6 +302,7 @@ const ImageGenerator = () => {
         bonusCredits={bonusCredits}
         activeTab={activeTab}
       />
+
       <BottomNavbar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
@@ -242,11 +313,7 @@ const ImageGenerator = () => {
         setActiveView={setActiveView}
         generatingImages={generatingImages}
       />
-    </>
-  );
-
-  const dialogs = (
-    <>
+      
       <ImageDetailsDialog
         open={detailsDialogOpen}
         onOpenChange={setDetailsDialogOpen}
@@ -263,80 +330,7 @@ const ImageGenerator = () => {
         setStyle={setStyle}
         setActiveTab={setActiveTab}
       />
-    </>
-  );
-
-  return (
-    <GeneratorLayout
-      session={session}
-      settings={{
-        activeTab,
-        component: (
-          <ImageGeneratorSettings
-            prompt={prompt}
-            setPrompt={setPrompt}
-            handlePromptKeyDown={handlePromptKeyDown}
-            generateImage={handleGenerateImage}
-            model={model}
-            setModel={handleModelChange}
-            seed={seed}
-            setSeed={setSeed}
-            randomizeSeed={randomizeSeed}
-            setRandomizeSeed={setRandomizeSeed}
-            quality={quality}
-            setQuality={setQuality}
-            useAspectRatio={useAspectRatio}
-            setUseAspectRatio={setUseAspectRatio}
-            aspectRatio={aspectRatio}
-            setAspectRatio={setAspectRatio}
-            width={width}
-            setWidth={setWidth}
-            height={height}
-            setHeight={setHeight}
-            session={session}
-            credits={credits}
-            bonusCredits={bonusCredits}
-            nsfwEnabled={nsfwEnabled}
-            setNsfwEnabled={setNsfwEnabled}
-            style={style}
-            setStyle={setStyle}
-            steps={steps}
-            setSteps={setSteps}
-            proMode={isPro}
-            modelConfigs={modelConfigs}
-            isPrivate={isPrivate}
-            setIsPrivate={setIsPrivate}
-            imageCount={imageCount}
-            setImageCount={setImageCount}
-            isImproving={isImproving}
-            setIsImproving={setIsImproving}
-            isGenerating={isGenerating}
-          />
-        )
-      }}
-      gallery={
-        <ImageGallery
-          userId={session?.user?.id}
-          onImageClick={handleImageClick}
-          onDownload={handleDownload}
-          onDiscard={handleDiscard}
-          onRemix={handleRemix}
-          onViewDetails={handleViewDetails}
-          activeView={activeView}
-          generatingImages={generatingImages}
-          nsfwEnabled={nsfwEnabled}
-          modelConfigs={modelConfigs}
-          activeFilters={activeFilters}
-          searchQuery={searchQuery}
-          setActiveTab={setActiveTab}
-          setStyle={setStyle}
-          showPrivate={showPrivate}
-        />
-      }
-      headers={headers}
-      mobile={mobile}
-      dialogs={dialogs}
-    />
+    </div>
   );
 };
 

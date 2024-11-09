@@ -4,8 +4,6 @@ import { qualityOptions } from '@/utils/imageConfigs';
 import { calculateDimensions, getModifiedPrompt } from '@/utils/imageUtils';
 import { handleApiResponse } from '@/utils/retryUtils';
 
-const GENERATION_TIMEOUT = 60000; // 1 minute timeout for image generation
-
 export const useImageGeneration = ({
   session,
   prompt,
@@ -24,11 +22,6 @@ export const useImageGeneration = ({
   imageCount = 1
 }) => {
   const generateImage = async (isPrivate = false, finalPrompt = null) => {
-    if (!navigator.onLine) {
-      toast.error('No internet connection. Please check your connection and try again.');
-      return;
-    }
-
     if (!session || !prompt || !modelConfigs) {
       !session && toast.error('Please sign in to generate images');
       !prompt && toast.error('Please enter a prompt');
@@ -82,9 +75,6 @@ export const useImageGeneration = ({
       }]);
 
       const makeRequest = async (needNewKey = false) => {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), GENERATION_TIMEOUT);
-
         try {
           const { data: apiKeyData, error: apiKeyError } = await supabase
             .from('huggingface_api_keys')
@@ -127,10 +117,7 @@ export const useImageGeneration = ({
               inputs: modifiedPrompt,
               parameters
             }),
-            signal: controller.signal
           });
-
-          clearTimeout(timeoutId);
 
           const imageBlob = await handleApiResponse(response, 0, () => makeRequest(response.status === 429));
           if (!imageBlob) {
@@ -154,6 +141,7 @@ export const useImageGeneration = ({
             
           if (uploadError) throw uploadError;
 
+          // Insert the image record with explicit privacy setting
           const { data: insertData, error: insertError } = await supabase
             .from('user_images')
             .insert([{
@@ -177,6 +165,7 @@ export const useImageGeneration = ({
             throw insertError;
           }
 
+          // Verify the insert was successful and the privacy flag was set
           if (!insertData || insertData.is_private !== isPrivate) {
             console.error('Privacy flag mismatch:', { expected: isPrivate, actual: insertData?.is_private });
             throw new Error('Failed to set image privacy correctly');
@@ -186,19 +175,8 @@ export const useImageGeneration = ({
           toast.success(`Image generated successfully! (${isPrivate ? 'Private' : 'Public'})`);
 
         } catch (error) {
-          clearTimeout(timeoutId);
           console.error('Error generating image:', error);
-          
-          let errorMessage = 'Failed to generate image';
-          if (error.name === 'AbortError') {
-            errorMessage = 'Generation timed out. Please try again.';
-          } else if (!navigator.onLine) {
-            errorMessage = 'No internet connection. Please check your connection and try again.';
-          } else if (error.response?.status === 429) {
-            errorMessage = 'Too many requests. Please wait a moment and try again.';
-          }
-          
-          toast.error(errorMessage);
+          toast.error('Failed to generate image');
           setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
         }
       };

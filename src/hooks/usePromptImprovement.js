@@ -7,9 +7,7 @@ export const usePromptImprovement = () => {
 
   const improveCurrentPrompt = async (prompt, onSuccess) => {
     if (!prompt?.trim()) {
-      toast.error('Please enter a prompt', {
-        position: 'top-center'
-      });
+      toast.error('Please enter a prompt');
       return;
     }
 
@@ -19,22 +17,7 @@ export const usePromptImprovement = () => {
     });
     
     try {
-      if (!navigator.onLine) {
-        throw new Error('No internet connection');
-      }
-
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-
-      const result = await Promise.race([
-        improvePrompt(prompt),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Request timed out')), 30000)
-        )
-      ]);
-
-      clearTimeout(timeoutId);
-
+      const result = await improvePrompt(prompt);
       if (result) {
         onSuccess(result);
         toast.success('Prompt improved!', { 
@@ -44,17 +27,7 @@ export const usePromptImprovement = () => {
       }
     } catch (error) {
       console.error('Error improving prompt:', error);
-      let errorMessage = 'Failed to improve prompt';
-      
-      if (error.name === 'AbortError' || error.message === 'Request timed out') {
-        errorMessage = 'Request timed out. Please try again.';
-      } else if (!navigator.onLine) {
-        errorMessage = 'No internet connection. Please check your connection and try again.';
-      } else if (error.response?.status === 429) {
-        errorMessage = 'Too many requests. Please wait a moment and try again.';
-      }
-      
-      toast.error(errorMessage, { 
+      toast.error('Failed to improve prompt', { 
         id: toastId,
         position: 'top-center'
       });
