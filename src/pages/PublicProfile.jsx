@@ -106,8 +106,9 @@ const PublicProfile = () => {
       <ImageGallery 
         userId={currentUserId}
         profileUserId={userId}
+        activeView="myImages"
+        nsfwEnabled={false}
         showPrivate={false}
-        activeView="inspiration"
       />
     </div>
   );
