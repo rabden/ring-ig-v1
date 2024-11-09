@@ -37,14 +37,14 @@ const ImageGeneratorSettings = ({
   setImageCount
 }) => {
   const { isImproving, improveCurrentPrompt } = usePromptImprovement();
-  const creditCost = { "HD": 1, "HD+": 2 }[quality] * imageCount;
+  const creditCost = { "HD": 1, "HD+": 2, "4K": 3 }[quality] * imageCount;
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
   const showGuidanceScale = model === 'fluxDev';
   const isNsfwModel = modelConfigs?.[model]?.category === "NSFW";
 
   const handleModelChange = (newModel) => {
-    if ((newModel === 'turbo' || newModel === 'preLar') && quality === 'HD+') {
+    if ((newModel === 'turbo' || newModel === 'preLar') && (quality === 'HD+' || quality === '4K')) {
       setQuality('HD');
     }
     setModel(newModel);
