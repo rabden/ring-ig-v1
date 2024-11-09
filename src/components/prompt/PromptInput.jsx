@@ -81,7 +81,8 @@ const PromptInput = ({
         </Toggle>
         <Button
           size="sm"
-          className="rounded-full"
+          variant="default"  // Ensure default variant for consistent styling
+          className="rounded-full bg-white text-black hover:bg-gray-100"
           onClick={handleGenerate}
           disabled={!value?.length || !hasEnoughCredits || isGenerating}
         >
