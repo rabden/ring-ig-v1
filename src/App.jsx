@@ -37,7 +37,11 @@ function App() {
                   <Route path="/image/:imageId" element={<SingleImageView />} />
                   <Route path="/remix/:imageId" element={<ImageGenerator />} />
                 </Routes>
-                <Toaster />
+                <Toaster 
+                  position="top-center"
+                  expand={false}
+                  richColors
+                />
               </BrowserRouter>
             </TooltipProvider>
           </NotificationProvider>
