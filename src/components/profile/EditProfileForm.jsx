@@ -24,11 +24,9 @@ const EditProfileForm = ({ user, onClose }) => {
         .update({ display_name: displayName })
         .eq('id', user.id);
 
-      toast.success('Display name updated successfully');
       queryClient.invalidateQueries(['user']);
       onClose();
     } catch (error) {
-      toast.error('Failed to update display name');
       console.error('Error updating display name:', error);
     }
   };
@@ -39,15 +37,13 @@ const EditProfileForm = ({ user, onClose }) => {
       const file = event.target.files?.[0];
       if (!file) return;
 
-      // Validate file type
       if (!file.type.startsWith('image/')) {
-        toast.error('Please upload an image file');
+        console.error('Please upload an image file');
         return;
       }
 
-      // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('File size must be less than 5MB');
+        console.error('File size must be less than 5MB');
         return;
       }
 
@@ -55,36 +51,30 @@ const EditProfileForm = ({ user, onClose }) => {
       const fileName = `${user.id}-${Math.random()}.${fileExt}`;
       const filePath = `profile-pictures/${fileName}`;
 
-      // Upload to storage
       const { error: uploadError } = await supabase.storage
         .from('profile-pictures')
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('profile-pictures')
         .getPublicUrl(filePath);
 
-      // Update user metadata
       const { error: updateError } = await supabase.auth.updateUser({
         data: { avatar_url: publicUrl }
       });
 
       if (updateError) throw updateError;
 
-      // Update profiles table
       await supabase
         .from('profiles')
         .update({ avatar_url: publicUrl })
         .eq('id', user.id);
 
-      toast.success('Profile picture updated successfully');
       queryClient.invalidateQueries(['user']);
       onClose();
     } catch (error) {
-      toast.error('Failed to update profile picture');
       console.error('Error updating profile picture:', error);
     } finally {
       setUploading(false);

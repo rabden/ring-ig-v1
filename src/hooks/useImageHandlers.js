@@ -113,7 +113,6 @@ export const useImageHandlers = ({
 
   const handleDiscard = async (imageId) => {
     if (!imageId) {
-      toast.error('Cannot delete image: Invalid image ID');
       return;
     }
     
@@ -121,7 +120,6 @@ export const useImageHandlers = ({
       await handleImageDiscard({ id: imageId }, queryClient);
     } catch (error) {
       console.error('Error deleting image:', error);
-      toast.error('Failed to delete image');
     }
   }
 

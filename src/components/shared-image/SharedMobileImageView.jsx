@@ -5,7 +5,6 @@ import { Download, RefreshCw, Copy, Share2, Check } from "lucide-react";
 import { supabase } from '@/integrations/supabase/supabase';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
-import { toast } from 'sonner';
 import { getCleanPrompt } from '@/utils/promptUtils';
 import ImageOwnerHeader from '../image-view/ImageOwnerHeader';
 import ImageDetailsSection from '../image-view/ImageDetailsSection';
@@ -49,14 +48,12 @@ const SharedMobileImageView = ({ image, onDownload, onRemix, session }) => {
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
     setCopyIcon('check');
-    toast.success('Prompt copied to clipboard');
     setTimeout(() => setCopyIcon('copy'), 1500);
   };
 
   const handleShare = async () => {
     await navigator.clipboard.writeText(window.location.href);
     setShareIcon('check');
-    toast.success('Share link copied to clipboard');
     setTimeout(() => setShareIcon('share'), 1500);
   };
 

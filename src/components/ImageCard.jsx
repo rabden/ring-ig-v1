@@ -88,11 +88,9 @@ const ImageCard = ({
     try {
       setIsDeleted(true);
       await handleImageDiscard(image);
-      toast.success('Image deleted successfully');
     } catch (error) {
       console.error('Error in handleDiscard:', error);
       setIsDeleted(false);
-      toast.error('Failed to delete image');
     }
   };
 
