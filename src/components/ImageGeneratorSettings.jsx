@@ -118,6 +118,7 @@ const ImageGeneratorSettings = ({
         onImprove={handleImprovePrompt}
         isGenerating={isGenerating}
         isImproving={isImproving}
+        isPro={proMode}
       />
 
       <ModelChooser

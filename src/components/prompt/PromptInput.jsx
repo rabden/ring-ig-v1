@@ -12,29 +12,47 @@ const PromptInput = ({
   onClear,
   onImprove,
   isGenerating,
-  isImproving
+  isImproving,
+  isPro = false
 }) => {
   const [isTemporarilyDisabled, setIsTemporarilyDisabled] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const waitTime = isPro ? 30 : 60;
 
   useEffect(() => {
     let timeoutId;
+    let countdownInterval;
     
     if (isGenerating) {
       setIsTemporarilyDisabled(true);
-      // Set a 60-second timeout to re-enable generation
+      setCountdown(waitTime);
+      
+      // Start countdown
+      countdownInterval = setInterval(() => {
+        setCountdown(prev => {
+          if (prev <= 1) {
+            clearInterval(countdownInterval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      // Set timeout to re-enable generation
       timeoutId = setTimeout(() => {
         setIsTemporarilyDisabled(false);
-      }, 60000);
+        setCountdown(0);
+      }, waitTime * 1000);
     } else {
       setIsTemporarilyDisabled(false);
+      setCountdown(0);
     }
 
     return () => {
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
+      if (timeoutId) clearTimeout(timeoutId);
+      if (countdownInterval) clearInterval(countdownInterval);
     };
-  }, [isGenerating]);
+  }, [isGenerating, waitTime]);
 
   const handleGenerate = async () => {
     if (!value.trim()) {
@@ -85,12 +103,18 @@ const PromptInput = ({
         </Button>
         <Button
           size="sm"
-          className="rounded-full"
+          className="rounded-full min-w-[120px]"
           onClick={handleGenerate}
           disabled={!value?.length || !hasEnoughCredits || isTemporarilyDisabled}
         >
-          Generate
-          <ArrowRight className="ml-2 h-4 w-4" />
+          {isTemporarilyDisabled && countdown > 0 ? (
+            `Wait ${countdown}s`
+          ) : (
+            <>
+              Generate
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </>
+          )}
         </Button>
       </div>
     </div>
