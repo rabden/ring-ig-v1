@@ -15,6 +15,7 @@ const breakpointColumnsObj = {
 
 const ImageGallery = ({ 
   userId, 
+  onImageClick, 
   onDownload, 
   onDiscard, 
   onRemix, 
@@ -63,14 +64,8 @@ const ImageGallery = ({
     if (node) observer.current.observe(node);
   }, [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage]);
 
-  const handleImageClick = (image) => {
-    if (onViewDetails) {
-      onViewDetails(image);
-    }
-  };
-
   const handleMobileMoreClick = (image) => {
-    if (isMobile && onViewDetails) {
+    if (isMobile) {
       onViewDetails(image);
     }
   };
@@ -86,6 +81,7 @@ const ImageGallery = ({
       return [<NoResults key="no-results" />];
     }
     
+    // Filter out private images when viewing a profile
     const filteredImages = profileUserId 
       ? images.filter(img => !img.is_private && img.user_id === profileUserId)
       : images;
@@ -97,7 +93,7 @@ const ImageGallery = ({
       >
         <ImageCard
           image={image}
-          onImageClick={handleImageClick}
+          onImageClick={() => onImageClick(image)}
           onDownload={onDownload}
           onDiscard={onDiscard}
           onRemix={onRemix}
