@@ -1,45 +1,51 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { toast } from 'sonner';
+import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
-export const useFollows = (userId) => {
+export const useFollows = (targetUserId) => {
+  const { session } = useSupabaseAuth();
+  const currentUserId = session?.user?.id;
   const queryClient = useQueryClient();
 
-  const { data: isFollowing } = useQuery({
-    queryKey: ['isFollowing', userId],
+  const { data: isFollowing = false } = useQuery({
+    queryKey: ['isFollowing', currentUserId, targetUserId],
     queryFn: async () => {
-      if (!userId) return false;
+      if (!currentUserId || !targetUserId) return false;
+      
       const { data } = await supabase
         .from('user_follows')
         .select('id')
-        .eq('follower_id', supabase.auth.getUser()?.data?.user?.id)
-        .eq('following_id', userId)
+        .eq('follower_id', currentUserId)
+        .eq('following_id', targetUserId)
         .single();
+      
       return !!data;
     },
-    enabled: !!userId
+    enabled: !!currentUserId && !!targetUserId
   });
 
   const { mutate: toggleFollow } = useMutation({
     mutationFn: async () => {
-      const currentUserId = supabase.auth.getUser()?.data?.user?.id;
-      if (!currentUserId) throw new Error('Not authenticated');
+      if (!currentUserId || !targetUserId) {
+        throw new Error('User must be logged in to follow others');
+      }
 
       if (isFollowing) {
         await supabase
           .from('user_follows')
           .delete()
           .eq('follower_id', currentUserId)
-          .eq('following_id', userId);
+          .eq('following_id', targetUserId);
       } else {
         await supabase
           .from('user_follows')
-          .insert({ follower_id: currentUserId, following_id: userId });
+          .insert({ follower_id: currentUserId, following_id: targetUserId });
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['isFollowing', userId]);
-      queryClient.invalidateQueries(['user', userId]);
+      queryClient.invalidateQueries(['isFollowing', currentUserId, targetUserId]);
+      queryClient.invalidateQueries(['user', targetUserId]);
       toast.success(isFollowing ? 'Unfollowed successfully' : 'Followed successfully');
     },
     onError: (error) => {
