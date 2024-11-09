@@ -1,6 +1,6 @@
 import { HfInference } from "@huggingface/inference";
 
-const client = new HfInference(process.env.VITE_HUGGINGFACE_API_KEY);
+const client = new HfInference(import.meta.env.VITE_HUGGINGFACE_API_KEY);
 
 export const improvePrompt = async (originalPrompt) => {
   try {
