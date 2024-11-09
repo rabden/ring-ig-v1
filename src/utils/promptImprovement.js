@@ -1,9 +1,30 @@
 import { HfInference } from "@huggingface/inference";
-
-const client = new HfInference(import.meta.env.VITE_HUGGINGFACE_API_KEY);
+import { supabase } from '@/integrations/supabase/supabase';
 
 export const improvePrompt = async (originalPrompt) => {
   try {
+    const { data: apiKeyData, error: apiKeyError } = await supabase
+      .from('huggingface_api_keys')
+      .select('api_key')
+      .eq('is_active', true)
+      .order('last_used_at', { ascending: true })
+      .limit(1)
+      .single();
+    
+    if (apiKeyError) {
+      throw new Error(`Failed to get API key: ${apiKeyError.message}`);
+    }
+    if (!apiKeyData) {
+      throw new Error('No active API key available');
+    }
+
+    // Update the last_used_at timestamp for the selected key
+    await supabase
+      .from('huggingface_api_keys')
+      .update({ last_used_at: new Date().toISOString() })
+      .eq('api_key', apiKeyData.api_key);
+
+    const client = new HfInference(apiKeyData.api_key);
     let improvedPrompt = "";
     
     const stream = await client.chatCompletionStream({
