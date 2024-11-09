@@ -1,18 +1,21 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import ImageGallery from '@/components/ImageGallery';
 import { Card } from '@/components/ui/card';
-import { CalendarDays, Image, Heart } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft, Image, Heart } from 'lucide-react';
 import ProfileAvatar from '@/components/profile/ProfileAvatar';
 import FollowButton from '@/components/profile/FollowButton';
 import FollowStats from '@/components/profile/FollowStats';
 import { format, isValid, parseISO } from 'date-fns';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { Separator } from '@/components/ui/separator';
 
 const PublicProfile = () => {
   const { userId } = useParams();
+  const navigate = useNavigate();
   const { session } = useSupabaseAuth();
   const currentUserId = session?.user?.id;
 
@@ -34,14 +37,12 @@ const PublicProfile = () => {
   const { data: stats, isLoading: isStatsLoading } = useQuery({
     queryKey: ['userStats', userId],
     queryFn: async () => {
-      // Get total images (only public ones)
       const { count: totalImages } = await supabase
         .from('user_images')
         .select('*', { count: 'exact' })
         .eq('user_id', userId)
         .eq('is_private', false);
 
-      // Get total likes received
       const { count: totalLikes } = await supabase
         .from('user_image_likes')
         .select('*', { count: 'exact' })
@@ -71,34 +72,54 @@ const PublicProfile = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Card className="p-6 mb-8">
-        <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-          <ProfileAvatar user={{ user_metadata: { avatar_url: profile.avatar_url } }} size="lg" />
-          
-          <div className="flex-1 text-center md:text-left">
-            <div className="flex flex-col md:flex-row items-center gap-4 mb-4">
-              <h1 className="text-2xl font-bold">{profile.display_name}</h1>
-              {currentUserId && currentUserId !== userId && (
-                <FollowButton userId={userId} />
-              )}
+      <Button 
+        variant="ghost" 
+        className="mb-6 hover:bg-accent"
+        onClick={() => navigate(-1)}
+      >
+        <ChevronLeft className="h-4 w-4 mr-2" />
+        Back
+      </Button>
+
+      <Card className="p-8 mb-8">
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Left column - Avatar and follow button */}
+          <div className="flex flex-col items-center gap-4">
+            <ProfileAvatar 
+              user={{ user_metadata: { avatar_url: profile.avatar_url } }} 
+              size="lg" 
+            />
+            {currentUserId && currentUserId !== userId && (
+              <FollowButton userId={userId} />
+            )}
+          </div>
+
+          {/* Right column - User info */}
+          <div className="flex-1 space-y-6">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">{profile.display_name}</h1>
+              <p className="text-muted-foreground">Joined {formatJoinDate(profile.created_at)}</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div className="flex items-center justify-center md:justify-start gap-2">
-                <Image className="w-4 h-4" />
-                <span>{stats.totalImages} Images</span>
-              </div>
-              <div className="flex items-center justify-center md:justify-start gap-2">
-                <Heart className="w-4 h-4" />
-                <span>{stats.totalLikes} Likes</span>
-              </div>
-              <div className="flex items-center justify-center md:justify-start gap-2">
-                <CalendarDays className="w-4 h-4" />
-                <span>Joined {formatJoinDate(profile.created_at)}</span>
-              </div>
-            </div>
+            <Separator />
 
-            <FollowStats userId={userId} />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="flex items-center gap-2">
+                <Image className="w-5 h-5 text-muted-foreground" />
+                <div>
+                  <p className="font-semibold">{stats.totalImages}</p>
+                  <p className="text-sm text-muted-foreground">Images</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Heart className="w-5 h-5 text-muted-foreground" />
+                <div>
+                  <p className="font-semibold">{stats.totalLikes}</p>
+                  <p className="text-sm text-muted-foreground">Likes</p>
+                </div>
+              </div>
+              <FollowStats userId={userId} />
+            </div>
           </div>
         </div>
       </Card>
