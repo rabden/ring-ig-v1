@@ -80,6 +80,11 @@ const ImageGeneratorSettings = ({
     setPrompt('');
   };
 
+  const handleAspectRatioChange = (newRatio) => {
+    setAspectRatio(newRatio);
+    setUseAspectRatio(true); // Ensure aspect ratio is enabled when changed
+  };
+
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className="flex justify-between items-center mb-4">
@@ -143,7 +148,7 @@ const ImageGeneratorSettings = ({
       <SettingSection label="Aspect Ratio" tooltip="Slide left for portrait, center for square, right for landscape">
         <AspectRatioChooser 
           aspectRatio={aspectRatio} 
-          setAspectRatio={setAspectRatio} 
+          setAspectRatio={handleAspectRatioChange}
           proMode={proMode} 
         />
       </SettingSection>

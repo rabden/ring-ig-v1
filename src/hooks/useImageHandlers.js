@@ -100,7 +100,7 @@ export const useImageHandlers = ({
       setUseAspectRatio(true);
     } else {
       setAspectRatio(image.aspect_ratio);
-      setUseAspectRatio(image.aspect_ratio in aspectRatios);
+      setUseAspectRatio(true);
     }
   }
 
