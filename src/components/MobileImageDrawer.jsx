@@ -10,11 +10,12 @@ import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import ProfileAvatar from './profile/ProfileAvatar';
 import LikeButton from './LikeButton';
 import { useLikes } from '@/hooks/useLikes';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { getCleanPrompt } from '@/utils/promptUtils';
 import TruncatablePrompt from './TruncatablePrompt';
 import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
+import { handleImageDiscard } from '@/utils/discardUtils';
 
 const MobileImageDrawer = ({ 
   open, 
@@ -92,6 +93,18 @@ const MobileImageDrawer = ({
     { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' }
   ];
 
+  const queryClient = useQueryClient();
+
+  const handleDiscard = async () => {
+    try {
+      await handleImageDiscard(image, queryClient);
+      onOpenChange(false);
+    } catch (error) {
+      // Error is already handled by handleImageDiscard
+      console.error('Error in handleDiscard:', error);
+    }
+  };
+
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="h-[100vh] bg-background">
@@ -146,7 +159,7 @@ const MobileImageDrawer = ({
                 Download
               </Button>
               {isOwner && (
-                <Button variant="ghost" size="sm" className="flex-1 text-destructive hover:text-destructive" onClick={onDiscard}>
+                <Button variant="ghost" size="sm" className="flex-1 text-destructive hover:text-destructive" onClick={handleDiscard}>
                   <Trash2 className="mr-2 h-4 w-4" />
                   Discard
                 </Button>

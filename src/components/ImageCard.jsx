@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import ImageStatusIndicators from './ImageStatusIndicators';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Skeleton } from "@/components/ui/skeleton";
 import { downloadImage } from '@/utils/downloadUtils';
 import { useImageLoader } from '@/hooks/useImageLoader';
@@ -13,7 +13,7 @@ import { supabase } from '@/integrations/supabase/supabase';
 import MobileImageDrawer from './MobileImageDrawer';
 import ImageDetailsDialog from './ImageDetailsDialog';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { toast } from 'sonner';
+import { handleImageDiscard } from '@/utils/discardUtils';
 import { getCleanPrompt } from '@/utils/promptUtils';
 
 const ImageCard = ({ 
@@ -35,6 +35,7 @@ const ImageCard = ({
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
+  const queryClient = useQueryClient();
   
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['imageLikes', image.id],
@@ -84,16 +85,11 @@ const ImageCard = ({
   };
 
   const handleDiscard = async () => {
-    if (!image?.id) {
-      toast.error('Cannot delete image: Invalid image ID');
-      return;
-    }
     try {
-      await onDiscard(image);
-      toast.success('Image deleted successfully');
+      await handleImageDiscard(image, queryClient);
     } catch (error) {
-      toast.error('Failed to delete image');
-      console.error('Error deleting image:', error);
+      // Error is already handled by handleImageDiscard
+      console.error('Error in handleDiscard:', error);
     }
   };
 

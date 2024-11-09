@@ -11,11 +11,12 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import ProfileAvatar from './profile/ProfileAvatar';
 import LikeButton from './LikeButton';
 import { useLikes } from '@/hooks/useLikes';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import ImagePromptSection from './image-view/ImagePromptSection';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
 import ImagePrivacyToggle from './image-view/ImagePrivacyToggle';
 import { getCleanPrompt } from '@/utils/promptUtils';
+import { handleImageDiscard } from '@/utils/discardUtils';
 
 const FullScreenImageView = ({ 
   image, 
@@ -34,6 +35,7 @@ const FullScreenImageView = ({
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
+  const queryClient = useQueryClient();
 
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],
@@ -91,6 +93,16 @@ const FullScreenImageView = ({
     { label: "Quality", value: image.quality },
     { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
   ];
+
+  const handleDiscard = async () => {
+    try {
+      await handleImageDiscard(image, queryClient);
+      onClose();
+    } catch (error) {
+      // Error is already handled by handleImageDiscard
+      console.error('Error in handleDiscard:', error);
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -173,6 +185,3 @@ const FullScreenImageView = ({
       </DialogContent>
     </Dialog>
   );
-};
-
-export default FullScreenImageView;
