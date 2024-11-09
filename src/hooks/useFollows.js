@@ -13,14 +13,18 @@ export const useFollows = (targetUserId) => {
     queryFn: async () => {
       if (!currentUserId || !targetUserId) return false;
       
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('user_follows')
         .select('id')
         .eq('follower_id', currentUserId)
-        .eq('following_id', targetUserId)
-        .single();
+        .eq('following_id', targetUserId);
       
-      return !!data;
+      if (error) {
+        console.error('Error checking follow status:', error);
+        return false;
+      }
+      
+      return data.length > 0;
     },
     enabled: !!currentUserId && !!targetUserId
   });
