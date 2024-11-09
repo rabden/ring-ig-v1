@@ -22,8 +22,8 @@ export const useGalleryImages = ({
     isLoading,
   } = useInfiniteQuery({
     queryKey: ['galleryImages', userId, activeView, nsfwEnabled, showPrivate, activeFilters, searchQuery, following],
-    queryFn: async ({ pageParam = 0 }) => {
-      if (!userId) return { data: [], nextPage: null, count: 0 };
+    queryFn: async ({ pageParam = { page: 0, type: 'trending' } }) => {
+      if (!userId) return { data: [], nextPage: null };
 
       let baseQuery = supabase
         .from('user_images')
@@ -53,73 +53,76 @@ export const useGalleryImages = ({
 
       if (activeView === 'inspiration') {
         try {
-          // 1. Get trending and hot images
-          const trendingHotQuery = baseQuery
-            .or('is_hot.eq.true,is_trending.eq.true')
-            .neq('user_id', userId)
-            .order('created_at', { ascending: false });
+          let images = [];
+          let nextPage = null;
 
-          const { data: trendingHotImages, error: trendingError } = await trendingHotQuery
-            .range(pageParam * ITEMS_PER_PAGE, (pageParam + 1) * ITEMS_PER_PAGE - 1);
+          // Get trending and hot images
+          if (pageParam.type === 'trending') {
+            const { data: trendingHotImages, error: trendingError } = await baseQuery
+              .or('is_hot.eq.true,is_trending.eq.true')
+              .neq('user_id', userId)
+              .order('created_at', { ascending: false })
+              .range(pageParam.page * ITEMS_PER_PAGE, (pageParam.page + 1) * ITEMS_PER_PAGE - 1);
 
-          if (trendingError) throw trendingError;
-
-          // If we have enough trending/hot images, return them
-          if (trendingHotImages?.length === ITEMS_PER_PAGE) {
-            return {
-              data: trendingHotImages.map(image => ({
-                ...image,
-                image_url: supabase.storage
-                  .from('user-images')
-                  .getPublicUrl(image.storage_path).data.publicUrl
-              })),
-              nextPage: pageParam + 1
-            };
+            if (trendingError) throw trendingError;
+            
+            images = trendingHotImages || [];
+            
+            if (images.length === ITEMS_PER_PAGE) {
+              nextPage = { page: pageParam.page + 1, type: 'trending' };
+            } else if (following?.length > 0) {
+              nextPage = { page: 0, type: 'following' };
+            } else {
+              nextPage = { page: 0, type: 'regular' };
+            }
           }
-
-          // 2. Get images from followed users if we need more
-          let remainingCount = ITEMS_PER_PAGE - (trendingHotImages?.length || 0);
-          let followingImages = [];
           
-          if (remainingCount > 0 && following?.length > 0) {
-            const { data: followingData } = await baseQuery
+          // Get following users' images
+          else if (pageParam.type === 'following' && following?.length > 0) {
+            const { data: followingImages, error: followingError } = await baseQuery
               .in('user_id', following)
               .is('is_hot', false)
               .is('is_trending', false)
               .order('created_at', { ascending: false })
-              .limit(remainingCount);
+              .range(pageParam.page * ITEMS_PER_PAGE, (pageParam.page + 1) * ITEMS_PER_PAGE - 1);
 
-            followingImages = followingData || [];
-            remainingCount -= followingImages.length;
+            if (followingError) throw followingError;
+            
+            images = followingImages || [];
+            
+            if (images.length === ITEMS_PER_PAGE) {
+              nextPage = { page: pageParam.page + 1, type: 'following' };
+            } else {
+              nextPage = { page: 0, type: 'regular' };
+            }
           }
-
-          // 3. Get regular images if we still need more
-          let regularImages = [];
-          if (remainingCount > 0) {
-            const { data: regularData } = await baseQuery
+          
+          // Get regular images
+          else if (pageParam.type === 'regular') {
+            const { data: regularImages, error: regularError } = await baseQuery
               .not('user_id', 'in', `(${[userId, ...(following || [])].join(',')})`)
               .is('is_hot', false)
               .is('is_trending', false)
               .order('created_at', { ascending: false })
-              .limit(remainingCount);
+              .range(pageParam.page * ITEMS_PER_PAGE, (pageParam.page + 1) * ITEMS_PER_PAGE - 1);
 
-            regularImages = regularData || [];
+            if (regularError) throw regularError;
+            
+            images = regularImages || [];
+            
+            if (images.length === ITEMS_PER_PAGE) {
+              nextPage = { page: pageParam.page + 1, type: 'regular' };
+            }
           }
 
-          const combinedData = [
-            ...(trendingHotImages || []),
-            ...followingImages,
-            ...regularImages
-          ];
-
           return {
-            data: combinedData.map(image => ({
+            data: images.map(image => ({
               ...image,
               image_url: supabase.storage
                 .from('user-images')
                 .getPublicUrl(image.storage_path).data.publicUrl
             })),
-            nextPage: combinedData.length === ITEMS_PER_PAGE ? pageParam + 1 : undefined
+            nextPage
           };
 
         } catch (error) {
@@ -132,7 +135,7 @@ export const useGalleryImages = ({
           const { data: result, error } = await baseQuery
             .eq('user_id', userId)
             .order('created_at', { ascending: false })
-            .range(pageParam * ITEMS_PER_PAGE, (pageParam + 1) * ITEMS_PER_PAGE - 1);
+            .range(pageParam.page * ITEMS_PER_PAGE, (pageParam.page + 1) * ITEMS_PER_PAGE - 1);
 
           if (error) throw error;
 
@@ -143,7 +146,7 @@ export const useGalleryImages = ({
                 .from('user-images')
                 .getPublicUrl(image.storage_path).data.publicUrl
             })) || [],
-            nextPage: result?.length === ITEMS_PER_PAGE ? pageParam + 1 : undefined
+            nextPage: result?.length === ITEMS_PER_PAGE ? { page: pageParam.page + 1 } : undefined
           };
         } catch (error) {
           console.error('Error fetching user images:', error);
@@ -152,7 +155,7 @@ export const useGalleryImages = ({
       }
     },
     getNextPageParam: (lastPage) => lastPage?.nextPage,
-    initialPageParam: 0
+    initialPageParam: { page: 0, type: 'trending' }
   });
 
   const images = data?.pages?.flatMap(page => page.data) || [];
