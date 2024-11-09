@@ -2,8 +2,6 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
-import { useModelConfigs } from '@/hooks/useModelConfigs';
-import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { downloadImage } from '@/utils/downloadUtils';
