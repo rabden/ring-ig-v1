@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { qualityOptions } from '@/utils/imageConfigs';
 import { calculateDimensions, getModifiedPrompt } from '@/utils/imageUtils';
 import { handleApiResponse } from '@/utils/retryUtils';
+import { getApiKey } from '@/utils/apiKeyUtils';
 
 export const useImageGeneration = ({
   session,
@@ -51,22 +52,22 @@ export const useImageGeneration = ({
     for (let i = 0; i < imageCount; i++) {
       const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed + i;
       const generationId = Date.now().toString() + i;
-      
+
       const modifiedPrompt = await getModifiedPrompt(finalPrompt || prompt, style, model, modelConfigs);
       const maxDimension = qualityOptions[quality];
       const { width: finalWidth, height: finalHeight, aspectRatio: finalAspectRatio } = calculateDimensions(
-        useAspectRatio, 
-        aspectRatio, 
-        width, 
-        height, 
+        useAspectRatio,
+        aspectRatio,
+        width,
+        height,
         maxDimension
       );
 
       const finalStyle = modelConfigs[model]?.category === "NSFW" ? 'N/A' : (style || 'N/A');
 
-      setGeneratingImages(prev => [...prev, { 
-        id: generationId, 
-        width: finalWidth, 
+      setGeneratingImages(prev => [...prev, {
+        id: generationId,
+        width: finalWidth,
         height: finalHeight,
         prompt: modifiedPrompt,
         model,
@@ -74,31 +75,9 @@ export const useImageGeneration = ({
         is_private: isPrivate
       }]);
 
-      const makeRequest = async (needNewKey = false) => {
+      const makeRequest = async (retryCount = 0) => {
         try {
-          const { data: apiKeyData, error: apiKeyError } = await supabase
-            .from('huggingface_api_keys')
-            .select('api_key')
-            .eq('is_active', true)
-            .order('last_used_at', { ascending: true })
-            .limit(1)
-            .single();
-          
-          if (apiKeyError) {
-            setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-            toast.error('Failed to get API key');
-            throw new Error(`Failed to get API key: ${apiKeyError.message}`);
-          }
-          if (!apiKeyData) {
-            setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-            toast.error('No active API key available');
-            throw new Error('No active API key available');
-          }
-
-          await supabase
-            .from('huggingface_api_keys')
-            .update({ last_used_at: new Date().toISOString() })
-            .eq('api_key', apiKeyData.api_key);
+          const apiKey = await getApiKey();
 
           const parameters = {
             seed: actualSeed,
@@ -108,7 +87,7 @@ export const useImageGeneration = ({
 
           const response = await fetch(modelConfig?.apiUrl, {
             headers: {
-              Authorization: `Bearer ${apiKeyData.api_key}`,
+              Authorization: `Bearer ${apiKey}`,
               "Content-Type": "application/json",
               "x-wait-for-model": "true"
             },
@@ -134,14 +113,13 @@ export const useImageGeneration = ({
 
           const timestamp = Date.now();
           const filePath = `${session.user.id}/${timestamp}.png`;
-          
+
           const { error: uploadError } = await supabase.storage
             .from('user-images')
             .upload(filePath, imageBlob);
-            
+
           if (uploadError) throw uploadError;
 
-          // Insert the image record with explicit privacy setting
           const { data: insertData, error: insertError } = await supabase
             .from('user_images')
             .insert([{
@@ -165,7 +143,6 @@ export const useImageGeneration = ({
             throw insertError;
           }
 
-          // Verify the insert was successful and the privacy flag was set
           if (!insertData || insertData.is_private !== isPrivate) {
             console.error('Privacy flag mismatch:', { expected: isPrivate, actual: insertData?.is_private });
             throw new Error('Failed to set image privacy correctly');

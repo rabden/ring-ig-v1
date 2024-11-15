@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell } from 'lucide-react';
+import { Bell, BellDot } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useNotifications } from '@/contexts/NotificationContext';
@@ -12,8 +12,16 @@ const NotificationBell = () => {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-7 w-7 p-0 relative md:flex hidden">
-          <Bell className="h-4 w-4" />
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="relative h-9 w-9 p-0 md:flex hidden"
+        >
+          {unreadCount > 0 ? (
+            <BellDot className="h-5 w-5" />
+          ) : (
+            <Bell className="h-5 w-5" />
+          )}
           {unreadCount > 0 && (
             <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center">
               {unreadCount > 9 ? '9+' : unreadCount}
@@ -23,12 +31,7 @@ const NotificationBell = () => {
       </SheetTrigger>
       <SheetContent side="left" className="w-[400px] sm:w-[540px] p-0 m-4 rounded-lg border max-h-[calc(100vh-2rem)]">
         <div className="h-full overflow-hidden flex flex-col">
-          <div className="p-6 border-b">
-            <h2 className="text-lg font-semibold">Notifications</h2>
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            <NotificationList />
-          </div>
+          <NotificationList />
         </div>
       </SheetContent>
     </Sheet>

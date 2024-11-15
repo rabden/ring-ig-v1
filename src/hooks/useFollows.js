@@ -1,55 +1,52 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { toast } from 'sonner';
-import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
-export const useFollows = (targetUserId) => {
-  const { session } = useSupabaseAuth();
-  const currentUserId = session?.user?.id;
+export const useFollows = (userId) => {
   const queryClient = useQueryClient();
 
-  const { data: followData } = useQuery({
-    queryKey: ['follows', currentUserId],
+  const { data: followData = { isFollowing: false, following: [] } } = useQuery({
+    queryKey: ['follows', userId],
     queryFn: async () => {
-      if (!currentUserId) return { isFollowing: false, following: [] };
+      if (!userId) {
+        return { isFollowing: false, following: [] };
+      }
       
-      const { data: followingData } = await supabase
+      const { data: followingData, error } = await supabase
         .from('user_follows')
         .select('following_id')
-        .eq('follower_id', currentUserId);
+        .eq('follower_id', userId);
         
+      if (error) {
+        console.error('Error fetching follows:', error);
+        return { isFollowing: false, following: [] };
+      }
+
       const following = followingData?.map(f => f.following_id) || [];
-      const isFollowing = targetUserId ? following.includes(targetUserId) : false;
+      const isFollowing = userId ? following.includes(userId) : false;
       
       return { isFollowing, following };
     },
-    enabled: !!currentUserId
+    enabled: true
   });
 
-  const { mutate: toggleFollow } = useMutation({
-    mutationFn: async () => {
-      if (!currentUserId || !targetUserId) {
+  const toggleFollow = useMutation({
+    mutationFn: async (targetUserId) => {
+      if (!userId) {
         throw new Error('User must be logged in to follow others');
       }
 
-      if (currentUserId === targetUserId) {
+      if (userId === targetUserId) {
         throw new Error('Users cannot follow themselves');
       }
 
-      const isCurrentlyFollowing = followData?.isFollowing;
-
-      // Get current user's profile for notification
-      const { data: currentUserProfile } = await supabase
-        .from('profiles')
-        .select('display_name, avatar_url')
-        .eq('id', currentUserId)
-        .single();
+      const isCurrentlyFollowing = followData?.following?.includes(targetUserId);
 
       if (isCurrentlyFollowing) {
         const { error } = await supabase
           .from('user_follows')
           .delete()
-          .eq('follower_id', currentUserId)
+          .eq('follower_id', userId)
           .eq('following_id', targetUserId);
 
         if (error) throw error;
@@ -57,50 +54,16 @@ export const useFollows = (targetUserId) => {
         const { error } = await supabase
           .from('user_follows')
           .insert({ 
-            follower_id: currentUserId, 
+            follower_id: userId, 
             following_id: targetUserId 
           });
 
         if (error) throw error;
-
-        // Create notification for the followed user
-        const { error: notificationError } = await supabase
-          .from('notifications')
-          .insert([{
-            user_id: targetUserId,
-            title: 'New Follower',
-            message: `${currentUserProfile?.display_name || 'Someone'} started following you`,
-            image_url: currentUserProfile?.avatar_url || '',
-            link: `/profile/${currentUserId}`,
-            link_names: 'View Profile'
-          }]);
-        
-        if (notificationError) throw notificationError;
-      }
-
-      // Get updated counts after follow/unfollow
-      const { data: updatedProfile } = await supabase
-        .from('profiles')
-        .select('followers_count, following_count')
-        .eq('id', currentUserId)
-        .single();
-
-      if (updatedProfile) {
-        await supabase.auth.updateUser({
-          data: { 
-            followers_count: updatedProfile.followers_count,
-            following_count: updatedProfile.following_count
-          }
-        });
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['follows', currentUserId]);
-      queryClient.invalidateQueries(['user', targetUserId]);
-      queryClient.invalidateQueries(['user', currentUserId]);
-      queryClient.invalidateQueries(['profile', targetUserId]);
-      queryClient.invalidateQueries(['profile', currentUserId]);
-      
+      queryClient.invalidateQueries(['follows', userId]);
+      queryClient.invalidateQueries(['followCounts']);
       toast.success(followData?.isFollowing ? 'Unfollowed successfully' : 'Followed successfully');
     },
     onError: (error) => {
@@ -112,6 +75,6 @@ export const useFollows = (targetUserId) => {
   return { 
     isFollowing: followData?.isFollowing || false, 
     following: followData?.following || [],
-    toggleFollow 
+    toggleFollow: toggleFollow.mutate 
   };
 };

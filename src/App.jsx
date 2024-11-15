@@ -23,7 +23,6 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate minimum loading time of 2.5 seconds
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2500);
