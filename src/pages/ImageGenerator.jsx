@@ -29,6 +29,7 @@ const ImageGenerator = () => {
   const location = useLocation();
   const isRemixRoute = location.pathname.startsWith('/remix/');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [activeTab, setActiveTab] = useState('images');
 
   const {
     isImproving,
@@ -51,7 +52,7 @@ const ImageGenerator = () => {
   const {
     prompt, setPrompt, seed, setSeed, randomizeSeed, setRandomizeSeed,
     width, setWidth, height, setHeight, steps, setSteps,
-    model, setModel, activeTab, setActiveTab, aspectRatio, setAspectRatio,
+    model, setModel, aspectRatio, setAspectRatio,
     useAspectRatio, setUseAspectRatio, quality, setQuality,
     selectedImage, setSelectedImage,
     detailsDialogOpen, setDetailsDialogOpen, fullScreenViewOpen, setFullScreenViewOpen,
@@ -191,6 +192,11 @@ const ImageGenerator = () => {
       }
     }
   }, [remixImage, isRemixRoute]);
+
+  useEffect(() => {
+    // Set initial active tab to 'images' when component mounts
+    setActiveTab('images');
+  }, []); // Empty dependency array ensures this only runs once on mount
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
