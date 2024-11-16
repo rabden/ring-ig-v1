@@ -1,7 +1,6 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { supabase } from '../supabase';
 import { useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
 
 export const AuthContext = createContext();
 
@@ -33,12 +32,10 @@ export const AuthProvider = ({ children }) => {
       if (event === 'SIGNED_IN') {
         setSession(session);
         queryClient.invalidateQueries('user');
-        toast.success('Successfully signed in!');
       } else if (event === 'SIGNED_OUT') {
         setSession(null);
         queryClient.invalidateQueries('user');
         window.localStorage.removeItem('supabase.auth.token');
-        toast.success('Successfully signed out');
       } else if (event === 'TOKEN_REFRESHED') {
         setSession(session);
         queryClient.invalidateQueries('user');
@@ -61,7 +58,6 @@ export const AuthProvider = ({ children }) => {
       window.localStorage.removeItem('supabase.auth.token');
     } catch (error) {
       console.error('Error signing out:', error);
-      toast.error('Failed to sign out');
     }
     setLoading(false);
   };

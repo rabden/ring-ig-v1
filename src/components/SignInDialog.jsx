@@ -15,7 +15,7 @@ const SignInDialog = () => {
       <DialogTrigger asChild>
         <Button variant="outline">Sign In</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] z-[150]">
+      <DialogContent className="sm:max-w-[425px] z-[100]">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">Welcome Back</DialogTitle>
         </DialogHeader>

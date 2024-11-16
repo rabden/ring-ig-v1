@@ -3,20 +3,18 @@ import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useProUser } from '@/hooks/useProUser';
 import { toast } from 'sonner';
 
-export const useImageRemix = (session) => {
+export const useImageRemix = (session, onRemix, setStyle, setActiveTab, onClose) => {
   const { data: styleConfigs } = useStyleConfigs();
   const { data: modelConfigs } = useModelConfigs();
   const { data: isPro = false } = useProUser(session?.user?.id);
 
-  const handleRemix = (image, onRemix, setStyle, setActiveTab, onClose) => {
+  const handleRemix = (image) => {
     if (!session) {
       toast.error('Please sign in to remix images');
       return;
     }
 
-    if (onRemix) {
-      onRemix(image);
-    }
+    onRemix(image);
 
     // Check if the original image was made with a pro style
     const isProStyle = styleConfigs?.[image.style]?.isPremium;
@@ -25,22 +23,17 @@ export const useImageRemix = (session) => {
     // Set style based on NSFW status and pro status
     if (isNsfwModel) {
       // For NSFW models, don't use any style
-      setStyle?.(null);
+      setStyle(null);
     } else if (isProStyle && !isPro) {
       // If it's a pro style and user is not pro, reset to no style
-      setStyle?.(null);
+      setStyle(null);
     } else {
       // Otherwise keep the original style
-      setStyle?.(image.style);
+      setStyle(image.style);
     }
 
-    if (setActiveTab) {
-      setActiveTab('input');
-    }
-    
-    if (onClose) {
-      onClose();
-    }
+    setActiveTab('input');
+    onClose();
   };
 
   return { handleRemix };

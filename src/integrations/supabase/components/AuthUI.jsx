@@ -16,100 +16,53 @@ export const AuthUI = () => {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
-
-    try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (signInError) {
-        if (signInError.message === 'Invalid login credentials') {
-          setError('Invalid email or password. Please try again.');
-        } else {
-          setError(signInError.message);
-        }
-        toast.error('Sign in failed');
-      }
-    } catch (err) {
-      console.error('Sign in error:', err);
-      setError('An unexpected error occurred. Please try again.');
-      toast.error('Sign in failed');
-    } finally {
-      setIsLoading(false);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      console.error('Error signing in:', error.message);
+      setError(error.message);
     }
   };
 
   const handleEmailSignUp = async (e) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long');
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const finalDisplayName = displayName || generateRandomDisplayName();
-      const { error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            display_name: finalDisplayName,
-          },
+    const finalDisplayName = displayName || generateRandomDisplayName();
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          display_name: finalDisplayName,
         },
-      });
-
-      if (signUpError) {
-        setError(signUpError.message);
-        toast.error('Sign up failed');
-      } else {
-        setError('Check your email for the confirmation link.');
-        toast.success('Please check your email to confirm your account');
-      }
-    } catch (err) {
-      console.error('Sign up error:', err);
-      setError('An unexpected error occurred. Please try again.');
-      toast.error('Sign up failed');
-    } finally {
-      setIsLoading(false);
+      },
+    });
+    if (error) {
+      console.error('Error signing up:', error.message);
+      setError(error.message);
+    } else {
+      setError('Check your email for the confirmation link.');
     }
   };
 
   const handleGoogleSignIn = async () => {
     setError('');
-    setIsLoading(true);
-
-    try {
-      const { error: googleError } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: window.location.origin,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
         },
-      });
-
-      if (googleError) {
-        console.error('Error signing in with Google:', googleError.message);
-        toast.error(googleError.message);
-      }
-    } catch (err) {
-      console.error('Google sign in error:', err);
-      toast.error('Failed to sign in with Google');
-    } finally {
-      setIsLoading(false);
+      },
+    });
+    if (error) {
+      console.error('Error signing in with Google:', error.message);
+      toast.error(error.message);
     }
   };
 
@@ -135,7 +88,6 @@ export const AuthUI = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -146,12 +98,9 @@ export const AuthUI = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Sign In'}
-            </Button>
+            <Button type="submit" className="w-full">Sign In</Button>
           </form>
         </TabsContent>
         <TabsContent value="signup">
@@ -164,7 +113,6 @@ export const AuthUI = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -175,8 +123,6 @@ export const AuthUI = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                disabled={isLoading}
-                minLength={6}
               />
             </div>
             <div className="space-y-2">
@@ -187,12 +133,9 @@ export const AuthUI = () => {
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="Enter display name or leave blank for random"
-                disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Signing up...' : 'Sign Up'}
-            </Button>
+            <Button type="submit" className="w-full">Sign Up</Button>
           </form>
         </TabsContent>
       </Tabs>
@@ -204,13 +147,8 @@ export const AuthUI = () => {
           <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
         </div>
       </div>
-      <Button 
-        onClick={handleGoogleSignIn} 
-        variant="outline" 
-        className="w-full"
-        disabled={isLoading}
-      >
-        {isLoading ? 'Connecting...' : 'Sign In with Google'}
+      <Button onClick={handleGoogleSignIn} variant="outline" className="w-full">
+        Sign In with Google
       </Button>
     </div>
   );

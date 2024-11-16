@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { useNotifications } from '@/contexts/NotificationContext';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const NotificationItem = ({ notification }) => {
-  const { markAsRead, deleteNotification } = useNotifications();
+  const { markAsRead, deleteNotification, hideGlobalNotification } = useNotifications();
 
   const handleClick = (e) => {
     e.preventDefault();
@@ -16,54 +16,79 @@ const NotificationItem = ({ notification }) => {
     }
   };
 
-  const handleDelete = async (e) => {
+  const handleHideOrDelete = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    await deleteNotification(notification.id);
+    
+    // If notification has user_id, it's a personal notification
+    // If it doesn't, it's a global notification
+    if (!notification.user_id) {
+      hideGlobalNotification(notification.id);
+    } else {
+      deleteNotification(notification.id);
+    }
   };
+
+  const images = notification.image_url ? notification.image_url.split(',').map(url => url.trim()) : [];
+  const links = notification.link ? notification.link.split(',').map(link => link.trim()) : [];
+  const linkNames = notification.link_names ? notification.link_names.split(',').map(name => name.trim()) : [];
 
   return (
     <div
       className={cn(
-        "relative flex items-start gap-3 p-4 transition-colors hover:bg-accent/50",
-        notification.is_read ? "bg-background" : "bg-accent/20"
+        "relative flex flex-col gap-4 rounded-lg border p-4 transition-colors",
+        notification.is_read ? "bg-background" : "bg-muted"
       )}
       onClick={handleClick}
     >
-      {notification.actor && (
-        <Avatar className="h-8 w-8">
-          <AvatarImage src={notification.actor.avatar_url} alt={notification.actor.display_name} />
-          <AvatarFallback>{notification.actor.display_name?.[0]?.toUpperCase() || '?'}</AvatarFallback>
-        </Avatar>
-      )}
-      <div className="flex-1 min-w-0">
-        <div className="flex justify-between items-start gap-2">
-          <div>
-            <p className="font-medium leading-none">{notification.title}</p>
-            <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              {new Date(notification.created_at).toLocaleDateString()}
-            </p>
-            {notification.link && (
-              <Link
-                to={notification.link}
-                className="text-sm text-primary hover:underline mt-2 inline-block"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {notification.link_names || 'View'}
-              </Link>
-            )}
-          </div>
+      <div className="flex-1 space-y-2">
+        <div className="flex justify-between items-start">
+          <p className="text-sm font-medium leading-none">{notification.title}</p>
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 shrink-0 hover:bg-destructive/10 hover:text-destructive"
-            onClick={handleDelete}
+            className="h-6 w-6 -mt-1 -mr-2"
+            onClick={handleHideOrDelete}
           >
             <X className="h-4 w-4" />
           </Button>
         </div>
+        <p className="text-sm text-muted-foreground">{notification.message}</p>
+        <p className="text-xs text-muted-foreground">
+          {new Date(notification.created_at).toLocaleDateString()}
+        </p>
       </div>
+
+      {images.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {images.map((url, index) => (
+            <div key={index} className="relative">
+              <AspectRatio ratio={1}>
+                <img
+                  src={url}
+                  alt=""
+                  className="rounded-md object-cover w-full h-full hover:opacity-90 transition-opacity"
+                />
+              </AspectRatio>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {links.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {links.map((link, index) => (
+            <Link
+              key={index}
+              to={link}
+              className="text-sm text-primary hover:underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {linkNames[index] || `Link ${index + 1}`}
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
