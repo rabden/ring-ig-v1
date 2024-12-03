@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { X, ArrowRight, Sparkles } from "lucide-react";
+import { X, ArrowRight, Sparkles, Loader } from "lucide-react";
 import { toast } from "sonner";
 
 const PromptInput = ({ 
@@ -57,7 +57,11 @@ const PromptInput = ({
           onClick={onImprove}
           disabled={!value?.length || isImproving}
         >
-          <Sparkles className="h-4 w-4 mr-2" />
+          {isImproving ? (
+            <Loader className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <Sparkles className="h-4 w-4 mr-2" />
+          )}
           Improve
         </Button>
         <Button
