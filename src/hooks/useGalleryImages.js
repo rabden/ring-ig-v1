@@ -80,83 +80,58 @@ export const useGalleryImages = ({
       }
 
       // Handle Inspiration view
-      if (activeView === 'inspiration') {
-        baseQuery = baseQuery
-          .neq('user_id', userId)
-          .eq('is_private', false);
+      baseQuery = baseQuery
+        .neq('user_id', userId)
+        .eq('is_private', false);
 
-        if (nsfwEnabled) {
-          baseQuery = baseQuery.in('model', NSFW_MODELS);
-        } else {
-          baseQuery = baseQuery.not('model', 'in', '(' + NSFW_MODELS.join(',') + ')');
-        }
-
-        const { data: allImages, error } = await baseQuery;
-        
-        if (error) throw error;
-        if (!allImages) return { data: [], nextPage: null };
-
-        // Sort images based on priority
-        const sortByDate = (a, b) => new Date(b.created_at) - new Date(a.created_at);
-
-        // 1. Hot AND Trending images (newest first)
-        const hotAndTrending = allImages
-          .filter(img => img.is_hot && img.is_trending)
-          .sort(sortByDate);
-
-        // 2. Hot images (newest first)
-        const hotOnly = allImages
-          .filter(img => img.is_hot && !img.is_trending)
-          .sort(sortByDate);
-
-        // 3. Trending images (newest first)
-        const trendingOnly = allImages
-          .filter(img => !img.is_hot && img.is_trending)
-          .sort(sortByDate);
-
-        // 4. Images from followed users (newest first)
-        const followedUsersImages = allImages
-          .filter(img => 
-            following?.includes(img.user_id) && 
-            !img.is_hot && 
-            !img.is_trending
-          )
-          .sort(sortByDate);
-
-        // 5. Other images (newest first)
-        const otherImages = allImages
-          .filter(img => 
-            !img.is_hot && 
-            !img.is_trending && 
-            !following?.includes(img.user_id)
-          )
-          .sort(sortByDate);
-
-        // Combine all sorted arrays
-        const sortedImages = [
-          ...hotAndTrending,
-          ...hotOnly,
-          ...trendingOnly,
-          ...followedUsersImages,
-          ...otherImages
-        ];
-
-        // Apply pagination to sorted results
-        const start = pageParam.page * ITEMS_PER_PAGE;
-        const paginatedImages = sortedImages.slice(start, start + ITEMS_PER_PAGE);
-
-        return {
-          data: paginatedImages.map(image => ({
-            ...image,
-            image_url: supabase.storage
-              .from('user-images')
-              .getPublicUrl(image.storage_path).data.publicUrl
-          })),
-          nextPage: paginatedImages.length === ITEMS_PER_PAGE ? { page: pageParam.page + 1 } : undefined
-        };
+      if (nsfwEnabled) {
+        baseQuery = baseQuery.in('model', NSFW_MODELS);
+      } else {
+        baseQuery = baseQuery.not('model', 'in', '(' + NSFW_MODELS.join(',') + ')');
       }
 
-      return { data: [], nextPage: null };
+      const { data: allImages, error } = await baseQuery;
+      
+      if (error) throw error;
+      if (!allImages) return { data: [], nextPage: null };
+
+      // Sort and filter inspiration images
+      const trendingHotImages = allImages.filter(img => img.is_trending || img.is_hot)
+        .sort((a, b) => {
+          if (a.is_hot && a.is_trending && (!b.is_hot || !b.is_trending)) return -1;
+          if (b.is_hot && b.is_trending && (!a.is_hot || !a.is_trending)) return 1;
+          if (a.is_hot && !b.is_hot) return -1;
+          if (b.is_hot && !a.is_hot) return 1;
+          if (a.is_trending && !b.is_trending) return -1;
+          if (b.is_trending && !a.is_trending) return 1;
+          return new Date(b.created_at) - new Date(a.created_at);
+        });
+
+      const followingImages = allImages.filter(img => 
+        following?.includes(img.user_id) && 
+        !trendingHotImages.some(t => t.id === img.id)
+      );
+
+      const otherImages = allImages.filter(img => 
+        !trendingHotImages.some(t => t.id === img.id) && 
+        !followingImages.some(f => f.id === img.id)
+      ).slice(0, 30);
+
+      const sortedImages = [...trendingHotImages, ...followingImages, ...otherImages];
+      
+      // Apply pagination to sorted results
+      const start = pageParam.page * ITEMS_PER_PAGE;
+      const paginatedImages = sortedImages.slice(start, start + ITEMS_PER_PAGE);
+
+      return {
+        data: paginatedImages.map(image => ({
+          ...image,
+          image_url: supabase.storage
+            .from('user-images')
+            .getPublicUrl(image.storage_path).data.publicUrl
+        })),
+        nextPage: paginatedImages.length === ITEMS_PER_PAGE ? { page: pageParam.page + 1 } : undefined
+      };
     },
     getNextPageParam: (lastPage) => lastPage?.nextPage,
     initialPageParam: { page: 0 }
