@@ -1,99 +1,149 @@
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '../integrations/supabase/supabase';
-import { useSupabaseAuth } from '../integrations/supabase/auth';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/supabase';
+import { useFollows } from '@/hooks/useFollows';
 
-export const useGalleryImages = ({ activeView = 'all', page = 1, perPage = 20 }) => {
-  const { user } = useSupabaseAuth();
-  const userId = user?.id;
+const ITEMS_PER_PAGE = 20;
+const NSFW_MODELS = ['nsfwMaster', 'animeNsfw'];
 
-  return useQuery({
-    queryKey: ['gallery-images', activeView, page, userId],
-    queryFn: async () => {
-      let query = supabase
+export const useGalleryImages = ({
+  userId,
+  activeView,
+  nsfwEnabled,
+  showPrivate,
+  activeFilters = {},
+  searchQuery = ''
+}) => {
+  const { following } = useFollows(userId);
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteQuery({
+    queryKey: ['galleryImages', userId, activeView, nsfwEnabled, showPrivate, activeFilters, searchQuery, following],
+    queryFn: async ({ pageParam = { page: 0 } }) => {
+      if (!userId) return { data: [], nextPage: null };
+
+      let baseQuery = supabase
         .from('user_images')
-        .select(`
-          *,
-          profiles:user_id (
-            display_name,
-            avatar_url
-          )
-        `)
-        .eq('is_private', false);
+        .select('*', { count: 'exact' });
 
-      if (activeView === 'inspiration') {
-        if (userId) {
-          query = query.neq('user_id', userId);
+      // Handle MyImages view
+      if (activeView === 'myImages') {
+        // Filter by user's images
+        baseQuery = baseQuery.eq('user_id', userId);
+        
+        // Filter by privacy setting
+        baseQuery = baseQuery.eq('is_private', showPrivate);
+
+        // Apply NSFW filter
+        if (nsfwEnabled) {
+          baseQuery = baseQuery.in('model', NSFW_MODELS);
+        } else {
+          baseQuery = baseQuery.not('model', 'in', '(' + NSFW_MODELS.join(',') + ')');
         }
 
-        // First get hot AND trending images (newest first)
-        const { data: hotAndTrending } = await query
-          .eq('is_hot', true)
-          .eq('is_trending', true)
-          .order('created_at', { ascending: false });
+        // Apply style and model filters
+        if (activeFilters.style) {
+          baseQuery = baseQuery.eq('style', activeFilters.style);
+        }
+        if (activeFilters.model) {
+          baseQuery = baseQuery.eq('model', activeFilters.model);
+        }
 
-        // Then get just hot images (newest first)
-        const { data: hotOnly } = await query
-          .eq('is_hot', true)
-          .eq('is_trending', false)
-          .order('created_at', { ascending: false });
+        // Apply search filter
+        if (searchQuery) {
+          baseQuery = baseQuery.ilike('prompt', `%${searchQuery}%`);
+        }
 
-        // Then get just trending images (newest first)
-        const { data: trendingOnly } = await query
-          .eq('is_hot', false)
-          .eq('is_trending', true)
-          .order('created_at', { ascending: false });
+        // Apply pagination
+        const start = pageParam.page * ITEMS_PER_PAGE;
+        const { data: result, error, count } = await baseQuery
+          .order('created_at', { ascending: false })
+          .range(start, start + ITEMS_PER_PAGE - 1);
 
-        // Get images from followed users (newest first)
-        const { data: followedUsersImages } = await supabase
-          .from('user_images')
-          .select(`
-            *,
-            profiles:user_id (
-              display_name,
-              avatar_url
-            )
-          `)
-          .eq('is_private', false)
-          .in(
-            'user_id',
-            supabase
-              .from('follows')
-              .select('following_id')
-              .eq('follower_id', userId)
-          )
-          .order('created_at', { ascending: false });
-
-        // Get remaining images (newest first)
-        const { data: otherImages } = await query
-          .eq('is_hot', false)
-          .eq('is_trending', false)
-          .order('created_at', { ascending: false });
-
-        // Combine all results in the correct order
-        const allImages = [
-          ...(hotAndTrending || []),
-          ...(hotOnly || []),
-          ...(trendingOnly || []),
-          ...(followedUsersImages || []),
-          ...(otherImages || [])
-        ];
+        if (error) throw error;
 
         return {
-          data: allImages,
-          count: allImages.length
+          data: result?.map(image => ({
+            ...image,
+            image_url: supabase.storage
+              .from('user-images')
+              .getPublicUrl(image.storage_path).data.publicUrl
+          })) || [],
+          nextPage: (result?.length === ITEMS_PER_PAGE && count > start + ITEMS_PER_PAGE) 
+            ? { page: pageParam.page + 1 } 
+            : undefined
         };
       }
 
-      const { data, error, count } = await query;
-      
-      if (error) {
-        throw error;
+      // Handle Inspiration view
+      baseQuery = baseQuery
+        .neq('user_id', userId)
+        .eq('is_private', false);
+
+      if (nsfwEnabled) {
+        baseQuery = baseQuery.in('model', NSFW_MODELS);
+      } else {
+        baseQuery = baseQuery.not('model', 'in', '(' + NSFW_MODELS.join(',') + ')');
       }
 
+      const { data: allImages, error } = await baseQuery;
+      
+      if (error) throw error;
+      if (!allImages) return { data: [], nextPage: null };
+
+      // Sort and filter inspiration images
+      const trendingHotImages = allImages.filter(img => img.is_trending || img.is_hot)
+        .sort((a, b) => {
+          if (a.is_hot && a.is_trending && (!b.is_hot || !b.is_trending)) return -1;
+          if (b.is_hot && b.is_trending && (!a.is_hot || !a.is_trending)) return 1;
+          if (a.is_hot && !b.is_hot) return -1;
+          if (b.is_hot && !a.is_hot) return 1;
+          if (a.is_trending && !b.is_trending) return -1;
+          if (b.is_trending && !a.is_trending) return 1;
+          return new Date(b.created_at) - new Date(a.created_at);
+        });
+
+      const followingImages = allImages.filter(img => 
+        following?.includes(img.user_id) && 
+        !trendingHotImages.some(t => t.id === img.id)
+      );
+
+      const otherImages = allImages.filter(img => 
+        !trendingHotImages.some(t => t.id === img.id) && 
+        !followingImages.some(f => f.id === img.id)
+      ).slice(0, 30);
+
+      const sortedImages = [...trendingHotImages, ...followingImages, ...otherImages];
+      
+      // Apply pagination to sorted results
+      const start = pageParam.page * ITEMS_PER_PAGE;
+      const paginatedImages = sortedImages.slice(start, start + ITEMS_PER_PAGE);
+
       return {
-        data: data || [],
-        count: count || 0
+        data: paginatedImages.map(image => ({
+          ...image,
+          image_url: supabase.storage
+            .from('user-images')
+            .getPublicUrl(image.storage_path).data.publicUrl
+        })),
+        nextPage: paginatedImages.length === ITEMS_PER_PAGE ? { page: pageParam.page + 1 } : undefined
       };
-    }
+    },
+    getNextPageParam: (lastPage) => lastPage?.nextPage,
+    initialPageParam: { page: 0 }
   });
+
+  const images = data?.pages?.flatMap(page => page.data) || [];
+
+  return { 
+    images, 
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  };
 };
