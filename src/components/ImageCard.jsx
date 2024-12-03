@@ -17,7 +17,7 @@ import ImageCardMedia from './image-card/ImageCardMedia';
 import ImageCardBadges from './image-card/ImageCardBadges';
 
 const ImageCard = ({ 
-  image, 
+  image = {}, // Provide default empty object
   onImageClick = () => {}, 
   onDiscard = () => {}, 
   onRemix = () => {}, 
@@ -36,6 +36,11 @@ const ImageCard = ({
   const { data: modelConfigs } = useModelConfigs();
   const { data: styleConfigs } = useStyleConfigs();
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
+
+  // Ensure image object exists and has required properties
+  if (!image || !image.id) {
+    return null;
+  }
 
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['imageLikes', image.id],
@@ -62,14 +67,18 @@ const ImageCard = ({
   const handleRemixClick = () => {
     if (typeof onRemix === 'function' && typeof setStyle === 'function') {
       onRemix(image);
-      setStyle(image.style);
+      setStyle(image.style || null); // Provide default null if style is undefined
       setActiveTab('input');
     }
   };
 
   const handleDownload = async () => {
+    if (!image.storage_path) {
+      toast.error('Image not available');
+      return;
+    }
     const imageUrl = supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl;
-    await downloadImage(imageUrl, image.prompt);
+    await downloadImage(imageUrl, image.prompt || 'image');
   };
 
   const handleDoubleClick = (e) => {
@@ -97,7 +106,7 @@ const ImageCard = ({
   if (isDeleted) return null;
 
   const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
-  const modelName = modelConfigs?.[image.model]?.name || image.model;
+  const modelName = modelConfigs?.[image.model]?.name || image.model || 'Unknown';
   const styleName = styleConfigs?.[image.style]?.name || 'General';
 
   return (
@@ -123,7 +132,7 @@ const ImageCard = ({
           </CardContent>
         </Card>
         <div className="mt-1 flex items-center justify-between">
-          <p className="text-sm truncate w-[70%]">{getCleanPrompt(image.prompt, image.style)}</p>
+          <p className="text-sm truncate w-[70%]">{getCleanPrompt(image.prompt || '', image.style)}</p>
           <ImageCardActions
             image={image}
             isMobile={isMobile}
