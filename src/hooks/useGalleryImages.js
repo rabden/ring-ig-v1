@@ -82,7 +82,8 @@ export const useGalleryImages = ({
       // Handle Inspiration view
       baseQuery = baseQuery
         .neq('user_id', userId)
-        .eq('is_private', false);
+        .eq('is_private', false)
+        .order('created_at', { ascending: false }); // Add default latest-first sorting
 
       if (nsfwEnabled) {
         baseQuery = baseQuery.in('model', NSFW_MODELS);
@@ -95,29 +96,43 @@ export const useGalleryImages = ({
       if (error) throw error;
       if (!allImages) return { data: [], nextPage: null };
 
-      // Sort and filter inspiration images
-      const trendingHotImages = allImages.filter(img => img.is_trending || img.is_hot)
-        .sort((a, b) => {
-          if (a.is_hot && a.is_trending && (!b.is_hot || !b.is_trending)) return -1;
-          if (b.is_hot && b.is_trending && (!a.is_hot || !a.is_trending)) return 1;
-          if (a.is_hot && !b.is_hot) return -1;
-          if (b.is_hot && !a.is_hot) return 1;
-          if (a.is_trending && !b.is_trending) return -1;
-          if (b.is_trending && !a.is_trending) return 1;
-          return new Date(b.created_at) - new Date(a.created_at);
-        });
+      // Sort inspiration images with priority order while maintaining latest-first within each category
+      const trendingHotImages = allImages
+        .filter(img => img.is_trending && img.is_hot)
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-      const followingImages = allImages.filter(img => 
-        following?.includes(img.user_id) && 
-        !trendingHotImages.some(t => t.id === img.id)
-      );
+      const hotOnlyImages = allImages
+        .filter(img => !img.is_trending && img.is_hot)
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-      const otherImages = allImages.filter(img => 
-        !trendingHotImages.some(t => t.id === img.id) && 
-        !followingImages.some(f => f.id === img.id)
-      ).slice(0, 30);
+      const trendingOnlyImages = allImages
+        .filter(img => img.is_trending && !img.is_hot)
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-      const sortedImages = [...trendingHotImages, ...followingImages, ...otherImages];
+      const followingImages = allImages
+        .filter(img => 
+          following?.includes(img.user_id) && 
+          !img.is_trending && 
+          !img.is_hot
+        )
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+      const otherImages = allImages
+        .filter(img => 
+          !img.is_trending && 
+          !img.is_hot && 
+          !following?.includes(img.user_id)
+        )
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .slice(0, 30);
+
+      const sortedImages = [
+        ...trendingHotImages,
+        ...hotOnlyImages,
+        ...trendingOnlyImages,
+        ...followingImages,
+        ...otherImages
+      ];
       
       // Apply pagination to sorted results
       const start = pageParam.page * ITEMS_PER_PAGE;
