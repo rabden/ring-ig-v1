@@ -23,7 +23,6 @@ import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { toast } from 'sonner';
-import ImageGeneratorContent from '@/components/image-generator/ImageGeneratorContent';
 
 const ImageGenerator = () => {
   const { imageId } = useParams();
@@ -194,39 +193,113 @@ const ImageGenerator = () => {
     }
   }, [remixImage, isRemixRoute]);
 
+  useEffect(() => {
+    // Set initial active tab to 'images' when component mounts
+    setActiveTab('images');
+  }, []); // Empty dependency array ensures this only runs once on mount
+
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground relative">
-      {!session && <AuthOverlay />}
-      <ImageGeneratorContent
-        session={session}
-        credits={credits}
-        bonusCredits={bonusCredits}
-        activeView={activeView}
-        setActiveView={setActiveView}
-        generatingImages={generatingImages}
-        activeFilters={activeFilters}
-        handleFilterChange={handleFilterChange}
-        handleRemoveFilter={handleRemoveFilter}
-        handleSearch={handleSearch}
-        nsfwEnabled={nsfwEnabled}
-        showPrivate={showPrivate}
-        setShowPrivate={setShowPrivate}
-        isHeaderVisible={isHeaderVisible}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        handleGenerateImage={handleGenerateImage}
-        handleImageClick={handleImageClick}
-        handleDownload={handleDownload}
-        handleDiscard={handleDiscard}
-        handleRemix={handleRemix}
-        handleViewDetails={handleViewDetails}
-        modelConfigs={modelConfigs}
-        searchQuery={searchQuery}
-        setStyle={setStyle}
-        // Pass all the image generation related props
-        {...useImageGeneratorState()}
-        isPro={isPro}
-      />
+    <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
+      <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
+        {session && (
+          <>
+            <DesktopHeader
+              user={session.user}
+              credits={credits}
+              bonusCredits={bonusCredits}
+              activeView={activeView}
+              setActiveView={setActiveView}
+              generatingImages={generatingImages}
+              activeFilters={activeFilters}
+              onFilterChange={handleFilterChange}
+              onRemoveFilter={handleRemoveFilter}
+              onSearch={handleSearch}
+              nsfwEnabled={nsfwEnabled}
+              showPrivate={showPrivate}
+              onTogglePrivate={() => setShowPrivate(!showPrivate)}
+            />
+            <MobileHeader
+              activeFilters={activeFilters}
+              onFilterChange={handleFilterChange}
+              onRemoveFilter={handleRemoveFilter}
+              onSearch={handleSearch}
+              isVisible={isHeaderVisible}
+              nsfwEnabled={nsfwEnabled}
+              showPrivate={showPrivate}
+              onTogglePrivate={() => setShowPrivate(!showPrivate)}
+              activeView={activeView}
+            />
+          </>
+        )}
+
+        <div className="md:mt-16 mt-12">
+          <ImageGallery
+            userId={session?.user?.id}
+            onImageClick={handleImageClick}
+            onDownload={handleDownload}
+            onDiscard={handleDiscard}
+            onRemix={handleRemix}
+            onViewDetails={handleViewDetails}
+            activeView={activeView}
+            generatingImages={generatingImages}
+            nsfwEnabled={nsfwEnabled}
+            modelConfigs={modelConfigs}
+            activeFilters={activeFilters}
+            searchQuery={searchQuery}
+            setActiveTab={setActiveTab}
+            setStyle={setStyle}
+            showPrivate={showPrivate}
+          />
+        </div>
+      </div>
+
+      <div className={`w-full md:w-[350px] bg-card text-card-foreground p-4 md:p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
+        {!session && (
+          <div className="absolute inset-0 z-10">
+            <AuthOverlay />
+          </div>
+        )}
+        <ImageGeneratorSettings
+          prompt={prompt}
+          setPrompt={setPrompt}
+          handlePromptKeyDown={handlePromptKeyDown}
+          generateImage={handleGenerateImage}
+          model={model}
+          setModel={handleModelChange}
+          seed={seed}
+          setSeed={setSeed}
+          randomizeSeed={randomizeSeed}
+          setRandomizeSeed={setRandomizeSeed}
+          quality={quality}
+          setQuality={setQuality}
+          useAspectRatio={useAspectRatio}
+          setUseAspectRatio={setUseAspectRatio}
+          aspectRatio={aspectRatio}
+          setAspectRatio={setAspectRatio}
+          width={width}
+          setWidth={setWidth}
+          height={height}
+          setHeight={setHeight}
+          session={session}
+          credits={credits}
+          bonusCredits={bonusCredits}
+          nsfwEnabled={nsfwEnabled}
+          setNsfwEnabled={setNsfwEnabled}
+          style={style}
+          setStyle={setStyle}
+          steps={steps}
+          setSteps={setSteps}
+          proMode={isPro}
+          modelConfigs={modelConfigs}
+          isPrivate={isPrivate}
+          setIsPrivate={setIsPrivate}
+          imageCount={imageCount}
+          setImageCount={setImageCount}
+          isImproving={isImproving}
+          setIsImproving={setIsImproving}
+          isGenerating={isGenerating}
+        />
+      </div>
 
       <MobileNotificationsMenu activeTab={activeTab} />
       <MobileProfileMenu 
