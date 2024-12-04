@@ -111,6 +111,13 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
   const { data: isPro } = useProUser(session?.user?.id);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  const handleNavigation = (tab, view) => {
+    setActiveTab(tab);
+    if (view) {
+      setActiveView(view);
+    }
+  };
+
   return (
     <>
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/30 md:hidden z-50">
@@ -118,30 +125,24 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
           <NavButton
             icon={Image}
             isActive={activeTab === 'images' && activeView === 'myImages'}
-            onClick={() => {
-              setActiveTab('images');
-              setActiveView('myImages');
-            }}
+            onClick={() => handleNavigation('images', 'myImages')}
           />
           <NavButton
             icon={Sparkles}
             isActive={activeTab === 'images' && activeView === 'inspiration'}
-            onClick={() => {
-              setActiveTab('images');
-              setActiveView('inspiration');
-            }}
+            onClick={() => handleNavigation('images', 'inspiration')}
           />
           <NavButton
             icon={Plus}
             isActive={activeTab === 'input'}
-            onClick={() => setActiveTab('input')}
+            onClick={() => handleNavigation('input')}
             onLongPress={() => setDrawerOpen(true)}
             badge={generatingImages.length}
           />
           <NavButton
             icon={Bell}
             isActive={activeTab === 'notifications'}
-            onClick={() => setActiveTab('notifications')}
+            onClick={() => handleNavigation('notifications')}
           >
             <div className="relative">
               <Bell size={20} className={cn(
@@ -158,7 +159,7 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
           <NavButton
             icon={User}
             isActive={activeTab === 'profile'}
-            onClick={() => setActiveTab('profile')}
+            onClick={() => handleNavigation('profile')}
           >
             {session ? (
               <UserAvatar session={session} isPro={isPro} />
