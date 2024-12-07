@@ -7,7 +7,6 @@ import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { getCleanPrompt } from '@/utils/promptUtils';
 import TruncatablePrompt from './TruncatablePrompt';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import { useImageRemix } from '@/hooks/useImageRemix';
@@ -65,7 +64,7 @@ const MobileImageDrawer = ({
   });
 
   const handleCopyPrompt = async () => {
-    await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
+    await navigator.clipboard.writeText(image.user_prompt || image.prompt);
     setCopyIcon('check');
     setTimeout(() => setCopyIcon('copy'), 1500);
   };
@@ -102,7 +101,6 @@ const MobileImageDrawer = ({
 
   const detailItems = [
     { label: 'Model', value: modelConfigs?.[image.model]?.name || image.model },
-    { label: 'Style', value: styleConfigs?.[image.style]?.name || 'General' },
     { label: 'Size', value: `${image.width}x${image.height}` },
     { label: 'Quality', value: image.quality },
     { label: 'Seed', value: image.seed },
@@ -166,7 +164,7 @@ const MobileImageDrawer = ({
                 </Button>
               </div>
             </div>
-            <TruncatablePrompt prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)} />
+            <TruncatablePrompt prompt={image.user_prompt || image.prompt} />
           </div>
 
           <div className="mt-4">
