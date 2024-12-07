@@ -6,11 +6,10 @@ import { useQuery } from '@tanstack/react-query';
 import { downloadImage } from '@/utils/downloadUtils';
 import ImageCardActions from './ImageCardActions';
 import { supabase } from '@/integrations/supabase/supabase';
-import MobileImageDrawer from './MobileImageDrawer';
+import MobileImageView from './MobileImageView';
 import ImageDetailsDialog from './ImageDetailsDialog';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { handleImageDiscard } from '@/utils/discardUtils';
-import { toast } from 'sonner';
 import ImageCardMedia from './image-card/ImageCardMedia';
 import ImageCardBadges from './image-card/ImageCardBadges';
 
@@ -25,7 +24,7 @@ const ImageCard = ({
   onToggleLike = () => {},
   setActiveTab,
 }) => {
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [mobileViewOpen, setMobileViewOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -48,7 +47,7 @@ const ImageCard = ({
   const handleImageClick = (e) => {
     e.preventDefault();
     if (isMobileDevice) {
-      setDrawerOpen(true);
+      setMobileViewOpen(true);
     } else {
       onImageClick(image);
     }
@@ -132,16 +131,16 @@ const ImageCard = ({
       </div>
 
       {isMobileDevice && (
-        <MobileImageDrawer
-          open={drawerOpen}
-          onOpenChange={setDrawerOpen}
+        <MobileImageView
           image={image}
-          showFullImage={true}
+          onClose={() => setMobileViewOpen(false)}
           onDownload={handleDownload}
           onDiscard={handleDiscard}
           onRemix={handleRemixClick}
           isOwner={image.user_id === userId}
           setActiveTab={setActiveTab}
+          showFullImage={true}
+          isOpen={mobileViewOpen}
         />
       )}
 

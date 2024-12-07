@@ -44,10 +44,12 @@ const ImageCardActions = ({
 
   return (
     <div className="flex items-center gap-1">
-      <div className="flex items-center gap-1">
-        <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
-        <span className="text-xs text-muted-foreground">{likeCount}</span>
-      </div>
+      {session && (
+        <div className="flex items-center gap-1">
+          <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
+          <span className="text-xs text-muted-foreground">{likeCount}</span>
+        </div>
+      )}
       {isMobile ? (
         <Button variant="ghost" className="h-6 w-6 p-0" onClick={handleMoreClick}>
           <MoreVertical className="h-4 w-4" />
@@ -63,14 +65,16 @@ const ImageCardActions = ({
             <DropdownMenuItem onClick={onDownload}>
               Download
             </DropdownMenuItem>
-            {image.user_id === userId && (
+            {session && image.user_id === userId && (
               <DropdownMenuItem onClick={handleDiscard}>
                 Discard
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem onClick={() => handleRemix(image)}>
-              Remix
-            </DropdownMenuItem>
+            {session && (
+              <DropdownMenuItem onClick={() => handleRemix(image)}>
+                Remix
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={handleViewDetails}>
               View Details
             </DropdownMenuItem>

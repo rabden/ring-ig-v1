@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Copy, Share2, Check } from "lucide-react"
 import { useModelConfigs } from '@/hooks/useModelConfigs'
+import { format } from 'date-fns'
 
 const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
   const { data: modelConfigs } = useModelConfigs();
@@ -23,6 +24,7 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
     { label: "Size", value: `${image.width}x${image.height}` },
     { label: "Aspect Ratio", value: image.aspect_ratio },
     { label: "Quality", value: image.quality },
+    { label: "Created", value: format(new Date(image.created_at), 'MMM d, yyyy h:mm a') }
   ];
 
   const handleCopyPrompt = async () => {

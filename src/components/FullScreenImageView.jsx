@@ -15,6 +15,7 @@ import { handleImageDiscard } from '@/utils/discardUtils';
 import { useImageRemix } from '@/hooks/useImageRemix';
 import HeartAnimation from './animations/HeartAnimation';
 import ImageOwnerHeader from './image-view/ImageOwnerHeader';
+import { format } from 'date-fns';
 
 const FullScreenImageView = ({ 
   image, 
@@ -91,6 +92,7 @@ const FullScreenImageView = ({
     { label: "Size", value: `${image.width}x${image.height}` },
     { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
     { label: "Quality", value: image.quality },
+    { label: "Created", value: format(new Date(image.created_at), 'MMM d, yyyy h:mm a') }
   ] : [];
 
   const handleDoubleClick = (e) => {

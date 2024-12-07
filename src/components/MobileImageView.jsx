@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Download, Trash2, Wand2, Copy, Share2, Check } from "lucide-react";
+import { Download, Trash2, Wand2, Copy, Share2, Check, ArrowLeft } from "lucide-react";
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
@@ -14,6 +14,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import HeartAnimation from './animations/HeartAnimation';
 import { useLikes } from '@/hooks/useLikes';
 import ImageOwnerHeader from './image-view/ImageOwnerHeader';
+import { format } from 'date-fns';
 
 const MobileImageView = ({ 
   image, 
@@ -102,12 +103,21 @@ const MobileImageView = ({
     { label: 'Size', value: `${image.width}x${image.height}` },
     { label: 'Quality', value: image.quality },
     { label: 'Seed', value: image.seed },
-    { label: 'Aspect Ratio', value: image.aspect_ratio }
+    { label: 'Aspect Ratio', value: image.aspect_ratio },
+    { label: 'Created', value: format(new Date(image.created_at), 'MMM d, yyyy h:mm a') }
   ];
 
   return (
     <div className="min-h-screen bg-background">
-      <ScrollArea className="h-screen">
+      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b">
+        <div className="flex items-center p-4">
+          <Button variant="ghost" size="icon" onClick={onClose} className="mr-2">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-lg font-semibold">Image Details</h1>
+        </div>
+      </div>
+      <ScrollArea className="h-[calc(100vh-64px)]">
         <div className="p-4 space-y-6">
           {showFullImage && (
             <div className="relative rounded-lg overflow-hidden mb-6">
