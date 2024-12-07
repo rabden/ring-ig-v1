@@ -1,5 +1,4 @@
 import { qualityOptions, aspectRatios, findClosestAspectRatio } from '@/utils/imageConfigs';
-import { supabase } from '@/integrations/supabase/supabase';
 
 export const makeDivisibleBy16 = (num) => Math.floor(num / 16) * 16;
 
@@ -41,10 +40,4 @@ export const getModifiedPrompt = async (prompt, model, modelConfigs) => {
   }
   
   return prompt + (modelConfig?.promptSuffix || '');
-};
-
-export const getOptimizedImageUrl = (storagePath, options = {}) => {
-  const { width = 512, quality = 60 } = options;
-  const publicUrl = supabase.storage.from('user-images').getPublicUrl(storagePath).data.publicUrl;
-  return `${publicUrl}?width=${width}&quality=${quality}`;
 };

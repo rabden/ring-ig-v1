@@ -1,116 +1,134 @@
-import React, { useEffect, useState } from 'react';
-import { useInView } from 'react-intersection-observer';
+import React, { useRef, useCallback } from 'react';
+import Masonry from 'react-masonry-css';
+import SkeletonImageCard from './SkeletonImageCard';
 import ImageCard from './ImageCard';
-import { SkeletonImageGrid } from './image-card/SkeletonImageCard';
-import { useGalleryImages } from '@/hooks/useGalleryImages';
+import { useLikes } from '@/hooks/useLikes';
 import NoResults from './NoResults';
+import { useGalleryImages } from '@/hooks/useGalleryImages';
 
-const REVEAL_INTERVAL = 150; // ms between each image reveal
+const breakpointColumnsObj = {
+  default: 4,
+  1100: 3,
+  700: 2,
+  500: 2
+};
 
-const ImageGallery = ({
-  userId,
-  onImageClick,
-  onDownload,
-  onDiscard,
-  onRemix,
-  activeView,
+const ImageGallery = ({ 
+  userId, 
+  onImageClick, 
+  onDownload, 
+  onDiscard, 
+  onRemix, 
+  onViewDetails, 
+  activeView, 
+  generatingImages = [], 
   nsfwEnabled,
-  activeFilters,
-  searchQuery,
+  activeFilters = {},
+  searchQuery = '',
+  setActiveTab,
+  setStyle,
+  style,
   showPrivate,
-  isLiked,
-  onToggleLike,
-  setActiveTab
+  profileUserId
 }) => {
-  const { ref: loadMoreRef, inView } = useInView();
-  const [visibleCount, setVisibleCount] = useState(0);
-  const [allImages, setAllImages] = useState([]);
-
-  const {
-    data,
+  const { userLikes, toggleLike } = useLikes(userId);
+  const isMobile = window.innerWidth <= 768;
+  
+  const { 
+    images, 
     isLoading,
-    isFetchingNextPage,
+    fetchNextPage,
     hasNextPage,
-    fetchNextPage
+    isFetchingNextPage 
   } = useGalleryImages({
-    userId,
+    userId: profileUserId || userId,
     activeView,
     nsfwEnabled,
+    showPrivate,
     activeFilters,
-    searchQuery,
-    showPrivate
+    searchQuery
   });
 
-  // Update allImages when new data arrives
-  useEffect(() => {
-    if (data?.pages) {
-      const newImages = data.pages.flatMap(page => page.images) || [];
-      setAllImages(newImages);
-      // If this is the first batch, start revealing images
-      if (visibleCount === 0) {
-        setVisibleCount(1);
+  const observer = useRef();
+  const lastImageRef = useCallback(node => {
+    if (isLoading || isFetchingNextPage) return;
+    
+    if (observer.current) observer.current.disconnect();
+    
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasNextPage) {
+        fetchNextPage();
       }
+    });
+    
+    if (node) observer.current.observe(node);
+  }, [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage]);
+
+  const handleMobileMoreClick = (image) => {
+    if (isMobile) {
+      onViewDetails(image);
     }
-  }, [data]);
+  };
 
-  // Gradually reveal images
-  useEffect(() => {
-    if (visibleCount < allImages.length) {
-      const timer = setTimeout(() => {
-        setVisibleCount(prev => prev + 1);
-      }, REVEAL_INTERVAL);
-      return () => clearTimeout(timer);
+  const renderContent = () => {
+    if (isLoading && !images.length) {
+      return Array.from({ length: 8 }).map((_, index) => (
+        <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
+      ));
     }
-  }, [visibleCount, allImages.length]);
-
-  // Load more when scrolling near bottom
-  useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
+    
+    if (!images || images.length === 0) {
+      return [<NoResults key="no-results" />];
     }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-  if (isLoading) {
-    return <SkeletonImageGrid />;
-  }
-
-  if (allImages.length === 0) {
-    return <NoResults />;
-  }
-
-  const visibleImages = allImages.slice(0, visibleCount);
-  const remainingInBatch = allImages.length - visibleCount;
+    
+    // Filter images based on privacy setting
+    const filteredImages = images.filter(img => {
+      if (activeView === 'myImages') {
+        return showPrivate ? img.is_private : !img.is_private;
+      }
+      return !img.is_private;
+    });
+    
+    return filteredImages.map((image, index) => (
+      <div
+        key={image.id}
+        ref={index === filteredImages.length - 1 ? lastImageRef : null}
+      >
+        <ImageCard
+          image={image}
+          onImageClick={() => onImageClick(image)}
+          onDownload={onDownload}
+          onDiscard={onDiscard}
+          onRemix={onRemix}
+          onViewDetails={onViewDetails}
+          onMoreClick={handleMobileMoreClick}
+          userId={userId}
+          isMobile={isMobile}
+          isLiked={userLikes.includes(image.id)}
+          onToggleLike={toggleLike}
+          setActiveTab={setActiveTab}
+          setStyle={setStyle}
+          style={style}
+        />
+      </div>
+    ));
+  };
 
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {visibleImages.map((image) => (
-          <ImageCard
-            key={image.id}
-            image={image}
-            onImageClick={onImageClick}
-            onDownload={onDownload}
-            onDiscard={onDiscard}
-            onRemix={onRemix}
-            userId={userId}
-            isLiked={isLiked}
-            onToggleLike={onToggleLike}
-            setActiveTab={setActiveTab}
-          />
-        ))}
-        {remainingInBatch > 0 && Array(Math.min(remainingInBatch, 8))
-          .fill(null)
-          .map((_, index) => (
-            <div key={`skeleton-${index}`} className="animate-fade-in">
-              <SkeletonImageGrid />
-            </div>
-          ))}
-      </div>
-      
-      {isFetchingNextPage && <SkeletonImageGrid />}
-      
-      <div ref={loadMoreRef} className="h-4" />
-    </div>
+    <>
+      <Masonry
+        breakpointCols={breakpointColumnsObj}
+        className="flex w-auto md:px-2 -mx-1 md:mx-0"
+        columnClassName="bg-clip-padding px-1 md:px-2"
+      >
+        {renderContent()}
+      </Masonry>
+      {isFetchingNextPage && (
+        <div className="flex justify-center my-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      )}
+    </>
   );
 };
 
