@@ -33,9 +33,9 @@ export const modelConfig = {
     promptSuffix: null
   },
   preLar: {
-    name: "Ring.1 Pre-lar",
+    name: "Ultra",
     category: "General",
-    apiUrl: "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large",
+    apiUrl: "https://api-inference.huggingface.co/models/strangerzonehf/Flux-Ultimate-LoRA-Collection",
     inferenceSteps: [30],
     defaultStep: 30,
     qualityLimits: ["SD", "HD"],
