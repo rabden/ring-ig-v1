@@ -1,7 +1,6 @@
 import React from 'react';
 import ProfileMenu from '../ProfileMenu';
 import ActionButtons from '../ActionButtons';
-import FilterMenu from '../filters/FilterMenu';
 import SearchBar from '../search/SearchBar';
 import NotificationBell from '../notifications/NotificationBell';
 import PrivateFilterButton from '../filters/PrivateFilterButton';
@@ -13,11 +12,7 @@ const DesktopHeader = ({
   activeView, 
   setActiveView, 
   generatingImages,
-  activeFilters,
-  onFilterChange,
-  onRemoveFilter,
   onSearch,
-  nsfwEnabled,
   showPrivate,
   onTogglePrivate
 }) => {
@@ -44,14 +39,6 @@ const DesktopHeader = ({
             <PrivateFilterButton
               showPrivate={showPrivate}
               onToggle={onTogglePrivate}
-            />
-          )}
-          {!nsfwEnabled && (
-            <FilterMenu
-              activeFilters={activeFilters}
-              onFilterChange={onFilterChange}
-              onRemoveFilter={onRemoveFilter}
-              nsfwEnabled={nsfwEnabled}
             />
           )}
           <SearchBar onSearch={onSearch} />

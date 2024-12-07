@@ -1,15 +1,10 @@
 import React from 'react';
-import FilterMenu from '../filters/FilterMenu';
 import SearchBar from '../search/SearchBar';
 import PrivateFilterButton from '../filters/PrivateFilterButton';
 
 const MobileHeader = ({ 
-  activeFilters,
-  onFilterChange,
-  onRemoveFilter,
   onSearch,
   isVisible,
-  nsfwEnabled,
   showPrivate,
   onTogglePrivate,
   activeView
@@ -21,14 +16,6 @@ const MobileHeader = ({
           <PrivateFilterButton
             showPrivate={showPrivate}
             onToggle={onTogglePrivate}
-          />
-        )}
-        {!nsfwEnabled && (
-          <FilterMenu
-            activeFilters={activeFilters}
-            onFilterChange={onFilterChange}
-            onRemoveFilter={onRemoveFilter}
-            nsfwEnabled={nsfwEnabled}
           />
         )}
         <SearchBar onSearch={onSearch} />
