@@ -1,11 +1,12 @@
 import React, { memo, useState, useRef, useEffect } from 'react';
 import { Image, Plus, Sparkles, Bell, User } from 'lucide-react';
 import { cn } from "@/lib/utils";
-import NotificationList from './notifications/NotificationList';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useProUser } from '@/hooks/useProUser';
 import GeneratingImagesDrawer from './GeneratingImagesDrawer';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import NotificationList from './notifications/NotificationList';
 
 const UserAvatar = memo(({ session, isPro }) => (
   <div className={`rounded-full ${isPro ? 'p-[2px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500' : ''}`}>
@@ -18,7 +19,7 @@ const UserAvatar = memo(({ session, isPro }) => (
 
 UserAvatar.displayName = 'UserAvatar';
 
-const NavButton = memo(({ icon: Icon, isActive, onClick, children, badge, onLongPress }) => {
+const NavButton = memo(({ icon: Icon, isActive, onClick, children, badge, onLongPress, asChild }) => {
   const [isPressed, setIsPressed] = useState(false);
   const pressTimer = useRef(null);
   const touchStartTime = useRef(0);
@@ -66,8 +67,10 @@ const NavButton = memo(({ icon: Icon, isActive, onClick, children, badge, onLong
     };
   }, []);
 
+  const ButtonComponent = asChild ? 'div' : 'button';
+
   return (
-    <button
+    <ButtonComponent
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -100,7 +103,7 @@ const NavButton = memo(({ icon: Icon, isActive, onClick, children, badge, onLong
           )}
         </>
       )}
-    </button>
+    </ButtonComponent>
   );
 });
 
@@ -110,6 +113,7 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
   const { unreadCount } = useNotifications();
   const { data: isPro } = useProUser(session?.user?.id);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   return (
     <>
@@ -138,23 +142,45 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
             onLongPress={() => setDrawerOpen(true)}
             badge={generatingImages.length}
           />
-          <NavButton
-            icon={Bell}
-            isActive={activeTab === 'notifications'}
-            onClick={() => setActiveTab('notifications')}
-          >
-            <div className="relative">
-              <Bell size={20} className={cn(
-                "transition-transform duration-200",
-                activeTab === 'notifications' ? "scale-100" : "scale-90 group-hover:scale-100"
-              )} />
-              {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center">
-                  {unreadCount > 9 ? '9+' : unreadCount}
-                </span>
-              )}
-            </div>
-          </NavButton>
+          <Sheet open={notificationsOpen} onOpenChange={setNotificationsOpen}>
+            <SheetTrigger asChild>
+              <NavButton
+                icon={Bell}
+                isActive={activeTab === 'notifications'}
+                asChild
+              >
+                <div className="relative">
+                  <Bell size={20} className={cn(
+                    "transition-transform duration-200",
+                    activeTab === 'notifications' ? "scale-100" : "scale-90 group-hover:scale-100"
+                  )} />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </div>
+              </NavButton>
+            </SheetTrigger>
+            <SheetContent 
+              side="left" 
+              className="w-full sm:w-[380px] p-0 m-4 rounded-lg border bg-background/80 backdrop-blur-xl"
+            >
+              <SheetHeader className="p-4 border-b">
+                <div className="flex items-center justify-between">
+                  <SheetTitle className="text-lg font-semibold">
+                    Notifications
+                    {unreadCount > 0 && (
+                      <span className="ml-2 text-sm text-muted-foreground">
+                        ({unreadCount} new)
+                      </span>
+                    )}
+                  </SheetTitle>
+                </div>
+              </SheetHeader>
+              <NotificationList />
+            </SheetContent>
+          </Sheet>
           <NavButton
             icon={User}
             isActive={activeTab === 'profile'}

@@ -2,12 +2,10 @@ import React from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNotifications } from '@/contexts/NotificationContext';
 import NotificationItem from './NotificationItem';
-import { Button } from "@/components/ui/button";
-import { Check, Bell } from 'lucide-react';
+import { Bell } from 'lucide-react';
 
 const NotificationList = () => {
-  const { notifications, markAllAsRead } = useNotifications();
-  const hasUnread = notifications.some(n => !n.is_read);
+  const { notifications } = useNotifications();
 
   if (notifications.length === 0) {
     return (
@@ -19,20 +17,7 @@ const NotificationList = () => {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-5rem)]">
-      {hasUnread && (
-        <div className="p-2 border-b bg-background/50 backdrop-blur-sm sticky top-0">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="w-full text-xs" 
-            onClick={markAllAsRead}
-          >
-            <Check className="h-3 w-3 mr-2" />
-            Mark all as read
-          </Button>
-        </div>
-      )}
+    <div className="flex flex-col h-[calc(100vh-8rem)]">
       <ScrollArea className="flex-1">
         <div className="divide-y">
           {notifications.map((notification) => (
