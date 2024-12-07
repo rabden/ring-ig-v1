@@ -68,6 +68,10 @@ function App() {
               {isLoading && <LoadingScreen />}
               <div className={`transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
                 <Routes>
+                  {/* Public Routes */}
+                  <Route path="/image/:imageId" element={<SingleImageView />} />
+                  
+                  {/* Auth Routes */}
                   <Route 
                     path="/login" 
                     element={
@@ -76,19 +80,13 @@ function App() {
                       </AuthRoute>
                     } 
                   />
+
+                  {/* Protected Routes */}
                   <Route 
                     path="/" 
                     element={
                       <ProtectedRoute>
                         <ImageGenerator />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/image/:imageId" 
-                    element={
-                      <ProtectedRoute>
-                        <SingleImageView />
                       </ProtectedRoute>
                     } 
                   />
@@ -100,6 +98,8 @@ function App() {
                       </ProtectedRoute>
                     } 
                   />
+
+                  {/* Fallback Route */}
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </div>
