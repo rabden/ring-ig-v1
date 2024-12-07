@@ -1,33 +1,25 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart } from 'lucide-react';
+import { Heart } from "lucide-react";
 
-const HeartAnimation = ({ isAnimating, size = 'default', className = '' }) => {
-  const sizeMap = {
-    small: 'h-12 w-12',
-    default: 'h-20 w-20',
-    large: 'h-32 w-32'
-  };
-
-  const heartSize = sizeMap[size] || sizeMap.default;
-
+const HeartAnimation = ({ isAnimating }) => {
   return (
     <AnimatePresence>
       {isAnimating && (
         <motion.div
-          className={`absolute inset-0 flex items-center justify-center pointer-events-none ${className}`}
-          initial={{ opacity: 0, scale: 0.3 }}
+          initial={{ scale: 0, opacity: 0 }}
           animate={{ 
-            opacity: [0, 1, 0],
-            scale: [0.3, 1.2, 0.9],
+            scale: [0, 1.5, 1, 0],
+            opacity: [0, 1, 1, 0],
           }}
           transition={{ 
             duration: 0.8,
-            times: [0, 0.4, 1],
-            ease: "easeOut"
+            times: [0, 0.3, 0.5, 1],
+            ease: "easeInOut"
           }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-50"
         >
-          <Heart className={`${heartSize} text-primary fill-primary animate-pulse`} />
+          <Heart className="h-16 w-16 fill-red-500 text-red-500 drop-shadow-lg" />
         </motion.div>
       )}
     </AnimatePresence>

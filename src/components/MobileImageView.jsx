@@ -128,7 +128,7 @@ const MobileImageView = ({
                 className="w-full h-auto"
                 onDoubleClick={handleDoubleClick}
               />
-              <HeartAnimation isAnimating={isAnimating} size="default" className="z-50" />
+              <HeartAnimation isAnimating={isAnimating} />
             </div>
           )}
 

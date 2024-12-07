@@ -2,47 +2,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { toast } from 'sonner';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { useEffect } from 'react';
 
 export const useFollows = (targetUserId) => {
   const { session } = useSupabaseAuth();
   const currentUserId = session?.user?.id;
   const queryClient = useQueryClient();
-
-  useEffect(() => {
-    if (!currentUserId) return;
-
-    // Subscribe to follows changes
-    const followsChannel = supabase
-      .channel('follows_changes')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'user_follows',
-        filter: `follower_id=eq.${currentUserId}`
-      }, () => {
-        queryClient.invalidateQueries(['follows', currentUserId]);
-      })
-      .subscribe();
-
-    // Subscribe to notifications
-    const notificationsChannel = supabase
-      .channel('notifications_changes')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'notifications',
-        filter: `user_id=eq.${currentUserId}`
-      }, () => {
-        queryClient.invalidateQueries(['notifications', currentUserId]);
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(followsChannel);
-      supabase.removeChannel(notificationsChannel);
-    };
-  }, [currentUserId, queryClient]);
 
   const { data: followData } = useQuery({
     queryKey: ['follows', currentUserId],
@@ -90,13 +54,11 @@ export const useFollows = (targetUserId) => {
 
         if (error) throw error;
       } else {
-        // Insert follow with created_at
         const { error } = await supabase
           .from('user_follows')
           .insert({ 
             follower_id: currentUserId, 
-            following_id: targetUserId,
-            created_at: new Date().toISOString()
+            following_id: targetUserId 
           });
 
         if (error) throw error;
@@ -110,17 +72,27 @@ export const useFollows = (targetUserId) => {
             message: `${currentUserProfile?.display_name || 'Someone'} started following you`,
             image_url: currentUserProfile?.avatar_url || '',
             link: `/profile/${currentUserId}`,
-            link_names: 'View Profile',
-            is_read: false
+            link_names: 'View Profile'
           }]);
         
-        if (notificationError) {
-          console.error('Notification error:', notificationError);
-          throw notificationError;
-        }
+        if (notificationError) throw notificationError;
       }
 
-      // The follow counts will be updated automatically by the on_follow_changed trigger
+      // Get updated counts after follow/unfollow
+      const { data: updatedProfile } = await supabase
+        .from('profiles')
+        .select('followers_count, following_count')
+        .eq('id', currentUserId)
+        .single();
+
+      if (updatedProfile) {
+        await supabase.auth.updateUser({
+          data: { 
+            followers_count: updatedProfile.followers_count,
+            following_count: updatedProfile.following_count
+          }
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['follows', currentUserId]);

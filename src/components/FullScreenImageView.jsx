@@ -131,7 +131,7 @@ const FullScreenImageView = ({
               className="max-w-full max-h-[calc(100vh-4rem)] object-contain"
               onDoubleClick={handleDoubleClick}
             />
-            <HeartAnimation isAnimating={isAnimating} size="large" className="z-50" />
+            <HeartAnimation isAnimating={isAnimating} />
           </div>
 
           <div className="w-[400px] p-4">
