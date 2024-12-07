@@ -35,6 +35,14 @@ export const useGalleryImages = ({
       case 'hot':
         query = query.eq('is_hot', true);
         break;
+      case 'inspiration':
+      case 'latest':
+        // For inspiration/latest view, show all public images except user's own
+        if (userId) {
+          query = query.neq('user_id', userId);
+        }
+        query = query.eq('is_private', false);
+        break;
       default:
         break;
     }
@@ -44,11 +52,9 @@ export const useGalleryImages = ({
       query = query.not('model', 'in', '(nsfw_model_1,nsfw_model_2)');
     }
 
-    // Apply privacy filter
-    if (activeView !== 'my') {
-      query = query.eq('is_private', false);
-    } else if (showPrivate) {
-      query = query.eq('is_private', true);
+    // Apply privacy filter for my images
+    if (activeView === 'my') {
+      query = query.eq('is_private', showPrivate);
     }
 
     // Apply model filter
@@ -61,7 +67,7 @@ export const useGalleryImages = ({
       query = query.ilike('prompt', `%${searchQuery}%`);
     }
 
-    // Apply pagination
+    // Apply pagination and ordering
     query = query
       .order('created_at', { ascending: false })
       .range(pageParam * BATCH_SIZE, (pageParam + 1) * BATCH_SIZE - 1);
@@ -72,7 +78,7 @@ export const useGalleryImages = ({
 
     return {
       images,
-      nextPage: images.length === BATCH_SIZE ? pageParam + 1 : undefined,
+      nextPage: images?.length === BATCH_SIZE ? pageParam + 1 : undefined,
       totalCount: count
     };
   };
