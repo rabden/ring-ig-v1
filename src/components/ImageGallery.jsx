@@ -1,134 +1,81 @@
-import React, { useRef, useCallback } from 'react';
-import Masonry from 'react-masonry-css';
-import SkeletonImageCard from './SkeletonImageCard';
+import React, { useEffect } from 'react';
+import { useInView } from 'react-intersection-observer';
 import ImageCard from './ImageCard';
-import { useLikes } from '@/hooks/useLikes';
-import NoResults from './NoResults';
+import { SkeletonImageGrid } from './image-card/SkeletonImageCard';
 import { useGalleryImages } from '@/hooks/useGalleryImages';
+import NoResults from './NoResults';
 
-const breakpointColumnsObj = {
-  default: 4,
-  1100: 3,
-  700: 2,
-  500: 2
-};
-
-const ImageGallery = ({ 
-  userId, 
-  onImageClick, 
-  onDownload, 
-  onDiscard, 
-  onRemix, 
-  onViewDetails, 
-  activeView, 
-  generatingImages = [], 
+const ImageGallery = ({
+  userId,
+  onImageClick,
+  onDownload,
+  onDiscard,
+  onRemix,
+  activeView,
   nsfwEnabled,
-  activeFilters = {},
-  searchQuery = '',
-  setActiveTab,
-  setStyle,
-  style,
+  activeFilters,
+  searchQuery,
   showPrivate,
-  profileUserId
+  isLiked,
+  onToggleLike,
+  setActiveTab
 }) => {
-  const { userLikes, toggleLike } = useLikes(userId);
-  const isMobile = window.innerWidth <= 768;
-  
-  const { 
-    images, 
+  const { ref: loadMoreRef, inView } = useInView();
+
+  const {
+    data,
     isLoading,
-    fetchNextPage,
+    isFetchingNextPage,
     hasNextPage,
-    isFetchingNextPage 
+    fetchNextPage
   } = useGalleryImages({
-    userId: profileUserId || userId,
+    userId,
     activeView,
     nsfwEnabled,
-    showPrivate,
     activeFilters,
-    searchQuery
+    searchQuery,
+    showPrivate
   });
 
-  const observer = useRef();
-  const lastImageRef = useCallback(node => {
-    if (isLoading || isFetchingNextPage) return;
-    
-    if (observer.current) observer.current.disconnect();
-    
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasNextPage) {
-        fetchNextPage();
-      }
-    });
-    
-    if (node) observer.current.observe(node);
-  }, [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage]);
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const handleMobileMoreClick = (image) => {
-    if (isMobile) {
-      onViewDetails(image);
-    }
-  };
+  if (isLoading) {
+    return <SkeletonImageGrid />;
+  }
 
-  const renderContent = () => {
-    if (isLoading && !images.length) {
-      return Array.from({ length: 8 }).map((_, index) => (
-        <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
-      ));
-    }
-    
-    if (!images || images.length === 0) {
-      return [<NoResults key="no-results" />];
-    }
-    
-    // Filter images based on privacy setting
-    const filteredImages = images.filter(img => {
-      if (activeView === 'myImages') {
-        return showPrivate ? img.is_private : !img.is_private;
-      }
-      return !img.is_private;
-    });
-    
-    return filteredImages.map((image, index) => (
-      <div
-        key={image.id}
-        ref={index === filteredImages.length - 1 ? lastImageRef : null}
-      >
-        <ImageCard
-          image={image}
-          onImageClick={() => onImageClick(image)}
-          onDownload={onDownload}
-          onDiscard={onDiscard}
-          onRemix={onRemix}
-          onViewDetails={onViewDetails}
-          onMoreClick={handleMobileMoreClick}
-          userId={userId}
-          isMobile={isMobile}
-          isLiked={userLikes.includes(image.id)}
-          onToggleLike={toggleLike}
-          setActiveTab={setActiveTab}
-          setStyle={setStyle}
-          style={style}
-        />
-      </div>
-    ));
-  };
+  const images = data?.pages.flatMap(page => page.images) || [];
+
+  if (images.length === 0) {
+    return <NoResults />;
+  }
 
   return (
-    <>
-      <Masonry
-        breakpointCols={breakpointColumnsObj}
-        className="flex w-auto md:px-2 -mx-1 md:mx-0"
-        columnClassName="bg-clip-padding px-1 md:px-2"
-      >
-        {renderContent()}
-      </Masonry>
-      {isFetchingNextPage && (
-        <div className="flex justify-center my-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      )}
-    </>
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {images.map((image) => (
+          <ImageCard
+            key={image.id}
+            image={image}
+            onImageClick={onImageClick}
+            onDownload={onDownload}
+            onDiscard={onDiscard}
+            onRemix={onRemix}
+            userId={userId}
+            isLiked={isLiked}
+            onToggleLike={onToggleLike}
+            setActiveTab={setActiveTab}
+          />
+        ))}
+      </div>
+      
+      {isFetchingNextPage && <SkeletonImageGrid />}
+      
+      <div ref={loadMoreRef} className="h-4" />
+    </div>
   );
 };
 
