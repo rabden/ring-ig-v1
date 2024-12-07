@@ -2,11 +2,47 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { toast } from 'sonner';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { useEffect } from 'react';
 
 export const useFollows = (targetUserId) => {
   const { session } = useSupabaseAuth();
   const currentUserId = session?.user?.id;
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!currentUserId) return;
+
+    // Subscribe to follows changes
+    const followsChannel = supabase
+      .channel('follows_changes')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'user_follows',
+        filter: `follower_id=eq.${currentUserId}`
+      }, () => {
+        queryClient.invalidateQueries(['follows', currentUserId]);
+      })
+      .subscribe();
+
+    // Subscribe to notifications
+    const notificationsChannel = supabase
+      .channel('notifications_changes')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${currentUserId}`
+      }, () => {
+        queryClient.invalidateQueries(['notifications', currentUserId]);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(followsChannel);
+      supabase.removeChannel(notificationsChannel);
+    };
+  }, [currentUserId, queryClient]);
 
   const { data: followData } = useQuery({
     queryKey: ['follows', currentUserId],
@@ -70,15 +106,12 @@ export const useFollows = (targetUserId) => {
           .from('notifications')
           .insert([{
             user_id: targetUserId,
-            type: 'follow',
             title: 'New Follower',
             message: `${currentUserProfile?.display_name || 'Someone'} started following you`,
             image_url: currentUserProfile?.avatar_url || '',
             link: `/profile/${currentUserId}`,
-            actor_id: currentUserId,
-            target_id: targetUserId,
-            is_read: false,
-            created_at: new Date().toISOString()
+            link_names: 'View Profile',
+            is_read: false
           }]);
         
         if (notificationError) {

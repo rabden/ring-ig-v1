@@ -24,23 +24,39 @@ export const useLikes = (userId) => {
   useEffect(() => {
     if (!userId) return;
 
-    const channel = supabase
-      .channel('user_image_likes_changes')
+    // Subscribe to likes changes
+    const likesChannel = supabase
+      .channel('likes_changes')
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'user_image_likes',
+        filter: `user_id=eq.${userId}`
       }, (payload) => {
         // Update the likes count for the affected image
         queryClient.invalidateQueries(['imageLikes', payload.new?.image_id || payload.old?.image_id]);
-        
         // Update the user's likes list
         queryClient.invalidateQueries(['userLikes', userId]);
       })
       .subscribe();
 
+    // Subscribe to notifications
+    const notificationsChannel = supabase
+      .channel('notifications_changes')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${userId}`
+      }, () => {
+        // Invalidate notifications queries when changes occur
+        queryClient.invalidateQueries(['notifications', userId]);
+      })
+      .subscribe();
+
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(likesChannel);
+      supabase.removeChannel(notificationsChannel);
     };
   }, [userId, queryClient]);
 
@@ -92,15 +108,12 @@ export const useLikes = (userId) => {
             .from('notifications')
             .insert([{
               user_id: imageData.user_id,
-              type: 'like',
               title: 'New Like',
               message: `${userProfile?.display_name || 'Someone'} liked your image`,
               image_url: supabase.storage.from('user-images').getPublicUrl(imageData.storage_path).data.publicUrl,
               link: `/image/${imageId}`,
-              actor_id: userId,
-              target_id: imageId,
-              is_read: false,
-              created_at: new Date().toISOString()
+              link_names: 'View Image',
+              is_read: false
             }]);
 
           if (notificationError) {
