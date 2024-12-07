@@ -49,7 +49,7 @@ const ImageGenerator = () => {
     selectedImage, setSelectedImage,
     detailsDialogOpen, setDetailsDialogOpen, fullScreenViewOpen, setFullScreenViewOpen,
     fullScreenImageIndex, setFullScreenImageIndex, generatingImages, setGeneratingImages,
-    activeView, setActiveView, nsfwEnabled, setNsfwEnabled, style, setStyle,
+    activeView, setActiveView, nsfwEnabled, setNsfwEnabled,
     imageCount, setImageCount
   } = useImageGeneratorState();
 
@@ -68,7 +68,6 @@ const ImageGenerator = () => {
     aspectRatio,
     updateCredits,
     setGeneratingImages,
-    style,
     modelConfigs,
     steps,
     imageCount
@@ -95,7 +94,7 @@ const ImageGenerator = () => {
           return;
         }
         finalPrompt = improved;
-        setPrompt(improved); // Update the prompt in the UI
+        setPrompt(improved);
       }
 
       await generateImage(isPrivate, finalPrompt);
@@ -177,7 +176,6 @@ const ImageGenerator = () => {
       setHeight(remixImage.height);
       setModel(remixImage.model);
       setQuality(remixImage.quality);
-      setStyle(remixImage.style);
       if (remixImage.aspect_ratio) {
         setAspectRatio(remixImage.aspect_ratio);
         setUseAspectRatio(true);
@@ -186,9 +184,8 @@ const ImageGenerator = () => {
   }, [remixImage, isRemixRoute]);
 
   useEffect(() => {
-    // Set initial active tab to 'images' when component mounts
     setActiveTab('images');
-  }, []); // Empty dependency array ensures this only runs once on mount
+  }, []);
 
   return (
     <div className="relative">
@@ -220,7 +217,6 @@ const ImageGenerator = () => {
         setDetailsDialogOpen={setDetailsDialogOpen}
         fullScreenViewOpen={fullScreenViewOpen}
         setFullScreenViewOpen={setFullScreenViewOpen}
-        setStyle={setStyle}
         imageGeneratorProps={{
           prompt,
           setPrompt,
@@ -247,8 +243,6 @@ const ImageGenerator = () => {
           bonusCredits,
           nsfwEnabled,
           setNsfwEnabled,
-          style,
-          setStyle,
           steps,
           setSteps,
           proMode: isPro,

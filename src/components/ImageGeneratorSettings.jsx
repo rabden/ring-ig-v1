@@ -3,7 +3,6 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import StyleChooser from './StyleChooser';
 import AspectRatioChooser from './AspectRatioChooser';
 import SettingSection from './settings/SettingSection';
 import ModelChooser from './settings/ModelChooser';
@@ -29,12 +28,13 @@ const ImageGeneratorSettings = ({
   credits,
   bonusCredits,
   nsfwEnabled, setNsfwEnabled,
-  style, setStyle,
   steps, setSteps,
   proMode,
   modelConfigs,
   imageCount = 1,
-  setImageCount
+  setImageCount,
+  isPrivate,
+  setIsPrivate
 }) => {
   const { isImproving, improveCurrentPrompt } = usePromptImprovement();
   const creditCost = { "HD": 1, "HD+": 2, "4K": 3 }[quality] * imageCount;
@@ -48,9 +48,6 @@ const ImageGeneratorSettings = ({
       setQuality('HD');
     }
     setModel(newModel);
-    if (modelConfigs?.[newModel]?.category === "NSFW") {
-      setStyle(null);
-    }
   };
 
   const getAvailableQualities = () => {
@@ -85,11 +82,6 @@ const ImageGeneratorSettings = ({
     await improveCurrentPrompt(prompt, (improvedPrompt) => {
       setPrompt(improvedPrompt);
     });
-  };
-
-  const handleAspectRatioChange = (newRatio) => {
-    setAspectRatio(newRatio);
-    setUseAspectRatio(true);
   };
 
   return (
@@ -130,21 +122,6 @@ const ImageGeneratorSettings = ({
         count={imageCount}
         setCount={setImageCount}
       />
-
-      {!isNsfwModel && (
-        <SettingSection label="Style" tooltip="Choose a style to enhance your image generation">
-          <div className="border-x border-border/20">
-            <StyledScrollArea>
-              <StyleChooser 
-                style={style} 
-                setStyle={setStyle} 
-                proMode={proMode} 
-                isNsfwMode={isNsfwModel}
-              />
-            </StyledScrollArea>
-          </div>
-        </SettingSection>
-      )}
 
       <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more credits.">
         <Tabs value={quality} onValueChange={setQuality}>

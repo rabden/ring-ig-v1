@@ -8,13 +8,9 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
 import { Copy, Share2, Check } from "lucide-react"
-import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
-import TruncatablePrompt from './TruncatablePrompt'
-import { getCleanPrompt } from '@/utils/promptUtils'
 
 const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
-  const { data: styleConfigs } = useStyleConfigs();
   const { data: modelConfigs } = useModelConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
@@ -26,13 +22,11 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
     { label: "Seed", value: image.seed },
     { label: "Size", value: `${image.width}x${image.height}` },
     { label: "Aspect Ratio", value: image.aspect_ratio },
-    { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
     { label: "Quality", value: image.quality },
   ];
 
   const handleCopyPrompt = async () => {
-    const cleanPrompt = getCleanPrompt(image.user_prompt || image.prompt, image.style);
-    await navigator.clipboard.writeText(cleanPrompt);
+    await navigator.clipboard.writeText(image.prompt);
     setCopyIcon('check');
     setTimeout(() => setCopyIcon('copy'), 1500);
   };
@@ -63,7 +57,7 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
                   </Button>
                 </div>
               </div>
-              <TruncatablePrompt prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)} />
+              <p className="text-sm">{image.prompt}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

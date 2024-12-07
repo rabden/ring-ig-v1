@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import ImageStatusIndicators from './ImageStatusIndicators';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
-import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useQuery } from '@tanstack/react-query';
 import { downloadImage } from '@/utils/downloadUtils';
 import ImageCardActions from './ImageCardActions';
@@ -11,7 +10,6 @@ import MobileImageDrawer from './MobileImageDrawer';
 import ImageDetailsDialog from './ImageDetailsDialog';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { handleImageDiscard } from '@/utils/discardUtils';
-import { getCleanPrompt } from '@/utils/promptUtils';
 import { toast } from 'sonner';
 import ImageCardMedia from './image-card/ImageCardMedia';
 import ImageCardBadges from './image-card/ImageCardBadges';
@@ -26,15 +24,12 @@ const ImageCard = ({
   isLiked,
   onToggleLike = () => {},
   setActiveTab,
-  setStyle,
-  onViewDetails = () => {},
 }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const { data: modelConfigs } = useModelConfigs();
-  const { data: styleConfigs } = useStyleConfigs();
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
 
   const { data: likeCount = 0 } = useQuery({
@@ -60,9 +55,8 @@ const ImageCard = ({
   };
 
   const handleRemixClick = () => {
-    if (typeof onRemix === 'function' && typeof setStyle === 'function') {
+    if (typeof onRemix === 'function') {
       onRemix(image);
-      setStyle(image.style);
       setActiveTab('input');
     }
   };
@@ -98,7 +92,6 @@ const ImageCard = ({
 
   const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
   const modelName = modelConfigs?.[image.model]?.name || image.model;
-  const styleName = styleConfigs?.[image.style]?.name || 'General';
 
   return (
     <>
@@ -117,13 +110,12 @@ const ImageCard = ({
             />
             <ImageCardBadges
               modelName={modelName}
-              styleName={styleName}
               isNsfw={isNsfw}
             />
           </CardContent>
         </Card>
         <div className="mt-1 flex items-center justify-between">
-          <p className="text-sm truncate w-[70%]">{getCleanPrompt(image.prompt, image.style)}</p>
+          <p className="text-sm truncate w-[70%]">{image.prompt}</p>
           <ImageCardActions
             image={image}
             isMobile={isMobile}
@@ -133,9 +125,7 @@ const ImageCard = ({
             onDownload={handleDownload}
             onDiscard={handleDiscard}
             onRemix={handleRemixClick}
-            onViewDetails={onViewDetails}
             userId={userId}
-            setStyle={setStyle}
             setActiveTab={setActiveTab}
           />
         </div>
@@ -152,7 +142,6 @@ const ImageCard = ({
           onRemix={handleRemixClick}
           isOwner={image.user_id === userId}
           setActiveTab={setActiveTab}
-          setStyle={setStyle}
         />
       )}
 
