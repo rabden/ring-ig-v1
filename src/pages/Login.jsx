@@ -7,23 +7,19 @@ import { SupabaseAuthUI } from '@/integrations/supabase/auth';
 const messages = [
   { 
     text: "Create stunning AI art with Ring.1", 
-    image: "/assets/showcase/1.jpg",
-    description: "Experience the power of advanced AI image generation"
+    image: "/assets/showcase/1.jpg"
   },
   { 
     text: "Transform your ideas into reality", 
-    image: "/assets/showcase/2.jpg",
-    description: "Turn your imagination into beautiful visuals"
+    image: "/assets/showcase/2.jpg"
   },
   { 
     text: "Join our creative community", 
-    image: "/assets/showcase/3.jpg",
-    description: "Share, inspire, and connect with fellow creators"
+    image: "/assets/showcase/3.jpg"
   },
   { 
     text: "Professional quality, instant results", 
-    image: "/assets/showcase/4.jpg",
-    description: "Generate high-resolution images in seconds"
+    image: "/assets/showcase/4.jpg"
   }
 ];
 
@@ -51,20 +47,12 @@ const Login = () => {
       {/* Left side - Showcase */}
       <div className="hidden md:flex flex-col w-1/2 bg-[#0A2A36] text-white relative overflow-hidden">
         <div className="relative z-10 flex flex-col h-full p-12">
-          <div className="flex-grow">
-            {/* Logo and Brand */}
-            <div className="mb-12">
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent">
+          <div className="flex-grow flex items-center">
+            <div className="space-y-6">
+              <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent mb-12">
                 Ring.1
               </h1>
-              <p className="text-lg text-gray-300 mt-2">
-                AI Image Generation Platform
-              </p>
-            </div>
-
-            {/* Typewriter Section */}
-            <div className="space-y-6">
-              <div className="h-16"> {/* Fixed height for typewriter text */}
+              <div className="h-16">
                 <h2 className="text-3xl font-semibold">
                   <Typewriter
                     words={[messages[currentMessageIndex].text]}
@@ -76,33 +64,6 @@ const Login = () => {
                   />
                 </h2>
               </div>
-              <p className="text-gray-300 text-lg">
-                {messages[currentMessageIndex].description}
-              </p>
-            </div>
-
-            {/* Features List */}
-            <div className="mt-12">
-              <ul className="space-y-4">
-                <li className="flex items-center text-gray-300">
-                  <svg className="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  Advanced AI Models
-                </li>
-                <li className="flex items-center text-gray-300">
-                  <svg className="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  High-Resolution Output
-                </li>
-                <li className="flex items-center text-gray-300">
-                  <svg className="w-5 h-5 mr-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  Fast Generation Speed
-                </li>
-              </ul>
             </div>
           </div>
         </div>

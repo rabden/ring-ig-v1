@@ -18,6 +18,7 @@ export const AuthUI = () => {
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
@@ -50,7 +51,7 @@ export const AuthUI = () => {
         },
       });
       if (error) throw error;
-      toast.success('Check your email for the confirmation link.');
+      setShowConfirmation(true);
     } catch (error) {
       console.error('Error signing up:', error.message);
       setError(error.message);
@@ -82,25 +83,34 @@ export const AuthUI = () => {
     }
   };
 
+  if (showConfirmation) {
+    return (
+      <div className="space-y-4 text-center p-6">
+        <h2 className="text-2xl font-semibold">Check your email</h2>
+        <p className="text-muted-foreground">
+          We've sent a confirmation link to <span className="font-medium">{email}</span>
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Click the link in your email to complete your registration
+        </p>
+        <Button 
+          variant="outline" 
+          className="mt-4"
+          onClick={() => {
+            setShowConfirmation(false);
+            setEmail('');
+            setPassword('');
+            setDisplayName('');
+          }}
+        >
+          Back to Sign In
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 w-full max-w-sm mx-auto">
-      <div className="space-y-2 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Welcome to Ring.1
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {location.pathname === '/login' 
-            ? 'Sign in to start creating amazing images' 
-            : 'Create an account to get started'}
-        </p>
-      </div>
-
-      {error && (
-        <Alert variant="destructive" className="animate-in fade-in-50">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
       <div className="space-y-4">
         <Button 
           variant="outline" 
@@ -145,6 +155,12 @@ export const AuthUI = () => {
         </div>
       </div>
 
+      {error && (
+        <Alert variant="destructive" className="animate-in fade-in-50">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
       <Tabs defaultValue="signin" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-4">
           <TabsTrigger value="signin">Sign In</TabsTrigger>
@@ -164,20 +180,11 @@ export const AuthUI = () => {
                 placeholder="name@example.com"
                 className="transition-all"
                 disabled={isLoading}
+                autoComplete="email"
               />
             </div>
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="signin-password">Password</Label>
-                <Button 
-                  variant="link" 
-                  className="px-0 font-normal text-xs"
-                  type="button"
-                  onClick={() => toast.info('Password reset coming soon!')}
-                >
-                  Forgot password?
-                </Button>
-              </div>
+              <Label htmlFor="signin-password">Password</Label>
               <Input
                 id="signin-password"
                 type="password"
@@ -186,6 +193,7 @@ export const AuthUI = () => {
                 required
                 className="transition-all"
                 disabled={isLoading}
+                autoComplete="current-password"
               />
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
@@ -211,6 +219,7 @@ export const AuthUI = () => {
                 placeholder="name@example.com"
                 className="transition-all"
                 disabled={isLoading}
+                autoComplete="email"
               />
             </div>
             <div className="space-y-2">
@@ -224,6 +233,7 @@ export const AuthUI = () => {
                 className="transition-all"
                 disabled={isLoading}
                 placeholder="Create a secure password"
+                autoComplete="new-password"
               />
             </div>
             <div className="space-y-2">
@@ -236,6 +246,7 @@ export const AuthUI = () => {
                 placeholder="Enter display name or leave blank for random"
                 className="transition-all"
                 disabled={isLoading}
+                autoComplete="username"
               />
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
@@ -248,19 +259,6 @@ export const AuthUI = () => {
           </form>
         </TabsContent>
       </Tabs>
-
-      <div className="text-center text-sm">
-        <p className="text-muted-foreground">
-          By continuing, you agree to our{' '}
-          <Button variant="link" className="p-0 h-auto font-normal" onClick={() => toast.info('Terms coming soon!')}>
-            Terms of Service
-          </Button>
-          {' '}and{' '}
-          <Button variant="link" className="p-0 h-auto font-normal" onClick={() => toast.info('Privacy policy coming soon!')}>
-            Privacy Policy
-          </Button>
-        </p>
-      </div>
     </div>
   );
 };
