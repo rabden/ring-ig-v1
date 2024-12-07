@@ -2,7 +2,6 @@ import { deleteImageCompletely } from '@/integrations/supabase/imageUtils'
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useProUser } from '@/hooks/useProUser'
 import { toast } from 'sonner'
-import { getCleanPrompt } from '@/utils/promptUtils'
 import { handleImageDiscard } from '@/utils/discardUtils'
 
 export const useImageHandlers = ({
@@ -19,8 +18,6 @@ export const useImageHandlers = ({
   setQuality,
   setAspectRatio,
   setUseAspectRatio,
-  setStyle,
-  aspectRatios,
   session,
   queryClient,
   activeView,
@@ -55,7 +52,7 @@ export const useImageHandlers = ({
       return;
     }
 
-    setPrompt(getCleanPrompt(image.user_prompt || image.prompt, image.style));
+    setPrompt(image.prompt);
     setSeed(image.seed);
     setRandomizeSeed(false);
     setWidth(image.width);
@@ -67,23 +64,12 @@ export const useImageHandlers = ({
     if (isNsfwModel) {
       setModel('nsfwMaster');
       setSteps(modelConfigs['nsfwMaster']?.defaultStep || 30);
-      if (typeof setStyle === 'function') {
-        setStyle(null);
-      }
     } else if (isProModel && !isPro) {
       setModel('turbo');
       setSteps(modelConfigs['turbo']?.defaultStep || 4);
-      if (typeof setStyle === 'function') {
-        setStyle(null);
-      }
     } else {
       setModel(image.model);
       setSteps(image.steps);
-      if (typeof setStyle === 'function' && (!image.style || !modelConfigs?.[image.model]?.isPremium || isPro)) {
-        setStyle(image.style);
-      } else if (typeof setStyle === 'function') {
-        setStyle(null);
-      }
     }
 
     if (image.quality === 'HD+' && !isPro) {
