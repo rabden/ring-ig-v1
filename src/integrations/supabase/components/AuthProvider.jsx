@@ -1,6 +1,7 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { supabase } from '../supabase';
 import { useQueryClient } from '@tanstack/react-query';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export const AuthContext = createContext();
 
@@ -8,6 +9,8 @@ export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const clearAuthData = () => {
     setSession(null);
@@ -54,7 +57,33 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    handleAuthSession();
+    // Handle auth code in URL
+    const params = new URLSearchParams(location.search);
+    const authCode = params.get('code');
+    
+    if (authCode) {
+      // Remove the code from URL without reloading the page
+      const newUrl = window.location.pathname;
+      navigate(newUrl, { replace: true });
+      
+      // Exchange the code for a session
+      supabase.auth.exchangeCodeForSession(authCode)
+        .then(({ data: { session: newSession }, error }) => {
+          if (error) {
+            console.error('Error exchanging code for session:', error);
+            return;
+          }
+          if (newSession) {
+            setSession(newSession);
+            queryClient.invalidateQueries('user');
+          }
+        })
+        .catch(error => {
+          console.error('Error in code exchange:', error);
+        });
+    } else {
+      handleAuthSession();
+    }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth event:', event);
@@ -89,7 +118,7 @@ export const AuthProvider = ({ children }) => {
     return () => {
       subscription?.unsubscribe();
     };
-  }, [queryClient]);
+  }, [queryClient, location, navigate]);
 
   const logout = async () => {
     try {
