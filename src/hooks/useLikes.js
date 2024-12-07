@@ -65,10 +65,12 @@ export const useLikes = (userId) => {
               image_id: imageId,
               created_by: imageData.user_id 
             }]);
-          if (error && error.code !== '23505') throw error; // Ignore duplicate key errors
+          
+          // Ignore duplicate key errors (23505)
+          if (error && error.code !== '23505') throw error;
 
-          // Create notification for the image owner
-          if (!error) {
+          // Create notification for the image owner if insert was successful
+          if (!error || error.code === '23505') {
             const { error: notificationError } = await supabase
               .from('notifications')
               .insert([{
