@@ -1,8 +1,35 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
+import { useEffect } from 'react';
 
 export const useLikes = (userId) => {
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    // Subscribe to realtime changes
+    const channel = supabase
+      .channel('likes_changes')
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table: 'user_image_likes'
+        }, 
+        () => {
+          // Invalidate and refetch likes when changes occur
+          queryClient.invalidateQueries(['likes', userId]);
+          // Also invalidate individual image like counts
+          queryClient.invalidateQueries({
+            predicate: (query) => query.queryKey[0] === 'imageLikes',
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, queryClient]);
 
   const { data: userLikes } = useQuery({
     queryKey: ['likes', userId],
@@ -39,7 +66,6 @@ export const useLikes = (userId) => {
           .eq('image_id', imageId)
           .maybeSingle();
 
-        // Only proceed with insert if like doesn't exist
         if (!existingLike) {
           // Get the image details
           const { data: imageData, error: imageError } = await supabase
@@ -68,7 +94,7 @@ export const useLikes = (userId) => {
           if (error && error.code !== '23505') throw error; // Ignore duplicate key errors
 
           // Create notification for the image owner
-          if (!error) {
+          if (!error && imageData.user_id !== userId) {
             const { error: notificationError } = await supabase
               .from('notifications')
               .insert([{
@@ -85,7 +111,7 @@ export const useLikes = (userId) => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['likes', userId]);
+      // No need to manually invalidate queries here as the realtime subscription will handle it
     }
   });
 
