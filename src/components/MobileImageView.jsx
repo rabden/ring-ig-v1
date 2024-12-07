@@ -15,6 +15,7 @@ import HeartAnimation from './animations/HeartAnimation';
 import { useLikes } from '@/hooks/useLikes';
 import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 import { format } from 'date-fns';
+import { getOptimizedImageUrl } from '@/utils/imageUtils';
 
 const MobileImageView = ({ 
   image, 

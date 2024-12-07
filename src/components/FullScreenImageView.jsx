@@ -16,6 +16,7 @@ import { useImageRemix } from '@/hooks/useImageRemix';
 import HeartAnimation from './animations/HeartAnimation';
 import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 import { format } from 'date-fns';
+import { getOptimizedImageUrl } from '@/utils/imageUtils';
 
 const FullScreenImageView = ({ 
   image, 
