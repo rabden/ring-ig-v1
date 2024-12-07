@@ -17,7 +17,6 @@ export const useImageGeneration = ({
   aspectRatio,
   updateCredits,
   setGeneratingImages,
-  style,
   modelConfigs,
   imageCount = 1
 }) => {
@@ -52,7 +51,7 @@ export const useImageGeneration = ({
       const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed + i;
       const generationId = Date.now().toString() + i;
       
-      const modifiedPrompt = await getModifiedPrompt(finalPrompt || prompt, style, model, modelConfigs);
+      const modifiedPrompt = await getModifiedPrompt(finalPrompt || prompt, model, modelConfigs);
       const maxDimension = qualityOptions[quality];
       const { width: finalWidth, height: finalHeight, aspectRatio: finalAspectRatio } = calculateDimensions(
         useAspectRatio, 
@@ -62,15 +61,12 @@ export const useImageGeneration = ({
         maxDimension
       );
 
-      const finalStyle = modelConfigs[model]?.category === "NSFW" ? 'N/A' : (style || 'N/A');
-
       setGeneratingImages(prev => [...prev, { 
         id: generationId, 
         width: finalWidth, 
         height: finalHeight,
         prompt: modifiedPrompt,
         model,
-        style: finalStyle,
         is_private: isPrivate
       }]);
 
@@ -141,7 +137,6 @@ export const useImageGeneration = ({
             
           if (uploadError) throw uploadError;
 
-          // Insert the image record with explicit privacy setting
           const { data: insertData, error: insertError } = await supabase
             .from('user_images')
             .insert([{
@@ -153,7 +148,6 @@ export const useImageGeneration = ({
               height: finalHeight,
               model,
               quality,
-              style: finalStyle,
               aspect_ratio: finalAspectRatio,
               is_private: isPrivate
             }])
@@ -163,12 +157,6 @@ export const useImageGeneration = ({
           if (insertError) {
             console.error('Error inserting image record:', insertError);
             throw insertError;
-          }
-
-          // Verify the insert was successful and the privacy flag was set
-          if (!insertData || insertData.is_private !== isPrivate) {
-            console.error('Privacy flag mismatch:', { expected: isPrivate, actual: insertData?.is_private });
-            throw new Error('Failed to set image privacy correctly');
           }
 
           setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
