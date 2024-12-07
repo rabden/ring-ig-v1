@@ -1,17 +1,24 @@
 import React from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const SkeletonImageCard = () => {
+  // Random aspect ratio for more natural look
+  const aspectRatio = [1, 4/3, 3/4, 16/9][Math.floor(Math.random() * 4)];
+
   return (
-    <div className="mb-2">
+    <div className="mb-2 animate-pulse">
       <div className="overflow-hidden rounded-sm">
-        <div className="relative" style={{ paddingTop: '100%' }}>
-          <Skeleton className="absolute inset-0 w-full h-full" />
-        </div>
+        <AspectRatio ratio={aspectRatio}>
+          <Skeleton className="w-full h-full" />
+        </AspectRatio>
       </div>
       <div className="mt-1 flex items-center justify-between">
         <Skeleton className="h-4 w-[70%]" />
-        <Skeleton className="h-6 w-6 rounded-full" />
+        <div className="flex gap-1">
+          <Skeleton className="h-6 w-6 rounded-full" />
+          <Skeleton className="h-6 w-6 rounded-full" />
+        </div>
       </div>
     </div>
   );

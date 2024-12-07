@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import ImageCard from './ImageCard';
 import { SkeletonImageGrid } from './image-card/SkeletonImageCard';
 import { useGalleryImages } from '@/hooks/useGalleryImages';
 import NoResults from './NoResults';
+
+const REVEAL_INTERVAL = 150; // ms between each image reveal
 
 const ImageGallery = ({
   userId,
@@ -21,6 +23,8 @@ const ImageGallery = ({
   setActiveTab
 }) => {
   const { ref: loadMoreRef, inView } = useInView();
+  const [visibleCount, setVisibleCount] = useState(0);
+  const [allImages, setAllImages] = useState([]);
 
   const {
     data,
@@ -37,6 +41,29 @@ const ImageGallery = ({
     showPrivate
   });
 
+  // Update allImages when new data arrives
+  useEffect(() => {
+    if (data?.pages) {
+      const newImages = data.pages.flatMap(page => page.images) || [];
+      setAllImages(newImages);
+      // If this is the first batch, start revealing images
+      if (visibleCount === 0) {
+        setVisibleCount(1);
+      }
+    }
+  }, [data]);
+
+  // Gradually reveal images
+  useEffect(() => {
+    if (visibleCount < allImages.length) {
+      const timer = setTimeout(() => {
+        setVisibleCount(prev => prev + 1);
+      }, REVEAL_INTERVAL);
+      return () => clearTimeout(timer);
+    }
+  }, [visibleCount, allImages.length]);
+
+  // Load more when scrolling near bottom
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
@@ -47,16 +74,17 @@ const ImageGallery = ({
     return <SkeletonImageGrid />;
   }
 
-  const images = data?.pages.flatMap(page => page.images) || [];
-
-  if (images.length === 0) {
+  if (allImages.length === 0) {
     return <NoResults />;
   }
+
+  const visibleImages = allImages.slice(0, visibleCount);
+  const remainingInBatch = allImages.length - visibleCount;
 
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {images.map((image) => (
+        {visibleImages.map((image) => (
           <ImageCard
             key={image.id}
             image={image}
@@ -70,6 +98,13 @@ const ImageGallery = ({
             setActiveTab={setActiveTab}
           />
         ))}
+        {remainingInBatch > 0 && Array(Math.min(remainingInBatch, 8))
+          .fill(null)
+          .map((_, index) => (
+            <div key={`skeleton-${index}`} className="animate-fade-in">
+              <SkeletonImageGrid />
+            </div>
+          ))}
       </div>
       
       {isFetchingNextPage && <SkeletonImageGrid />}
