@@ -1,45 +1,20 @@
-import React, { useState } from 'react';
-import { Skeleton } from "@/components/ui/skeleton";
-import { getOptimizedImageUrl } from '@/utils/imageOptimization';
-import HeartAnimation from '../animations/HeartAnimation';
+import React from 'react';
+import { supabase } from '@/integrations/supabase/supabase';
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import HeartAnimation from '@/components/animations/HeartAnimation';
 
-const ImageCardMedia = ({ 
-  image, 
-  onImageClick, 
-  onDoubleClick, 
-  isAnimating 
-}) => {
-  const [isLoading, setIsLoading] = useState(true);
-
-  const optimizedImageUrl = getOptimizedImageUrl(image.storage_path, {
-    width: 1024,
-    quality: 75
-  });
-
-  const handleImageLoad = () => {
-    setIsLoading(false);
-  };
-
+const ImageCardMedia = ({ image, onImageClick, onDoubleClick, isAnimating }) => {
   return (
-    <div className="relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
-      {isLoading && (
-        <div className="absolute inset-0 bg-muted animate-pulse">
-          <Skeleton className="w-full h-full" />
-        </div>
-      )}
-      <img 
-        src={optimizedImageUrl}
-        alt={image.prompt} 
-        className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${
-          isLoading ? 'opacity-0' : 'opacity-100'
-        }`}
-        onClick={onImageClick}
-        onDoubleClick={onDoubleClick}
-        onLoad={handleImageLoad}
-        loading="lazy"
-        decoding="async"
-      />
-      <HeartAnimation isAnimating={isAnimating} />
+    <div className="relative group cursor-pointer" onClick={onImageClick} onDoubleClick={onDoubleClick}>
+      <AspectRatio ratio={image.width / image.height}>
+        <img
+          src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+          alt={image.prompt}
+          className="object-cover w-full h-full rounded-sm"
+          loading="lazy"
+        />
+      </AspectRatio>
+      <HeartAnimation isAnimating={isAnimating} size="small" />
     </div>
   );
 };
