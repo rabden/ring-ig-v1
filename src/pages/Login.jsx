@@ -6,20 +6,28 @@ import { SupabaseAuthUI } from '@/integrations/supabase/auth';
 
 const messages = [
   { 
-    text: "Create stunning AI art with Ring.1", 
-    image: "/assets/showcase/1.jpg"
+    text: "Create stunning AI art with a single prompt", 
+    image: "/placeholder.svg"
   },
   { 
-    text: "Transform your ideas into reality", 
-    image: "/assets/showcase/2.jpg"
+    text: "Transform your imagination into reality", 
+    image: "/placeholder.svg"
   },
   { 
-    text: "Join our creative community", 
-    image: "/assets/showcase/3.jpg"
+    text: "Generate multiple styles with one click", 
+    image: "/placeholder.svg"
   },
   { 
-    text: "Professional quality, instant results", 
-    image: "/assets/showcase/4.jpg"
+    text: "Share and remix creations with the community", 
+    image: "/placeholder.svg"
+  },
+  { 
+    text: "Fine-tune your art with advanced controls", 
+    image: "/placeholder.svg"
+  },
+  { 
+    text: "Private collections and secure sharing", 
+    image: "/placeholder.svg"
   }
 ];
 
@@ -49,9 +57,6 @@ const Login = () => {
         <div className="relative z-10 flex flex-col h-full p-12">
           <div className="flex-grow flex items-center">
             <div className="space-y-6">
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent mb-12">
-                Ring.1
-              </h1>
               <div className="h-16">
                 <h2 className="text-3xl font-semibold">
                   <Typewriter
