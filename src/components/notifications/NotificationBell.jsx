@@ -1,9 +1,10 @@
 import React from 'react';
 import { Bell } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useNotifications } from '@/contexts/NotificationContext';
 import NotificationList from './NotificationList';
+import { cn } from '@/lib/utils';
 
 const NotificationBell = () => {
   const { unreadCount } = useNotifications();
@@ -12,24 +13,34 @@ const NotificationBell = () => {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-7 w-7 p-0 relative md:flex hidden">
-          <Bell className="h-4 w-4" />
-          {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center">
-              {unreadCount > 9 ? '9+' : unreadCount}
-            </span>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className={cn(
+            "h-7 w-7 p-0 relative md:flex",
+            unreadCount > 0 && "after:content-[''] after:absolute after:top-1 after:right-1 after:w-2 after:h-2 after:bg-red-500 after:rounded-full after:ring-2 after:ring-background"
           )}
+        >
+          <Bell className="h-4 w-4" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-[400px] sm:w-[540px] p-0 m-4 rounded-lg border max-h-[calc(100vh-2rem)]">
-        <div className="h-full overflow-hidden flex flex-col">
-          <div className="p-6 border-b">
-            <h2 className="text-lg font-semibold">Notifications</h2>
+      <SheetContent 
+        side="right" 
+        className="w-full sm:w-[380px] p-0 border-l bg-background/80 backdrop-blur-xl"
+      >
+        <SheetHeader className="p-4 border-b">
+          <div className="flex items-center justify-between">
+            <SheetTitle className="text-lg font-semibold">
+              Notifications
+              {unreadCount > 0 && (
+                <span className="ml-2 text-sm text-muted-foreground">
+                  ({unreadCount} new)
+                </span>
+              )}
+            </SheetTitle>
           </div>
-          <div className="flex-1 overflow-y-auto">
-            <NotificationList />
-          </div>
-        </div>
+        </SheetHeader>
+        <NotificationList />
       </SheetContent>
     </Sheet>
   );

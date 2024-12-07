@@ -1,10 +1,11 @@
 import React from 'react';
-import { X } from 'lucide-react';
+import { X, ExternalLink } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useNotifications } from '@/contexts/NotificationContext';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { AspectRatio } from "@/components/ui/aspect-ratio";
+import { format } from 'date-fns';
 
 const NotificationItem = ({ notification }) => {
   const { markAsRead, deleteNotification, hideGlobalNotification } = useNotifications();
@@ -20,8 +21,6 @@ const NotificationItem = ({ notification }) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // If notification has user_id, it's a personal notification
-    // If it doesn't, it's a global notification
     if (!notification.user_id) {
       hideGlobalNotification(notification.id);
     } else {
@@ -36,58 +35,69 @@ const NotificationItem = ({ notification }) => {
   return (
     <div
       className={cn(
-        "relative flex flex-col gap-4 rounded-lg border p-4 transition-colors",
-        notification.is_read ? "bg-background" : "bg-muted"
+        "group relative flex items-start gap-4 p-4 transition-colors",
+        !notification.is_read && "bg-muted/50"
       )}
       onClick={handleClick}
     >
-      <div className="flex-1 space-y-2">
-        <div className="flex justify-between items-start">
-          <p className="text-sm font-medium leading-none">{notification.title}</p>
+      {notification.image_url && (
+        <div className="flex-shrink-0">
+          <AspectRatio ratio={1} className="w-12">
+            <img
+              src={images[0]}
+              alt=""
+              className="rounded-md object-cover w-full h-full"
+            />
+          </AspectRatio>
+        </div>
+      )}
+      
+      <div className="flex-1 min-w-0">
+        <div className="flex items-start justify-between gap-2">
+          <div className="space-y-1">
+            <p className={cn(
+              "text-sm font-medium leading-none",
+              !notification.is_read && "text-primary"
+            )}>
+              {notification.title}
+            </p>
+            <p className="text-sm text-muted-foreground line-clamp-2">
+              {notification.message}
+            </p>
+          </div>
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 -mt-1 -mr-2"
+            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity -mr-2"
             onClick={handleHideOrDelete}
           >
-            <X className="h-4 w-4" />
+            <X className="h-3 w-3" />
           </Button>
         </div>
-        <p className="text-sm text-muted-foreground">{notification.message}</p>
-        <p className="text-xs text-muted-foreground">
-          {new Date(notification.created_at).toLocaleDateString()}
+
+        {links.length > 0 && (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {links.map((link, index) => (
+              <Link
+                key={index}
+                to={link}
+                className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {linkNames[index] || `View details`}
+                <ExternalLink className="h-3 w-3" />
+              </Link>
+            ))}
+          </div>
+        )}
+
+        <p className="mt-1 text-[11px] text-muted-foreground">
+          {format(new Date(notification.created_at), 'MMM d, h:mm a')}
         </p>
       </div>
 
-      {images.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {images.map((url, index) => (
-            <div key={index} className="relative">
-              <AspectRatio ratio={1}>
-                <img
-                  src={url}
-                  alt=""
-                  className="rounded-md object-cover w-full h-full hover:opacity-90 transition-opacity"
-                />
-              </AspectRatio>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {links.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {links.map((link, index) => (
-            <Link
-              key={index}
-              to={link}
-              className="text-sm text-primary hover:underline"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {linkNames[index] || `Link ${index + 1}`}
-            </Link>
-          ))}
-        </div>
+      {!notification.is_read && (
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1/2 bg-primary rounded-r-full" />
       )}
     </div>
   );
