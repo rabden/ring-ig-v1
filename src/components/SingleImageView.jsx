@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { downloadImage } from '@/utils/downloadUtils';
 import { useImageRemix } from '@/hooks/useImageRemix';
-import MobileImageDrawer from '@/components/MobileImageDrawer';
+import MobileImageView from '@/components/MobileImageView';
 import FullScreenImageView from '@/components/FullScreenImageView';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 
@@ -54,16 +54,15 @@ const SingleImageView = () => {
   }
 
   return isMobile ? (
-    <MobileImageDrawer
-      open={true}
-      onOpenChange={() => navigate(-1)}
+    <MobileImageView
       image={image}
-      showFullImage={true}
+      onClose={() => navigate(-1)}
       onDownload={handleDownload}
       onRemix={handleRemix}
       isOwner={image.user_id === session?.user?.id}
       setActiveTab={() => {}}
       setStyle={() => {}}
+      showFullImage={true}
     />
   ) : (
     <FullScreenImageView
