@@ -136,7 +136,7 @@ const ImageGeneratorSettings = ({
       <SettingSection label="Aspect Ratio" tooltip="Slide left for portrait, center for square, right for landscape">
         <AspectRatioChooser 
           aspectRatio={aspectRatio} 
-          setAspectRatio={setAspectRatio}
+          setAspectRatio={handleAspectRatioChange}
           proMode={proMode} 
         />
       </SettingSection>
