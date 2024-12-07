@@ -138,14 +138,35 @@ const FullScreenImageView = ({
             <div className="bg-card h-[calc(100vh-32px)] rounded-lg border shadow-sm">
               <ScrollArea className="h-full">
                 <div className="p-6 space-y-6">
-                  <ImageOwnerHeader 
-                    owner={owner}
-                    image={image}
-                    isOwner={isOwner}
-                    userLikes={userLikes}
-                    toggleLike={toggleLike}
-                    likeCount={likeCount}
-                  />
+                  {session && (
+                    <>
+                      <ImageOwnerHeader 
+                        owner={owner}
+                        image={image}
+                        isOwner={isOwner}
+                        userLikes={userLikes}
+                        toggleLike={toggleLike}
+                        likeCount={likeCount}
+                      />
+
+                      <div className="flex gap-2 justify-between">
+                        <Button onClick={onDownload} className="flex-1" variant="ghost" size="sm">
+                          <Download className="mr-2 h-4 w-4" />
+                          Download
+                        </Button>
+                        {isOwner && (
+                          <Button onClick={handleDiscard} className="flex-1 text-destructive hover:text-destructive" variant="ghost" size="sm">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Discard
+                          </Button>
+                        )}
+                        <Button onClick={() => handleRemix(image)} className="flex-1" variant="ghost" size="sm">
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          Remix
+                        </Button>
+                      </div>
+                    </>
+                  )}
 
                   <ImagePromptSection 
                     prompt={image.user_prompt || image.prompt}
@@ -154,25 +175,6 @@ const FullScreenImageView = ({
                     onCopyPrompt={handleCopyPrompt}
                     onShare={handleShare}
                   />
-
-                  {session && (
-                    <div className="flex gap-2 justify-between">
-                      <Button onClick={onDownload} className="flex-1" variant="ghost" size="sm">
-                        <Download className="mr-2 h-4 w-4" />
-                        Download
-                      </Button>
-                      {isOwner && (
-                        <Button onClick={handleDiscard} className="flex-1 text-destructive hover:text-destructive" variant="ghost" size="sm">
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Discard
-                        </Button>
-                      )}
-                      <Button onClick={() => handleRemix(image)} className="flex-1" variant="ghost" size="sm">
-                        <RefreshCw className="mr-2 h-4 w-4" />
-                        Remix
-                      </Button>
-                    </div>
-                  )}
 
                   <ImageDetailsSection detailItems={detailItems} />
                 </div>
