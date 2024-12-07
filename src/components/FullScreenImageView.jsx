@@ -11,7 +11,6 @@ import { useLikes } from '@/hooks/useLikes';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import ImagePromptSection from './image-view/ImagePromptSection';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
-import { getCleanPrompt } from '@/utils/promptUtils';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import { useImageRemix } from '@/hooks/useImageRemix';
 import HeartAnimation from './animations/HeartAnimation';
@@ -66,7 +65,7 @@ const FullScreenImageView = ({
   });
 
   const handleCopyPrompt = async () => {
-    await navigator.clipboard.writeText(getCleanPrompt(image.user_prompt || image.prompt, image.style));
+    await navigator.clipboard.writeText(image.user_prompt || image.prompt);
     setCopyIcon('check');
     setTimeout(() => setCopyIcon('copy'), 1500);
   };
@@ -92,7 +91,6 @@ const FullScreenImageView = ({
     { label: "Size", value: `${image.width}x${image.height}` },
     { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
     { label: "Quality", value: image.quality },
-    { label: "Style", value: styleConfigs?.[image.style]?.name || 'General' },
   ] : [];
 
   const handleDoubleClick = (e) => {
@@ -148,8 +146,7 @@ const FullScreenImageView = ({
                   />
 
                   <ImagePromptSection 
-                    prompt={getCleanPrompt(image.user_prompt || image.prompt, image.style)}
-                    style={image.style}
+                    prompt={image.user_prompt || image.prompt}
                     copyIcon={copyIcon}
                     shareIcon={shareIcon}
                     onCopyPrompt={handleCopyPrompt}
