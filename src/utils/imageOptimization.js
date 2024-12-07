@@ -22,6 +22,15 @@ export const getOptimizedImageUrl = (storagePath, options = {}) => {
   return transformUrl.toString();
 };
 
+export const getResponsiveImageUrl = (storagePath) => {
+  return {
+    small: getOptimizedImageUrl(storagePath, { width: 640, quality: 70, format: 'webp' }),
+    medium: getOptimizedImageUrl(storagePath, { width: 1024, quality: 75, format: 'webp' }),
+    large: getOptimizedImageUrl(storagePath, { width: 1920, quality: 80, format: 'webp' }),
+    original: getOptimizedImageUrl(storagePath, { quality: 85, format: 'webp' })
+  };
+};
+
 export const generateBlurHash = async (imageUrl) => {
   try {
     const response = await fetch(imageUrl);
@@ -31,13 +40,4 @@ export const generateBlurHash = async (imageUrl) => {
     console.error('Error generating blur hash:', error);
     return null;
   }
-};
-
-export const getResponsiveImageUrl = (storagePath) => {
-  return {
-    small: getOptimizedImageUrl(storagePath, { width: 640, quality: 70 }),
-    medium: getOptimizedImageUrl(storagePath, { width: 1024, quality: 75 }),
-    large: getOptimizedImageUrl(storagePath, { width: 1920, quality: 80 }),
-    original: getOptimizedImageUrl(storagePath, { quality: 85 })
-  };
 };

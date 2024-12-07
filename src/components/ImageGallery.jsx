@@ -109,6 +109,7 @@ const ImageGallery = ({
           setActiveTab={setActiveTab}
           setStyle={setStyle}
           style={style}
+          priority={index < 4} // Prioritize loading for first 4 images
         />
       </div>
     ));
