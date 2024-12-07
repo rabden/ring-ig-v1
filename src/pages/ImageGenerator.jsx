@@ -6,7 +6,6 @@ import { useImageGeneration } from '@/hooks/useImageGeneration';
 import { useQueryClient } from '@tanstack/react-query';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
-import AuthOverlay from '@/components/AuthOverlay';
 import { useImageGeneratorState } from '@/hooks/useImageGeneratorState';
 import { useImageHandlers } from '@/hooks/useImageHandlers';
 import { useProUser } from '@/hooks/useProUser';
@@ -189,7 +188,6 @@ const ImageGenerator = () => {
 
   return (
     <div className="relative">
-      {!session && <AuthOverlay />}
       <ImageGeneratorContent
         session={session}
         credits={credits}

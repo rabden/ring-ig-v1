@@ -34,6 +34,19 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
+// Auth Route Component (for login page)
+const AuthRoute = ({ children }) => {
+  const { session, loading } = useSupabaseAuth();
+  
+  if (loading) return <LoadingScreen />;
+  
+  if (session) {
+    return <Navigate to="/" replace />;
+  }
+  
+  return children;
+};
+
 function App() {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -55,22 +68,39 @@ function App() {
               {isLoading && <LoadingScreen />}
               <div className={`transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
                 <Routes>
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/" element={
-                    <ProtectedRoute>
-                      <ImageGenerator />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/image/:imageId" element={
-                    <ProtectedRoute>
-                      <SingleImageView />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/profile/:userId" element={
-                    <ProtectedRoute>
-                      <PublicProfile />
-                    </ProtectedRoute>
-                  } />
+                  <Route 
+                    path="/login" 
+                    element={
+                      <AuthRoute>
+                        <Login />
+                      </AuthRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/" 
+                    element={
+                      <ProtectedRoute>
+                        <ImageGenerator />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/image/:imageId" 
+                    element={
+                      <ProtectedRoute>
+                        <SingleImageView />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/profile/:userId" 
+                    element={
+                      <ProtectedRoute>
+                        <PublicProfile />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
               </div>
               <Toaster />
