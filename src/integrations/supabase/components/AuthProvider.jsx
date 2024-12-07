@@ -9,15 +9,45 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const queryClient = useQueryClient();
 
+  const clearAuthData = () => {
+    setSession(null);
+    queryClient.invalidateQueries('user');
+    window.localStorage.removeItem('supabase.auth.token');
+    // Clear any other auth-related data from localStorage
+    const keys = Object.keys(localStorage);
+    keys.forEach(key => {
+      if (key.startsWith('supabase.auth.')) {
+        localStorage.removeItem(key);
+      }
+    });
+  };
+
   const handleAuthSession = async () => {
     try {
       const { data: { session: currentSession }, error } = await supabase.auth.getSession();
-      if (error) throw error;
+      if (error) {
+        console.error('Auth session error:', error);
+        clearAuthData();
+        return;
+      }
+      
+      if (!currentSession) {
+        clearAuthData();
+        return;
+      }
+
+      // Verify the session is still valid
+      const { data: user, error: userError } = await supabase.auth.getUser();
+      if (userError) {
+        console.error('User verification error:', userError);
+        clearAuthData();
+        return;
+      }
+
       setSession(currentSession);
     } catch (error) {
       console.error('Auth error:', error);
-      // Clear invalid session data
-      window.localStorage.removeItem('supabase.auth.token');
+      clearAuthData();
     } finally {
       setLoading(false);
     }
@@ -29,19 +59,30 @@ export const AuthProvider = ({ children }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth event:', event);
       
-      if (event === 'SIGNED_IN') {
-        setSession(session);
-        queryClient.invalidateQueries('user');
-      } else if (event === 'SIGNED_OUT') {
-        setSession(null);
-        queryClient.invalidateQueries('user');
-        window.localStorage.removeItem('supabase.auth.token');
-      } else if (event === 'TOKEN_REFRESHED') {
-        setSession(session);
-        queryClient.invalidateQueries('user');
-      } else if (event === 'USER_UPDATED') {
-        setSession(session);
-        queryClient.invalidateQueries('user');
+      switch (event) {
+        case 'SIGNED_IN':
+          setSession(session);
+          queryClient.invalidateQueries('user');
+          break;
+        case 'SIGNED_OUT':
+          clearAuthData();
+          break;
+        case 'TOKEN_REFRESHED':
+          setSession(session);
+          queryClient.invalidateQueries('user');
+          break;
+        case 'USER_UPDATED':
+          setSession(session);
+          queryClient.invalidateQueries('user');
+          break;
+        case 'USER_DELETED':
+          clearAuthData();
+          break;
+        default:
+          // Handle any unexpected events
+          if (!session) {
+            clearAuthData();
+          }
       }
     });
 
@@ -53,9 +94,7 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       await supabase.auth.signOut();
-      setSession(null);
-      queryClient.invalidateQueries('user');
-      window.localStorage.removeItem('supabase.auth.token');
+      clearAuthData();
     } catch (error) {
       console.error('Error signing out:', error);
     }
