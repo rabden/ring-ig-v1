@@ -6,12 +6,12 @@ import { useQuery } from '@tanstack/react-query';
 import { downloadImage } from '@/utils/downloadUtils';
 import ImageCardActions from './ImageCardActions';
 import { supabase } from '@/integrations/supabase/supabase';
-import MobileImageView from './MobileImageView';
 import ImageDetailsDialog from './ImageDetailsDialog';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import ImageCardMedia from './image-card/ImageCardMedia';
 import ImageCardBadges from './image-card/ImageCardBadges';
+import { useNavigate } from 'react-router-dom';
 
 const ImageCard = ({ 
   image, 
@@ -24,12 +24,12 @@ const ImageCard = ({
   onToggleLike = () => {},
   setActiveTab,
 }) => {
-  const [mobileViewOpen, setMobileViewOpen] = useState(false);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const { data: modelConfigs } = useModelConfigs();
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
+  const navigate = useNavigate();
 
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['imageLikes', image.id],
@@ -46,11 +46,7 @@ const ImageCard = ({
 
   const handleImageClick = (e) => {
     e.preventDefault();
-    if (isMobileDevice) {
-      setMobileViewOpen(true);
-    } else {
-      onImageClick(image);
-    }
+    navigate(`/image/${image.id}`);
   };
 
   const handleRemixClick = () => {
@@ -129,20 +125,6 @@ const ImageCard = ({
           />
         </div>
       </div>
-
-      {isMobileDevice && (
-        <MobileImageView
-          image={image}
-          onClose={() => setMobileViewOpen(false)}
-          onDownload={handleDownload}
-          onDiscard={handleDiscard}
-          onRemix={handleRemixClick}
-          isOwner={image.user_id === userId}
-          setActiveTab={setActiveTab}
-          showFullImage={true}
-          isOpen={mobileViewOpen}
-        />
-      )}
 
       <ImageDetailsDialog
         open={detailsDialogOpen}
