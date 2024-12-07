@@ -109,16 +109,17 @@ const MobileImageView = ({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b">
-        <div className="flex items-center p-4">
-          <Button variant="ghost" size="icon" onClick={onClose} className="mr-2">
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-lg font-semibold">Image Details</h1>
-        </div>
-      </div>
-      <ScrollArea className="h-[calc(100vh-64px)]">
-        <div className="p-4 space-y-6">
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        onClick={onClose} 
+        className="fixed top-4 left-4 z-50 bg-background/80 backdrop-blur-sm hover:bg-background/90"
+      >
+        <ArrowLeft className="h-5 w-5" />
+      </Button>
+
+      <ScrollArea className="h-screen">
+        <div className="p-4 space-y-6 pt-16">
           {showFullImage && (
             <div className="relative rounded-lg overflow-hidden mb-6">
               <img
@@ -131,32 +132,34 @@ const MobileImageView = ({
             </div>
           )}
 
-          <ImageOwnerHeader 
-            owner={owner}
-            image={image}
-            isOwner={isOwner}
-            userLikes={userLikes}
-            toggleLike={toggleLike}
-            likeCount={likeCount}
-          />
-          
           {session && (
-            <div className="flex gap-2 justify-between mb-6">
-              <Button variant="ghost" size="sm" className="flex-1" onClick={onDownload}>
-                <Download className="mr-2 h-4 w-4" />
-                Download
-              </Button>
-              {isOwner && (
-                <Button variant="ghost" size="sm" className="flex-1 text-destructive hover:text-destructive" onClick={handleDiscardImage}>
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Discard
+            <>
+              <ImageOwnerHeader 
+                owner={owner}
+                image={image}
+                isOwner={isOwner}
+                userLikes={userLikes}
+                toggleLike={toggleLike}
+                likeCount={likeCount}
+              />
+              
+              <div className="flex gap-1 justify-between mb-6">
+                <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={onDownload}>
+                  <Download className="mr-1 h-3 w-3" />
+                  Download
                 </Button>
-              )}
-              <Button variant="ghost" size="sm" className="flex-1" onClick={() => handleRemix(image)}>
-                <Wand2 className="mr-2 h-4 w-4" />
-                Remix
-              </Button>
-            </div>
+                {isOwner && (
+                  <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs text-destructive hover:text-destructive" onClick={handleDiscardImage}>
+                    <Trash2 className="mr-1 h-3 w-3" />
+                    Discard
+                  </Button>
+                )}
+                <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={() => handleRemix(image)}>
+                  <Wand2 className="mr-1 h-3 w-3" />
+                  Remix
+                </Button>
+              </div>
+            </>
           )}
 
           <div>
