@@ -54,11 +54,13 @@ export const useFollows = (targetUserId) => {
 
         if (error) throw error;
       } else {
+        // Insert follow with created_at
         const { error } = await supabase
           .from('user_follows')
           .insert({ 
             follower_id: currentUserId, 
-            following_id: targetUserId 
+            following_id: targetUserId,
+            created_at: new Date().toISOString()
           });
 
         if (error) throw error;
@@ -68,31 +70,24 @@ export const useFollows = (targetUserId) => {
           .from('notifications')
           .insert([{
             user_id: targetUserId,
+            type: 'follow',
             title: 'New Follower',
             message: `${currentUserProfile?.display_name || 'Someone'} started following you`,
             image_url: currentUserProfile?.avatar_url || '',
             link: `/profile/${currentUserId}`,
-            link_names: 'View Profile'
+            actor_id: currentUserId,
+            target_id: targetUserId,
+            is_read: false,
+            created_at: new Date().toISOString()
           }]);
         
-        if (notificationError) throw notificationError;
+        if (notificationError) {
+          console.error('Notification error:', notificationError);
+          throw notificationError;
+        }
       }
 
-      // Get updated counts after follow/unfollow
-      const { data: updatedProfile } = await supabase
-        .from('profiles')
-        .select('followers_count, following_count')
-        .eq('id', currentUserId)
-        .single();
-
-      if (updatedProfile) {
-        await supabase.auth.updateUser({
-          data: { 
-            followers_count: updatedProfile.followers_count,
-            following_count: updatedProfile.following_count
-          }
-        });
-      }
+      // The follow counts will be updated automatically by the on_follow_changed trigger
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['follows', currentUserId]);
