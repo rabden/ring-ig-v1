@@ -16,24 +16,20 @@ export const AuthUI = () => {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       console.error('Error signing in:', error.message);
       setError(error.message);
     }
-    setIsLoading(false);
   };
 
   const handleEmailSignUp = async (e) => {
     e.preventDefault();
     setError('');
-    setIsLoading(true);
     const finalDisplayName = displayName || generateRandomDisplayName();
     const { error } = await supabase.auth.signUp({
       email,
@@ -50,12 +46,10 @@ export const AuthUI = () => {
     } else {
       setError('Check your email for the confirmation link.');
     }
-    setIsLoading(false);
   };
 
   const handleGoogleSignIn = async () => {
     setError('');
-    setIsLoading(true);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -70,22 +64,23 @@ export const AuthUI = () => {
       console.error('Error signing in with Google:', error.message);
       toast.error(error.message);
     }
-    setIsLoading(false);
   };
 
   return (
     <div className="space-y-6">
       <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold tracking-tight">
+        <h1 className="text-2xl font-semibold tracking-tight">
           {location.pathname === '/login' ? 'Login' : 'Create your account'}
         </h1>
         <p className="text-sm text-muted-foreground">
-          Enter your email below to {location.pathname === '/login' ? 'login to' : 'create'} your account
+          {location.pathname === '/login' 
+            ? 'Enter your email and password below to login' 
+            : 'Enter your email below to create your account'}
         </p>
       </div>
 
-      <div className="grid gap-4">
-        <Button variant="outline" onClick={handleGoogleSignIn} disabled={isLoading}>
+      <div className="space-y-4">
+        <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
           <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
             <path
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -136,11 +131,10 @@ export const AuthUI = () => {
               <Input
                 id="signin-email"
                 type="email"
-                placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                disabled={isLoading}
+                placeholder="name@example.com"
               />
             </div>
             <div className="space-y-2">
@@ -151,12 +145,9 @@ export const AuthUI = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Sign In'}
-            </Button>
+            <Button type="submit" className="w-full">Sign In</Button>
           </form>
         </TabsContent>
 
@@ -167,11 +158,10 @@ export const AuthUI = () => {
               <Input
                 id="signup-email"
                 type="email"
-                placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                disabled={isLoading}
+                placeholder="name@example.com"
               />
             </div>
             <div className="space-y-2">
@@ -182,7 +172,6 @@ export const AuthUI = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                disabled={isLoading}
               />
             </div>
             <div className="space-y-2">
@@ -193,12 +182,9 @@ export const AuthUI = () => {
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="Enter display name or leave blank for random"
-                disabled={isLoading}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Creating account...' : 'Create Account'}
-            </Button>
+            <Button type="submit" className="w-full">Sign Up</Button>
           </form>
         </TabsContent>
       </Tabs>

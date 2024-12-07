@@ -25,9 +25,7 @@ const queryClient = new QueryClient({
 const ProtectedRoute = ({ children }) => {
   const { session, loading } = useSupabaseAuth();
   
-  if (loading) {
-    return <LoadingScreen />;
-  }
+  if (loading) return <LoadingScreen />;
   
   if (!session) {
     return <Navigate to="/login" replace />;
