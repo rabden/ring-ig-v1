@@ -74,8 +74,8 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
   if (!user) return null;
 
   const displayName = user?.user_metadata?.display_name || user?.email?.split('@')[0] || '';
-  const totalCredits = credits + bonusCredits;
-  const creditsProgress = (credits / totalCredits) * 100;
+  const MAX_CREDITS = 50;
+  const creditsProgress = (credits / MAX_CREDITS) * 100;
 
   return (
     <>
@@ -85,20 +85,21 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
             <ProfileAvatar user={user} isPro={isPro} size="sm" showEditOnHover={false} />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-80 p-4" align="end">
+        <DropdownMenuContent className="w-80 p-4" align="end" sideOffset={8}>
           <div className="space-y-4">
             {/* Profile Header */}
-            <div className="flex items-start gap-3">
+            <div className="flex items-center gap-3">
               <ProfileAvatar 
                 user={user} 
                 isPro={isPro} 
-                size="md" 
+                size="sm" 
                 showEditOnHover={true}
                 onClick={() => setShowImageDialog(true)}
+                className="w-8 h-8"
               />
-              <div className="flex-1">
-                <h4 className="font-medium text-sm">{displayName}</h4>
-                <p className="text-xs text-muted-foreground">{user.email}</p>
+              <div className="flex-1 flex flex-col justify-center">
+                <h4 className="font-medium text-base leading-tight">{displayName}</h4>
+                <p className="text-sm text-muted-foreground leading-tight">{user.email}</p>
               </div>
             </div>
 
@@ -106,13 +107,13 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Credits</span>
-                <span>{credits} / {totalCredits}</span>
+                <span>{credits} <span className="text-muted-foreground">/ {MAX_CREDITS}</span> {bonusCredits > 0 && <span className="text-green-500">+{bonusCredits}</span>}</span>
               </div>
               <Progress value={creditsProgress} className="h-2" />
             </div>
 
             {/* Stats */}
-            <div className="flex justify-between text-sm py-2">
+            <div className="grid grid-cols-2 gap-4 text-sm py-2">
               <div>
                 <span className="font-medium">{followCounts.followers}</span>
                 <span className="text-muted-foreground ml-1">Followers</span>
@@ -129,7 +130,7 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
                 variant="ghost" 
                 size="sm" 
                 onClick={() => logout()}
-                className="text-xs"
+                className="text-xs hover:bg-destructive/10 hover:text-destructive"
               >
                 <LogOut className="w-3 h-3 mr-1" />
                 Sign out
