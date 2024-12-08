@@ -36,33 +36,55 @@ const UserProfile = () => {
     queryFn: async () => {
       if (!session?.user?.id) return null;
       
-      const [followersResult, followingResult, likesResult, creditsResult] = await Promise.all([
-        supabase
-          .from('user_follows')
-          .select('*', { count: 'exact' })
-          .eq('following_id', session.user.id),
-        supabase
-          .from('user_follows')
-          .select('*', { count: 'exact' })
-          .eq('follower_id', session.user.id),
-        supabase
-          .from('user_image_likes')
-          .select('*', { count: 'exact' })
-          .eq('created_by', session.user.id),
-        supabase
-          .from('profiles')
-          .select('credits, bonus_credits')
-          .eq('id', session.user.id)
-          .single()
-      ]);
-      
-      return {
-        followers: followersResult.count || 0,
-        following: followingResult.count || 0,
-        likes: likesResult.count || 0,
-        credits: creditsResult.data?.credits || 0,
-        bonusCredits: creditsResult.data?.bonus_credits || 0
-      };
+      try {
+        const [followersResult, followingResult, likesResult, profileResult] = await Promise.all([
+          supabase
+            .from('user_follows')
+            .select('*', { count: 'exact' })
+            .eq('following_id', session.user.id),
+          supabase
+            .from('user_follows')
+            .select('*', { count: 'exact' })
+            .eq('follower_id', session.user.id),
+          supabase
+            .from('user_image_likes')
+            .select('*', { count: 'exact' })
+            .eq('created_by', session.user.id),
+          supabase
+            .from('profiles')
+            .select('credits, bonus_credits')
+            .eq('user_id', session.user.id)
+            .single()
+        ]);
+
+        if (profileResult.error) {
+          console.error('Profile fetch error:', profileResult.error);
+          return {
+            followers: followersResult.count || 0,
+            following: followingResult.count || 0,
+            likes: likesResult.count || 0,
+            credits: 0,
+            bonusCredits: 0
+          };
+        }
+        
+        return {
+          followers: followersResult.count || 0,
+          following: followingResult.count || 0,
+          likes: likesResult.count || 0,
+          credits: profileResult.data?.credits || 0,
+          bonusCredits: profileResult.data?.bonus_credits || 0
+        };
+      } catch (error) {
+        console.error('Error fetching user stats:', error);
+        return {
+          followers: 0,
+          following: 0,
+          likes: 0,
+          credits: 0,
+          bonusCredits: 0
+        };
+      }
     },
     enabled: !!session?.user?.id
   });
