@@ -7,7 +7,8 @@ import NoResults from './NoResults';
 import { useGalleryImages } from '@/hooks/useGalleryImages';
 
 const breakpointColumnsObj = {
-  default: 4,
+  default: 5,
+  1400: 4,
   1100: 3,
   700: 2,
   500: 2
@@ -118,7 +119,7 @@ const ImageGallery = ({
     <>
       <Masonry
         breakpointCols={breakpointColumnsObj}
-        className="flex w-auto md:px-2 -mx-1 md:mx-0"
+        className="flex w-full -mx-1 md:mx-0"
         columnClassName="bg-clip-padding px-1 md:px-2"
       >
         {renderContent()}
