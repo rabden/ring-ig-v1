@@ -7,11 +7,11 @@ import NoResults from './NoResults';
 import { useGalleryImages } from '@/hooks/useGalleryImages';
 
 const getBreakpointColumns = (activeView) => {
-  if (activeView === 'inspiration') {
+  if (activeView === 'inspiration' || activeView === 'profile') {
     return {
       default: 5,
-      1600: 4,
-      1200: 3,
+      1600: 5,
+      1200: 4,
       700: 2,
       500: 2
     };
