@@ -1,4 +1,5 @@
 import React from 'react';
+import ImageGeneratorSettings from './ImageGeneratorSettings';
 import ImageGallery from './ImageGallery';
 import BottomNavbar from './BottomNavbar';
 import MobileNotificationsMenu from './MobileNotificationsMenu';
@@ -7,9 +8,6 @@ import ImageDetailsDialog from './ImageDetailsDialog';
 import FullScreenImageView from './FullScreenImageView';
 import DesktopHeader from './header/DesktopHeader';
 import MobileHeader from './header/MobileHeader';
-import ImageGeneratorSettings from './ImageGeneratorSettings';
-import NewInputSettingsBox from './settings/NewInputSettingsBox';
-import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 
 const ImageGeneratorContent = ({
   session,
@@ -41,15 +39,12 @@ const ImageGeneratorContent = ({
   setStyle,
   imageGeneratorProps
 }) => {
-  const { isImproving, improveCurrentPrompt } = usePromptImprovement();
-
   return (
     <>
-      <div className="flex flex-col min-h-screen bg-background text-foreground">
-        {/* Desktop Header */}
-        {session && (
-          <>
-            <div className="hidden md:block w-full">
+      <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
+        <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} md:pr-[350px] pb-20 md:pb-6`}>
+          {session && (
+            <>
               <DesktopHeader
                 user={session.user}
                 credits={credits}
@@ -65,9 +60,6 @@ const ImageGeneratorContent = ({
                 showPrivate={showPrivate}
                 onTogglePrivate={() => setShowPrivate(!showPrivate)}
               />
-            </div>
-            {/* Mobile Header */}
-            <div className="md:hidden">
               <MobileHeader
                 activeFilters={activeFilters}
                 onFilterChange={onFilterChange}
@@ -79,46 +71,10 @@ const ImageGeneratorContent = ({
                 onTogglePrivate={() => setShowPrivate(!showPrivate)}
                 activeView={activeView}
               />
-            </div>
-          </>
-        )}
+            </>
+          )}
 
-        {/* Main Content */}
-        <div className="flex-grow p-2 md:p-6">
-          {/* Desktop Input Settings Box */}
-          <div className="hidden md:block mb-6">
-            <NewInputSettingsBox
-              prompt={imageGeneratorProps.prompt}
-              setPrompt={imageGeneratorProps.setPrompt}
-              handlePromptKeyDown={imageGeneratorProps.handlePromptKeyDown}
-              generateImage={imageGeneratorProps.generateImage}
-              model={imageGeneratorProps.model}
-              setModel={imageGeneratorProps.setModel}
-              settings={imageGeneratorProps}
-              onSettingsChange={(key, value) => {
-                if (typeof imageGeneratorProps[`set${key.charAt(0).toUpperCase() + key.slice(1)}`] === 'function') {
-                  imageGeneratorProps[`set${key.charAt(0).toUpperCase() + key.slice(1)}`](value);
-                }
-              }}
-              session={session}
-              credits={credits}
-              bonusCredits={bonusCredits}
-              nsfwEnabled={nsfwEnabled}
-              proMode={imageGeneratorProps.proMode}
-              modelConfigs={imageGeneratorProps.modelConfigs}
-              isImproving={isImproving}
-              onImprovePrompt={() => improveCurrentPrompt(imageGeneratorProps.prompt, imageGeneratorProps.setPrompt)}
-              isGenerating={generatingImages.length > 0}
-            />
-          </div>
-
-          {/* Mobile Input Settings */}
-          <div className={`md:hidden ${activeTab === 'input' ? 'block' : 'hidden'}`}>
-            <ImageGeneratorSettings {...imageGeneratorProps} />
-          </div>
-
-          {/* Image Gallery */}
-          <div className={`${activeTab === 'images' ? 'block' : 'hidden md:block'}`}>
+          <div className="md:mt-16 mt-12">
             <ImageGallery
               userId={session?.user?.id}
               onImageClick={handleImageClick}
@@ -138,9 +94,12 @@ const ImageGeneratorContent = ({
             />
           </div>
         </div>
+
+        <div className={`w-full md:w-[350px] bg-card text-card-foreground p-4 md:p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-0 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-screen relative`}>
+          <ImageGeneratorSettings {...imageGeneratorProps} />
+        </div>
       </div>
 
-      {/* Mobile Navigation and Menus */}
       <MobileNotificationsMenu activeTab={activeTab} />
       <MobileProfileMenu 
         user={session?.user}
@@ -148,6 +107,7 @@ const ImageGeneratorContent = ({
         bonusCredits={bonusCredits}
         activeTab={activeTab}
       />
+
       <BottomNavbar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
@@ -159,7 +119,6 @@ const ImageGeneratorContent = ({
         generatingImages={generatingImages}
       />
       
-      {/* Dialogs */}
       <ImageDetailsDialog
         open={detailsDialogOpen}
         onOpenChange={setDetailsDialogOpen}
