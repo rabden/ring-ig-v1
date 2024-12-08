@@ -6,49 +6,11 @@ import GeneratingImagesDrawer from './GeneratingImagesDrawer';
 import MobileNavButton from './navbar/MobileNavButton';
 import NotificationBell from './notifications/NotificationBell';
 import ProfileMenu from './ProfileMenu';
-import { useNavigate, useLocation } from 'react-router-dom';
 
 const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits, activeView, setActiveView, generatingImages = [] }) => {
   const { unreadCount } = useNotifications();
   const { data: isPro } = useProUser(session?.user?.id);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const currentPath = location.pathname;
-
-  const handleNavigation = (path, tab, view) => {
-    navigate(path);
-    if (setActiveTab) setActiveTab(tab);
-    if (setActiveView) setActiveView(view);
-  };
-
-  const handlePlusClick = () => {
-    if (currentPath !== '/') {
-      navigate('/');
-      // Use setTimeout to ensure navigation completes before tab switch
-      setTimeout(() => {
-        setActiveTab('input');
-        setActiveView('myImages');
-      }, 0);
-    } else {
-      setActiveTab('input');
-      setActiveView('myImages');
-    }
-  };
-
-  const handleNotificationClick = () => {
-    if (currentPath !== '/') {
-      navigate('/');
-      // Use setTimeout to ensure navigation completes before tab switch
-      setTimeout(() => {
-        setActiveTab('notifications');
-        setActiveView('myImages');
-      }, 0);
-    } else {
-      setActiveTab('notifications');
-      setActiveView('myImages');
-    }
-  };
 
   return (
     <>
@@ -56,25 +18,31 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
         <div className="flex items-center justify-around px-2 max-w-md mx-auto">
           <MobileNavButton
             icon={Image}
-            isActive={currentPath === '/'}
-            onClick={() => handleNavigation('/', 'images', 'myImages')}
+            isActive={activeTab === 'images' && activeView === 'myImages'}
+            onClick={() => {
+              setActiveTab('images');
+              setActiveView('myImages');
+            }}
           />
           <MobileNavButton
             icon={Sparkles}
-            isActive={currentPath === '/inspiration'}
-            onClick={() => handleNavigation('/inspiration', 'images', 'inspiration')}
+            isActive={activeTab === 'images' && activeView === 'inspiration'}
+            onClick={() => {
+              setActiveTab('images');
+              setActiveView('inspiration');
+            }}
           />
           <MobileNavButton
             icon={Plus}
             isActive={activeTab === 'input'}
-            onClick={handlePlusClick}
+            onClick={() => setActiveTab('input')}
             onLongPress={() => setDrawerOpen(true)}
             badge={generatingImages.length}
           />
           <MobileNavButton
             icon={NotificationBell}
             isActive={activeTab === 'notifications'}
-            onClick={handleNotificationClick}
+            onClick={() => setActiveTab('notifications')}
           />
           <div className="flex items-center justify-center">
             {session ? (

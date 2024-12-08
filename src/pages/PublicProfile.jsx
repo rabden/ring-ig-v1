@@ -77,61 +77,57 @@ const PublicProfile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="px-2 md:px-6 py-4">
-        <Button 
-          variant="ghost" 
-          className="mb-4 hover:bg-accent"
-          onClick={() => navigate(-1)}
-        >
-          <ChevronLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
+    <div className="container mx-auto px-4 py-4 sm:py-8">
+      <Button 
+        variant="ghost" 
+        className="mb-4 hover:bg-accent"
+        onClick={() => navigate(-1)}
+      >
+        <ChevronLeft className="h-4 w-4 mr-2" />
+        Back
+      </Button>
 
-        <Card className="p-4 sm:p-6 mb-6">
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <div className="flex-shrink-0">
-              <ProfileAvatar 
-                user={{ user_metadata: { avatar_url: profile.avatar_url } }} 
-                size="lg" 
-              />
-            </div>
+      <Card className="p-4 sm:p-6 mb-6">
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <div className="flex-shrink-0">
+            <ProfileAvatar 
+              user={{ user_metadata: { avatar_url: profile.avatar_url } }} 
+              size="lg" 
+            />
+          </div>
+          
+          <div className="flex-1 text-center sm:text-left">
+            <h1 className="text-2xl font-bold mb-1">{profile.display_name}</h1>
+            <p className="text-sm text-muted-foreground mb-2">Joined {formatJoinDate(profile.created_at)}</p>
             
-            <div className="flex-1 text-center sm:text-left">
-              <h1 className="text-2xl font-bold mb-1">{profile.display_name}</h1>
-              <p className="text-sm text-muted-foreground mb-2">Joined {formatJoinDate(profile.created_at)}</p>
-              
-              <div className="flex flex-wrap justify-center sm:justify-start gap-4 items-center">
-                <div className="flex items-center gap-1">
-                  <Image className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">{stats.totalImages}</span>
-                  <span className="text-xs text-muted-foreground ml-1">Images</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Heart className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">{stats.totalLikes}</span>
-                  <span className="text-xs text-muted-foreground ml-1">Likes</span>
-                </div>
-                <FollowStats userId={userId} />
-                {currentUserId && currentUserId !== userId && (
-                  <FollowButton userId={userId} />
-                )}
+            <div className="flex flex-wrap justify-center sm:justify-start gap-4 items-center">
+              <div className="flex items-center gap-1">
+                <Image className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium">{stats.totalImages}</span>
+                <span className="text-xs text-muted-foreground ml-1">Images</span>
               </div>
+              <div className="flex items-center gap-1">
+                <Heart className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium">{stats.totalLikes}</span>
+                <span className="text-xs text-muted-foreground ml-1">Likes</span>
+              </div>
+              <FollowStats userId={userId} />
+              {currentUserId && currentUserId !== userId && (
+                <FollowButton userId={userId} />
+              )}
             </div>
           </div>
-        </Card>
-
-        <div className="pb-20 md:pb-6">
-          <ImageGallery 
-            userId={currentUserId}
-            profileUserId={userId}
-            activeView="profile"
-            nsfwEnabled={false}
-            showPrivate={false}
-            onImageClick={handleImageClick}
-          />
         </div>
-      </div>
+      </Card>
+
+      <ImageGallery 
+        userId={currentUserId}
+        profileUserId={userId}
+        activeView="myImages"
+        nsfwEnabled={false}
+        showPrivate={false}
+        onImageClick={handleImageClick}
+      />
 
       {selectedImage && (
         <FullScreenImageView
