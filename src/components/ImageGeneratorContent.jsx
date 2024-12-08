@@ -75,7 +75,7 @@ const ImageGeneratorContent = ({
             </>
           )}
 
-          <div className="md:mt-16 mt-12">
+          <div className="md:mt-12 mt-12">
             <ImageGallery
               userId={session?.user?.id}
               onImageClick={handleImageClick}
@@ -96,7 +96,7 @@ const ImageGeneratorContent = ({
         </div>
 
         {!isInspiration && (
-          <div className={`w-full md:w-[350px] bg-card text-card-foreground p-4 md:p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-16 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-[calc(100vh-4rem)] relative border-l`}>
+          <div className={`w-full md:w-[350px] bg-card text-card-foreground p-4 md:p-6 overflow-y-auto ${activeTab === 'input' ? 'block' : 'hidden md:block'} md:fixed md:right-0 md:top-12 md:bottom-0 max-h-[calc(100vh-56px)] md:max-h-[calc(100vh-3rem)] relative`}>
             <ImageGeneratorSettings {...imageGeneratorProps} />
           </div>
         )}

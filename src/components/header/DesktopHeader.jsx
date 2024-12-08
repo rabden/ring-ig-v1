@@ -17,7 +17,7 @@ const DesktopHeader = ({
   onTogglePrivate
 }) => {
   return (
-    <div className="hidden md:block fixed top-0 left-0 right-0 bg-background z-10 h-16 border-b">
+    <div className="hidden md:block fixed top-0 left-0 right-0 bg-background z-10 h-12">
       <div className="flex justify-between items-center h-full px-10 max-w-full">
         <div className="flex items-center gap-2 whitespace-nowrap">
           <div className="h-8">
