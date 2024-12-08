@@ -1,10 +1,10 @@
+import React, { useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/integrations/supabase/components/AuthProvider';
 import { NotificationProvider } from '@/contexts/NotificationContext';
-import { useState, useEffect } from 'react';
 import ImageGenerator from '@/pages/ImageGenerator';
 import SingleImageView from '@/components/SingleImageView';
 import PublicProfile from '@/pages/PublicProfile';
