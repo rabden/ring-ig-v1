@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import ImageGenerator from '@/pages/ImageGenerator';
 import SingleImageView from '@/components/SingleImageView';
 import PublicProfile from '@/pages/PublicProfile';
+import UserProfile from '@/pages/UserProfile';
 import LoadingScreen from '@/components/LoadingScreen';
 import Login from '@/pages/Login';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
@@ -95,6 +96,14 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <PublicProfile />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/userprofile" 
+                    element={
+                      <ProtectedRoute>
+                        <UserProfile />
                       </ProtectedRoute>
                     } 
                   />

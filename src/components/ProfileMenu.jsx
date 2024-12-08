@@ -10,10 +10,11 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useRealtimeProfile } from '@/hooks/useRealtimeProfile';
 import { handleAvatarUpload } from '@/utils/profileUtils';
 import { useQueryClient } from '@tanstack/react-query';
-import { LogOut } from 'lucide-react';
+import { LogOut, ChevronRight } from 'lucide-react';
 import ProfileAvatar from './profile/ProfileAvatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Progress } from '@/components/ui/progress';
+import { Link } from 'react-router-dom';
 
 const ProfileMenu = ({ user, credits, bonusCredits }) => {
   const { logout } = useSupabaseAuth();
@@ -85,10 +86,10 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
             <ProfileAvatar user={user} isPro={isPro} size="sm" showEditOnHover={false} />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-80 p-4" align="end" sideOffset={8}>
+        <DropdownMenuContent className="w-80 p-4" align="end" side="bottom" alignOffset={-8}>
           <div className="space-y-4">
-            {/* Profile Header */}
-            <div className="flex items-center gap-3">
+            {/* Profile Header with Link */}
+            <Link to="/userprofile" className="flex items-center gap-3 group hover:bg-accent rounded-md p-2 -m-2 transition-colors">
               <ProfileAvatar 
                 user={user} 
                 isPro={isPro} 
@@ -97,11 +98,12 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
                 onClick={() => setShowImageDialog(true)}
                 className="w-8 h-8"
               />
-              <div className="flex-1 flex flex-col justify-center">
-                <h4 className="font-medium text-base leading-tight">{displayName}</h4>
-                <p className="text-sm text-muted-foreground leading-tight">{user.email}</p>
+              <div className="flex-1 flex flex-col justify-center min-w-0">
+                <h4 className="font-medium text-base leading-tight truncate">{displayName}</h4>
+                <p className="text-sm text-muted-foreground leading-tight truncate">{user.email}</p>
               </div>
-            </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+            </Link>
 
             {/* Credits Progress */}
             <div className="space-y-2">
@@ -113,14 +115,18 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-2 gap-4 text-sm py-2">
-              <div>
-                <span className="font-medium">{followCounts.followers}</span>
-                <span className="text-muted-foreground ml-1">Followers</span>
+            <div className="grid grid-cols-3 gap-2 text-sm py-2">
+              <div className="text-center">
+                <span className="font-medium block">{followCounts.followers}</span>
+                <span className="text-muted-foreground text-xs">Followers</span>
               </div>
-              <div>
-                <span className="font-medium">{totalLikes}</span>
-                <span className="text-muted-foreground ml-1">Likes</span>
+              <div className="text-center">
+                <span className="font-medium block">{followCounts.following}</span>
+                <span className="text-muted-foreground text-xs">Following</span>
+              </div>
+              <div className="text-center">
+                <span className="font-medium block">{totalLikes}</span>
+                <span className="text-muted-foreground text-xs">Likes</span>
               </div>
             </div>
 
