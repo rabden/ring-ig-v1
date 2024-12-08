@@ -86,7 +86,15 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
             <ProfileAvatar user={user} isPro={isPro} size="sm" showEditOnHover={false} />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-80 p-4" align="end" side="bottom" alignOffset={-8}>
+        <DropdownMenuContent 
+          className="w-80 p-4" 
+          align="end" 
+          side="bottom" 
+          alignOffset={-8}
+          sideOffset={8}
+          collisionPadding={{ left: 16, right: 16 }}
+          avoidCollisions={true}
+        >
           <div className="space-y-4">
             {/* Profile Header with Link */}
             <Link to="/userprofile" className="flex items-center gap-3 group hover:bg-accent rounded-md p-2 -m-2 transition-colors">
