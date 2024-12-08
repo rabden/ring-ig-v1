@@ -52,8 +52,8 @@ const UserProfile = () => {
             .eq('created_by', session.user.id),
           supabase
             .from('profiles')
-            .select('credits, bonus_credits')
-            .eq('user_id', session.user.id)
+            .select('credit_count, bonus_credits, followers_count, following_count')
+            .eq('id', session.user.id)
             .single()
         ]);
 
@@ -69,10 +69,10 @@ const UserProfile = () => {
         }
         
         return {
-          followers: followersResult.count || 0,
-          following: followingResult.count || 0,
+          followers: profileResult.data?.followers_count || 0,
+          following: profileResult.data?.following_count || 0,
           likes: likesResult.count || 0,
-          credits: profileResult.data?.credits || 0,
+          credits: profileResult.data?.credit_count || 0,
           bonusCredits: profileResult.data?.bonus_credits || 0
         };
       } catch (error) {
