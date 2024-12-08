@@ -43,7 +43,6 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
             icon={NotificationBell}
             isActive={activeTab === 'notifications'}
             onClick={() => setActiveTab('notifications')}
-            badge={unreadCount}
           />
           <MobileNavButton
             icon={User}

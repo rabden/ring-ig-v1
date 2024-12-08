@@ -5,12 +5,30 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/co
 import { useNotifications } from '@/contexts/NotificationContext';
 import NotificationList from './NotificationList';
 import { cn } from '@/lib/utils';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const NotificationBell = () => {
   const { unreadCount } = useNotifications();
   const [isOpen, setIsOpen] = React.useState(false);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
-  return (
+  const handleClick = () => {
+    setIsOpen(true);
+  };
+
+  return isMobile ? (
+    <Button 
+      variant="ghost" 
+      size="icon" 
+      className={cn(
+        "h-7 w-7 p-0 relative md:flex",
+        unreadCount > 0 && "after:content-[''] after:absolute after:top-1 after:right-1 after:w-2 after:h-2 after:bg-red-500 after:rounded-full after:ring-2 after:ring-background"
+      )}
+      onClick={handleClick}
+    >
+      <Bell className="h-4 w-4" />
+    </Button>
+  ) : (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button 
