@@ -2,10 +2,14 @@ import React from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNotifications } from '@/contexts/NotificationContext';
 import NotificationItem from './NotificationItem';
+import MobileNotificationItem from './MobileNotificationItem';
 import { Bell } from 'lucide-react';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const NotificationList = () => {
   const { notifications } = useNotifications();
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const NotificationComponent = isMobile ? MobileNotificationItem : NotificationItem;
 
   if (notifications.length === 0) {
     return (
@@ -22,7 +26,7 @@ const NotificationList = () => {
         <div className="divide-y">
           {notifications.map((notification) => (
             <div key={notification.id} className="hover:bg-muted/50">
-              <NotificationItem notification={notification} />
+              <NotificationComponent notification={notification} />
             </div>
           ))}
         </div>
