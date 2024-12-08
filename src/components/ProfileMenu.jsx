@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useQuery } from '@tanstack/react-query';
@@ -11,21 +10,15 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useRealtimeProfile } from '@/hooks/useRealtimeProfile';
 import { handleAvatarUpload } from '@/utils/profileUtils';
 import { useQueryClient } from '@tanstack/react-query';
-import { CreditCard, LogOut } from 'lucide-react';
-import ProfileHeader from './profile/ProfileHeader';
-import ProfileStats from './profile/ProfileStats';
+import { LogOut } from 'lucide-react';
 import ProfileAvatar from './profile/ProfileAvatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Progress } from '@/components/ui/progress';
 
 const ProfileMenu = ({ user, credits, bonusCredits }) => {
   const { logout } = useSupabaseAuth();
-  const [isOpen, setIsOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [displayName, setDisplayName] = useState(
-    user?.user_metadata?.display_name || user?.email?.split('@')[0] || ''
-  );
   const [showImageDialog, setShowImageDialog] = useState(false);
   const { data: isPro } = useProUser(user?.id);
-  const { data: proRequest } = useProRequest(user?.id);
   const queryClient = useQueryClient();
 
   useRealtimeProfile(user?.id);
@@ -69,27 +62,6 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
     enabled: !!user?.id
   });
 
-  const handleDisplayNameUpdate = async () => {
-    try {
-      const { error } = await supabase.auth.updateUser({
-        data: { display_name: displayName }
-      });
-
-      if (error) throw error;
-
-      await supabase
-        .from('profiles')
-        .update({ display_name: displayName })
-        .eq('id', user.id);
-
-      toast.success("Display name updated successfully");
-      setIsEditing(false);
-    } catch (error) {
-      toast.error("Failed to update display name");
-      console.error('Error updating display name:', error);
-    }
-  };
-
   const onAvatarUpload = async (event) => {
     const file = event.target.files?.[0];
     const newAvatarUrl = await handleAvatarUpload(file, user?.id);
@@ -101,64 +73,71 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
 
   if (!user) return null;
 
+  const displayName = user?.user_metadata?.display_name || user?.email?.split('@')[0] || '';
+  const totalCredits = credits + bonusCredits;
+  const creditsProgress = (credits / totalCredits) * 100;
+
   return (
     <>
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetTrigger asChild>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="h-7 w-7 p-0">
             <ProfileAvatar user={user} isPro={isPro} size="sm" showEditOnHover={false} />
           </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-[400px] sm:w-[540px] p-6 m-4 rounded-lg border max-h-[calc(100vh-2rem)] overflow-y-auto">
-          <div className="space-y-6">
-            <ProfileHeader 
-              user={user}
-              isPro={isPro}
-              displayName={displayName}
-              isEditing={isEditing}
-              setIsEditing={setIsEditing}
-              setDisplayName={setDisplayName}
-              onUpdate={handleDisplayNameUpdate}
-              onAvatarEdit={() => setShowImageDialog(true)}
-            />
-            
-            <ProfileStats 
-              followersCount={followCounts.followers}
-              followingCount={followCounts.following}
-              totalLikes={totalLikes}
-            />
-            
-            <div className="space-y-4">
-              <div className="bg-muted/50 p-4 rounded-lg">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium">Credits</span>
-                  <span className="text-sm">{credits}+ B{bonusCredits}</span>
-                </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-80 p-4" align="end">
+          <div className="space-y-4">
+            {/* Profile Header */}
+            <div className="flex items-start gap-3">
+              <ProfileAvatar 
+                user={user} 
+                isPro={isPro} 
+                size="md" 
+                showEditOnHover={true}
+                onClick={() => setShowImageDialog(true)}
+              />
+              <div className="flex-1">
+                <h4 className="font-medium text-sm">{displayName}</h4>
+                <p className="text-xs text-muted-foreground">{user.email}</p>
               </div>
-              
-              {!isPro && !proRequest && (
-                <Button 
-                  variant="default" 
-                  className="w-full bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500 hover:from-yellow-400 hover:via-yellow-600 hover:to-amber-600"
-                  onClick={() => toast.error("Pro request feature not implemented")}
-                >
-                  <CreditCard className="w-4 h-4 mr-2" />
-                  Request Pro Access
-                </Button>
-              )}
-              {!isPro && proRequest && (
-                <div className="text-sm text-center text-muted-foreground p-3 bg-muted rounded-lg">
-                  Pro request under review
-                </div>
-              )}
-              <Button variant="outline" className="w-full" onClick={() => logout()}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Log out
+            </div>
+
+            {/* Credits Progress */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Credits</span>
+                <span>{credits} / {totalCredits}</span>
+              </div>
+              <Progress value={creditsProgress} className="h-2" />
+            </div>
+
+            {/* Stats */}
+            <div className="flex justify-between text-sm py-2">
+              <div>
+                <span className="font-medium">{followCounts.followers}</span>
+                <span className="text-muted-foreground ml-1">Followers</span>
+              </div>
+              <div>
+                <span className="font-medium">{totalLikes}</span>
+                <span className="text-muted-foreground ml-1">Likes</span>
+              </div>
+            </div>
+
+            {/* Sign Out Button */}
+            <div className="flex justify-end pt-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => logout()}
+                className="text-xs"
+              >
+                <LogOut className="w-3 h-3 mr-1" />
+                Sign out
               </Button>
             </div>
           </div>
-        </SheetContent>
-      </Sheet>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       <AlertDialog open={showImageDialog} onOpenChange={setShowImageDialog}>
         <AlertDialogContent>

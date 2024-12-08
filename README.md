@@ -1,70 +1,108 @@
-# Welcome to your GPT Engineer project
+# Ring IG - Modern Image Generation Platform
 
-## Project info
+A modern, feature-rich image generation platform built with React and Vite, following Apple's design principles for a clean and intuitive user experience.
 
-**URL**: https://run.gptengineer.app/projects/912257ee-357d-4353-b661-d9f4162c1762/improve
+## Features
 
-## How can I edit this code?
+### Core Functionality
+- Advanced image generation with customizable settings
+- Aspect ratio selection and style customization
+- Real-time image generation status tracking
+- Full-screen image viewing capabilities
+- Mobile-optimized interface with responsive design
 
-There are several ways of editing your application.
+### User Experience
+- Masonry grid gallery layout
+- Image details dialog with metadata
+- Like/Save functionality for images
+- Share options for generated images
+- Truncatable prompts for better UI
+- Loading states and skeleton screens
+- Mobile-specific image view optimizations
 
-**Use GPT Engineer**
+### Authentication & User Management
+- User authentication via Supabase
+- Profile management system
+- Public profile views
+- Notification system
+- Pro features support
 
-Simply visit the GPT Engineer project at [GPT Engineer](https://gptengineer.app/projects/912257ee-357d-4353-b661-d9f4162c1762/improve) and start prompting.
+## Technical Stack
 
-Changes made via gptengineer.app will be committed automatically to this repo.
+### Frontend Framework & Build Tools
+- React 18
+- Vite
+- React Router DOM for routing
 
-**Use your preferred IDE**
+### UI Components & Styling
+- shadcn/ui components
+- Radix UI primitives
+- Tailwind CSS for styling
+- Framer Motion for animations
+- Embla Carousel
+- React Masonry CSS
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in the GPT Engineer UI.
+### State Management & Data Handling
+- React Query (TanStack Query)
+- React Hook Form
+- Zod for validation
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Backend & Authentication
+- Supabase for backend services
+- Supabase Auth UI for authentication
 
-Follow these steps:
+### Development Tools
+- ESLint for code linting
+- PostCSS for CSS processing
+- Tailwind plugins for enhanced styling
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## Project Structure
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+```
+src/
+├── components/     # Reusable UI components
+├── config/        # Configuration files
+├── contexts/      # React context providers
+├── hooks/         # Custom React hooks
+├── integrations/  # External service integrations
+├── lib/          # Utility libraries
+├── pages/        # Main application pages
+├── styles/       # Global styles
+└── utils/        # Helper functions
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Getting Started
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+1. Clone the repository
+```bash
+git clone <repository-url>
+```
+
+2. Install dependencies
+```bash
+npm install
+```
+
+3. Set up environment variables
+Create a `.env` file with necessary Supabase and other configuration values.
+
+4. Start development server
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Development Commands
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run build:dev` - Build for development
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
 
-**Use GitHub Codespaces**
+## Contributing
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-All GPT Engineer projects can be deployed directly via the GPT Engineer app.
-
-Simply visit your project at [GPT Engineer](https://gptengineer.app/projects/912257ee-357d-4353-b661-d9f4162c1762/improve) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.gptengineer.app/tips-tricks/custom-domain/)
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
