@@ -44,14 +44,16 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
             isActive={activeTab === 'notifications'}
             onClick={() => setActiveTab('notifications')}
           />
-          <div className="py-2">
+          <div className="flex items-center justify-center">
             {session ? (
-              <ProfileMenu 
-                user={session.user} 
-                credits={credits} 
-                bonusCredits={bonusCredits} 
-                isMobile={true}
-              />
+              <div className="group">
+                <ProfileMenu 
+                  user={session.user} 
+                  credits={credits} 
+                  bonusCredits={bonusCredits} 
+                  isMobile={true}
+                />
+              </div>
             ) : (
               <MobileNavButton
                 icon={User}
