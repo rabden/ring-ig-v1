@@ -82,13 +82,18 @@ export const useGalleryImages = ({
       // Handle Inspiration view
       baseQuery = baseQuery
         .neq('user_id', userId)
-        .eq('is_private', false)
-        .order('created_at', { ascending: false }); // Add default latest-first sorting
+        .eq('is_private', false);
 
+      // Apply NSFW filter
       if (nsfwEnabled) {
         baseQuery = baseQuery.in('model', NSFW_MODELS);
       } else {
         baseQuery = baseQuery.not('model', 'in', '(' + NSFW_MODELS.join(',') + ')');
+      }
+
+      // Apply search filter for inspiration view
+      if (searchQuery) {
+        baseQuery = baseQuery.ilike('prompt', `%${searchQuery}%`);
       }
 
       const { data: allImages, error } = await baseQuery;
@@ -96,20 +101,23 @@ export const useGalleryImages = ({
       if (error) throw error;
       if (!allImages) return { data: [], nextPage: null };
 
+      // Filter images first if there's a search query
+      let filteredImages = allImages;
+      
       // Sort inspiration images with priority order while maintaining latest-first within each category
-      const trendingHotImages = allImages
+      const trendingHotImages = filteredImages
         .filter(img => img.is_trending && img.is_hot)
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-      const hotOnlyImages = allImages
+      const hotOnlyImages = filteredImages
         .filter(img => !img.is_trending && img.is_hot)
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-      const trendingOnlyImages = allImages
+      const trendingOnlyImages = filteredImages
         .filter(img => img.is_trending && !img.is_hot)
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-      const followingImages = allImages
+      const followingImages = filteredImages
         .filter(img => 
           following?.includes(img.user_id) && 
           !img.is_trending && 
@@ -117,14 +125,13 @@ export const useGalleryImages = ({
         )
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-      const otherImages = allImages
+      const otherImages = filteredImages
         .filter(img => 
           !img.is_trending && 
           !img.is_hot && 
           !following?.includes(img.user_id)
         )
-        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-        .slice(0, 30);
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
       const sortedImages = [
         ...trendingHotImages,
