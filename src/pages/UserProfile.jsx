@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
@@ -11,10 +11,14 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { handleAvatarUpload } from '@/utils/profileUtils';
 import ProfileAvatar from '@/components/profile/ProfileAvatar';
-import { ArrowLeft, Camera, LogOut } from 'lucide-react';
+import { ArrowLeft, Camera, LogOut, Upload, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
 import LoadingScreen from '@/components/LoadingScreen';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import ReactCrop from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
 
 const UserProfile = () => {
   const { session, loading, logout } = useSupabaseAuth();
@@ -23,6 +27,12 @@ const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const { data: isPro } = useProUser(session?.user?.id);
+  const [showFullImage, setShowFullImage] = useState(false);
+  const [showCropDialog, setShowCropDialog] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState(null);
+  const [crop, setCrop] = useState({ unit: '%', width: 100, aspect: 1 });
+  const [croppedImageUrl, setCroppedImageUrl] = useState(null);
+  const imageRef = useRef(null);
 
   // Set display name when user data is available
   React.useEffect(() => {
@@ -89,36 +99,84 @@ const UserProfile = () => {
     enabled: !!session?.user?.id
   });
 
-  const handleDisplayNameUpdate = async () => {
-    try {
-      const { error } = await supabase.auth.updateUser({
-        data: { display_name: displayName }
-      });
+  const handleDisplayNameUpdate = async (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      try {
+        const { error } = await supabase.auth.updateUser({
+          data: { display_name: displayName }
+        });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      await supabase
-        .from('profiles')
-        .update({ display_name: displayName })
-        .eq('id', session.user.id);
+        await supabase
+          .from('profiles')
+          .update({ display_name: displayName })
+          .eq('id', session.user.id);
 
-      toast.success("Display name updated successfully");
-      setIsEditing(false);
-      queryClient.invalidateQueries(['user']);
-    } catch (error) {
-      toast.error("Failed to update display name");
-      console.error('Error updating display name:', error);
+        toast.success("Display name updated successfully");
+        setIsEditing(false);
+        queryClient.invalidateQueries(['user']);
+      } catch (error) {
+        toast.error("Failed to update display name");
+        console.error('Error updating display name:', error);
+      }
     }
   };
 
-  const handleAvatarChange = async (event) => {
+  const handleImageUpload = (event) => {
     const file = event.target.files?.[0];
     if (file) {
-      const newAvatarUrl = await handleAvatarUpload(file, session.user.id);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setUploadedImage(reader.result);
+        setShowCropDialog(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const getCroppedImg = async () => {
+    try {
+      const canvas = document.createElement('canvas');
+      const image = imageRef.current;
+      const scaleX = image.naturalWidth / image.width;
+      const scaleY = image.naturalHeight / image.height;
+      canvas.width = crop.width;
+      canvas.height = crop.width; // Keep 1:1 aspect ratio
+      const ctx = canvas.getContext('2d');
+
+      ctx.drawImage(
+        image,
+        crop.x * scaleX,
+        crop.y * scaleY,
+        crop.width * scaleX,
+        crop.width * scaleY,
+        0,
+        0,
+        crop.width,
+        crop.width
+      );
+
+      // Convert the canvas to a Blob
+      const blob = await new Promise((resolve) => {
+        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 1);
+      });
+
+      // Create a File from the Blob
+      const croppedFile = new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
+      
+      const newAvatarUrl = await handleAvatarUpload(croppedFile, session.user.id);
       if (newAvatarUrl) {
         queryClient.invalidateQueries(['user']);
         toast.success("Profile picture updated successfully");
+        setShowCropDialog(false);
+        setUploadedImage(null);
+        setCroppedImageUrl(null);
       }
+    } catch (error) {
+      console.error('Error cropping image:', error);
+      toast.error("Failed to update profile picture");
     }
   };
 
@@ -163,48 +221,43 @@ const UserProfile = () => {
               {/* Avatar Section */}
               <div className="flex flex-col items-center gap-4">
                 <div className="relative">
-                  <ProfileAvatar 
-                    user={session.user} 
-                    isPro={isPro} 
-                    size="xl" 
-                    className="w-24 h-24"
-                  />
+                  <div 
+                    onClick={() => setShowFullImage(true)}
+                    className="cursor-pointer hover:opacity-90 transition-opacity"
+                  >
+                    <ProfileAvatar 
+                      user={session.user} 
+                      isPro={isPro} 
+                      size="xl" 
+                      className="w-32 h-32"
+                    />
+                  </div>
                   <Button
                     size="icon"
                     variant="secondary"
                     className="absolute bottom-0 right-0 rounded-full w-8 h-8"
                     onClick={() => document.getElementById('avatar-input').click()}
                   >
-                    <Camera className="h-4 w-4" />
+                    <Upload className="h-4 w-4" />
                   </Button>
                   <input
                     id="avatar-input"
                     type="file"
                     accept="image/*"
                     className="hidden"
-                    onChange={handleAvatarChange}
+                    onChange={handleImageUpload}
                   />
                 </div>
-                <div className="text-center">
-                  {isEditing ? (
-                    <div className="flex gap-2">
-                      <Input
-                        value={displayName}
-                        onChange={(e) => setDisplayName(e.target.value)}
-                        className="max-w-[200px]"
-                      />
-                      <Button onClick={handleDisplayNameUpdate}>Save</Button>
-                      <Button variant="ghost" onClick={() => setIsEditing(false)}>Cancel</Button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl font-medium">{displayName}</span>
-                      <Button variant="ghost" size="sm" onClick={() => setIsEditing(true)}>
-                        Edit
-                      </Button>
-                    </div>
-                  )}
-                  <p className="text-muted-foreground">{session.user.email}</p>
+                <div className="text-center w-full max-w-sm">
+                  <Textarea
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    onKeyDown={handleDisplayNameUpdate}
+                    className="text-xl font-medium text-center resize-none"
+                    rows={1}
+                    placeholder="Enter display name"
+                  />
+                  <p className="text-muted-foreground mt-1">{session.user.email}</p>
                 </div>
               </div>
 
@@ -264,6 +317,62 @@ const UserProfile = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Full Image Dialog */}
+      <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
+        <DialogContent className="max-w-screen-lg">
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-0 top-0"
+              onClick={() => setShowFullImage(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+            <ProfileAvatar 
+              user={session.user} 
+              isPro={isPro} 
+              size="xl" 
+              className="w-full h-full aspect-square"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Image Crop Dialog */}
+      <Dialog open={showCropDialog} onOpenChange={setShowCropDialog}>
+        <DialogContent className="max-w-screen-lg">
+          <div className="space-y-4">
+            <div className="relative">
+              <ReactCrop
+                crop={crop}
+                onChange={(c) => setCrop(c)}
+                aspect={1}
+                circularCrop
+              >
+                <img
+                  ref={imageRef}
+                  src={uploadedImage}
+                  alt="Crop"
+                  style={{ maxWidth: '100%' }}
+                />
+              </ReactCrop>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="ghost" onClick={() => {
+                setShowCropDialog(false);
+                setUploadedImage(null);
+              }}>
+                Cancel
+              </Button>
+              <Button onClick={getCroppedImg}>
+                Save
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
