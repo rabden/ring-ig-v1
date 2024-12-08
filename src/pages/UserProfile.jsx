@@ -164,10 +164,10 @@ const UserProfile = () => {
             <>
               {/* Avatar Section */}
               <div className="flex flex-col items-center gap-6">
-                <div className="relative flex items-center gap-4">
+                <div className="relative">
                   <div 
                     onClick={() => setShowFullImage(true)}
-                    className="cursor-pointer hover:opacity-90 transition-opacity"
+                    className="cursor-pointer hover:opacity-90 transition-opacity relative group"
                   >
                     <ProfileAvatar 
                       user={session.user} 
@@ -175,14 +175,17 @@ const UserProfile = () => {
                       size="xl" 
                       className="w-40 h-40"
                     />
+                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Camera className="w-8 h-8 text-white" />
+                    </div>
                   </div>
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     size="icon"
-                    className="h-10 w-10"
+                    className="absolute bottom-2 right-2 rounded-full h-8 w-8"
                     onClick={() => document.getElementById('avatar-input').click()}
                   >
-                    <Upload className="h-5 w-5" />
+                    <Upload className="h-4 w-4" />
                   </Button>
                   <input
                     id="avatar-input"
