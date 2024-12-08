@@ -6,11 +6,22 @@ import { useLikes } from '@/hooks/useLikes';
 import NoResults from './NoResults';
 import { useGalleryImages } from '@/hooks/useGalleryImages';
 
-const breakpointColumnsObj = {
-  default: 4,
-  1100: 3,
-  700: 2,
-  500: 2
+const getBreakpointColumns = (activeView) => {
+  if (activeView === 'inspiration') {
+    return {
+      default: 5,
+      1600: 4,
+      1200: 3,
+      700: 2,
+      500: 2
+    };
+  }
+  return {
+    default: 4,
+    1100: 3,
+    700: 2,
+    500: 2
+  };
 };
 
 const ImageGallery = ({ 
@@ -33,6 +44,7 @@ const ImageGallery = ({
 }) => {
   const { userLikes, toggleLike } = useLikes(userId);
   const isMobile = window.innerWidth <= 768;
+  const breakpointColumnsObj = getBreakpointColumns(activeView);
   
   const { 
     images, 
