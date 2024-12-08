@@ -98,7 +98,7 @@ const ImageGeneratorContent = ({
         <div 
           className={`w-full md:w-[350px] bg-card text-card-foreground p-4 md:p-6 overflow-y-auto 
             ${!isInspiration ? 'md:fixed md:right-0 md:top-12 md:bottom-0' : ''} 
-            ${activeTab === 'input' ? 'block' : 'hidden md:block'} 
+            ${activeTab === 'input' ? 'block' : (isInspiration ? 'hidden' : 'hidden md:block')} 
             max-h-[calc(100vh-56px)] md:max-h-[calc(100vh-3rem)] relative`}
         >
           <ImageGeneratorSettings {...imageGeneratorProps} />
