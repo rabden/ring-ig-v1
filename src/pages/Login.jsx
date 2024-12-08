@@ -24,10 +24,6 @@ const messages = [
   { 
     text: "Fine-tune your art with advanced controls", 
     image: "/placeholder.svg"
-  },
-  { 
-    text: "Private collections and secure sharing", 
-    image: "/placeholder.svg"
   }
 ];
 
@@ -58,7 +54,7 @@ const Login = () => {
           <div className="flex-grow flex items-center">
             <div className="space-y-6">
               <div className="h-16">
-                <h2 className="text-3xl font-semibold">
+                <h4 className="text-xl font-semibold">
                   <Typewriter
                     words={[messages[currentMessageIndex].text]}
                     cursor
@@ -67,7 +63,7 @@ const Login = () => {
                     deleteSpeed={30}
                     delaySpeed={3000}
                   />
-                </h2>
+                </h4>
               </div>
             </div>
           </div>
@@ -95,4 +91,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Login;
