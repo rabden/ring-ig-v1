@@ -20,10 +20,15 @@ const UserProfile = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
-  const [displayName, setDisplayName] = useState(
-    user?.user_metadata?.display_name || user?.email?.split('@')[0] || ''
-  );
+  const [displayName, setDisplayName] = useState('');
   const { data: isPro } = useProUser(user?.id);
+
+  // Set display name when user data is available
+  React.useEffect(() => {
+    if (user) {
+      setDisplayName(user?.user_metadata?.display_name || user?.email?.split('@')[0] || '');
+    }
+  }, [user]);
 
   const { data: userStats } = useQuery({
     queryKey: ['userStats', user?.id],
@@ -94,7 +99,13 @@ const UserProfile = () => {
     }
   };
 
-  if (!user) {
+  // Loading state while checking authentication
+  if (typeof user === 'undefined') {
+    return <div className="container max-w-2xl py-8">Loading...</div>;
+  }
+
+  // Redirect if not authenticated
+  if (user === null) {
     navigate('/');
     return null;
   }
