@@ -56,12 +56,13 @@ const Login = () => {
               <div className="h-16">
                 <h4 className="text-xl font-semibold">
                   <Typewriter
-                    words={[messages[currentMessageIndex].text]}
+                    words={messages.map(msg => msg.text)}
                     cursor
                     cursorStyle="_"
                     typeSpeed={50}
                     deleteSpeed={30}
                     delaySpeed={3000}
+                    loop={true}
                   />
                 </h4>
               </div>
