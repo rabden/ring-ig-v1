@@ -7,7 +7,7 @@ import NoResults from './NoResults';
 import { useGalleryImages } from '@/hooks/useGalleryImages';
 
 const getBreakpointColumns = (activeView) => {
-  if (activeView === 'inspiration') {
+  if (activeView === 'inspiration' || window.location.pathname.includes('/profile')) {
     return {
       default: 5,
       1600: 4,
@@ -37,8 +37,6 @@ const ImageGallery = ({
   activeFilters = {},
   searchQuery = '',
   setActiveTab,
-  setStyle,
-  style,
   showPrivate,
   profileUserId
 }) => {
@@ -119,8 +117,6 @@ const ImageGallery = ({
           isLiked={userLikes.includes(image.id)}
           onToggleLike={toggleLike}
           setActiveTab={setActiveTab}
-          setStyle={setStyle}
-          style={style}
         />
       </div>
     ));
