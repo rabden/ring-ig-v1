@@ -11,14 +11,14 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { handleAvatarUpload } from '@/utils/profileUtils';
 import ProfileAvatar from '@/components/profile/ProfileAvatar';
-import { ArrowLeft, Camera, LogOut, Upload, X } from 'lucide-react';
+import { ArrowLeft, Camera, LogOut, Upload, X, Save, Pencil } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Progress } from '@/components/ui/progress';
 import LoadingScreen from '@/components/LoadingScreen';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import ReactCrop from 'react-image-crop';
-import 'react-image-crop/dist/ReactCrop.css';
+import { Dialog, DialogContent, DialogTitle, DialogHeader } from '@/components/ui/dialog';
+import { Cropper } from 'react-advanced-cropper';
+import 'react-advanced-cropper/dist/style.css';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const UserProfile = () => {
   const { session, loading, logout } = useSupabaseAuth();
@@ -26,18 +26,19 @@ const UserProfile = () => {
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState('');
+  const [tempDisplayName, setTempDisplayName] = useState('');
   const { data: isPro } = useProUser(session?.user?.id);
   const [showFullImage, setShowFullImage] = useState(false);
   const [showCropDialog, setShowCropDialog] = useState(false);
   const [uploadedImage, setUploadedImage] = useState(null);
-  const [crop, setCrop] = useState({ unit: '%', width: 100, aspect: 1 });
-  const [croppedImageUrl, setCroppedImageUrl] = useState(null);
-  const imageRef = useRef(null);
+  const cropperRef = useRef(null);
+  const inputRef = useRef(null);
 
-  // Set display name when user data is available
   React.useEffect(() => {
     if (session?.user) {
-      setDisplayName(session.user?.user_metadata?.display_name || session.user?.email?.split('@')[0] || '');
+      const name = session.user?.user_metadata?.display_name || session.user?.email?.split('@')[0] || '';
+      setDisplayName(name);
+      setTempDisplayName(name);
     }
   }, [session]);
 
@@ -67,17 +68,6 @@ const UserProfile = () => {
             .single()
         ]);
 
-        if (profileResult.error) {
-          console.error('Profile fetch error:', profileResult.error);
-          return {
-            followers: followersResult.count || 0,
-            following: followingResult.count || 0,
-            likes: likesResult.count || 0,
-            credits: 0,
-            bonusCredits: 0
-          };
-        }
-        
         return {
           followers: profileResult.data?.followers_count || 0,
           following: profileResult.data?.following_count || 0,
@@ -99,28 +89,31 @@ const UserProfile = () => {
     enabled: !!session?.user?.id
   });
 
-  const handleDisplayNameUpdate = async (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      try {
-        const { error } = await supabase.auth.updateUser({
-          data: { display_name: displayName }
-        });
+  const handleDisplayNameUpdate = async () => {
+    if (tempDisplayName.trim() === displayName.trim()) {
+      setIsEditing(false);
+      return;
+    }
 
-        if (error) throw error;
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: { display_name: tempDisplayName }
+      });
 
-        await supabase
-          .from('profiles')
-          .update({ display_name: displayName })
-          .eq('id', session.user.id);
+      if (error) throw error;
 
-        toast.success("Display name updated successfully");
-        setIsEditing(false);
-        queryClient.invalidateQueries(['user']);
-      } catch (error) {
-        toast.error("Failed to update display name");
-        console.error('Error updating display name:', error);
-      }
+      await supabase
+        .from('profiles')
+        .update({ display_name: tempDisplayName })
+        .eq('id', session.user.id);
+
+      setDisplayName(tempDisplayName);
+      toast.success("Display name updated successfully");
+      setIsEditing(false);
+      queryClient.invalidateQueries(['user']);
+    } catch (error) {
+      toast.error("Failed to update display name");
+      console.error('Error updating display name:', error);
     }
   };
 
@@ -136,34 +129,17 @@ const UserProfile = () => {
     }
   };
 
-  const getCroppedImg = async () => {
+  const handleCropComplete = async () => {
     try {
-      const canvas = document.createElement('canvas');
-      const image = imageRef.current;
-      const scaleX = image.naturalWidth / image.width;
-      const scaleY = image.naturalHeight / image.height;
-      canvas.width = crop.width;
-      canvas.height = crop.width; // Keep 1:1 aspect ratio
-      const ctx = canvas.getContext('2d');
+      if (!cropperRef.current) return;
 
-      ctx.drawImage(
-        image,
-        crop.x * scaleX,
-        crop.y * scaleY,
-        crop.width * scaleX,
-        crop.width * scaleY,
-        0,
-        0,
-        crop.width,
-        crop.width
-      );
+      const canvas = cropperRef.current.getCanvas();
+      if (!canvas) return;
 
-      // Convert the canvas to a Blob
       const blob = await new Promise((resolve) => {
         canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 1);
       });
 
-      // Create a File from the Blob
       const croppedFile = new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
       
       const newAvatarUrl = await handleAvatarUpload(croppedFile, session.user.id);
@@ -172,7 +148,6 @@ const UserProfile = () => {
         toast.success("Profile picture updated successfully");
         setShowCropDialog(false);
         setUploadedImage(null);
-        setCroppedImageUrl(null);
       }
     } catch (error) {
       console.error('Error cropping image:', error);
@@ -180,12 +155,10 @@ const UserProfile = () => {
     }
   };
 
-  // Show loading screen while checking auth
   if (loading) {
     return <LoadingScreen />;
   }
 
-  // Redirect if not authenticated
   if (!session) {
     navigate('/');
     return null;
@@ -196,22 +169,22 @@ const UserProfile = () => {
 
   return (
     <div className="container max-w-2xl py-8 space-y-8">
-      {/* Header with Back Button */}
+      {/* Header */}
       <div className="flex items-center gap-4">
         <Link to="/">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-4 w-4" />
+          <Button variant="ghost" size="icon" className="hover:bg-background">
+            <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
         <h1 className="text-2xl font-bold">Profile Settings</h1>
       </div>
 
       {/* Profile Card */}
-      <Card>
-        <CardHeader>
+      <Card className="overflow-hidden border-2">
+        <CardHeader className="border-b bg-muted/50">
           <CardTitle>Profile Information</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="p-6 space-y-8">
           {isStatsLoading ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -219,27 +192,42 @@ const UserProfile = () => {
           ) : (
             <>
               {/* Avatar Section */}
-              <div className="flex flex-col items-center gap-4">
-                <div className="relative">
-                  <div 
-                    onClick={() => setShowFullImage(true)}
-                    className="cursor-pointer hover:opacity-90 transition-opacity"
+              <div className="flex flex-col items-center gap-8">
+                <div className="flex items-center gap-6">
+                  <motion.div 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="relative group"
                   >
-                    <ProfileAvatar 
-                      user={session.user} 
-                      isPro={isPro} 
-                      size="xl" 
-                      className="w-32 h-32"
-                    />
-                  </div>
-                  <Button
-                    size="icon"
-                    variant="secondary"
-                    className="absolute bottom-0 right-0 rounded-full w-8 h-8"
-                    onClick={() => document.getElementById('avatar-input').click()}
+                    <div 
+                      onClick={() => setShowFullImage(true)}
+                      className="cursor-pointer rounded-full overflow-hidden"
+                    >
+                      <ProfileAvatar 
+                        user={session.user} 
+                        isPro={isPro} 
+                        size="xl" 
+                        className="w-48 h-48 transition-transform duration-300 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <Camera className="w-8 h-8 text-white" />
+                      </div>
+                    </div>
+                  </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
                   >
-                    <Upload className="h-4 w-4" />
-                  </Button>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="gap-2"
+                      onClick={() => document.getElementById('avatar-input').click()}
+                    >
+                      <Upload className="h-5 w-5" />
+                      Upload New
+                    </Button>
+                  </motion.div>
                   <input
                     id="avatar-input"
                     type="file"
@@ -248,53 +236,116 @@ const UserProfile = () => {
                     onChange={handleImageUpload}
                   />
                 </div>
-                <div className="text-center w-full max-w-sm">
-                  <Textarea
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    onKeyDown={handleDisplayNameUpdate}
-                    className="text-xl font-medium text-center resize-none"
-                    rows={1}
-                    placeholder="Enter display name"
-                  />
-                  <p className="text-muted-foreground mt-1">{session.user.email}</p>
+
+                {/* Display Name */}
+                <div className="text-center w-full max-w-sm space-y-1">
+                  <div className="flex items-center justify-center gap-2">
+                    <AnimatePresence mode="wait">
+                      {isEditing ? (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="flex items-center gap-2"
+                        >
+                          <Input
+                            ref={inputRef}
+                            value={tempDisplayName}
+                            onChange={(e) => setTempDisplayName(e.target.value)}
+                            className="text-xl font-medium text-center h-11"
+                            placeholder="Enter display name"
+                            autoFocus
+                          />
+                          <div className="flex gap-1">
+                            <Button 
+                              size="sm"
+                              onClick={handleDisplayNameUpdate}
+                              className="h-11"
+                            >
+                              Save
+                            </Button>
+                            <Button 
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => {
+                                setTempDisplayName(displayName);
+                                setIsEditing(false);
+                              }}
+                              className="h-11"
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          className="flex items-center gap-2"
+                        >
+                          <span className="text-xl font-medium">{displayName}</span>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => {
+                              setIsEditing(true);
+                              setTimeout(() => inputRef.current?.focus(), 0);
+                            }}
+                            className="h-9 w-9"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                  <p className="text-muted-foreground">{session.user.email}</p>
                 </div>
               </div>
 
               <Separator />
 
               {/* Credits Section */}
-              <div className="space-y-2">
-                <Label>Credits</Label>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Available Credits</span>
-                  <span>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-lg">Credits</Label>
+                  <span className="text-lg font-medium">
                     {userStats?.credits || 0} 
-                    <span className="text-muted-foreground"> / {MAX_CREDITS}</span>
+                    <span className="text-muted-foreground font-normal"> / {MAX_CREDITS}</span>
                     {userStats?.bonusCredits > 0 && (
                       <span className="text-green-500 ml-1">+{userStats.bonusCredits}</span>
                     )}
                   </span>
                 </div>
-                <Progress value={creditsProgress} className="h-2" />
+                <Progress value={creditsProgress} className="h-3" />
               </div>
 
               <Separator />
 
               {/* Stats Grid */}
-              <div className="grid grid-cols-3 gap-4 py-2">
-                <div className="text-center">
+              <div className="grid grid-cols-3 gap-6">
+                <motion.div 
+                  whileHover={{ y: -2 }}
+                  className="text-center p-4 rounded-lg bg-muted/50"
+                >
                   <span className="text-2xl font-semibold block">{userStats?.followers || 0}</span>
                   <span className="text-muted-foreground text-sm">Followers</span>
-                </div>
-                <div className="text-center">
+                </motion.div>
+                <motion.div 
+                  whileHover={{ y: -2 }}
+                  className="text-center p-4 rounded-lg bg-muted/50"
+                >
                   <span className="text-2xl font-semibold block">{userStats?.following || 0}</span>
                   <span className="text-muted-foreground text-sm">Following</span>
-                </div>
-                <div className="text-center">
+                </motion.div>
+                <motion.div 
+                  whileHover={{ y: -2 }}
+                  className="text-center p-4 rounded-lg bg-muted/50"
+                >
                   <span className="text-2xl font-semibold block">{userStats?.likes || 0}</span>
                   <span className="text-muted-foreground text-sm">Likes</span>
-                </div>
+                </motion.div>
               </div>
 
               <Separator />
@@ -307,7 +358,7 @@ const UserProfile = () => {
                     logout();
                     navigate('/');
                   }}
-                  className="text-destructive hover:bg-destructive/10"
+                  className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign out
@@ -320,21 +371,23 @@ const UserProfile = () => {
 
       {/* Full Image Dialog */}
       <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
-        <DialogContent className="max-w-screen-lg">
-          <div className="relative">
+        <DialogContent className="max-w-screen-lg p-0 overflow-hidden">
+          <DialogHeader className="absolute top-2 right-2 z-10">
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-0 top-0"
+              className="rounded-full bg-background/80 backdrop-blur-sm hover:bg-background/90"
               onClick={() => setShowFullImage(false)}
             >
               <X className="h-4 w-4" />
             </Button>
+          </DialogHeader>
+          <div className="aspect-square">
             <ProfileAvatar 
               user={session.user} 
               isPro={isPro} 
               size="xl" 
-              className="w-full h-full aspect-square"
+              className="w-full h-full"
             />
           </div>
         </DialogContent>
@@ -342,31 +395,41 @@ const UserProfile = () => {
 
       {/* Image Crop Dialog */}
       <Dialog open={showCropDialog} onOpenChange={setShowCropDialog}>
-        <DialogContent className="max-w-screen-lg">
+        <DialogContent className="max-w-screen-md">
+          <DialogHeader>
+            <DialogTitle>Crop Profile Picture</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4">
-            <div className="relative">
-              <ReactCrop
-                crop={crop}
-                onChange={(c) => setCrop(c)}
-                aspect={1}
-                circularCrop
-              >
-                <img
-                  ref={imageRef}
-                  src={uploadedImage}
-                  alt="Crop"
-                  style={{ maxWidth: '100%' }}
-                />
-              </ReactCrop>
+            <div className="relative aspect-square bg-muted rounded-lg overflow-hidden">
+              <Cropper
+                ref={cropperRef}
+                src={uploadedImage}
+                className="h-full"
+                stencilProps={{
+                  aspectRatio: 1,
+                  grid: true
+                }}
+                defaultSize={{
+                  width: 80,
+                  height: 80,
+                }}
+                stencilSize={{
+                  width: 250,
+                  height: 250,
+                }}
+              />
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="ghost" onClick={() => {
-                setShowCropDialog(false);
-                setUploadedImage(null);
-              }}>
+              <Button 
+                variant="ghost" 
+                onClick={() => {
+                  setShowCropDialog(false);
+                  setUploadedImage(null);
+                }}
+              >
                 Cancel
               </Button>
-              <Button onClick={getCroppedImg}>
+              <Button onClick={handleCropComplete}>
                 Save
               </Button>
             </div>
