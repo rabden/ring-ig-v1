@@ -22,6 +22,34 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
     if (setActiveView) setActiveView(view);
   };
 
+  const handlePlusClick = () => {
+    if (currentPath !== '/') {
+      navigate('/');
+      // Use setTimeout to ensure navigation completes before tab switch
+      setTimeout(() => {
+        setActiveTab('input');
+        setActiveView('myImages');
+      }, 0);
+    } else {
+      setActiveTab('input');
+      setActiveView('myImages');
+    }
+  };
+
+  const handleNotificationClick = () => {
+    if (currentPath !== '/') {
+      navigate('/');
+      // Use setTimeout to ensure navigation completes before tab switch
+      setTimeout(() => {
+        setActiveTab('notifications');
+        setActiveView('myImages');
+      }, 0);
+    } else {
+      setActiveTab('notifications');
+      setActiveView('myImages');
+    }
+  };
+
   return (
     <>
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/30 md:hidden z-50">
@@ -39,19 +67,14 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
           <MobileNavButton
             icon={Plus}
             isActive={activeTab === 'input'}
-            onClick={() => {
-              if (currentPath !== '/') {
-                navigate('/');
-              }
-              setActiveTab('input');
-            }}
+            onClick={handlePlusClick}
             onLongPress={() => setDrawerOpen(true)}
             badge={generatingImages.length}
           />
           <MobileNavButton
             icon={NotificationBell}
             isActive={activeTab === 'notifications'}
-            onClick={() => setActiveTab('notifications')}
+            onClick={handleNotificationClick}
           />
           <div className="flex items-center justify-center">
             {session ? (

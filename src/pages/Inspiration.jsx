@@ -81,19 +81,21 @@ const Inspiration = () => {
       />
 
       {/* Main Content */}
-      <main className="pt-12 px-4 md:px-6 pb-20 md:pb-6">
-        <ImageGallery
-          userId={session?.user?.id}
-          onImageClick={handleImageClick}
-          onDownload={handleDownload}
-          onRemix={handleRemix}
-          onViewDetails={handleViewDetails}
-          activeView="inspiration"
-          nsfwEnabled={nsfwEnabled}
-          activeFilters={activeFilters}
-          searchQuery={searchQuery}
-        />
-      </main>
+      <div className="container mx-auto">
+        <main className="pt-12 px-2 md:px-6 pb-20 md:pb-6">
+          <ImageGallery
+            userId={session?.user?.id}
+            onImageClick={handleImageClick}
+            onDownload={handleDownload}
+            onRemix={handleRemix}
+            onViewDetails={handleViewDetails}
+            activeView="inspiration"
+            nsfwEnabled={nsfwEnabled}
+            activeFilters={activeFilters}
+            searchQuery={searchQuery}
+          />
+        </main>
+      </div>
 
       {/* Mobile Navigation */}
       <BottomNavbar 
