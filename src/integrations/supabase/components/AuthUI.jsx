@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { PasswordInput } from './PasswordInput';
 
 const generateRandomDisplayName = () => {
   return `User_${Math.random().toString(36).substring(2, 7)}`;
@@ -178,20 +179,16 @@ export const AuthUI = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="name@example.com"
-                className="transition-all"
                 disabled={isLoading}
                 autoComplete="email"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="signin-password">Password</Label>
-              <Input
+              <PasswordInput
                 id="signin-password"
-                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
-                className="transition-all"
                 disabled={isLoading}
                 autoComplete="current-password"
               />
@@ -217,20 +214,16 @@ export const AuthUI = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="name@example.com"
-                className="transition-all"
                 disabled={isLoading}
                 autoComplete="email"
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="signup-password">Password</Label>
-              <Input
+              <PasswordInput
                 id="signup-password"
-                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
-                className="transition-all"
                 disabled={isLoading}
                 placeholder="Create a secure password"
                 autoComplete="new-password"
@@ -244,7 +237,6 @@ export const AuthUI = () => {
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
                 placeholder="Enter display name or leave blank for random"
-                className="transition-all"
                 disabled={isLoading}
                 autoComplete="username"
               />
