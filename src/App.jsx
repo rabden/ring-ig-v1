@@ -11,6 +11,7 @@ import PublicProfile from '@/pages/PublicProfile';
 import UserProfile from '@/pages/UserProfile';
 import LoadingScreen from '@/components/LoadingScreen';
 import Login from '@/pages/Login';
+import Inspiration from '@/pages/Inspiration';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
 const queryClient = new QueryClient({
@@ -88,6 +89,14 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <ImageGenerator />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/inspiration" 
+                    element={
+                      <ProtectedRoute>
+                        <Inspiration />
                       </ProtectedRoute>
                     } 
                   />

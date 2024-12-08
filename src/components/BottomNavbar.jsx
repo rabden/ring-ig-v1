@@ -6,11 +6,21 @@ import GeneratingImagesDrawer from './GeneratingImagesDrawer';
 import MobileNavButton from './navbar/MobileNavButton';
 import NotificationBell from './notifications/NotificationBell';
 import ProfileMenu from './ProfileMenu';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits, activeView, setActiveView, generatingImages = [] }) => {
   const { unreadCount } = useNotifications();
   const { data: isPro } = useProUser(session?.user?.id);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  const handleNavigation = (path, tab, view) => {
+    navigate(path);
+    if (setActiveTab) setActiveTab(tab);
+    if (setActiveView) setActiveView(view);
+  };
 
   return (
     <>
@@ -18,24 +28,23 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
         <div className="flex items-center justify-around px-2 max-w-md mx-auto">
           <MobileNavButton
             icon={Image}
-            isActive={activeTab === 'images' && activeView === 'myImages'}
-            onClick={() => {
-              setActiveTab('images');
-              setActiveView('myImages');
-            }}
+            isActive={currentPath === '/'}
+            onClick={() => handleNavigation('/', 'images', 'myImages')}
           />
           <MobileNavButton
             icon={Sparkles}
-            isActive={activeTab === 'images' && activeView === 'inspiration'}
-            onClick={() => {
-              setActiveTab('images');
-              setActiveView('inspiration');
-            }}
+            isActive={currentPath === '/inspiration'}
+            onClick={() => handleNavigation('/inspiration', 'images', 'inspiration')}
           />
           <MobileNavButton
             icon={Plus}
             isActive={activeTab === 'input'}
-            onClick={() => setActiveTab('input')}
+            onClick={() => {
+              if (currentPath !== '/') {
+                navigate('/');
+              }
+              setActiveTab('input');
+            }}
             onLongPress={() => setDrawerOpen(true)}
             badge={generatingImages.length}
           />
