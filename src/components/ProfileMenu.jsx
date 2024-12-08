@@ -89,18 +89,14 @@ const ProfileMenu = ({ user, credits, bonusCredits, isMobile }) => {
             size="icon" 
             className={cn(
               "h-7 w-7 p-0",
-              isMobile && "h-10 w-10 p-2.5"
+              isMobile && "h-10 w-10"
             )}
           >
             <ProfileAvatar 
               user={user} 
               isPro={isPro} 
-              size={isMobile ? "sm" : "sm"} 
-              showEditOnHover={false}
-              className={cn(
-                "w-full h-full",
-                isMobile && "opacity-70 group-hover:opacity-100 transition-opacity"
-              )}
+              size={isMobile ? "md" : "sm"} 
+              showEditOnHover={false} 
             />
           </Button>
         </DropdownMenuTrigger>
