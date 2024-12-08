@@ -19,10 +19,9 @@ export const useUserCredits = (userId) => {
 
   const updateCredits = async (quality) => {
     const creditCost = {
-      "SD": 1,
-      "HD": 2,
-      "HD+": 3,
-      "4K": 4
+      "HD": 1,
+      "HD+": 2,
+      "4K": 3
     }[quality];
 
     const { data: profile } = await supabase
