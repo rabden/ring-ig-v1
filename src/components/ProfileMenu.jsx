@@ -4,7 +4,6 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
-import { useProRequest } from '@/hooks/useProRequest';
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useRealtimeProfile } from '@/hooks/useRealtimeProfile';
@@ -15,8 +14,9 @@ import ProfileAvatar from './profile/ProfileAvatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Progress } from '@/components/ui/progress';
 import { Link } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
-const ProfileMenu = ({ user, credits, bonusCredits }) => {
+const ProfileMenu = ({ user, credits, bonusCredits, isMobile }) => {
   const { logout } = useSupabaseAuth();
   const [showImageDialog, setShowImageDialog] = useState(false);
   const { data: isPro } = useProUser(user?.id);
@@ -65,10 +65,12 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
 
   const onAvatarUpload = async (event) => {
     const file = event.target.files?.[0];
-    const newAvatarUrl = await handleAvatarUpload(file, user?.id);
-    if (newAvatarUrl) {
-      queryClient.invalidateQueries(['user']);
-      setShowImageDialog(false);
+    if (file) {
+      const newAvatarUrl = await handleAvatarUpload(file, user?.id);
+      if (newAvatarUrl) {
+        queryClient.invalidateQueries(['user']);
+        setShowImageDialog(false);
+      }
     }
   };
 
@@ -82,17 +84,29 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-7 w-7 p-0">
-            <ProfileAvatar user={user} isPro={isPro} size="sm" showEditOnHover={false} />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className={cn(
+              "h-7 w-7 p-0",
+              isMobile && "h-10 w-10"
+            )}
+          >
+            <ProfileAvatar 
+              user={user} 
+              isPro={isPro} 
+              size={isMobile ? "md" : "sm"} 
+              showEditOnHover={false} 
+            />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent 
           className="w-80 p-4" 
-          align="end" 
-          side="bottom" 
-          alignOffset={-8}
+          align={isMobile ? "center" : "end"}
+          side={isMobile ? "top" : "bottom"}
+          alignOffset={isMobile ? 0 : -8}
           sideOffset={8}
-          collisionPadding={{ left: 16, right: 16 }}
+          collisionPadding={{ left: 16, right: 16, bottom: 16 }}
           avoidCollisions={true}
         >
           <div className="space-y-4">
@@ -117,7 +131,13 @@ const ProfileMenu = ({ user, credits, bonusCredits }) => {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Credits</span>
-                <span>{credits} <span className="text-muted-foreground">/ {MAX_CREDITS}</span> {bonusCredits > 0 && <span className="text-green-500">+{bonusCredits}</span>}</span>
+                <span>
+                  {credits} 
+                  <span className="text-muted-foreground"> / {MAX_CREDITS}</span>
+                  {bonusCredits > 0 && (
+                    <span className="text-green-500 ml-1">+{bonusCredits}</span>
+                  )}
+                </span>
               </div>
               <Progress value={creditsProgress} className="h-2" />
             </div>

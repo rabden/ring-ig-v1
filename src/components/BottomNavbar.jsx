@@ -4,8 +4,8 @@ import { useNotifications } from '@/contexts/NotificationContext';
 import { useProUser } from '@/hooks/useProUser';
 import GeneratingImagesDrawer from './GeneratingImagesDrawer';
 import MobileNavButton from './navbar/MobileNavButton';
-import UserAvatar from './navbar/UserAvatar';
 import NotificationBell from './notifications/NotificationBell';
+import ProfileMenu from './ProfileMenu';
 
 const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits, activeView, setActiveView, generatingImages = [] }) => {
   const { unreadCount } = useNotifications();
@@ -44,17 +44,22 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
             isActive={activeTab === 'notifications'}
             onClick={() => setActiveTab('notifications')}
           />
-          <MobileNavButton
-            icon={User}
-            isActive={activeTab === 'profile'}
-            onClick={() => setActiveTab('profile')}
-          >
+          <div className="py-2">
             {session ? (
-              <UserAvatar session={session} isPro={isPro} />
+              <ProfileMenu 
+                user={session.user} 
+                credits={credits} 
+                bonusCredits={bonusCredits} 
+                isMobile={true}
+              />
             ) : (
-              <User size={20} className="transition-transform duration-200 scale-90 group-hover:scale-100" />
+              <MobileNavButton
+                icon={User}
+                isActive={activeTab === 'profile'}
+                onClick={() => setActiveTab('profile')}
+              />
             )}
-          </MobileNavButton>
+          </div>
         </div>
         <div className="h-safe-area-bottom bg-background" />
       </div>
