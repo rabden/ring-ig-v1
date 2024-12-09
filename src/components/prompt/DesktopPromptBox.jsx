@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { X, ArrowRight, Sparkles, Loader } from 'lucide-react';
 import CreditCounter from '@/components/ui/credit-counter';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
 
 const DesktopPromptBox = ({ 
   prompt,
@@ -16,14 +15,11 @@ const DesktopPromptBox = ({
   onClear,
   credits,
   bonusCredits,
-  className,
-  updateCredits
+  className
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const boxRef = useRef(null);
-  const totalCredits = (credits || 0) + (bonusCredits || 0);
-  const hasEnoughCreditsForImprovement = totalCredits >= 1;
-  const { isImproving, improveCurrentPrompt } = usePromptImprovement(updateCredits);
+  const { isImproving, improveCurrentPrompt } = usePromptImprovement();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -54,25 +50,9 @@ const DesktopPromptBox = ({
   }, []);
 
   const handleImprovePrompt = async () => {
-    if (!hasEnoughCreditsForImprovement) {
-      toast.error('Not enough credits for prompt improvement');
-      return;
-    }
-
-    try {
-      // Deduct one credit for improvement
-      const updatedCredits = await updateCredits(1);
-      if (updatedCredits === -1) {
-        toast.error('Not enough credits for prompt improvement');
-        return;
-      }
-      await improveCurrentPrompt(prompt, (improvedPrompt) => {
-        onChange({ target: { value: improvedPrompt } });
-      });
-    } catch (error) {
-      toast.error('Failed to improve prompt');
-      console.error(error);
-    }
+    await improveCurrentPrompt(prompt, (improvedPrompt) => {
+      onChange({ target: { value: improvedPrompt } });
+    });
   };
 
   return (
@@ -86,7 +66,7 @@ const DesktopPromptBox = ({
       <div 
         className={cn(
           "relative bg-card shadow-sm border border-border/50",
-          "transform-gpu",
+          "transform-gpu", // Enable GPU acceleration
           "[transition:border-radius_200ms_ease,transform_400ms_ease-in-out,box-shadow_400ms_ease-in-out]",
           isExpanded ? [
             "rounded-lg",
@@ -141,7 +121,7 @@ const DesktopPromptBox = ({
                     variant="outline"
                     className="rounded-full transition-transform duration-200 hover:scale-105"
                     onClick={handleImprovePrompt}
-                    disabled={!prompt?.length || isImproving || !hasEnoughCreditsForImprovement}
+                    disabled={!prompt?.length || isImproving}
                   >
                     {isImproving ? (
                       <Loader className="h-4 w-4 mr-2 animate-spin" />

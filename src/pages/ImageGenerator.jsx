@@ -248,7 +248,10 @@ const ImageGenerator = () => {
           imageCount,
           setImageCount,
           isPrivate,
-          updateCredits
+          setIsPrivate,
+          isImproving,
+          setIsImproving,
+          searchQuery,
         }}
       />
     </div>
