@@ -32,7 +32,7 @@ export const modelConfig = {
     isPremium: true,
     promptSuffix: null
   },
-  ultra: {
+  preLar: {
     name: "Ultra",
     category: "General",
     apiUrl: "https://api-inference.huggingface.co/models/strangerzonehf/Flux-Ultimate-LoRA-Collection",

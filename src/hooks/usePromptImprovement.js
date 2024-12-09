@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { improvePrompt } from '@/utils/promptImprovement';
 import { toast } from 'sonner';
 
-export const usePromptImprovement = (updateCredits) => {
+export const usePromptImprovement = () => {
   const [isImproving, setIsImproving] = useState(false);
 
   const improveCurrentPrompt = async (prompt, onSuccess) => {
@@ -19,23 +19,11 @@ export const usePromptImprovement = (updateCredits) => {
     try {
       const result = await improvePrompt(prompt);
       if (result) {
-        // Deduct one credit after successful improvement
-        if (updateCredits) {
-          const updatedCredits = await updateCredits(1); // Pass 1 as a direct cost
-          if (updatedCredits === -1) {
-            toast.error('Not enough credits for prompt improvement', { 
-              id: toastId,
-              position: 'top-center'
-            });
-            return;
-          }
-        }
         onSuccess(result);
         toast.success('Prompt improved!', { 
           id: toastId,
           position: 'top-center'
         });
-        return result;
       }
     } catch (error) {
       console.error('Error improving prompt:', error);
