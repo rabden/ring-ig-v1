@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ImageGeneratorSettings from './ImageGeneratorSettings';
 import ImageGallery from './ImageGallery';
 import BottomNavbar from './BottomNavbar';
@@ -12,6 +12,7 @@ import DesktopPromptBox from './prompt/DesktopPromptBox';
 import CreditCounter from '@/components/ui/credit-counter';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const ImageGeneratorContent = ({
   session,
@@ -44,11 +45,17 @@ const ImageGeneratorContent = ({
 }) => {
   const isInspiration = activeView === 'inspiration';
   const shouldShowSettings = !isInspiration || (activeTab === 'input' && window.innerWidth < 768);
+  const [isPromptExpanded, setIsPromptExpanded] = useState(false);
 
   return (
     <>
       <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground image-generator-content">
-        <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} ${isInspiration ? '' : 'md:pr-[350px]'} pb-20 md:pb-6`}>
+        <div className={cn(
+          "flex-grow p-2 md:p-6 overflow-y-auto",
+          activeTab === 'images' ? 'block' : 'hidden md:block',
+          isInspiration || !isPromptExpanded ? '' : 'md:pr-[350px]',
+          "pb-20 md:pb-6"
+        )}>
           {session && (
             <>
               <DesktopHeader
@@ -91,37 +98,40 @@ const ImageGeneratorContent = ({
                   credits={credits}
                   bonusCredits={bonusCredits}
                   userId={session?.user?.id}
+                  onExpandedChange={setIsPromptExpanded}
                 />
               )}
+
+              <div className="md:mt-16">
+                <ImageGallery
+                  userId={session?.user?.id}
+                  onImageClick={handleImageClick}
+                  onDownload={handleDownload}
+                  onDiscard={handleDiscard}
+                  onRemix={handleRemix}
+                  onViewDetails={handleViewDetails}
+                  activeView={activeView}
+                  generatingImages={generatingImages}
+                  nsfwEnabled={nsfwEnabled}
+                  modelConfigs={imageGeneratorProps.modelConfigs}
+                  activeFilters={activeFilters}
+                  searchQuery={imageGeneratorProps.searchQuery}
+                  setActiveTab={setActiveTab}
+                  showPrivate={showPrivate}
+                />
+              </div>
             </>
           )}
-
-          <div className="md:mt-16">
-            <ImageGallery
-              userId={session?.user?.id}
-              onImageClick={handleImageClick}
-              onDownload={handleDownload}
-              onDiscard={handleDiscard}
-              onRemix={handleRemix}
-              onViewDetails={handleViewDetails}
-              activeView={activeView}
-              generatingImages={generatingImages}
-              nsfwEnabled={nsfwEnabled}
-              modelConfigs={imageGeneratorProps.modelConfigs}
-              activeFilters={activeFilters}
-              searchQuery={imageGeneratorProps.searchQuery}
-              setActiveTab={setActiveTab}
-              showPrivate={showPrivate}
-            />
-          </div>
         </div>
 
-        {shouldShowSettings && (
+        {shouldShowSettings && isPromptExpanded && !isInspiration && (
           <div 
-            className={`w-full md:w-[350px] bg-card text-card-foreground
-              ${!isInspiration ? 'md:fixed md:right-0 md:top-12 md:bottom-0' : ''} 
-              ${activeTab === 'input' ? 'block' : 'hidden md:block'} 
-              md:h-[calc(100vh-3rem)] relative`}
+            className={cn(
+              "w-full md:w-[350px] bg-card text-card-foreground",
+              "md:fixed md:right-0 md:top-12 md:bottom-0",
+              activeTab === 'input' ? 'block' : 'hidden md:block',
+              "md:h-[calc(100vh-3rem)] relative"
+            )}
           >
             <div className="hidden md:block absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-10" />
             <div className="hidden md:block absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-10" />

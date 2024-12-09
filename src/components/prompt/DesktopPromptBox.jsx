@@ -17,7 +17,8 @@ const DesktopPromptBox = ({
   credits,
   bonusCredits,
   className,
-  userId
+  userId,
+  onExpandedChange
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const boxRef = useRef(null);
@@ -25,6 +26,11 @@ const DesktopPromptBox = ({
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCreditsForImprovement = totalCredits >= 1;
   const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
+
+  // Notify parent of expanded state changes
+  useEffect(() => {
+    onExpandedChange?.(isExpanded);
+  }, [isExpanded, onExpandedChange]);
 
   // Handle click outside
   useEffect(() => {
