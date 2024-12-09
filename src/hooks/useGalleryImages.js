@@ -1,6 +1,5 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
-import { useFollows } from '@/hooks/useFollows';
 
 const ITEMS_PER_PAGE = 20;
 const NSFW_MODELS = ['nsfwMaster', 'animeNsfw'];
@@ -93,21 +92,23 @@ export const useGalleryImages = ({
         baseQuery = baseQuery.not('model', 'in', '(' + NSFW_MODELS.join(',') + ')');
       }
 
-      // Apply following filter
+      // Handle following and top filters
       if (showFollowing && !showTop && following?.length > 0) {
         baseQuery = baseQuery.in('user_id', following);
       }
-      // Apply top filter
       else if (showTop && !showFollowing) {
         baseQuery = baseQuery.or('is_hot.eq.true,is_trending.eq.true');
       }
-      // Apply both filters
       else if (showTop && showFollowing && following?.length > 0) {
         baseQuery = baseQuery.or(`user_id.in.(${following.join(',')}),is_hot.eq.true,is_trending.eq.true`);
       }
-      // If following is selected but following list is empty, return no results
+      // If following is selected but following list is empty, return empty result
       else if (showFollowing && following?.length === 0) {
-        baseQuery = baseQuery.eq('id', -1); // This ensures no results
+        // Return empty result without making database query
+        return {
+          data: [],
+          nextPage: undefined
+        };
       }
 
       // Apply style and model filters
