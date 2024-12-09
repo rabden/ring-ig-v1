@@ -46,14 +46,14 @@ const ImageGeneratorSettings = ({
   const isNsfwModel = modelConfigs?.[model]?.category === "NSFW";
 
   const handleModelChange = (newModel) => {
-    if (newModel === 'turbo' && (quality === 'HD+' || quality === '4K')) {
+    if ((newModel === 'turbo' || newModel === 'preLar') && (quality === 'HD+' || quality === '4K')) {
       setQuality('HD');
     }
     setModel(newModel);
   };
 
   const getAvailableQualities = () => {
-    if (model === 'turbo') {
+    if (model === 'turbo' || model === 'preLar') {
       return ["HD"];
     }
     return Object.keys(qualityOptions);
