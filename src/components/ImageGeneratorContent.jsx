@@ -156,7 +156,7 @@ const ImageGeneratorContent = ({
               "transition-transform duration-300 ease-in-out",
               isSidebarVisible 
                 ? "translate-x-0" 
-                : "translate-x-full",
+                : "md:translate-x-full",
             )}
           >
             <div className="hidden md:block absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-10" />
@@ -164,7 +164,7 @@ const ImageGeneratorContent = ({
             
             <div className="min-h-[calc(100vh-56px)] md:h-full overflow-y-auto md:scrollbar-none px-4 md:px-6 py-4 md:py-8">
               <CreditCounter credits={credits} bonusCredits={bonusCredits} className="block md:hidden mb-4" />
-              <ImageGeneratorSettings {...imageGeneratorProps} hidePromptOnDesktop={true} />
+              <ImageGeneratorSettings {...imageGeneratorProps} hidePromptOnDesktop={activeTab !== 'input'} />
             </div>
           </div>
         )}

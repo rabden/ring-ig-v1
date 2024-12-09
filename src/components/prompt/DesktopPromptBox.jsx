@@ -239,7 +239,7 @@ const DesktopPromptBox = ({
           isFixed ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
         )}
       >
-        <div className="max-w-[1400px] mx-auto px-4 py-2">
+        <div className="max-w-[1400px] mx-auto px-10 py-2">
           <div 
             className={cn(
               "relative bg-card shadow-sm border border-border/50 rounded-full cursor-pointer",
