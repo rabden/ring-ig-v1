@@ -30,8 +30,8 @@ export const deleteImageRecord = async (imageId) => {
 };
 
 export const deleteImageCompletely = async (imageId) => {
-  if (!imageId || typeof imageId !== 'string') {
-    throw new Error('Valid image ID string is required for deletion');
+  if (!imageId) {
+    throw new Error('Image ID is required for deletion');
   }
 
   // First, fetch the image record to get the storage path
