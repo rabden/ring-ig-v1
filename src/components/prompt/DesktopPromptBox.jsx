@@ -27,18 +27,18 @@ const DesktopPromptBox = ({
   };
 
   const renderCredits = () => (
-    <div className="space-y-2 min-w-[120px]">
+    <div className="space-y-2 min-w-[200px]">
       <div className="flex justify-between text-sm">
         <span className="text-muted-foreground">Credits</span>
-        <span>
+        <span className="font-medium">
           {credits}
-          <span className="text-muted-foreground"> / {MAX_CREDITS}</span>
+          <span className="text-muted-foreground font-normal"> / {MAX_CREDITS}</span>
           {bonusCredits > 0 && (
             <span className="text-green-500 ml-1">+{bonusCredits}</span>
           )}
         </span>
       </div>
-      <Progress value={creditsProgress} className="h-2" />
+      <Progress value={creditsProgress} className="h-2 bg-secondary" />
     </div>
   );
 
