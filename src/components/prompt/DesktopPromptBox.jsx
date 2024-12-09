@@ -25,10 +25,9 @@ const DesktopPromptBox = ({
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Ignore clicks inside image generator settings or its components
+      // Ignore clicks inside image generator settings
       const settingsPanel = document.querySelector('.image-generator-settings');
-      const settingsSidebar = document.querySelector('.settings-sidebar');
-      if (settingsPanel?.contains(event.target) || settingsSidebar?.contains(event.target)) return;
+      if (settingsPanel?.contains(event.target)) return;
 
       // Check if click is outside the prompt box
       if (boxRef.current && !boxRef.current.contains(event.target)) {
@@ -131,7 +130,7 @@ const DesktopPromptBox = ({
                     onClick={onGenerate}
                     disabled={!prompt?.length || !hasEnoughCredits}
                   >
-                    Create
+                    Generate
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
@@ -155,7 +154,7 @@ const DesktopPromptBox = ({
                 }}
                 disabled={!prompt?.length || !hasEnoughCredits}
               >
-                Create
+                Generate
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
