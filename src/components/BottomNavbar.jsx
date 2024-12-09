@@ -1,12 +1,11 @@
 import React, { memo, useState, useEffect } from 'react';
-import { Image, Plus, Sparkles, User, Check } from 'lucide-react';
+import { Image, Plus, Sparkles, User } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useProUser } from '@/hooks/useProUser';
 import GeneratingImagesDrawer from './GeneratingImagesDrawer';
 import MobileNavButton from './navbar/MobileNavButton';
 import NotificationBell from './notifications/NotificationBell';
 import ProfileMenu from './ProfileMenu';
-import { cn } from "@/lib/utils";
 
 const BottomNavbar = ({ 
   activeTab, 
@@ -64,20 +63,9 @@ const BottomNavbar = ({
             isActive={activeTab === 'input'}
             onClick={() => setActiveTab('input')}
             onLongPress={() => setDrawerOpen(true)}
-          >
-            {(generatingImages.length > 0 || showCheckmark) && (
-              <span className={cn(
-                "absolute top-1 right-2 h-4 w-4 rounded-full bg-primary text-[10px] font-medium text-primary-foreground flex items-center justify-center",
-                showCheckmark && "animate-in zoom-in duration-300"
-              )}>
-                {showCheckmark ? (
-                  <Check className="h-3 w-3" />
-                ) : (
-                  generatingImages.length > 9 ? '9+' : generatingImages.length
-                )}
-              </span>
-            )}
-          </MobileNavButton>
+            badge={generatingImages.length}
+            showCheckmark={showCheckmark}
+          />
           <MobileNavButton
             icon={NotificationBell}
             isActive={activeTab === 'notifications'}
