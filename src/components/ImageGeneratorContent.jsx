@@ -9,6 +9,7 @@ import FullScreenImageView from './FullScreenImageView';
 import DesktopHeader from './header/DesktopHeader';
 import MobileHeader from './header/MobileHeader';
 import DesktopPromptBox from './prompt/DesktopPromptBox';
+import FixedPromptBox from './prompt/FixedPromptBox';
 import CreditCounter from '@/components/ui/credit-counter';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
@@ -46,6 +47,7 @@ const ImageGeneratorContent = ({
   const isInspiration = activeView === 'inspiration';
   const shouldShowSettings = !isInspiration || (activeTab === 'input' && window.innerWidth < 768);
   const [isPromptExpanded, setIsPromptExpanded] = useState(false);
+  const [isPromptHidden, setIsPromptHidden] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [isSidebarMounted, setIsSidebarMounted] = useState(false);
 
@@ -69,11 +71,20 @@ const ImageGeneratorContent = ({
     }
   }, [shouldShowSettings, isPromptExpanded, isInspiration]);
 
+  const handleFixedPromptClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Wait for scroll to complete before expanding
+    setTimeout(() => {
+      setIsPromptExpanded(true);
+    }, 300);
+  };
+
   return (
     <>
       <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground image-generator-content">
         <div className={cn(
-          "flex-grow p-2 md:p-6 overflow-y-auto transition-[padding] duration-300 ease-in-out",
+          "flex-grow p-2 md:p-6 overflow-y-auto",
+          "transition-all duration-300 ease-in-out transform-gpu will-change-[padding,width]",
           activeTab === 'images' ? 'block' : 'hidden md:block',
           isSidebarVisible ? 'md:pr-[350px]' : 'md:pr-6',
           "pb-20 md:pb-6"
@@ -108,20 +119,27 @@ const ImageGeneratorContent = ({
               />
               
               {!isInspiration && (
-                <DesktopPromptBox
-                  prompt={imageGeneratorProps.prompt}
-                  onChange={(e) => imageGeneratorProps.setPrompt(e.target.value)}
-                  onKeyDown={imageGeneratorProps.handlePromptKeyDown}
-                  onSubmit={imageGeneratorProps.generateImage}
-                  hasEnoughCredits={true}
-                  onClear={() => imageGeneratorProps.setPrompt('')}
-                  onImprove={imageGeneratorProps.improveCurrentPrompt}
-                  isImproving={imageGeneratorProps.isImproving}
-                  credits={credits}
-                  bonusCredits={bonusCredits}
-                  userId={session?.user?.id}
-                  onExpandedChange={setIsPromptExpanded}
-                />
+                <>
+                  <DesktopPromptBox
+                    prompt={imageGeneratorProps.prompt}
+                    onChange={(e) => imageGeneratorProps.setPrompt(e.target.value)}
+                    onKeyDown={imageGeneratorProps.handlePromptKeyDown}
+                    onSubmit={imageGeneratorProps.generateImage}
+                    hasEnoughCredits={true}
+                    onClear={() => imageGeneratorProps.setPrompt('')}
+                    onImprove={imageGeneratorProps.improveCurrentPrompt}
+                    isImproving={imageGeneratorProps.isImproving}
+                    credits={credits}
+                    bonusCredits={bonusCredits}
+                    userId={session?.user?.id}
+                    onVisibilityChange={setIsPromptHidden}
+                  />
+                  <FixedPromptBox
+                    isVisible={isPromptHidden}
+                    prompt={imageGeneratorProps.prompt}
+                    onClick={handleFixedPromptClick}
+                  />
+                </>
               )}
 
               <div className="md:mt-16">

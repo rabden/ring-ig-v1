@@ -18,7 +18,7 @@ const DesktopPromptBox = ({
   bonusCredits,
   className,
   userId,
-  onExpandedChange
+  onVisibilityChange
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const boxRef = useRef(null);
@@ -27,12 +27,24 @@ const DesktopPromptBox = ({
   const hasEnoughCreditsForImprovement = totalCredits >= 1;
   const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
 
-  // Notify parent of expanded state changes
+  // Handle visibility tracking
   useEffect(() => {
-    onExpandedChange?.(isExpanded);
-  }, [isExpanded, onExpandedChange]);
+    if (!boxRef.current) return;
 
-  // Handle click outside
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        onVisibilityChange?.(!entry.isIntersecting);
+      },
+      {
+        threshold: 0,
+        rootMargin: '-64px 0px 0px 0px' // Start showing fixed box after scrolling past header
+      }
+    );
+
+    observer.observe(boxRef.current);
+    return () => observer.disconnect();
+  }, [onVisibilityChange]);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       // Check if click is inside the prompt box
@@ -60,30 +72,6 @@ const DesktopPromptBox = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  // Handle scroll visibility
-  useEffect(() => {
-    if (!boxRef.current || !isExpanded) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        // If the box is not visible and expanded, collapse it
-        if (!entry.isIntersecting && isExpanded) {
-          setIsExpanded(false);
-        }
-      },
-      {
-        threshold: 0.1, // Collapse when less than 10% is visible
-        rootMargin: '-50px' // Add a 50px margin to trigger earlier
-      }
-    );
-
-    observer.observe(boxRef.current);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [isExpanded]);
 
   // Focus textarea when expanded
   useEffect(() => {
@@ -122,6 +110,10 @@ const DesktopPromptBox = ({
     }
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div 
       ref={boxRef}
@@ -134,7 +126,7 @@ const DesktopPromptBox = ({
         className={cn(
           "relative bg-card shadow-sm border border-border/50",
           "transform-gpu",
-          "[transition:border-radius_200ms_ease,transform_400ms_ease-in-out,box-shadow_400ms_ease-in-out]",
+          "transition-all duration-300 ease-in-out",
           isExpanded ? [
             "rounded-lg",
             "scale-100",
@@ -142,8 +134,6 @@ const DesktopPromptBox = ({
           ] : [
             "rounded-full",
             "scale-[0.98]",
-            "hover:scale-[0.99]",
-            "hover:shadow-md",
             "cursor-pointer"
           ]
         )}
