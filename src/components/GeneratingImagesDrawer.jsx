@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import { Loader } from "lucide-react"
+import { getCleanPrompt } from '@/utils/promptUtils';
 
 const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) => {
   const { data: modelConfigs } = useModelConfigs();
@@ -14,12 +15,12 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="h-[100vh] bg-background">
+      <DrawerContent className="h-[90vh] bg-background">
         <div className="mx-auto w-12 h-1 flex-shrink-0 rounded-full bg-muted mt-4 mb-2" />
         <DrawerHeader className="border-b border-border/30 pb-4 pt-0">
           <DrawerTitle>Generating Images</DrawerTitle>
         </DrawerHeader>
-        <ScrollArea className="h-[calc(100vh-100px)] px-4 py-4 space-y-4">
+        <ScrollArea className="h-[calc(90vh-100px)] px-4 py-4 space-y-4">
           {generatingImages.map((img) => (
             <div key={img.id} className="flex flex-col gap-2 p-4 border border-border/30 rounded-lg bg-muted/30">
               <div className="flex items-center gap-2">
@@ -31,9 +32,9 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
               </div>
               {img.prompt && (
                 <p className="text-sm text-muted-foreground">
-                  {img.prompt.length > 100 
-                    ? `${img.prompt.substring(0, 100)}...` 
-                    : img.prompt}
+                  {getCleanPrompt(img.prompt, img.style).length > 100 
+                    ? `${getCleanPrompt(img.prompt, img.style).substring(0, 100)}...` 
+                    : getCleanPrompt(img.prompt, img.style)}
                 </p>
               )}
               <div className="flex gap-2 text-xs text-muted-foreground">
