@@ -45,27 +45,27 @@ const ImageGeneratorContent = ({
 }) => {
   const isInspiration = activeView === 'inspiration';
   const isMobile = window.innerWidth < 768;
-  const shouldShowSettings = !isInspiration && (isMobile ? activeTab === 'input' : true);
+  const shouldShowSettings = isMobile ? activeTab === 'input' : !isInspiration;
   const [isPromptExpanded, setIsPromptExpanded] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [isSidebarMounted, setIsSidebarMounted] = useState(false);
 
   // Handle sidebar visibility with transitions
   useEffect(() => {
-    if (shouldShowSettings && (isMobile ? activeTab === 'input' : (isPromptExpanded && !isInspiration))) {
-      // Mount first
+    const shouldMount = isMobile 
+      ? activeTab === 'input'
+      : shouldShowSettings && isPromptExpanded && !isInspiration;
+
+    if (shouldMount) {
       setIsSidebarMounted(true);
-      // Then show after a tiny delay to trigger transition
       requestAnimationFrame(() => {
         setIsSidebarVisible(true);
       });
     } else {
-      // Hide first
       setIsSidebarVisible(false);
-      // Then unmount after transition
       const timer = setTimeout(() => {
         setIsSidebarMounted(false);
-      }, 300); // Match transition duration
+      }, 300);
       return () => clearTimeout(timer);
     }
   }, [shouldShowSettings, isPromptExpanded, isInspiration, activeTab, isMobile]);
@@ -179,7 +179,10 @@ const ImageGeneratorContent = ({
             
             <div className="min-h-[calc(100vh-56px)] md:h-full overflow-y-auto md:scrollbar-none px-4 md:px-6 py-4 md:py-8">
               <CreditCounter credits={credits} bonusCredits={bonusCredits} className="block md:hidden mb-4" />
-              <ImageGeneratorSettings {...imageGeneratorProps} hidePromptOnDesktop={!isMobile || activeTab !== 'input'} />
+              <ImageGeneratorSettings 
+                {...imageGeneratorProps} 
+                hidePromptOnDesktop={!isMobile && activeTab !== 'input'} 
+              />
             </div>
           </div>
         )}
