@@ -23,26 +23,11 @@ const DesktopPromptBox = ({
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Get settings-related elements
-      const settingsPanel = document.querySelector('.image-generator-settings');
-      const settingsSidebar = document.querySelector('.settings-sidebar');
-      const settingsContainer = document.querySelector('[class*="settings-container"]');
-      const settingsContent = document.querySelector('[class*="settings-content"]');
-      const settingsWrapper = document.querySelector('[class*="settings-wrapper"]');
+      // Get the ImageGeneratorSettings component
       const imageGeneratorSettings = document.querySelector('.image-generator-settings');
       
-      // Check if click is inside settings-related element
-      const isSettingsClick = [
-        settingsPanel,
-        settingsSidebar,
-        settingsContainer,
-        settingsContent,
-        settingsWrapper,
-        imageGeneratorSettings
-      ].some(element => element?.contains(event.target));
-
       // Don't collapse if click is inside settings or prompt box
-      if (isSettingsClick || boxRef.current?.contains(event.target)) {
+      if (imageGeneratorSettings?.contains(event.target) || boxRef.current?.contains(event.target)) {
         return;
       }
 
