@@ -183,7 +183,7 @@ const ImageGallery = ({
             </div>
           ))}
         </React.Fragment>
-      ));
+      );
     });
   };
 
