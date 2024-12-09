@@ -3,7 +3,7 @@ import ImageGallery from './ImageGallery';
 import ImageGeneratorSettings from './ImageGeneratorSettings';
 import DesktopHeader from './header/DesktopHeader';
 import MobileHeader from './header/MobileHeader';
-import MobileNavigation from './MobileNavigation';
+import BottomNavbar from './BottomNavbar';
 import DesktopPromptBox from './DesktopPromptBox';
 
 const ImageGeneratorContent = ({
@@ -174,9 +174,14 @@ const ImageGeneratorContent = ({
       </div>
 
       {/* Mobile Navigation */}
-      <MobileNavigation
+      <BottomNavbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        session={session}
+        credits={credits}
+        bonusCredits={bonusCredits}
+        activeView={activeView}
+        setActiveView={setActiveView}
         generatingImages={generatingImages}
       />
     </div>
