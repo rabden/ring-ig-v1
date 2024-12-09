@@ -98,14 +98,20 @@ export const useImageHandlers = ({
   }
 
   const handleDiscard = async (imageId) => {
-    if (!imageId) {
+    // Ensure imageId is a string - if an object is passed, try to get the id property
+    const id = typeof imageId === 'object' ? imageId.id : imageId;
+    
+    if (!id || typeof id !== 'string') {
+      console.error('Invalid image ID:', imageId);
+      toast.error('Could not delete image: Invalid ID');
       return;
     }
     
     try {
-      await handleImageDiscard({ id: imageId }, queryClient);
+      await handleImageDiscard({ id }, queryClient);
     } catch (error) {
       console.error('Error deleting image:', error);
+      toast.error('Failed to delete image');
     }
   }
 
