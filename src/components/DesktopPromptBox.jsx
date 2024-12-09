@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Sparkles, Loader2, X } from "lucide-react";
-import { PromptInput } from '@/components/prompt/PromptInput';
+import PromptInput from '@/components/prompt/PromptInput';
 import { cn } from '@/lib/utils';
 
 const DesktopPromptBox = ({
