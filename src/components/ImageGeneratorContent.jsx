@@ -1,11 +1,13 @@
 import React from 'react';
-import { cn } from '@/lib/utils';
 import ImageGeneratorSettings from './ImageGeneratorSettings';
 import ImageGallery from './ImageGallery';
+import BottomNavbar from './BottomNavbar';
+import MobileNotificationsMenu from './MobileNotificationsMenu';
+import MobileProfileMenu from './MobileProfileMenu';
+import ImageDetailsDialog from './ImageDetailsDialog';
+import FullScreenImageView from './FullScreenImageView';
 import DesktopHeader from './header/DesktopHeader';
 import MobileHeader from './header/MobileHeader';
-import MobileNavigation from './header/MobileNavigation';
-import DesktopMyImagesPromptBox from './myimages/DesktopMyImagesPromptBox';
 
 const ImageGeneratorContent = ({
   session,
@@ -34,95 +36,119 @@ const ImageGeneratorContent = ({
   setDetailsDialogOpen,
   fullScreenViewOpen,
   setFullScreenViewOpen,
-  imageGeneratorProps,
-  onTogglePrivate,
-  profileUserId,
-  searchQuery
+  imageGeneratorProps
 }) => {
+  const isInspiration = activeView === 'inspiration';
+  
+  const shouldShowSettings = !isInspiration || (activeTab === 'input' && window.innerWidth < 768);
+  
   return (
-    <div className="flex flex-col md:flex-row h-full">
-      {/* Settings Panel */}
-      <div className={cn(
-        "w-full md:w-[400px] flex-shrink-0 border-r",
-        activeView === 'inspiration' && "md:hidden"
-      )}>
-        <ImageGeneratorSettings {...imageGeneratorProps} showPromptInput={activeView !== 'myImages'} />
-      </div>
+    <>
+      <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
+        <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} ${isInspiration ? '' : 'md:pr-[350px]'} pb-20 md:pb-6`}>
+          {session && (
+            <>
+              <DesktopHeader
+                user={session.user}
+                credits={credits}
+                bonusCredits={bonusCredits}
+                activeView={activeView}
+                setActiveView={setActiveView}
+                generatingImages={generatingImages}
+                activeFilters={activeFilters}
+                onFilterChange={onFilterChange}
+                onRemoveFilter={onRemoveFilter}
+                onSearch={onSearch}
+                nsfwEnabled={nsfwEnabled}
+                showPrivate={showPrivate}
+                onTogglePrivate={() => setShowPrivate(!showPrivate)}
+              />
+              <MobileHeader
+                activeFilters={activeFilters}
+                onFilterChange={onFilterChange}
+                onRemoveFilter={onRemoveFilter}
+                onSearch={onSearch}
+                isVisible={isHeaderVisible}
+                nsfwEnabled={nsfwEnabled}
+                showPrivate={showPrivate}
+                onTogglePrivate={() => setShowPrivate(!showPrivate)}
+                activeView={activeView}
+              />
+            </>
+          )}
 
-      {/* Main Content */}
-      <div className="flex-1 min-w-0">
-        {/* Desktop Header */}
-        <DesktopHeader
-          user={session}
-          credits={credits}
-          bonusCredits={bonusCredits}
-          activeView={activeView}
-          setActiveView={setActiveView}
-          generatingImages={generatingImages}
-          onSearch={onSearch}
-          showPrivate={showPrivate}
-          onTogglePrivate={onTogglePrivate}
-        />
-
-        {/* Mobile Header */}
-        <MobileHeader
-          user={session}
-          credits={credits}
-          bonusCredits={bonusCredits}
-          activeView={activeView}
-          setActiveView={setActiveView}
-          generatingImages={generatingImages}
-          onSearch={onSearch}
-          showPrivate={showPrivate}
-          onTogglePrivate={onTogglePrivate}
-        />
-
-        {/* Desktop Prompt Box for MyImages */}
-        {activeView === 'myImages' && (
-          <DesktopMyImagesPromptBox
-            prompt={imageGeneratorProps.prompt}
-            setPrompt={imageGeneratorProps.setPrompt}
-            handlePromptKeyDown={imageGeneratorProps.handlePromptKeyDown}
-            isGenerating={imageGeneratorProps.isGenerating}
-            isImproving={imageGeneratorProps.isImproving}
-            handleGenerate={imageGeneratorProps.generateImage}
-            handleImprove={imageGeneratorProps.handleImprove}
-            credits={credits}
-            bonusCredits={bonusCredits}
-            hasEnoughCredits={imageGeneratorProps.hasEnoughCredits}
-          />
-        )}
-
-        {/* Image Gallery */}
-        <div className="flex-1 overflow-y-auto">
-          <ImageGallery
-            userId={session?.user?.id}
-            onImageClick={handleImageClick}
-            onDownload={handleDownload}
-            onDiscard={handleDiscard}
-            onRemix={handleRemix}
-            onViewDetails={handleViewDetails}
-            activeView={activeView}
-            generatingImages={generatingImages}
-            nsfwEnabled={nsfwEnabled}
-            activeFilters={activeFilters}
-            searchQuery={searchQuery}
-            setActiveTab={setActiveTab}
-            showPrivate={showPrivate}
-            profileUserId={profileUserId}
-          />
+          <div className="md:mt-12 mt-12">
+            <ImageGallery
+              userId={session?.user?.id}
+              onImageClick={handleImageClick}
+              onDownload={handleDownload}
+              onDiscard={handleDiscard}
+              onRemix={handleRemix}
+              onViewDetails={handleViewDetails}
+              activeView={activeView}
+              generatingImages={generatingImages}
+              nsfwEnabled={nsfwEnabled}
+              modelConfigs={imageGeneratorProps.modelConfigs}
+              activeFilters={activeFilters}
+              searchQuery={imageGeneratorProps.searchQuery}
+              setActiveTab={setActiveTab}
+              showPrivate={showPrivate}
+            />
+          </div>
         </div>
 
-        {/* Mobile Navigation */}
-        <MobileNavigation
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          activeView={activeView}
-          setActiveView={setActiveView}
-          generatingImages={generatingImages}
-        />
+        {shouldShowSettings && (
+          <div 
+            className={`w-full md:w-[350px] bg-card text-card-foreground
+              ${!isInspiration ? 'md:fixed md:right-0 md:top-12 md:bottom-0' : ''} 
+              ${activeTab === 'input' ? 'block' : 'hidden md:block'} 
+              md:h-[calc(100vh-3rem)] relative`}
+          >
+            <div className="hidden md:block absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-10" />
+            <div className="hidden md:block absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-10" />
+            
+            <div className="min-h-[calc(100vh-56px)] md:h-full overflow-y-auto md:scrollbar-none px-4 md:px-6 py-4 md:py-8">
+              <ImageGeneratorSettings {...imageGeneratorProps} />
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+
+      <MobileNotificationsMenu activeTab={activeTab} />
+      <MobileProfileMenu 
+        user={session?.user}
+        credits={credits}
+        bonusCredits={bonusCredits}
+        activeTab={activeTab}
+      />
+
+      <BottomNavbar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        session={session} 
+        credits={credits}
+        bonusCredits={bonusCredits}
+        activeView={activeView}
+        setActiveView={setActiveView}
+        generatingImages={generatingImages}
+      />
+      
+      <ImageDetailsDialog
+        open={detailsDialogOpen}
+        onOpenChange={setDetailsDialogOpen}
+        image={selectedImage}
+      />
+      <FullScreenImageView
+        image={selectedImage}
+        isOpen={fullScreenViewOpen}
+        onClose={() => setFullScreenViewOpen(false)}
+        onDownload={handleDownload}
+        onDiscard={handleDiscard}
+        onRemix={handleRemix}
+        isOwner={selectedImage?.user_id === session?.user?.id}
+        setActiveTab={setActiveTab}
+      />
+    </>
   );
 };
 
