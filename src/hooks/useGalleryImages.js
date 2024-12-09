@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/supabase';
 import { useFollows } from '@/hooks/useFollows';
 
 const ITEMS_PER_PAGE = 20;
+const NSFW_MODELS = ['nsfwMaster', 'animeNsfw'];
 
 export const useGalleryImages = ({
   userId,
@@ -10,13 +11,9 @@ export const useGalleryImages = ({
   nsfwEnabled,
   showPrivate,
   activeFilters = {},
-  searchQuery = '',
-  modelConfigs = {}
+  searchQuery = ''
 }) => {
   const { following } = useFollows(userId);
-  const nsfwModels = Object.entries(modelConfigs)
-    .filter(([_, config]) => config.category === "NSFW")
-    .map(([model]) => model);
 
   const {
     data,
@@ -25,7 +22,7 @@ export const useGalleryImages = ({
     isFetchingNextPage,
     isLoading,
   } = useInfiniteQuery({
-    queryKey: ['galleryImages', userId, activeView, nsfwEnabled, showPrivate, activeFilters, searchQuery, following, nsfwModels],
+    queryKey: ['galleryImages', userId, activeView, nsfwEnabled, showPrivate, activeFilters, searchQuery, following],
     queryFn: async ({ pageParam = { page: 0 } }) => {
       if (!userId) return { data: [], nextPage: null };
 
@@ -43,9 +40,9 @@ export const useGalleryImages = ({
 
         // Apply NSFW filter
         if (nsfwEnabled) {
-          baseQuery = baseQuery.in('model', nsfwModels);
+          baseQuery = baseQuery.in('model', NSFW_MODELS);
         } else {
-          baseQuery = baseQuery.not('model', 'in', '(' + nsfwModels.join(',') + ')');
+          baseQuery = baseQuery.not('model', 'in', '(' + NSFW_MODELS.join(',') + ')');
         }
 
         // Apply style and model filters
@@ -89,9 +86,9 @@ export const useGalleryImages = ({
 
       // Apply NSFW filter
       if (nsfwEnabled) {
-        baseQuery = baseQuery.in('model', nsfwModels);
+        baseQuery = baseQuery.in('model', NSFW_MODELS);
       } else {
-        baseQuery = baseQuery.not('model', 'in', '(' + nsfwModels.join(',') + ')');
+        baseQuery = baseQuery.not('model', 'in', '(' + NSFW_MODELS.join(',') + ')');
       }
 
       // Apply search filter for inspiration view
