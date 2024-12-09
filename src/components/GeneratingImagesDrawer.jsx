@@ -52,16 +52,18 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
             <DrawerTitle>
               Generating Images
             </DrawerTitle>
-            <span className={cn(
-              "h-5 w-5 rounded-full bg-primary text-[10px] font-medium text-primary-foreground flex items-center justify-center",
-              showCheckmark && "animate-in zoom-in duration-300"
-            )}>
-              {showCheckmark ? (
-                <Check className="h-3 w-3" />
-              ) : (
-                generatingImages.length > 9 ? '9+' : generatingImages.length
-              )}
-            </span>
+            {(generatingImages.length > 0 || showCheckmark) && (
+              <span className={cn(
+                "h-5 w-5 rounded-full bg-primary text-[10px] font-medium text-primary-foreground flex items-center justify-center",
+                showCheckmark && "animate-in zoom-in duration-300"
+              )}>
+                {showCheckmark ? (
+                  <Check className="h-3 w-3" />
+                ) : (
+                  generatingImages.length > 9 ? '9+' : generatingImages.length
+                )}
+              </span>
+            )}
           </div>
         </DrawerHeader>
         <ScrollArea className="h-[calc(90vh-100px)] px-4 py-4 space-y-4">
