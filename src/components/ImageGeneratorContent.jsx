@@ -99,15 +99,15 @@ const ImageGeneratorContent = ({
 
         {shouldShowSettings && (
           <div 
-            className={`w-full md:w-[350px] bg-card text-card-foreground overflow-hidden
+            className={`w-full md:w-[350px] bg-card text-card-foreground
               ${!isInspiration ? 'md:fixed md:right-0 md:top-12 md:bottom-0' : ''} 
               ${activeTab === 'input' ? 'block' : 'hidden md:block'} 
-              max-h-[calc(100vh-56px)] md:max-h-[calc(100vh-3rem)] relative`}
+              md:h-[calc(100vh-3rem)] relative`}
           >
-            <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-10" />
-            <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-10" />
+            <div className="hidden md:block absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-10" />
+            <div className="hidden md:block absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-10" />
             
-            <div className="overflow-y-auto md:scrollbar-none h-full px-4 md:px-6 py-8">
+            <div className="min-h-[calc(100vh-56px)] md:h-full overflow-y-auto px-4 md:px-6 py-4 md:py-8">
               <ImageGeneratorSettings {...imageGeneratorProps} />
             </div>
           </div>
