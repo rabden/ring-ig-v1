@@ -11,48 +11,30 @@ import PromptInput from './prompt/PromptInput';
 import StyledScrollArea from './style/StyledScrollArea';
 import { qualityOptions } from '@/utils/imageConfigs';
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 
 const ImageGeneratorSettings = ({
-  prompt,
-  setPrompt,
+  prompt, setPrompt,
   handlePromptKeyDown,
   generateImage,
-  model,
-  setModel,
-  seed,
-  setSeed,
-  randomizeSeed,
-  setRandomizeSeed,
-  quality,
-  setQuality,
-  useAspectRatio,
-  setUseAspectRatio,
-  aspectRatio,
-  setAspectRatio,
-  width,
-  setWidth,
-  height,
-  setHeight,
+  model, setModel,
+  seed, setSeed,
+  randomizeSeed, setRandomizeSeed,
+  quality, setQuality,
+  useAspectRatio, setUseAspectRatio,
+  aspectRatio, setAspectRatio,
+  width, setWidth,
+  height, setHeight,
   session,
   credits,
   bonusCredits,
-  nsfwEnabled,
-  setNsfwEnabled,
-  steps,
-  setSteps,
+  nsfwEnabled, setNsfwEnabled,
+  steps, setSteps,
   proMode,
   modelConfigs,
-  imageCount,
+  imageCount = 1,
   setImageCount,
-  isGenerating,
-  generatingImages,
-  activeView,
-  activeTab,
-  setActiveTab,
-  showPromptInput = true
+  isPrivate,
+  setIsPrivate
 }) => {
   const { isImproving, improveCurrentPrompt } = usePromptImprovement();
   const creditCost = { "HD": 1, "HD+": 2, "4K": 3 }[quality] * imageCount;
@@ -103,111 +85,90 @@ const ImageGeneratorSettings = ({
   };
 
   return (
-    <ScrollArea className="h-full px-6 py-6">
-      <div className="space-y-6">
-        {/* Only show prompt input and buttons if not in myImages view */}
-        {showPromptInput && (
-          <>
-            <div className="space-y-2">
-              <PromptInput
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                onKeyDown={handlePromptKeyDown}
-                placeholder="Describe what you want to create..."
-                className="min-h-[120px]"
-              />
-              <div className="flex justify-between items-center">
-                <div className="text-sm">
-                  <span className="font-medium">{credits}</span>
-                  <span className="text-muted-foreground"> credits</span>
-                  {bonusCredits > 0 && (
-                    <span className="text-muted-foreground">
-                      {" + "}
-                      <span className="text-primary font-medium">{bonusCredits}</span>
-                      {" bonus"}
-                    </span>
-                  )}
-                </div>
-                <Button
-                  onClick={generateImage}
-                  disabled={isGenerating || !prompt}
-                  className="relative"
-                >
-                  {isGenerating ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    "Generate"
-                  )}
-                </Button>
-              </div>
-            </div>
-            <Separator />
-          </>
+    <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
+      <div className="flex justify-between items-center mb-4">
+        {session && (
+          <div className="text-sm font-medium">
+            Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
+            {!hasEnoughCredits && (
+              <span className="text-destructive ml-2">
+                Need {creditCost} credits
+              </span>
+            )}
+          </div>
         )}
+      </div>
 
-        {/* Rest of the settings */}
-        <div className="space-y-6">
-          <ModelChooser
-            model={model}
-            setModel={handleModelChange}
-            nsfwEnabled={nsfwEnabled}
-            proMode={proMode}
-            modelConfigs={modelConfigs}
+      <PromptInput
+        value={prompt}
+        onChange={handlePromptChange}
+        onKeyDown={handlePromptKeyDown}
+        onGenerate={generateImage}
+        hasEnoughCredits={hasEnoughCredits}
+        onClear={handleClearPrompt}
+        onImprove={handleImprovePrompt}
+        isImproving={isImproving}
+      />
+
+      <ModelChooser
+        model={model}
+        setModel={handleModelChange}
+        nsfwEnabled={nsfwEnabled}
+        proMode={proMode}
+        modelConfigs={modelConfigs}
+      />
+
+      <ImageCountChooser
+        count={imageCount}
+        setCount={setImageCount}
+      />
+
+      <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more credits.">
+        <Tabs value={quality} onValueChange={setQuality}>
+          <TabsList className="grid" style={{ gridTemplateColumns: `repeat(${getAvailableQualities().length}, 1fr)` }}>
+            {getAvailableQualities().map((q) => (
+              <TabsTrigger key={q} value={q}>{q}</TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+      </SettingSection>
+
+      <SettingSection label="Aspect Ratio" tooltip="Slide left for portrait, center for square, right for landscape">
+        <AspectRatioChooser 
+          aspectRatio={aspectRatio} 
+          setAspectRatio={setAspectRatio}
+          proMode={proMode} 
+        />
+      </SettingSection>
+
+      <SettingSection label="Seed" tooltip="A seed is a number that initializes the random generation process. Using the same seed with the same settings will produce the same image.">
+        <div className="flex items-center space-x-2">
+          <Input
+            type="number"
+            value={seed}
+            onChange={(e) => setSeed(parseInt(e.target.value))}
+            disabled={randomizeSeed}
           />
-
-          <ImageCountChooser
-            count={imageCount}
-            setCount={setImageCount}
-          />
-
-          <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more credits.">
-            <Tabs value={quality} onValueChange={setQuality}>
-              <TabsList className="grid" style={{ gridTemplateColumns: `repeat(${getAvailableQualities().length}, 1fr)` }}>
-                {getAvailableQualities().map((q) => (
-                  <TabsTrigger key={q} value={q}>{q}</TabsTrigger>
-                ))}
-              </TabsList>
-            </Tabs>
-          </SettingSection>
-
-          <SettingSection label="Aspect Ratio" tooltip="Slide left for portrait, center for square, right for landscape">
-            <AspectRatioChooser 
-              aspectRatio={aspectRatio} 
-              setAspectRatio={setAspectRatio}
-              proMode={proMode} 
-            />
-          </SettingSection>
-
-          <SettingSection label="Seed" tooltip="A seed is a number that initializes the random generation process. Using the same seed with the same settings will produce the same image.">
-            <div className="flex items-center space-x-2">
-              <Input
-                type="number"
-                value={seed}
-                onChange={(e) => setSeed(parseInt(e.target.value))}
-                disabled={randomizeSeed}
-              />
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="randomizeSeed"
-                  checked={randomizeSeed}
-                  onCheckedChange={setRandomizeSeed}
-                />
-                <Label htmlFor="randomizeSeed">Random</Label>
-              </div>
-            </div>
-          </SettingSection>
-
-          <div className="flex items-center justify-between space-x-4">
-            <Label htmlFor="nsfwToggle" className="text-sm font-medium">Enable NSFW Content</Label>
+          <div className="flex items-center space-x-2">
             <Switch
-              id="nsfwToggle"
-              checked={nsfwEnabled}
-              onCheckedChange={setNsfwEnabled}
+              id="randomizeSeed"
+              checked={randomizeSeed}
+              onCheckedChange={setRandomizeSeed}
             />
+            <Label htmlFor="randomizeSeed">Random</Label>
           </div>
         </div>
+      </SettingSection>
+
+      <div className="flex items-center justify-between space-x-4">
+        <Label htmlFor="nsfwToggle" className="text-sm font-medium">Enable NSFW Content</Label>
+        <Switch
+          id="nsfwToggle"
+          checked={nsfwEnabled}
+          onCheckedChange={setNsfwEnabled}
+        />
       </div>
-    </ScrollArea>
+    </div>
   );
 };
 

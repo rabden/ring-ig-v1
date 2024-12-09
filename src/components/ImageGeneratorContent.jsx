@@ -1,12 +1,10 @@
 import React from 'react';
-import { cn } from "@/lib/utils";
-import DesktopHeader from './header/DesktopHeader';
-import MobileHeader from './header/MobileHeader';
-import MobileNavigation from './navigation/MobileNavigation';
 import ImageGallery from './ImageGallery';
 import ImageGeneratorSettings from './ImageGeneratorSettings';
+import DesktopHeader from './header/DesktopHeader';
+import MobileHeader from './header/MobileHeader';
+import MobileNavigation from './MobileNavigation';
 import DesktopPromptBox from './DesktopPromptBox';
-import DesktopMyImagesPromptBox from './myimages/DesktopMyImagesPromptBox';
 
 const ImageGeneratorContent = ({
   session,
@@ -37,11 +35,45 @@ const ImageGeneratorContent = ({
   setFullScreenViewOpen,
   imageGeneratorProps
 }) => {
-  const isMyImagesView = activeView === 'myImages';
-  const showSettings = !isMyImagesView || activeTab === 'input';
+  const {
+    prompt,
+    setPrompt,
+    handlePromptKeyDown,
+    generateImage,
+    model,
+    setModel,
+    seed,
+    setSeed,
+    randomizeSeed,
+    setRandomizeSeed,
+    quality,
+    setQuality,
+    useAspectRatio,
+    setUseAspectRatio,
+    aspectRatio,
+    setAspectRatio,
+    width,
+    setWidth,
+    height,
+    setHeight,
+    nsfwEnabled: nsfw,
+    setNsfwEnabled: setNsfw,
+    steps,
+    setSteps,
+    proMode,
+    modelConfigs,
+    imageCount,
+    setImageCount,
+    isPrivate,
+    setIsPrivate,
+    isGenerating,
+    isImproving,
+    handleImprove
+  } = imageGeneratorProps;
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Desktop Header */}
       <DesktopHeader
         user={session?.user}
         credits={credits}
@@ -53,96 +85,99 @@ const ImageGeneratorContent = ({
         showPrivate={showPrivate}
         onTogglePrivate={setShowPrivate}
       />
+
+      {/* Desktop Prompt Box */}
+      {activeView === 'input' && (
+        <DesktopPromptBox
+          prompt={prompt}
+          setPrompt={setPrompt}
+          handlePromptKeyDown={handlePromptKeyDown}
+          isGenerating={isGenerating}
+          isImproving={isImproving}
+          handleGenerate={generateImage}
+          handleImprove={handleImprove}
+          credits={credits}
+          bonusCredits={bonusCredits}
+        />
+      )}
+
+      {/* Mobile Header */}
       <MobileHeader
         user={session?.user}
         credits={credits}
         bonusCredits={bonusCredits}
-        activeView={activeView}
-        setActiveView={setActiveView}
-        generatingImages={generatingImages}
-        onSearch={onSearch}
-        showPrivate={showPrivate}
-        onTogglePrivate={setShowPrivate}
+        isVisible={isHeaderVisible}
       />
 
-      {/* Desktop Prompt Box for myImages view */}
-      {isMyImagesView && activeTab === 'input' && (
-        <DesktopMyImagesPromptBox
-          prompt={imageGeneratorProps.prompt}
-          setPrompt={imageGeneratorProps.setPrompt}
-          handlePromptKeyDown={imageGeneratorProps.handlePromptKeyDown}
-          isGenerating={generatingImages.length > 0}
-          isImproving={false}
-          handleGenerate={imageGeneratorProps.generateImage}
-          handleImprove={() => {}}
-          credits={credits}
-          bonusCredits={bonusCredits}
-        />
-      )}
-
-      {/* Desktop Prompt Box for other views */}
-      {!isMyImagesView && (
-        <DesktopPromptBox
-          prompt={imageGeneratorProps.prompt}
-          setPrompt={imageGeneratorProps.setPrompt}
-          handlePromptKeyDown={imageGeneratorProps.handlePromptKeyDown}
-          isGenerating={generatingImages.length > 0}
-          isImproving={false}
-          handleGenerate={imageGeneratorProps.generateImage}
-          handleImprove={() => {}}
-          credits={credits}
-          bonusCredits={bonusCredits}
-        />
-      )}
-
       <div className="flex">
-        {/* Settings Panel */}
-        {showSettings && (
-          <div className={cn(
-            "hidden md:block w-[300px] shrink-0 border-r h-[calc(100vh-48px)] sticky top-12",
-            isHeaderVisible ? "top-12" : "top-0"
-          )}>
-            <ImageGeneratorSettings
-              {...imageGeneratorProps}
-              isGenerating={generatingImages.length > 0}
-              generatingImages={generatingImages}
-              activeView={activeView}
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              nsfwEnabled={nsfwEnabled}
-              showPromptInput={!isMyImagesView}
-            />
-          </div>
-        )}
+        {/* Settings Sidebar - Hidden on desktop for input view */}
+        <div className={`${activeView === 'input' ? 'hidden md:hidden' : ''} w-full md:w-[300px] md:flex-shrink-0 border-r`}>
+          <ImageGeneratorSettings
+            prompt={prompt}
+            setPrompt={setPrompt}
+            handlePromptKeyDown={handlePromptKeyDown}
+            generateImage={generateImage}
+            model={model}
+            setModel={setModel}
+            seed={seed}
+            setSeed={setSeed}
+            randomizeSeed={randomizeSeed}
+            setRandomizeSeed={setRandomizeSeed}
+            quality={quality}
+            setQuality={setQuality}
+            useAspectRatio={useAspectRatio}
+            setUseAspectRatio={setUseAspectRatio}
+            aspectRatio={aspectRatio}
+            setAspectRatio={setAspectRatio}
+            width={width}
+            setWidth={setWidth}
+            height={height}
+            setHeight={setHeight}
+            nsfwEnabled={nsfw}
+            setNsfwEnabled={setNsfw}
+            steps={steps}
+            setSteps={setSteps}
+            proMode={proMode}
+            modelConfigs={modelConfigs}
+            imageCount={imageCount}
+            setImageCount={setImageCount}
+            isPrivate={isPrivate}
+            setIsPrivate={setIsPrivate}
+            isGenerating={isGenerating}
+            isImproving={isImproving}
+            handleImprove={handleImprove}
+            credits={credits}
+            bonusCredits={bonusCredits}
+          />
+        </div>
 
         {/* Main Content */}
-        <div className={cn(
-          "flex-1 px-0 pb-16 md:pb-0",
-          showSettings ? "md:pl-0" : "md:pl-0"
-        )}>
-          <ImageGallery
-            userId={session?.user?.id}
-            onImageClick={handleImageClick}
-            onDownload={handleDownload}
-            onDiscard={handleDiscard}
-            onRemix={handleRemix}
-            onViewDetails={handleViewDetails}
-            activeView={activeView}
-            generatingImages={generatingImages}
-            nsfwEnabled={nsfwEnabled}
-            activeFilters={activeFilters}
-            searchQuery={onSearch}
-            setActiveTab={setActiveTab}
-            showPrivate={showPrivate}
-          />
+        <div className="flex-1 md:pl-4">
+          <div className="pt-16 md:pt-20">
+            <ImageGallery
+              userId={session?.user?.id}
+              onImageClick={handleImageClick}
+              onDownload={handleDownload}
+              onDiscard={handleDiscard}
+              onRemix={handleRemix}
+              onViewDetails={handleViewDetails}
+              activeView={activeView}
+              generatingImages={generatingImages}
+              nsfwEnabled={nsfwEnabled}
+              activeFilters={activeFilters}
+              searchQuery={onSearch}
+              setActiveTab={setActiveTab}
+              showPrivate={showPrivate}
+            />
+          </div>
         </div>
       </div>
 
+      {/* Mobile Navigation */}
       <MobileNavigation
         activeTab={activeTab}
         setActiveTab={setActiveTab}
-        activeView={activeView}
-        setActiveView={setActiveView}
+        generatingImages={generatingImages}
       />
     </div>
   );
