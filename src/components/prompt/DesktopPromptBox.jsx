@@ -29,6 +29,7 @@ const DesktopPromptBox = ({
       const settingsContainer = document.querySelector('[class*="settings-container"]');
       const settingsContent = document.querySelector('[class*="settings-content"]');
       const settingsWrapper = document.querySelector('[class*="settings-wrapper"]');
+      const imageGeneratorSettings = document.querySelector('.image-generator-settings');
       
       // Check if click is inside settings-related element
       const isSettingsClick = [
@@ -36,7 +37,8 @@ const DesktopPromptBox = ({
         settingsSidebar,
         settingsContainer,
         settingsContent,
-        settingsWrapper
+        settingsWrapper,
+        imageGeneratorSettings
       ].some(element => element?.contains(event.target));
 
       // Don't collapse if click is inside settings or prompt box
