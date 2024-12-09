@@ -127,9 +127,9 @@ const ImageGallery = ({
   return (
     <div className={cn(
       "w-full h-full",
-      "md:px-4",
+      "md:px-0",
       "md:pt-0",
-      "pt-16",
+      "pt-12",
       className
     )}>
       <Masonry
