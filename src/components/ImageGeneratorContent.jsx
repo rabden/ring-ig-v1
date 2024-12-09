@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import ImageGeneratorSettings from './ImageGeneratorSettings';
 import ImageGallery from './ImageGallery';
 import BottomNavbar from './BottomNavbar';
@@ -10,7 +10,6 @@ import DesktopHeader from './header/DesktopHeader';
 import MobileHeader from './header/MobileHeader';
 import DesktopPromptBox from './prompt/DesktopPromptBox';
 import CreditCounter from '@/components/ui/credit-counter';
-import InspirationFilters from './gallery/InspirationFilters';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 
@@ -45,17 +44,6 @@ const ImageGeneratorContent = ({
 }) => {
   const isInspiration = activeView === 'inspiration';
   const shouldShowSettings = !isInspiration || (activeTab === 'input' && window.innerWidth < 768);
-  
-  // Initialize inspiration filter from localStorage or default to 'top'
-  const [inspirationFilter, setInspirationFilter] = useState(() => {
-    const saved = localStorage.getItem('inspirationFilter');
-    return saved || 'top';
-  });
-
-  // Save inspiration filter to localStorage when it changes
-  useEffect(() => {
-    localStorage.setItem('inspirationFilter', inspirationFilter);
-  }, [inspirationFilter]);
 
   return (
     <>
@@ -77,8 +65,6 @@ const ImageGeneratorContent = ({
                 nsfwEnabled={nsfwEnabled}
                 showPrivate={showPrivate}
                 onTogglePrivate={() => setShowPrivate(!showPrivate)}
-                inspirationFilter={inspirationFilter}
-                onInspirationFilterChange={setInspirationFilter}
               />
               <MobileHeader
                 activeFilters={activeFilters}
@@ -90,8 +76,6 @@ const ImageGeneratorContent = ({
                 showPrivate={showPrivate}
                 onTogglePrivate={() => setShowPrivate(!showPrivate)}
                 activeView={activeView}
-                inspirationFilter={inspirationFilter}
-                onInspirationFilterChange={setInspirationFilter}
               />
               
               {!isInspiration && (
@@ -108,28 +92,27 @@ const ImageGeneratorContent = ({
                   bonusCredits={bonusCredits}
                 />
               )}
-
-              <div className="md:mt-16">
-                <ImageGallery
-                  userId={session?.user?.id}
-                  onImageClick={handleImageClick}
-                  onDownload={handleDownload}
-                  onDiscard={handleDiscard}
-                  onRemix={handleRemix}
-                  onViewDetails={handleViewDetails}
-                  activeView={activeView}
-                  generatingImages={generatingImages}
-                  nsfwEnabled={nsfwEnabled}
-                  modelConfigs={imageGeneratorProps.modelConfigs}
-                  activeFilters={activeFilters}
-                  searchQuery={imageGeneratorProps.searchQuery}
-                  setActiveTab={setActiveTab}
-                  showPrivate={showPrivate}
-                  inspirationFilter={isInspiration ? inspirationFilter : undefined}
-                />
-              </div>
             </>
           )}
+
+          <div className="md:mt-16">
+            <ImageGallery
+              userId={session?.user?.id}
+              onImageClick={handleImageClick}
+              onDownload={handleDownload}
+              onDiscard={handleDiscard}
+              onRemix={handleRemix}
+              onViewDetails={handleViewDetails}
+              activeView={activeView}
+              generatingImages={generatingImages}
+              nsfwEnabled={nsfwEnabled}
+              modelConfigs={imageGeneratorProps.modelConfigs}
+              activeFilters={activeFilters}
+              searchQuery={imageGeneratorProps.searchQuery}
+              setActiveTab={setActiveTab}
+              showPrivate={showPrivate}
+            />
+          </div>
         </div>
 
         {shouldShowSettings && (
