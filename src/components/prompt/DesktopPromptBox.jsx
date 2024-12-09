@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { X, ArrowRight, Sparkles, Loader } from 'lucide-react';
 import CreditCounter from '@/components/ui/credit-counter';
 import { cn } from '@/lib/utils';
+import { toast } from 'react-hot-toast';
 
 const DesktopPromptBox = ({ 
   prompt,
@@ -53,6 +54,16 @@ const DesktopPromptBox = ({
   }, []);
 
   const handleImprovePrompt = async () => {
+    if (!userId) {
+      toast.error('Please sign in to improve prompts');
+      return;
+    }
+
+    if (!hasEnoughCreditsForImprovement) {
+      toast.error('Not enough credits for prompt improvement');
+      return;
+    }
+
     await improveCurrentPrompt(prompt, (improvedPrompt) => {
       onChange({ target: { value: improvedPrompt } });
     });
