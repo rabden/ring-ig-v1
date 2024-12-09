@@ -8,23 +8,21 @@ import { cn } from "@/lib/utils"
 
 const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) => {
   const { data: modelConfigs } = useModelConfigs();
-  const [showCheckmark, setShowCheckmark] = useState(false);
-  const [prevLength, setPrevLength] = useState(generatingImages.length);
+  const [showDrawer, setShowDrawer] = useState(false);
 
-  // Handle showing checkmark when an image completes
   useEffect(() => {
-    if (generatingImages.length < prevLength && prevLength > 0) {
-      // Show checkmark for 1.5s when an image completes
-      setShowCheckmark(true);
+    if (generatingImages.length > 0) {
+      setShowDrawer(true);
+    } else {
+      // Wait 4s before hiding when complete
       const timer = setTimeout(() => {
-        setShowCheckmark(false);
-      }, 1500);
+        setShowDrawer(false);
+      }, 4000);
       return () => clearTimeout(timer);
     }
-    setPrevLength(generatingImages.length);
-  }, [generatingImages.length, prevLength]);
+  }, [generatingImages.length]);
 
-  if (!generatingImages?.length && !showCheckmark) return null;
+  if (!showDrawer) return null;
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
@@ -32,17 +30,22 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
         <div className="mx-auto w-12 h-1 flex-shrink-0 rounded-full bg-muted mt-4 mb-2" />
         <DrawerHeader className="border-b border-border/30 pb-4 pt-0">
           <div className="flex items-center gap-2">
-            <DrawerTitle>Generating Images</DrawerTitle>
-            {showCheckmark && (
-              <span className="flex items-center justify-center h-5 w-5 rounded-full bg-primary">
-                <Check className="h-3 w-3 text-primary-foreground animate-in zoom-in duration-300" />
+            <DrawerTitle>
+              Generating Images
+            </DrawerTitle>
+            {generatingImages.length > 0 && (
+              <span className="h-5 w-5 rounded-full bg-primary text-[10px] font-medium text-primary-foreground flex items-center justify-center">
+                {generatingImages.length > 9 ? '9+' : generatingImages.length}
               </span>
             )}
           </div>
         </DrawerHeader>
         <ScrollArea className="h-[calc(90vh-100px)] px-4 py-4 space-y-4">
           {generatingImages.map((img) => (
-            <div key={img.id} className="flex flex-col gap-2 p-4 border border-border/30 rounded-lg bg-muted/30">
+            <div 
+              key={img.id} 
+              className="flex flex-col gap-2 p-4 border border-border/30 rounded-lg bg-muted/30"
+            >
               <div className="flex items-center gap-2">
                 <Loader className="w-4 h-4 animate-spin" />
                 <span className="font-medium">Generating...</span>
@@ -62,10 +65,12 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
               </div>
             </div>
           ))}
-          {showCheckmark && generatingImages.length === 0 && (
+          {generatingImages.length === 0 && (
             <div className="flex items-center justify-center gap-2 p-4">
-              <Check className="w-5 h-5 text-primary animate-in zoom-in duration-300" />
-              <span className="text-primary font-medium">Generation Complete</span>
+              <Check className="w-5 h-5 text-primary" />
+              <span className="text-primary font-medium">
+                Generation Complete
+              </span>
             </div>
           )}
         </ScrollArea>
