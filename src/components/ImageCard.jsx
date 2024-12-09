@@ -12,7 +12,6 @@ import { handleImageDiscard } from '@/utils/discardUtils';
 import ImageCardMedia from './image-card/ImageCardMedia';
 import ImageCardBadges from './image-card/ImageCardBadges';
 import { useNavigate } from 'react-router-dom';
-import { cn } from '@/lib/utils';
 
 const ImageCard = ({ 
   image, 
@@ -23,8 +22,6 @@ const ImageCard = ({
   isLiked,
   onToggleLike = () => {},
   setActiveTab,
-  setStyle,
-  style
 }) => {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
@@ -94,24 +91,8 @@ const ImageCard = ({
   return (
     <>
       <div className="mb-4">
-        <div 
-          className={cn(
-            "group relative rounded-lg overflow-hidden bg-card",
-            "transition-all duration-300 ease-in-out transform-gpu",
-            "hover:shadow-lg"
-          )}
-          onClick={() => handleImageClick(image)}
-        >
-          <div className="relative aspect-[1/1]">
-            <img
-              src={image.url}
-              alt={image.prompt}
-              className={cn(
-                "w-full h-full object-cover",
-                "transition-all duration-300 ease-in-out transform-gpu"
-              )}
-              loading="lazy"
-            />
+        <Card className="overflow-hidden">
+          <CardContent className="p-0 relative">
             <ImageStatusIndicators 
               isTrending={image.is_trending} 
               isHot={image.is_hot} 
@@ -126,8 +107,8 @@ const ImageCard = ({
               modelName={modelName}
               isNsfw={isNsfw}
             />
-          </div>
-        </div>
+          </CardContent>
+        </Card>
         <div className="mt-1 flex items-center justify-between">
           <p className="text-sm truncate w-[70%]">{image.prompt}</p>
           <ImageCardActions

@@ -134,7 +134,7 @@ const DesktopPromptBox = ({
         className={cn(
           "relative bg-card shadow-sm border border-border/50",
           "transform-gpu",
-          "transition-all duration-300 ease-in-out",
+          "[transition:border-radius_200ms_ease,transform_400ms_ease-in-out,box-shadow_400ms_ease-in-out]",
           isExpanded ? [
             "rounded-lg",
             "scale-100",
@@ -150,7 +150,7 @@ const DesktopPromptBox = ({
         onClick={handleExpand}
       >
         <div className={cn(
-          "transition-all duration-300 ease-in-out",
+          "transition-all duration-400 ease-in-out",
           isExpanded ? "p-2" : "p-1"
         )}>
           {isExpanded ? (
@@ -162,7 +162,7 @@ const DesktopPromptBox = ({
                   onChange={onChange}
                   onKeyDown={onKeyDown}
                   placeholder="A 4D HDR immersive 3D image..."
-                  className="w-full min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-4 px-2 transition-all duration-300 ease-in-out"
+                  className="w-full min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-4 px-2 transition-colors duration-200"
                   style={{ 
                     caretColor: 'currentColor',
                   }}

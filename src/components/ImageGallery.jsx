@@ -212,23 +212,13 @@ const ImageGallery = ({
     <div className={cn("w-full h-full md:px-0 md:pt-0 pt-12", className)}>
       <Masonry
         breakpointCols={breakpointColumnsObj}
-        className={cn(
-          "flex w-auto md:px-2 -mx-1 md:mx-0",
-          "transition-all duration-300 ease-in-out"
-        )}
-        columnClassName={cn(
-          "bg-clip-padding px-1 md:px-2",
-          "transition-all duration-300 ease-in-out"
-        )}
+        className="flex w-auto md:px-2 -mx-1 md:mx-0"
+        columnClassName="bg-clip-padding px-1 md:px-2"
       >
         {filteredImages.map((image, index) => (
           <div
             key={image.id}
             ref={index === filteredImages.length - 1 ? lastImageRef : null}
-            className={cn(
-              "transition-all duration-300 ease-in-out",
-              "transform-gpu"
-            )}
           >
             <ImageCard
               image={image}

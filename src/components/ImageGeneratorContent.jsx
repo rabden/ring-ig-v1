@@ -73,8 +73,7 @@ const ImageGeneratorContent = ({
     <>
       <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground image-generator-content">
         <div className={cn(
-          "flex-grow p-2 md:p-6 overflow-y-auto",
-          "transition-all duration-300 ease-in-out transform-gpu will-change-[padding,width]",
+          "flex-grow p-2 md:p-6 overflow-y-auto transition-[padding] duration-300 ease-in-out",
           activeTab === 'images' ? 'block' : 'hidden md:block',
           isSidebarVisible ? 'md:pr-[350px]' : 'md:pr-6',
           "pb-20 md:pb-6"
@@ -154,19 +153,16 @@ const ImageGeneratorContent = ({
               "md:fixed md:right-0 md:top-12 md:bottom-0",
               activeTab === 'input' ? 'block' : 'hidden md:block',
               "md:h-[calc(100vh-3rem)] relative",
-              "transition-all duration-300 ease-in-out transform-gpu will-change-transform",
+              "transition-transform duration-300 ease-in-out",
               isSidebarVisible 
-                ? "translate-x-0 opacity-100" 
-                : "translate-x-full opacity-0"
+                ? "translate-x-0" 
+                : "translate-x-full",
             )}
           >
-            <div className="hidden md:block absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-10 transition-opacity duration-300" />
-            <div className="hidden md:block absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-10 transition-opacity duration-300" />
+            <div className="hidden md:block absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-10" />
+            <div className="hidden md:block absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-10" />
             
-            <div className={cn(
-              "min-h-[calc(100vh-56px)] md:h-full overflow-y-auto md:scrollbar-none px-4 md:px-6 py-4 md:py-8",
-              "transition-all duration-300 ease-in-out"
-            )}>
+            <div className="min-h-[calc(100vh-56px)] md:h-full overflow-y-auto md:scrollbar-none px-4 md:px-6 py-4 md:py-8">
               <CreditCounter credits={credits} bonusCredits={bonusCredits} className="block md:hidden mb-4" />
               <ImageGeneratorSettings {...imageGeneratorProps} hidePromptOnDesktop={true} />
             </div>
