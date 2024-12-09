@@ -17,12 +17,22 @@ export const useUserCredits = (userId) => {
     return data;
   };
 
-  const updateCredits = async (quality) => {
-    const creditCost = {
-      "HD": 1,
-      "HD+": 2,
-      "4K": 3
-    }[quality];
+  const updateCredits = async (quality, imageCount = 1) => {
+    let creditCost;
+    
+    if (typeof quality === 'string') {
+      // Handle quality-based cost for image generation
+      creditCost = {
+        "HD": 1,
+        "HD+": 2,
+        "4K": 3
+      }[quality] * imageCount;
+    } else {
+      // Handle direct credit cost (for prompt improvement)
+      creditCost = quality;
+    }
+
+    if (!creditCost) throw new Error('Invalid credit cost');
 
     const { data: profile } = await supabase
       .from('profiles')
