@@ -6,7 +6,6 @@ import { useLikes } from '@/hooks/useLikes';
 import NoResults from './NoResults';
 import { useGalleryImages } from '@/hooks/useGalleryImages';
 import { cn } from '@/lib/utils';
-import { groupImagesByDate, DATE_GROUP_ORDER } from '@/lib/date-utils';
 
 const getBreakpointColumns = (activeView) => {
   if (activeView === 'inspiration' || activeView === 'profile') {
@@ -25,12 +24,6 @@ const getBreakpointColumns = (activeView) => {
     500: 2
   };
 };
-
-const DateGroupHeader = ({ title }) => (
-  <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2 px-4 mb-4 border-b">
-    <h2 className="text-lg font-semibold">{title}</h2>
-  </div>
-);
 
 const ImageGallery = ({ 
   userId, 
@@ -107,45 +100,7 @@ const ImageGallery = ({
       }
       return !img.is_private;
     });
-
-    // If it's the myImages view, group by date
-    if (activeView === 'myImages') {
-      const groupedImages = groupImagesByDate(filteredImages);
-      
-      return DATE_GROUP_ORDER.map(groupTitle => {
-        const groupImages = groupedImages[groupTitle];
-        if (!groupImages?.length) return null;
-
-        return (
-          <div key={groupTitle} className="w-full mb-8">
-            <DateGroupHeader title={groupTitle} />
-            {groupImages.map((image, index) => (
-              <div
-                key={image.id}
-                ref={index === groupImages.length - 1 ? lastImageRef : null}
-              >
-                <ImageCard
-                  image={image}
-                  onImageClick={() => onImageClick(image)}
-                  onDownload={onDownload}
-                  onDiscard={onDiscard}
-                  onRemix={onRemix}
-                  onViewDetails={onViewDetails}
-                  onMoreClick={handleMobileMoreClick}
-                  userId={userId}
-                  isMobile={isMobile}
-                  isLiked={userLikes.includes(image.id)}
-                  onToggleLike={toggleLike}
-                  setActiveTab={setActiveTab}
-                />
-              </div>
-            ))}
-          </div>
-        );
-      }).filter(Boolean);
-    }
     
-    // For other views, render normally
     return filteredImages.map((image, index) => (
       <div
         key={image.id}

@@ -1,16 +1,24 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 const DateGroupHeader = ({ title, className }) => {
   return (
-    <div className={cn(
-      "sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
-      "py-2 px-4 mb-4",
-      "border-b",
-      className
-    )}>
-      <h2 className="text-lg font-semibold">{title}</h2>
-    </div>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.2 }}
+      className={cn(
+        "sticky top-0 z-10",
+        "py-2 px-4",
+        className
+      )}
+    >
+      <div className="flex items-center space-x-4">
+        <h2 className="text-sm font-medium text-muted-foreground">{title}</h2>
+        <div className="flex-1 h-[1px] bg-border/20" />
+      </div>
+    </motion.div>
   );
 };
 
