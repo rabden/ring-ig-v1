@@ -194,6 +194,8 @@ const ImageGeneratorContent = ({
         credits={credits}
         bonusCredits={bonusCredits}
         activeTab={activeTab}
+        nsfwEnabled={nsfwEnabled}
+        setNsfwEnabled={imageGeneratorProps.setNsfwEnabled}
       />
 
       <BottomNavbar 

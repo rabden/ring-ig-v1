@@ -18,10 +18,26 @@ export const useImageFilter = () => {
         // Never show private images in inspiration
         if (img.is_private) return false;
         if (img.user_id === userId) return false;
+        
+        // Show only NSFW content when enabled, only SFW when disabled
         if (nsfwEnabled) {
-          return isNsfw;
+          if (!isNsfw) return false;
+        } else {
+          if (isNsfw) return false;
         }
-        return !isNsfw;
+        
+        // Apply style and model filters
+        if (activeFilters.style && img.style !== activeFilters.style) return false;
+        if (activeFilters.model && img.model !== activeFilters.model) return false;
+
+        // Filter by search query
+        if (searchQuery) {
+          const query = searchQuery.toLowerCase();
+          const prompt = img.prompt?.toLowerCase() || '';
+          if (!prompt.includes(query)) return false;
+        }
+
+        return true;
       }
       
       // My Images view
@@ -30,46 +46,37 @@ export const useImageFilter = () => {
         
         // Filter by privacy setting
         if (showPrivate) {
-          // When private filter is on, show only private images
-          return img.is_private;
+          if (!img.is_private) return false;
         } else {
-          // When private filter is off, show only non-private images
-          return !img.is_private;
+          if (img.is_private) return false;
         }
 
-        // NSFW filtering happens after privacy filtering
+        // Show only NSFW content when enabled, only SFW when disabled
         if (nsfwEnabled) {
-          return isNsfw;
+          if (!isNsfw) return false;
+        } else {
+          if (isNsfw) return false;
         }
-        return !isNsfw;
-      }
 
-      // Filter by style and model
-      if (activeFilters.style && img.style !== activeFilters.style) return false;
-      if (activeFilters.model && img.model !== activeFilters.model) return false;
+        // Apply style and model filters
+        if (activeFilters.style && img.style !== activeFilters.style) return false;
+        if (activeFilters.model && img.model !== activeFilters.model) return false;
 
-      // Filter by search query
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        const prompt = img.prompt?.toLowerCase() || '';
-        if (!prompt.includes(query)) return false;
+        // Filter by search query
+        if (searchQuery) {
+          const query = searchQuery.toLowerCase();
+          const prompt = img.prompt?.toLowerCase() || '';
+          if (!prompt.includes(query)) return false;
+        }
+
+        return true;
       }
 
       return true;
     });
 
-    // Sort inspiration images by hot and trending
-    if (activeView === 'inspiration') {
-      filteredData.sort((a, b) => {
-        if (a.is_hot && a.is_trending && (!b.is_hot || !b.is_trending)) return -1;
-        if (b.is_hot && b.is_trending && (!a.is_hot || !a.is_trending)) return 1;
-        if (a.is_hot && !b.is_hot) return -1;
-        if (b.is_hot && !a.is_hot) return 1;
-        if (a.is_trending && !b.is_trending) return -1;
-        if (b.is_trending && !a.is_trending) return 1;
-        return new Date(b.created_at) - new Date(a.created_at);
-      });
-    }
+    // Sort all images by latest first
+    filteredData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
     return filteredData;
   }, []);
