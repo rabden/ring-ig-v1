@@ -82,24 +82,14 @@ const ImageGeneratorContent = ({
                   prompt={imageGeneratorProps.prompt}
                   onChange={(e) => imageGeneratorProps.setPrompt(e.target.value)}
                   onKeyDown={imageGeneratorProps.handlePromptKeyDown}
-                  onGenerate={imageGeneratorProps.generateImage}
+                  onSubmit={imageGeneratorProps.generateImage}
                   hasEnoughCredits={true}
                   onClear={() => imageGeneratorProps.setPrompt('')}
                   onImprove={imageGeneratorProps.improveCurrentPrompt}
                   isImproving={imageGeneratorProps.isImproving}
                   credits={credits}
                   bonusCredits={bonusCredits}
-                >
-                  <Button
-                    size="sm"
-                    className="rounded-full"
-                    onClick={imageGeneratorProps.generateImage}
-                    disabled={!imageGeneratorProps.prompt?.length || !true}
-                  >
-                    Create
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </DesktopPromptBox>
+                />
               )}
             </>
           )}

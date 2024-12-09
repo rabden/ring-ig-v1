@@ -10,7 +10,7 @@ const DesktopPromptBox = ({
   prompt,
   onChange,
   onKeyDown,
-  onGenerate,
+  onSubmit,
   hasEnoughCredits,
   onClear,
   credits,
@@ -128,7 +128,7 @@ const DesktopPromptBox = ({
                   <Button
                     size="sm"
                     className="rounded-full"
-                    onClick={onGenerate}
+                    onClick={onSubmit}
                     disabled={!prompt?.length || !hasEnoughCredits}
                   >
                     Create
@@ -151,7 +151,7 @@ const DesktopPromptBox = ({
                 className="rounded-full"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onGenerate();
+                  onSubmit();
                 }}
                 disabled={!prompt?.length || !hasEnoughCredits}
               >
