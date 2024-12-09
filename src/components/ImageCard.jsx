@@ -12,6 +12,7 @@ import { handleImageDiscard } from '@/utils/discardUtils';
 import ImageCardMedia from './image-card/ImageCardMedia';
 import ImageCardBadges from './image-card/ImageCardBadges';
 import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
 const ImageCard = ({ 
   image, 
@@ -22,6 +23,8 @@ const ImageCard = ({
   isLiked,
   onToggleLike = () => {},
   setActiveTab,
+  setStyle,
+  style
 }) => {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
@@ -91,24 +94,25 @@ const ImageCard = ({
   return (
     <>
       <div className="mb-4">
-        <Card className="overflow-hidden">
-          <CardContent className="p-0 relative">
-            <ImageStatusIndicators 
-              isTrending={image.is_trending} 
-              isHot={image.is_hot} 
-            />
-            <ImageCardMedia
-              image={image}
-              onImageClick={handleImageClick}
-              onDoubleClick={handleDoubleClick}
-              isAnimating={isAnimating}
-            />
-            <ImageCardBadges
-              modelName={modelName}
-              isNsfw={isNsfw}
-            />
-          </CardContent>
-        </Card>
+        <div className={cn(
+          "relative overflow-hidden rounded-lg bg-card",
+          "transition-all duration-300 ease-in-out transform-gpu"
+        )}>
+          <ImageStatusIndicators 
+            isTrending={image.is_trending} 
+            isHot={image.is_hot} 
+          />
+          <ImageCardMedia
+            image={image}
+            onImageClick={handleImageClick}
+            onDoubleClick={handleDoubleClick}
+            isAnimating={isAnimating}
+          />
+          <ImageCardBadges
+            modelName={modelName}
+            isNsfw={isNsfw}
+          />
+        </div>
         <div className="mt-1 flex items-center justify-between">
           <p className="text-sm truncate w-[70%]">{image.prompt}</p>
           <ImageCardActions
@@ -123,6 +127,8 @@ const ImageCard = ({
             onRemix={handleRemixClick}
             userId={userId}
             setActiveTab={setActiveTab}
+            setStyle={setStyle}
+            style={style}
           />
         </div>
       </div>

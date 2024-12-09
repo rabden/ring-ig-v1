@@ -9,7 +9,6 @@ import FullScreenImageView from './FullScreenImageView';
 import DesktopHeader from './header/DesktopHeader';
 import MobileHeader from './header/MobileHeader';
 import DesktopPromptBox from './prompt/DesktopPromptBox';
-import FixedPromptBox from './prompt/FixedPromptBox';
 import CreditCounter from '@/components/ui/credit-counter';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
@@ -47,7 +46,6 @@ const ImageGeneratorContent = ({
   const isInspiration = activeView === 'inspiration';
   const shouldShowSettings = !isInspiration || (activeTab === 'input' && window.innerWidth < 768);
   const [isPromptExpanded, setIsPromptExpanded] = useState(false);
-  const [isPromptHidden, setIsPromptHidden] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [isSidebarMounted, setIsSidebarMounted] = useState(false);
 
@@ -70,14 +68,6 @@ const ImageGeneratorContent = ({
       return () => clearTimeout(timer);
     }
   }, [shouldShowSettings, isPromptExpanded, isInspiration]);
-
-  const handleFixedPromptClick = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    // Wait for scroll to complete before expanding
-    setTimeout(() => {
-      setIsPromptExpanded(true);
-    }, 300);
-  };
 
   return (
     <>
@@ -119,27 +109,20 @@ const ImageGeneratorContent = ({
               />
               
               {!isInspiration && (
-                <>
-                  <DesktopPromptBox
-                    prompt={imageGeneratorProps.prompt}
-                    onChange={(e) => imageGeneratorProps.setPrompt(e.target.value)}
-                    onKeyDown={imageGeneratorProps.handlePromptKeyDown}
-                    onSubmit={imageGeneratorProps.generateImage}
-                    hasEnoughCredits={true}
-                    onClear={() => imageGeneratorProps.setPrompt('')}
-                    onImprove={imageGeneratorProps.improveCurrentPrompt}
-                    isImproving={imageGeneratorProps.isImproving}
-                    credits={credits}
-                    bonusCredits={bonusCredits}
-                    userId={session?.user?.id}
-                    onVisibilityChange={setIsPromptHidden}
-                  />
-                  <FixedPromptBox
-                    isVisible={isPromptHidden}
-                    prompt={imageGeneratorProps.prompt}
-                    onClick={handleFixedPromptClick}
-                  />
-                </>
+                <DesktopPromptBox
+                  prompt={imageGeneratorProps.prompt}
+                  onChange={(e) => imageGeneratorProps.setPrompt(e.target.value)}
+                  onKeyDown={imageGeneratorProps.handlePromptKeyDown}
+                  onSubmit={imageGeneratorProps.generateImage}
+                  hasEnoughCredits={true}
+                  onClear={() => imageGeneratorProps.setPrompt('')}
+                  onImprove={imageGeneratorProps.improveCurrentPrompt}
+                  isImproving={imageGeneratorProps.isImproving}
+                  credits={credits}
+                  bonusCredits={bonusCredits}
+                  userId={session?.user?.id}
+                  onExpandedChange={setIsPromptExpanded}
+                />
               )}
 
               <div className="md:mt-16">
@@ -171,16 +154,19 @@ const ImageGeneratorContent = ({
               "md:fixed md:right-0 md:top-12 md:bottom-0",
               activeTab === 'input' ? 'block' : 'hidden md:block',
               "md:h-[calc(100vh-3rem)] relative",
-              "transition-transform duration-300 ease-in-out",
+              "transition-all duration-300 ease-in-out transform-gpu will-change-transform",
               isSidebarVisible 
-                ? "translate-x-0" 
-                : "translate-x-full",
+                ? "translate-x-0 opacity-100" 
+                : "translate-x-full opacity-0"
             )}
           >
-            <div className="hidden md:block absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-10" />
-            <div className="hidden md:block absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-10" />
+            <div className="hidden md:block absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-10 transition-opacity duration-300" />
+            <div className="hidden md:block absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-10 transition-opacity duration-300" />
             
-            <div className="min-h-[calc(100vh-56px)] md:h-full overflow-y-auto md:scrollbar-none px-4 md:px-6 py-4 md:py-8">
+            <div className={cn(
+              "min-h-[calc(100vh-56px)] md:h-full overflow-y-auto md:scrollbar-none px-4 md:px-6 py-4 md:py-8",
+              "transition-all duration-300 ease-in-out"
+            )}>
               <CreditCounter credits={credits} bonusCredits={bonusCredits} className="block md:hidden mb-4" />
               <ImageGeneratorSettings {...imageGeneratorProps} hidePromptOnDesktop={true} />
             </div>
