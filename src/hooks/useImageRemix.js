@@ -2,14 +2,15 @@ import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useProUser } from '@/hooks/useProUser';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
 
-export const useImageRemix = (session, onRemix, setActiveTab, onClose) => {
+export const useImageRemix = (session, onRemix = () => {}, setActiveTab = () => {}, onClose = () => {}) => {
   const { data: styleConfigs } = useStyleConfigs();
   const { data: modelConfigs } = useModelConfigs();
   const { data: isPro = false } = useProUser(session?.user?.id);
   const navigate = useNavigate();
+  const location = useLocation();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const handleRemix = (image) => {
@@ -21,20 +22,26 @@ export const useImageRemix = (session, onRemix, setActiveTab, onClose) => {
     // Handle model mapping
     const remixImage = {
       ...image,
-      // Ensure we use 'preLar' for both pre-lar and ultra images
-      model: image.model === 'ultra' ? 'preLar' : image.model
+      // Map both 'ultra' and 'preLar' to 'preLar' to ensure consistency
+      model: image.model === 'ultra' || image.model === 'preLar' ? 'preLar' : image.model
     };
 
-    // Navigate based on device type
+    // Get current view from URL or default to empty
+    const currentView = new URLSearchParams(location.search).get('view') || '';
+
+    // Navigate based on device type and current view
     if (isMobile) {
       navigate('/');
     } else {
+      // Always navigate to myImages view, regardless of current location
       navigate('/?view=myImages');
     }
 
     // Then perform the remix after a short delay to ensure navigation is complete
     setTimeout(() => {
-      onRemix(remixImage);
+      if (typeof onRemix === 'function') {
+        onRemix(remixImage);
+      }
 
       // Check if the original image was made with a NSFW model
       const isNsfwModel = modelConfigs?.[remixImage.model]?.category === "NSFW";
