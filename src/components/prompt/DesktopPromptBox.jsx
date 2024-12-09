@@ -15,11 +15,14 @@ const DesktopPromptBox = ({
   onClear,
   credits,
   bonusCredits,
-  className
+  className,
+  userId
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const boxRef = useRef(null);
-  const { isImproving, improveCurrentPrompt } = usePromptImprovement();
+  const totalCredits = (credits || 0) + (bonusCredits || 0);
+  const hasEnoughCreditsForImprovement = totalCredits >= 1;
+  const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

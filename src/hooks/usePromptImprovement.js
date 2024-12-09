@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { improvePrompt } from '@/utils/promptImprovement';
 import { toast } from 'sonner';
+import { usePromptCredits } from './usePromptCredits';
 
-export const usePromptImprovement = (updateCredits) => {
+export const usePromptImprovement = (userId) => {
   const [isImproving, setIsImproving] = useState(false);
+  const { deductCredits, isDeducting } = usePromptCredits(userId);
 
   const improveCurrentPrompt = async (prompt, onSuccess) => {
     if (!prompt?.trim()) {
@@ -21,33 +23,31 @@ export const usePromptImprovement = (updateCredits) => {
       const result = await improvePrompt(prompt);
       if (result) {
         // Only deduct credits if improvement was successful
-        if (updateCredits) {
-          try {
-            const creditResult = await updateCredits(1);
-            if (creditResult === -1) {
-              toast.error('Not enough credits for prompt improvement', { 
-                id: toastId,
-                position: 'top-center'
-              });
-              return;
-            }
-          } catch (error) {
-            console.error('Error updating credits:', error);
-            toast.error('Failed to update credits', { 
+        try {
+          const deductResult = await deductCredits();
+          if (deductResult === -1) {
+            toast.error('Not enough credits for prompt improvement', { 
               id: toastId,
               position: 'top-center'
             });
             return;
           }
-        }
 
-        // If both improvement and credit deduction succeeded
-        onSuccess(result);
-        toast.success('Prompt improved!', { 
-          id: toastId,
-          position: 'top-center'
-        });
-        return result;
+          // If both improvement and credit deduction succeeded
+          onSuccess(result);
+          toast.success('Prompt improved!', { 
+            id: toastId,
+            position: 'top-center'
+          });
+          return result;
+        } catch (error) {
+          console.error('Error deducting credits:', error);
+          toast.error('Failed to deduct credits', { 
+            id: toastId,
+            position: 'top-center'
+          });
+          return;
+        }
       }
     } catch (error) {
       console.error('Error improving prompt:', error);
@@ -61,7 +61,7 @@ export const usePromptImprovement = (updateCredits) => {
   };
 
   return {
-    isImproving,
+    isImproving: isImproving || isDeducting,
     improveCurrentPrompt
   };
 };
