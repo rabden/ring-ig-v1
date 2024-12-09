@@ -79,7 +79,7 @@ const DesktopPromptBox = ({
       <div 
         className={cn(
           "relative bg-card shadow-sm border border-border/50",
-          "transform-gpu", // Enable GPU acceleration
+          "transform-gpu",
           "[transition:border-radius_200ms_ease,transform_400ms_ease-in-out,box-shadow_400ms_ease-in-out]",
           isExpanded ? [
             "rounded-lg",
