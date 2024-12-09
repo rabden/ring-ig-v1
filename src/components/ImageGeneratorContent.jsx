@@ -2,11 +2,15 @@ import React from 'react';
 import { cn } from "@/lib/utils";
 import DesktopHeader from './header/DesktopHeader';
 import MobileHeader from './header/MobileHeader';
-import MobileNavigation from './navigation/MobileNavigation';
+import BottomNavbar from './BottomNavbar';
 import ImageGallery from './ImageGallery';
 import ImageGeneratorSettings from './ImageGeneratorSettings';
 import DesktopPromptBox from './DesktopPromptBox';
 import DesktopMyImagesPromptBox from './myimages/DesktopMyImagesPromptBox';
+import ImageDetailsDialog from './ImageDetailsDialog';
+import FullScreenImageView from './FullScreenImageView';
+import MobileNotificationsMenu from './MobileNotificationsMenu';
+import MobileProfileMenu from './MobileProfileMenu';
 
 const ImageGeneratorContent = ({
   session,
@@ -88,9 +92,9 @@ const ImageGeneratorContent = ({
           setPrompt={imageGeneratorProps.setPrompt}
           handlePromptKeyDown={imageGeneratorProps.handlePromptKeyDown}
           isGenerating={generatingImages.length > 0}
-          isImproving={false}
+          isImproving={imageGeneratorProps.isImproving}
           handleGenerate={imageGeneratorProps.generateImage}
-          handleImprove={() => {}}
+          handleImprove={imageGeneratorProps.handleImprove}
           credits={credits}
           bonusCredits={bonusCredits}
         />
@@ -139,11 +143,40 @@ const ImageGeneratorContent = ({
         </div>
       </div>
 
-      <MobileNavigation
+      <BottomNavbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         activeView={activeView}
         setActiveView={setActiveView}
+        session={session}
+        credits={credits}
+        bonusCredits={bonusCredits}
+        generatingImages={generatingImages}
+      />
+
+      <MobileNotificationsMenu activeTab={activeTab} />
+      <MobileProfileMenu 
+        user={session?.user}
+        credits={credits}
+        bonusCredits={bonusCredits}
+        activeTab={activeTab}
+      />
+
+      <ImageDetailsDialog
+        open={detailsDialogOpen}
+        onOpenChange={setDetailsDialogOpen}
+        image={selectedImage}
+      />
+
+      <FullScreenImageView
+        image={selectedImage}
+        isOpen={fullScreenViewOpen}
+        onClose={() => setFullScreenViewOpen(false)}
+        onDownload={handleDownload}
+        onDiscard={handleDiscard}
+        onRemix={handleRemix}
+        isOwner={selectedImage?.user_id === session?.user?.id}
+        setActiveTab={setActiveTab}
       />
     </div>
   );
