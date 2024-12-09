@@ -100,7 +100,6 @@ const ImageGeneratorSettings = ({
           isImproving={isImproving}
           credits={credits}
           bonusCredits={bonusCredits}
-          updateCredits={updateCredits}
         />
       </div>
 
