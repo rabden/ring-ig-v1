@@ -70,7 +70,7 @@ const PromptInput = ({
           onClick={handleGenerate}
           disabled={!value?.length || !hasEnoughCredits}
         >
-          Generate
+          Create
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
