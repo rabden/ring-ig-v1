@@ -15,7 +15,6 @@ import { useNavigate } from 'react-router-dom';
 
 const ImageCard = ({ 
   image, 
-  onImageClick = () => {}, 
   onDiscard = () => {}, 
   onRemix = () => {}, 
   userId,
@@ -46,7 +45,7 @@ const ImageCard = ({
 
   const handleImageClick = (e) => {
     e.preventDefault();
-    setDetailsDialogOpen(true);
+    navigate(`/image/${image.id}`);
   };
 
   const handleRemixClick = () => {
