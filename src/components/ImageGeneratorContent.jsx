@@ -44,15 +44,14 @@ const ImageGeneratorContent = ({
   imageGeneratorProps
 }) => {
   const isInspiration = activeView === 'inspiration';
-  const isMobile = window.innerWidth < 768;
-  const shouldShowSettings = !isInspiration && (isMobile ? activeTab === 'input' : true);
+  const shouldShowSettings = !isInspiration || (activeTab === 'input' && window.innerWidth < 768);
   const [isPromptExpanded, setIsPromptExpanded] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [isSidebarMounted, setIsSidebarMounted] = useState(false);
 
   // Handle sidebar visibility with transitions
   useEffect(() => {
-    if (shouldShowSettings && (isMobile ? activeTab === 'input' : (isPromptExpanded && !isInspiration))) {
+    if (shouldShowSettings && isPromptExpanded && !isInspiration) {
       // Mount first
       setIsSidebarMounted(true);
       // Then show after a tiny delay to trigger transition
@@ -68,20 +67,7 @@ const ImageGeneratorContent = ({
       }, 300); // Match transition duration
       return () => clearTimeout(timer);
     }
-  }, [shouldShowSettings, isPromptExpanded, isInspiration, activeTab, isMobile]);
-
-  // Track window resize for mobile state
-  useEffect(() => {
-    const handleResize = () => {
-      const newIsMobile = window.innerWidth < 768;
-      if (newIsMobile !== isMobile) {
-        window.location.reload();
-      }
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [isMobile]);
+  }, [shouldShowSettings, isPromptExpanded, isInspiration]);
 
   return (
     <>
@@ -170,7 +156,7 @@ const ImageGeneratorContent = ({
               "transition-transform duration-300 ease-in-out",
               isSidebarVisible 
                 ? "translate-x-0" 
-                : isMobile ? "translate-x-full" : "md:translate-x-full",
+                : "md:translate-x-full",
             )}
           >
             <div className="hidden md:block absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-10" />
@@ -178,7 +164,7 @@ const ImageGeneratorContent = ({
             
             <div className="min-h-[calc(100vh-56px)] md:h-full overflow-y-auto md:scrollbar-none px-4 md:px-6 py-4 md:py-8">
               <CreditCounter credits={credits} bonusCredits={bonusCredits} className="block md:hidden mb-4" />
-              <ImageGeneratorSettings {...imageGeneratorProps} hidePromptOnDesktop={!isMobile || activeTab !== 'input'} />
+              <ImageGeneratorSettings {...imageGeneratorProps} hidePromptOnDesktop={activeTab !== 'input'} />
             </div>
           </div>
         )}
