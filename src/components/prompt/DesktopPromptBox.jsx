@@ -63,7 +63,7 @@ const DesktopPromptBox = ({
     <div 
       ref={boxRef}
       className={cn(
-        "hidden md:block w-full max-w-full px-10 mt-16 mb-8 transition-all duration-300",
+        "hidden md:block w-full max-w-full px-4 mt-16 mb-8 transition-all duration-300",
         className
       )}
     >
