@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
-import { cn } from '@/lib/utils';
-import ImageCardActions from './ImageCardActions';
-import ImageDetailsDialog from './ImageDetailsDialog';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { supabase } from '@/integrations/supabase/supabase';
+import { Card, CardContent } from "@/components/ui/card";
+import ImageStatusIndicators from './ImageStatusIndicators';
+import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useQuery } from '@tanstack/react-query';
 import { downloadImage } from '@/utils/downloadUtils';
+import ImageCardActions from './ImageCardActions';
+import { supabase } from '@/integrations/supabase/supabase';
+import ImageDetailsDialog from './ImageDetailsDialog';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { handleImageDiscard } from '@/utils/discardUtils';
+import ImageCardMedia from './image-card/ImageCardMedia';
+import ImageCardBadges from './image-card/ImageCardBadges';
+import { useNavigate } from 'react-router-dom';
 
 const ImageCard = ({ 
   image, 
+  onImageClick = () => {}, 
   onDiscard = () => {}, 
   onRemix = () => {}, 
   userId,
@@ -17,13 +23,13 @@ const ImageCard = ({
   isLiked,
   onToggleLike = () => {},
   setActiveTab,
-  setStyle,
-  className = ""
 }) => {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const { data: modelConfigs } = useModelConfigs();
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
+  const navigate = useNavigate();
 
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['imageLikes', image.id],
@@ -38,9 +44,9 @@ const ImageCard = ({
     },
   });
 
-  const handleCardClick = (e) => {
+  const handleImageClick = (e) => {
     e.preventDefault();
-    setDetailsDialogOpen(true);
+    navigate(`/image/${image.id}`);
   };
 
   const handleRemixClick = () => {
@@ -71,7 +77,6 @@ const ImageCard = ({
     try {
       setIsDeleted(true);
       await handleImageDiscard(image);
-      onDiscard(image);
     } catch (error) {
       console.error('Error in handleDiscard:', error);
       setIsDeleted(false);
@@ -80,43 +85,44 @@ const ImageCard = ({
 
   if (isDeleted) return null;
 
+  const isNsfw = modelConfigs?.[image.model]?.category === "NSFW";
+  const modelName = modelConfigs?.[image.model]?.name || image.model;
+
   return (
     <>
-      <div 
-        className={cn(
-          "group relative rounded-lg overflow-hidden bg-background/50 hover:bg-background/80 transition-colors duration-200",
-          className
-        )}
-        onClick={handleCardClick}
-      >
-        <div className="relative aspect-[1/1.5] overflow-hidden">
-          <img
-            src={image.url}
-            alt={image.prompt || "Generated image"}
-            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
-            onDoubleClick={handleDoubleClick}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="absolute bottom-0 left-0 right-0 p-3 flex justify-between items-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="text-xs text-white/90 line-clamp-2 pr-2">
-              {image.prompt}
-            </div>
-            <ImageCardActions
-              image={image}
-              isMobile={isMobile}
-              isLiked={isLiked}
-              likeCount={likeCount}
-              onToggleLike={onToggleLike}
-              onViewDetails={() => setDetailsDialogOpen(true)}
-              onDownload={handleDownload}
-              onDiscard={handleDiscard}
-              onRemix={handleRemixClick}
-              userId={userId}
-              setStyle={setStyle}
-              setActiveTab={setActiveTab}
+      <div className="mb-2">
+        <Card className="overflow-hidden">
+          <CardContent className="p-0 relative">
+            <ImageStatusIndicators 
+              isTrending={image.is_trending} 
+              isHot={image.is_hot} 
             />
-          </div>
+            <ImageCardMedia
+              image={image}
+              onImageClick={handleImageClick}
+              onDoubleClick={handleDoubleClick}
+              isAnimating={isAnimating}
+            />
+            <ImageCardBadges
+              modelName={modelName}
+              isNsfw={isNsfw}
+            />
+          </CardContent>
+        </Card>
+        <div className="mt-1 flex items-center justify-between">
+          <p className="text-sm truncate w-[70%]">{image.prompt}</p>
+          <ImageCardActions
+            image={image}
+            isMobile={isMobile}
+            isLiked={isLiked}
+            likeCount={likeCount}
+            onToggleLike={onToggleLike}
+            onDownload={handleDownload}
+            onDiscard={handleDiscard}
+            onRemix={handleRemixClick}
+            userId={userId}
+            setActiveTab={setActiveTab}
+          />
         </div>
       </div>
 
