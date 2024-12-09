@@ -63,46 +63,58 @@ const DesktopPromptBox = ({
     <div 
       ref={boxRef}
       className={cn(
-        "hidden md:block w-full max-w-full px-4 mt-16 mb-8 transition-all duration-300",
+        "hidden md:block w-full max-w-full px-4 mt-16 mb-8 transition-all duration-500 ease-in-out",
         className
       )}
     >
       <div 
         className={cn(
-          "relative bg-card shadow-sm border border-border/50 transition-all duration-300",
-          isExpanded ? "rounded-lg" : "rounded-full"
+          "relative bg-card shadow-sm border border-border/50",
+          "transition-all duration-500 ease-in-out",
+          "transform-gpu", // Enable GPU acceleration
+          isExpanded ? [
+            "rounded-lg",
+            "scale-100",
+            "shadow-lg"
+          ] : [
+            "rounded-full",
+            "scale-[0.98]",
+            "hover:scale-[0.99]",
+            "hover:shadow-md",
+            "cursor-pointer"
+          ]
         )}
         onClick={() => !isExpanded && setIsExpanded(true)}
       >
         <div className={cn(
-          "transition-all duration-300",
+          "transition-all duration-500 ease-in-out",
           isExpanded ? "p-2" : "p-1"
         )}>
           {isExpanded ? (
             <>
-              <div className="relative">
+              <div className="relative transition-all duration-500 ease-in-out">
                 <textarea
                   value={prompt}
                   onChange={onChange}
                   onKeyDown={onKeyDown}
                   placeholder="A 4D HDR immersive 3D image..."
-                  className="w-full min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-4 px-2"
+                  className="w-full min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-4 px-2 transition-all duration-300 ease-in-out"
                   style={{ 
                     caretColor: 'currentColor',
                   }}
                 />
-                <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-[1]" />
-                <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-[1]" />
+                <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-[1] transition-opacity duration-500 ease-in-out" />
+                <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-[1] transition-opacity duration-500 ease-in-out" />
               </div>
 
-              <div className="flex justify-between items-center mt-4">
+              <div className="flex justify-between items-center mt-4 transition-all duration-500 ease-in-out">
                 <CreditCounter credits={credits} bonusCredits={bonusCredits} />
                 <div className="flex items-center gap-2">
                   {prompt?.length > 0 && (
                     <Button
                       size="sm"
                       variant="outline"
-                      className="rounded-full"
+                      className="rounded-full transition-all duration-300 ease-in-out hover:scale-105"
                       onClick={onClear}
                     >
                       <X className="h-4 w-4" />
@@ -111,7 +123,7 @@ const DesktopPromptBox = ({
                   <Button
                     size="sm"
                     variant="outline"
-                    className="rounded-full"
+                    className="rounded-full transition-all duration-300 ease-in-out hover:scale-105"
                     onClick={handleImprovePrompt}
                     disabled={!prompt?.length || isImproving}
                   >
@@ -124,7 +136,7 @@ const DesktopPromptBox = ({
                   </Button>
                   <Button
                     size="sm"
-                    className="rounded-full"
+                    className="rounded-full transition-all duration-300 ease-in-out hover:scale-105"
                     onClick={onSubmit}
                     disabled={!prompt?.length || !hasEnoughCredits}
                   >
@@ -135,17 +147,17 @@ const DesktopPromptBox = ({
               </div>
             </>
           ) : (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 transition-all duration-500 ease-in-out">
               <input
                 value={prompt}
                 onChange={onChange}
                 onKeyDown={onKeyDown}
                 placeholder="A 4D HDR immersive 3D image..."
-                className="flex-1 bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 px-4"
+                className="flex-1 bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 px-4 transition-all duration-300 ease-in-out"
               />
               <Button
                 size="sm"
-                className="rounded-full"
+                className="rounded-full transition-all duration-300 ease-in-out hover:scale-105"
                 onClick={(e) => {
                   e.stopPropagation();
                   onSubmit();
