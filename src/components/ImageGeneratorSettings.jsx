@@ -88,19 +88,6 @@ const ImageGeneratorSettings = ({
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className={hidePromptOnDesktop ? 'md:hidden' : ''}>
-        <div className="flex justify-between items-center mb-4">
-          {session && (
-            <div className="text-sm font-medium">
-              Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
-              {!hasEnoughCredits && (
-                <span className="text-destructive ml-2">
-                  Need {creditCost} credits
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-
         <PromptInput
           value={prompt}
           onChange={handlePromptChange}
