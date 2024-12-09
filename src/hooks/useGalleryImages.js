@@ -105,6 +105,10 @@ export const useGalleryImages = ({
       else if (showTop && showFollowing && following?.length > 0) {
         baseQuery = baseQuery.or(`user_id.in.(${following.join(',')}),is_hot.eq.true,is_trending.eq.true`);
       }
+      // If following is selected but following list is empty, return no results
+      else if (showFollowing && following?.length === 0) {
+        baseQuery = baseQuery.eq('id', -1); // This ensures no results
+      }
 
       // Apply style and model filters
       if (activeFilters.style) {

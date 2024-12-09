@@ -77,7 +77,10 @@ const ImageGallery = ({
   profileUserId,
   className,
   setStyle,
-  style
+  style,
+  showFollowing,
+  showTop,
+  following
 }) => {
   const { userLikes, toggleLike } = useLikes(userId);
   const isMobile = window.innerWidth <= 768;
@@ -95,7 +98,10 @@ const ImageGallery = ({
     nsfwEnabled,
     showPrivate,
     activeFilters,
-    searchQuery
+    searchQuery,
+    showFollowing,
+    showTop,
+    following
   });
 
   const observer = useRef();
