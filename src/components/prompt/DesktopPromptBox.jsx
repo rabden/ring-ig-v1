@@ -64,9 +64,14 @@ const DesktopPromptBox = ({
       return;
     }
 
-    await improveCurrentPrompt(prompt, (improvedPrompt) => {
-      onChange({ target: { value: improvedPrompt } });
-    });
+    try {
+      await improveCurrentPrompt(prompt, (improvedPrompt) => {
+        onChange({ target: { value: improvedPrompt } });
+      });
+    } catch (error) {
+      console.error('Error improving prompt:', error);
+      toast.error('Failed to improve prompt');
+    }
   };
 
   return (

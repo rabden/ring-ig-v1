@@ -90,6 +90,7 @@ const ImageGeneratorContent = ({
                   isImproving={imageGeneratorProps.isImproving}
                   credits={credits}
                   bonusCredits={bonusCredits}
+                  userId={session?.user?.id}
                 />
               )}
             </>
