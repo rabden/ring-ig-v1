@@ -184,29 +184,66 @@ const ImageGenerator = () => {
 
   useEffect(() => {
     const storedImage = sessionStorage.getItem('pendingRemixImage');
-    if (storedImage) {
+    if (storedImage && modelConfigs) {
       try {
         const remixImage = JSON.parse(storedImage);
+        
+        // Get model config
+        const modelConfig = modelConfigs[remixImage.model];
+        if (!modelConfig) {
+          console.error('Model not found:', remixImage.model);
+          throw new Error('Model configuration not found');
+        }
+
+        // Log for debugging
+        console.log('Applying remix for model:', {
+          model: remixImage.model,
+          modelName: modelConfig.name,
+          quality: remixImage.quality
+        });
+
+        // Set basic image properties
         setPrompt(remixImage.prompt);
         setSeed(remixImage.seed);
         setRandomizeSeed(false);
         setWidth(remixImage.width);
         setHeight(remixImage.height);
+        
+        // Set model
         setModel(remixImage.model);
-        setQuality(remixImage.quality);
+        
+        // Handle quality settings
+        if (modelConfig.qualityLimits) {
+          const validQuality = modelConfig.qualityLimits.includes(remixImage.quality) 
+            ? remixImage.quality 
+            : modelConfig.qualityLimits[0];
+          setQuality(validQuality);
+        } else {
+          setQuality(remixImage.quality);
+        }
+
+        // Handle aspect ratio if it exists
         if (remixImage.aspect_ratio) {
           setAspectRatio(remixImage.aspect_ratio);
           setUseAspectRatio(true);
+        } else {
+          setUseAspectRatio(false);
         }
+
+        // Switch to input tab
         setActiveTab('input');
+        
         // Clear the stored data
         sessionStorage.removeItem('pendingRemixImage');
+
+        // Show success message
+        toast.success('Ready to remix!');
       } catch (error) {
         console.error('Error handling remix data:', error);
-        toast.error('Failed to load remix data');
+        toast.error('Failed to load remix data: ' + (error.message || 'Unknown error'));
       }
     }
-  }, []);
+  }, [modelConfigs]);
 
   useEffect(() => {
     setActiveTab('images');

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { toast } from 'sonner';
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -10,6 +11,7 @@ const RemixPage = () => {
   const { imageId } = useParams();
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
+  const { data: modelConfigs } = useModelConfigs();
 
   // Fetch the image data
   const { data: image, isLoading, error } = useQuery({
@@ -42,14 +44,45 @@ const RemixPage = () => {
       return;
     }
 
-    if (image && !isLoading) {
+    if (image && !isLoading && modelConfigs) {
       try {
-        // Handle model mapping
+        // Handle model mapping and settings
+        let targetModel = image.model;
+        
+        // Model mapping logic
+        if (image.model === 'ultra' || image.model === 'pre-lar' || image.model === 'preLar') {
+          targetModel = 'preLar';
+        }
+
+        // Get model config for the target model
+        const modelConfig = modelConfigs[targetModel];
+        if (!modelConfig) {
+          console.error('Model not found:', targetModel);
+          throw new Error('Model configuration not found');
+        }
+
+        // Create remix image with proper model settings
         const remixImage = {
           ...image,
-          // Map both 'ultra' and 'preLar' to 'preLar' to ensure consistency
-          model: image.model === 'ultra' || image.model === 'preLar' ? 'preLar' : image.model
+          model: targetModel,
+          // Handle quality settings based on model config
+          quality: modelConfig.qualityLimits ? 
+            (modelConfig.qualityLimits.includes(image.quality) ? image.quality : modelConfig.qualityLimits[0]) 
+            : image.quality,
+          // Ensure width and height are valid for the model
+          width: image.width || 512,
+          height: image.height || 512,
+          // Keep original aspect ratio if it exists
+          aspect_ratio: image.aspect_ratio || null
         };
+
+        // Log for debugging
+        console.log('Preparing remix for model:', {
+          originalModel: image.model,
+          targetModel,
+          quality: remixImage.quality,
+          modelConfig: modelConfig.name
+        });
 
         // Store the image data for the main page to use
         sessionStorage.setItem('pendingRemixImage', JSON.stringify(remixImage));
@@ -63,11 +96,11 @@ const RemixPage = () => {
         });
       } catch (err) {
         console.error('Error preparing remix:', err);
-        toast.error('Failed to prepare remix');
+        toast.error('Failed to prepare remix: ' + (err.message || 'Unknown error'));
         navigate('/');
       }
     }
-  }, [image, isLoading, error, session, navigate]);
+  }, [image, isLoading, error, session, navigate, modelConfigs]);
 
   if (isLoading) {
     return (
