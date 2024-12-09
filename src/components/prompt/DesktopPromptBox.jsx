@@ -21,10 +21,12 @@ const DesktopPromptBox = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const boxRef = useRef(null);
+  const textareaRef = useRef(null);
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCreditsForImprovement = totalCredits >= 1;
   const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
 
+  // Handle click outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       // Check if click is inside the prompt box
@@ -53,6 +55,40 @@ const DesktopPromptBox = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Handle scroll visibility
+  useEffect(() => {
+    if (!boxRef.current || !isExpanded) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // If the box is not visible and expanded, collapse it
+        if (!entry.isIntersecting && isExpanded) {
+          setIsExpanded(false);
+        }
+      },
+      {
+        threshold: 0.1, // Collapse when less than 10% is visible
+        rootMargin: '-50px' // Add a 50px margin to trigger earlier
+      }
+    );
+
+    observer.observe(boxRef.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [isExpanded]);
+
+  // Focus textarea when expanded
+  useEffect(() => {
+    if (isExpanded && textareaRef.current) {
+      textareaRef.current.focus();
+      // Move cursor to end of text
+      const length = textareaRef.current.value.length;
+      textareaRef.current.setSelectionRange(length, length);
+    }
+  }, [isExpanded]);
+
   const handleImprovePrompt = async () => {
     if (!userId) {
       toast.error('Please sign in to improve prompts');
@@ -74,6 +110,12 @@ const DesktopPromptBox = ({
     }
   };
 
+  const handleExpand = () => {
+    if (!isExpanded) {
+      setIsExpanded(true);
+    }
+  };
+
   return (
     <div 
       ref={boxRef}
@@ -85,7 +127,7 @@ const DesktopPromptBox = ({
       <div 
         className={cn(
           "relative bg-card shadow-sm border border-border/50",
-          "transform-gpu", // Enable GPU acceleration
+          "transform-gpu",
           "[transition:border-radius_200ms_ease,transform_400ms_ease-in-out,box-shadow_400ms_ease-in-out]",
           isExpanded ? [
             "rounded-lg",
@@ -99,7 +141,7 @@ const DesktopPromptBox = ({
             "cursor-pointer"
           ]
         )}
-        onClick={() => !isExpanded && setIsExpanded(true)}
+        onClick={handleExpand}
       >
         <div className={cn(
           "transition-all duration-400 ease-in-out",
@@ -109,6 +151,7 @@ const DesktopPromptBox = ({
             <>
               <div className="relative">
                 <textarea
+                  ref={textareaRef}
                   value={prompt}
                   onChange={onChange}
                   onKeyDown={onKeyDown}
@@ -140,7 +183,7 @@ const DesktopPromptBox = ({
                     variant="outline"
                     className="rounded-full transition-transform duration-200 hover:scale-105"
                     onClick={handleImprovePrompt}
-                    disabled={!prompt?.length || isImproving}
+                    disabled={!prompt?.length || isImproving || !hasEnoughCreditsForImprovement}
                   >
                     {isImproving ? (
                       <Loader className="h-4 w-4 mr-2 animate-spin" />
