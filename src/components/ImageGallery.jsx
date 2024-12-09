@@ -8,23 +8,13 @@ import { useGalleryImages } from '@/hooks/useGalleryImages';
 import { cn } from '@/lib/utils';
 import { format, isToday, isYesterday, isThisWeek, isThisMonth, parseISO, subWeeks, isAfter } from 'date-fns';
 
-const getBreakpointColumns = (activeView) => {
-  if (activeView === 'inspiration' || activeView === 'profile') {
-    return {
-      default: 5,
-      1600: 5,
-      1200: 4,
-      700: 2,
-      500: 2
-    };
-  }
-  return {
-    default: 4,
-    1100: 3,
-    700: 2,
-    500: 2
-  };
-};
+const getBreakpointColumns = () => ({
+  default: 5,
+  1600: 5,
+  1200: 4,
+  700: 2,
+  500: 2
+});
 
 const groupImagesByDate = (images) => {
   const groups = {
@@ -91,7 +81,7 @@ const ImageGallery = ({
 }) => {
   const { userLikes, toggleLike } = useLikes(userId);
   const isMobile = window.innerWidth <= 768;
-  const breakpointColumnsObj = getBreakpointColumns(activeView);
+  const breakpointColumnsObj = getBreakpointColumns();
   
   const { 
     images, 

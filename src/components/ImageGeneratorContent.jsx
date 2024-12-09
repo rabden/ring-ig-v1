@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ImageGeneratorSettings from './ImageGeneratorSettings';
 import ImageGallery from './ImageGallery';
 import BottomNavbar from './BottomNavbar';
@@ -46,14 +46,36 @@ const ImageGeneratorContent = ({
   const isInspiration = activeView === 'inspiration';
   const shouldShowSettings = !isInspiration || (activeTab === 'input' && window.innerWidth < 768);
   const [isPromptExpanded, setIsPromptExpanded] = useState(false);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+  const [isSidebarMounted, setIsSidebarMounted] = useState(false);
+
+  // Handle sidebar visibility with transitions
+  useEffect(() => {
+    if (shouldShowSettings && isPromptExpanded && !isInspiration) {
+      // Mount first
+      setIsSidebarMounted(true);
+      // Then show after a tiny delay to trigger transition
+      requestAnimationFrame(() => {
+        setIsSidebarVisible(true);
+      });
+    } else {
+      // Hide first
+      setIsSidebarVisible(false);
+      // Then unmount after transition
+      const timer = setTimeout(() => {
+        setIsSidebarMounted(false);
+      }, 300); // Match transition duration
+      return () => clearTimeout(timer);
+    }
+  }, [shouldShowSettings, isPromptExpanded, isInspiration]);
 
   return (
     <>
       <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground image-generator-content">
         <div className={cn(
-          "flex-grow p-2 md:p-6 overflow-y-auto",
+          "flex-grow p-2 md:p-6 overflow-y-auto transition-[padding] duration-300 ease-in-out",
           activeTab === 'images' ? 'block' : 'hidden md:block',
-          isInspiration || !isPromptExpanded ? '' : 'md:pr-[350px]',
+          isSidebarVisible ? 'md:pr-[350px]' : 'md:pr-6',
           "pb-20 md:pb-6"
         )}>
           {session && (
@@ -124,13 +146,17 @@ const ImageGeneratorContent = ({
           )}
         </div>
 
-        {shouldShowSettings && isPromptExpanded && !isInspiration && (
+        {isSidebarMounted && (
           <div 
             className={cn(
               "w-full md:w-[350px] bg-card text-card-foreground",
               "md:fixed md:right-0 md:top-12 md:bottom-0",
               activeTab === 'input' ? 'block' : 'hidden md:block',
-              "md:h-[calc(100vh-3rem)] relative"
+              "md:h-[calc(100vh-3rem)] relative",
+              "transition-transform duration-300 ease-in-out",
+              isSidebarVisible 
+                ? "translate-x-0" 
+                : "translate-x-full",
             )}
           >
             <div className="hidden md:block absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-10" />
