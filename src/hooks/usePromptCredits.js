@@ -5,6 +5,10 @@ export const usePromptCredits = (userId) => {
   const queryClient = useQueryClient();
 
   const deductPromptCredits = async () => {
+    if (!userId) {
+      throw new Error('User ID is required');
+    }
+
     const creditCost = 1; // Fixed cost for prompt improvement
 
     const { data: profile } = await supabase
@@ -41,7 +45,8 @@ export const usePromptCredits = (userId) => {
     return { newCreditCount, newBonusCredits };
   };
 
-  const deductCreditsMutation = useMutation({
+  const mutation = useMutation({
+    mutationKey: ['deductPromptCredits', userId],
     mutationFn: deductPromptCredits,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userCredits', userId] });
@@ -49,8 +54,13 @@ export const usePromptCredits = (userId) => {
   });
 
   return {
-    deductCredits: deductCreditsMutation.mutate,
-    isDeducting: deductCreditsMutation.isPending,
-    error: deductCreditsMutation.error
+    deductCredits: () => {
+      if (!userId) {
+        throw new Error('User ID is required');
+      }
+      return mutation.mutate();
+    },
+    isDeducting: mutation.isPending,
+    error: mutation.error
   };
 }; 
