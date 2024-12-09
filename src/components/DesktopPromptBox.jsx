@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Sparkles, Loader2, X } from "lucide-react";
-import { PromptInput } from '@/components/prompt/PromptInput';
+import PromptInput from './PromptInput';
 import { cn } from '@/lib/utils';
 
 const DesktopPromptBox = ({
@@ -23,11 +23,8 @@ const DesktopPromptBox = ({
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={handlePromptKeyDown}
-            onGenerate={handleGenerate}
-            hasEnoughCredits={true}
-            onClear={() => setPrompt('')}
-            onImprove={handleImprove}
-            isImproving={isImproving}
+            placeholder="Describe what you want to create..."
+            className="min-h-[80px]"
           />
           
           <div className="flex items-center justify-between">
@@ -44,6 +41,47 @@ const DesktopPromptBox = ({
                   </span>
                 )}
               </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2">
+              {prompt && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setPrompt('')}
+                  className="h-9 w-9"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+              <Button
+                variant="secondary"
+                onClick={handleImprove}
+                disabled={isGenerating || isImproving || !prompt}
+                className={cn(
+                  "relative",
+                  isImproving && "text-primary"
+                )}
+              >
+                {isImproving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4 mr-2" />
+                )}
+                Improve
+              </Button>
+              <Button
+                onClick={handleGenerate}
+                disabled={isGenerating || isImproving || !prompt}
+                className="relative"
+              >
+                {isGenerating ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  "Generate"
+                )}
+              </Button>
             </div>
           </div>
         </div>
