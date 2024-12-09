@@ -46,7 +46,15 @@ const ImageCard = ({
 
   const handleImageClick = (e) => {
     e.preventDefault();
-    navigate(`/image/${image.id}`);
+    if (isMobileDevice) {
+      setDetailsDialogOpen(true);
+    } else {
+      navigate(`/image/${image.id}`);
+    }
+  };
+
+  const handleViewDetails = () => {
+    setDetailsDialogOpen(true);
   };
 
   const handleRemixClick = () => {
@@ -77,6 +85,7 @@ const ImageCard = ({
     try {
       setIsDeleted(true);
       await handleImageDiscard(image);
+      onDiscard(image);
     } catch (error) {
       console.error('Error in handleDiscard:', error);
       setIsDeleted(false);
@@ -90,7 +99,7 @@ const ImageCard = ({
 
   return (
     <>
-      <div className="mb-2">
+      <div className="mb-4">
         <Card className="overflow-hidden">
           <CardContent className="p-0 relative">
             <ImageStatusIndicators 
@@ -117,6 +126,7 @@ const ImageCard = ({
             isLiked={isLiked}
             likeCount={likeCount}
             onToggleLike={onToggleLike}
+            onViewDetails={handleViewDetails}
             onDownload={handleDownload}
             onDiscard={handleDiscard}
             onRemix={handleRemixClick}
