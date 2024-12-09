@@ -32,7 +32,7 @@ const PromptInput = ({
           onChange={onChange}
           onKeyDown={onKeyDown}
           placeholder="A 4D HDR immersive 3D image..."
-          className="w-full min-h-[360px] md:min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-8 px-4 md:px-6"
+          className="w-full min-h-[400px] md:min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-8 px-2"
           style={{ 
             caretColor: 'currentColor',
           }}

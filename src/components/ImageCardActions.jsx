@@ -24,19 +24,32 @@ const ImageCardActions = ({
   const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, () => {});
 
   const handleViewDetails = (e) => {
+    e.preventDefault();
     e.stopPropagation();
-    if (typeof onViewDetails === 'function') {
-      onViewDetails(image);
-    }
+    onViewDetails(image, true); // Pass true to indicate it's from menu click
   };
 
-  const handleDiscard = () => {
+  const handleDiscard = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (!image?.id) return;
     onDiscard(image);
   };
 
+  const handleDownload = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onDownload(image);
+  };
+
+  const handleRemixClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleRemix(image);
+  };
+
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
       {session && (
         <div className="flex items-center gap-1">
           <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
@@ -58,7 +71,7 @@ const ImageCardActions = ({
           className="w-48 p-1 animate-in fade-in-0 zoom-in-95"
         >
           <DropdownMenuItem 
-            onClick={onDownload}
+            onClick={handleDownload}
             className="flex items-center gap-2 py-2 px-3 cursor-pointer hover:bg-accent rounded-sm group"
           >
             <Download className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
@@ -78,7 +91,7 @@ const ImageCardActions = ({
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem 
-                onClick={() => handleRemix(image)}
+                onClick={handleRemixClick}
                 className="flex items-center gap-2 py-2 px-3 cursor-pointer hover:bg-accent rounded-sm group"
               >
                 <Wand2 className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
