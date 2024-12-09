@@ -5,6 +5,7 @@ import ImageCard from './ImageCard';
 import { useLikes } from '@/hooks/useLikes';
 import NoResults from './NoResults';
 import { useGalleryImages } from '@/hooks/useGalleryImages';
+import { cn } from '@/lib/utils';
 
 const getBreakpointColumns = (activeView) => {
   if (activeView === 'inspiration' || activeView === 'profile') {
@@ -38,7 +39,8 @@ const ImageGallery = ({
   searchQuery = '',
   setActiveTab,
   showPrivate,
-  profileUserId
+  profileUserId,
+  className
 }) => {
   const { userLikes, toggleLike } = useLikes(userId);
   const isMobile = window.innerWidth <= 768;
@@ -123,7 +125,13 @@ const ImageGallery = ({
   };
 
   return (
-    <>
+    <div className={cn(
+      "w-full h-full",
+      "md:px-4",
+      "md:pt-0",
+      "pt-24",
+      className
+    )}>
       <Masonry
         breakpointCols={breakpointColumnsObj}
         className="flex w-auto md:px-2 -mx-1 md:mx-0"
@@ -136,7 +144,7 @@ const ImageGallery = ({
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

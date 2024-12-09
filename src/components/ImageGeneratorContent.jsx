@@ -9,6 +9,8 @@ import FullScreenImageView from './FullScreenImageView';
 import DesktopHeader from './header/DesktopHeader';
 import MobileHeader from './header/MobileHeader';
 import DesktopPromptBox from './prompt/DesktopPromptBox';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
 
 const ImageGeneratorContent = ({
   session,
@@ -87,7 +89,17 @@ const ImageGeneratorContent = ({
                   isImproving={imageGeneratorProps.isImproving}
                   credits={credits}
                   bonusCredits={bonusCredits}
-                />
+                >
+                  <Button
+                    size="sm"
+                    className="rounded-full"
+                    onClick={imageGeneratorProps.generateImage}
+                    disabled={!imageGeneratorProps.prompt?.length || !true}
+                  >
+                    Create
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </DesktopPromptBox>
               )}
             </>
           )}
