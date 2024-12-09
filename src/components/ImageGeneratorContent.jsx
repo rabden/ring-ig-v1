@@ -106,6 +106,7 @@ const ImageGeneratorContent = ({
                 onRemoveFilter={onRemoveFilter}
                 onSearch={onSearch}
                 nsfwEnabled={nsfwEnabled}
+                setNsfwEnabled={imageGeneratorProps.setNsfwEnabled}
                 showPrivate={showPrivate}
                 onTogglePrivate={() => setShowPrivate(!showPrivate)}
               />
@@ -201,6 +202,8 @@ const ImageGeneratorContent = ({
         activeView={activeView}
         setActiveView={setActiveView}
         generatingImages={generatingImages}
+        nsfwEnabled={nsfwEnabled}
+        setNsfwEnabled={imageGeneratorProps.setNsfwEnabled}
       />
       
       <ImageDetailsDialog
