@@ -9,18 +9,37 @@ import { cn } from "@/lib/utils"
 const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) => {
   const { data: modelConfigs } = useModelConfigs();
   const [showDrawer, setShowDrawer] = useState(false);
+  const [showCheckmark, setShowCheckmark] = useState(false);
+  const [prevLength, setPrevLength] = useState(generatingImages.length);
 
+  // Handle showing checkmark when an image completes and drawer visibility
   useEffect(() => {
     if (generatingImages.length > 0) {
       setShowDrawer(true);
-    } else {
-      // Wait 4s before hiding when complete
-      const timer = setTimeout(() => {
-        setShowDrawer(false);
-      }, 4000);
-      return () => clearTimeout(timer);
     }
-  }, [generatingImages.length]);
+    
+    if (generatingImages.length < prevLength && prevLength > 0) {
+      // Show checkmark for 1.5s when an image completes
+      setShowCheckmark(true);
+      const checkmarkTimer = setTimeout(() => {
+        setShowCheckmark(false);
+      }, 1500);
+
+      // If no more images, keep showing checkmark and start 4s countdown to hide
+      if (generatingImages.length === 0) {
+        setShowCheckmark(true);
+        const hideTimer = setTimeout(() => {
+          setShowDrawer(false);
+        }, 4000);
+        return () => {
+          clearTimeout(checkmarkTimer);
+          clearTimeout(hideTimer);
+        };
+      }
+      return () => clearTimeout(checkmarkTimer);
+    }
+    setPrevLength(generatingImages.length);
+  }, [generatingImages.length, prevLength]);
 
   if (!showDrawer) return null;
 
@@ -33,11 +52,16 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
             <DrawerTitle>
               Generating Images
             </DrawerTitle>
-            {generatingImages.length > 0 && (
-              <span className="h-5 w-5 rounded-full bg-primary text-[10px] font-medium text-primary-foreground flex items-center justify-center">
-                {generatingImages.length > 9 ? '9+' : generatingImages.length}
-              </span>
-            )}
+            <span className={cn(
+              "h-5 w-5 rounded-full bg-primary text-[10px] font-medium text-primary-foreground flex items-center justify-center",
+              showCheckmark && "animate-in zoom-in duration-300"
+            )}>
+              {showCheckmark ? (
+                <Check className="h-3 w-3" />
+              ) : (
+                generatingImages.length > 9 ? '9+' : generatingImages.length
+              )}
+            </span>
           </div>
         </DrawerHeader>
         <ScrollArea className="h-[calc(90vh-100px)] px-4 py-4 space-y-4">
