@@ -13,7 +13,8 @@ const PromptInput = ({
   onImprove,
   isImproving,
   credits = 0,
-  bonusCredits = 0
+  bonusCredits = 0,
+  updateCredits
 }) => {
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCreditsForImprovement = totalCredits >= 1;
@@ -31,7 +32,19 @@ const PromptInput = ({
       toast.error('Not enough credits for prompt improvement');
       return;
     }
-    await onImprove();
+
+    try {
+      // Deduct one credit for improvement
+      const updatedCredits = await updateCredits(1);
+      if (updatedCredits === -1) {
+        toast.error('Not enough credits for prompt improvement');
+        return;
+      }
+      await onImprove();
+    } catch (error) {
+      toast.error('Failed to improve prompt');
+      console.error(error);
+    }
   };
 
   return (
