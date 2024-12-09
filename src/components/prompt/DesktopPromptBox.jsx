@@ -17,8 +17,7 @@ const DesktopPromptBox = ({
   credits,
   bonusCredits,
   className,
-  userId,
-  onExpandedChange
+  userId
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const boxRef = useRef(null);
@@ -27,12 +26,6 @@ const DesktopPromptBox = ({
   const hasEnoughCreditsForImprovement = totalCredits >= 1;
   const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
 
-  // Notify parent of expanded state changes
-  useEffect(() => {
-    onExpandedChange?.(isExpanded);
-  }, [isExpanded, onExpandedChange]);
-
-  // Handle click outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       // Check if click is inside the prompt box
@@ -60,30 +53,6 @@ const DesktopPromptBox = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  // Handle scroll visibility
-  useEffect(() => {
-    if (!boxRef.current || !isExpanded) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        // If the box is not visible and expanded, collapse it
-        if (!entry.isIntersecting && isExpanded) {
-          setIsExpanded(false);
-        }
-      },
-      {
-        threshold: 0.1, // Collapse when less than 10% is visible
-        rootMargin: '-50px' // Add a 50px margin to trigger earlier
-      }
-    );
-
-    observer.observe(boxRef.current);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [isExpanded]);
 
   // Focus textarea when expanded
   useEffect(() => {
@@ -134,7 +103,7 @@ const DesktopPromptBox = ({
         className={cn(
           "relative bg-card shadow-sm border border-border/50",
           "transform-gpu",
-          "[transition:border-radius_200ms_ease,transform_400ms_ease-in-out,box-shadow_400ms_ease-in-out]",
+          "transition-all duration-300 ease-in-out",
           isExpanded ? [
             "rounded-lg",
             "scale-100",
@@ -142,15 +111,13 @@ const DesktopPromptBox = ({
           ] : [
             "rounded-full",
             "scale-[0.98]",
-            "hover:scale-[0.99]",
-            "hover:shadow-md",
             "cursor-pointer"
           ]
         )}
         onClick={handleExpand}
       >
         <div className={cn(
-          "transition-all duration-400 ease-in-out",
+          "transition-all duration-300 ease-in-out",
           isExpanded ? "p-2" : "p-1"
         )}>
           {isExpanded ? (
@@ -162,13 +129,13 @@ const DesktopPromptBox = ({
                   onChange={onChange}
                   onKeyDown={onKeyDown}
                   placeholder="A 4D HDR immersive 3D image..."
-                  className="w-full min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-4 px-2 transition-colors duration-200"
+                  className="w-full min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-4 px-2"
                   style={{ 
                     caretColor: 'currentColor',
                   }}
                 />
-                <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-[1] transition-opacity duration-200" />
-                <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-[1] transition-opacity duration-200" />
+                <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-[1]" />
+                <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-[1]" />
               </div>
 
               <div className="flex justify-between items-center mt-0">
@@ -178,7 +145,7 @@ const DesktopPromptBox = ({
                     <Button
                       size="sm"
                       variant="outline"
-                      className="rounded-full transition-transform duration-200 hover:scale-105"
+                      className="rounded-full"
                       onClick={onClear}
                     >
                       <X className="h-4 w-4" />
@@ -187,7 +154,7 @@ const DesktopPromptBox = ({
                   <Button
                     size="sm"
                     variant="outline"
-                    className="rounded-full transition-transform duration-200 hover:scale-105"
+                    className="rounded-full"
                     onClick={handleImprovePrompt}
                     disabled={!prompt?.length || isImproving || !hasEnoughCreditsForImprovement}
                   >
@@ -200,7 +167,7 @@ const DesktopPromptBox = ({
                   </Button>
                   <Button
                     size="sm"
-                    className="rounded-full transition-transform duration-200 hover:scale-105"
+                    className="rounded-full"
                     onClick={onSubmit}
                     disabled={!prompt?.length || !hasEnoughCredits}
                   >
@@ -221,7 +188,7 @@ const DesktopPromptBox = ({
               />
               <Button
                 size="sm"
-                className="rounded-full transition-transform duration-200 hover:scale-105"
+                className="rounded-full"
                 onClick={(e) => {
                   e.stopPropagation();
                   onSubmit();
