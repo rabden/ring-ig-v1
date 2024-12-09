@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
 
+const NSFW_MODELS = ['nsfwMaster', 'animeNsfw'];
+
 export const useImageFilter = () => {
   const filterImages = useMemo(() => (images, {
     userId,
@@ -11,7 +13,7 @@ export const useImageFilter = () => {
     showPrivate
   }) => {
     let filteredData = images.filter(img => {
-      const isNsfw = modelConfigs?.[img.model]?.category === "NSFW";
+      const isNsfw = NSFW_MODELS.includes(img.model);
       
       // Filter private images
       if (activeView === 'inspiration') {
@@ -19,12 +21,8 @@ export const useImageFilter = () => {
         if (img.is_private) return false;
         if (img.user_id === userId) return false;
         
-        // Show only NSFW content when enabled, only SFW when disabled
-        if (nsfwEnabled) {
-          if (!isNsfw) return false;
-        } else {
-          if (isNsfw) return false;
-        }
+        // Hide NSFW content when disabled
+        if (!nsfwEnabled && isNsfw) return false;
         
         // Apply style and model filters
         if (activeFilters.style && img.style !== activeFilters.style) return false;
@@ -51,12 +49,8 @@ export const useImageFilter = () => {
           if (img.is_private) return false;
         }
 
-        // Show only NSFW content when enabled, only SFW when disabled
-        if (nsfwEnabled) {
-          if (!isNsfw) return false;
-        } else {
-          if (isNsfw) return false;
-        }
+        // Hide NSFW content when disabled
+        if (!nsfwEnabled && isNsfw) return false;
 
         // Apply style and model filters
         if (activeFilters.style && img.style !== activeFilters.style) return false;

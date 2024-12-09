@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/supabase';
 import { useFollows } from '@/hooks/useFollows';
 
 const ITEMS_PER_PAGE = 20;
+const NSFW_MODELS = ['nsfwMaster', 'animeNsfw'];
 
 export const useGalleryImages = ({
   userId,
@@ -14,9 +15,6 @@ export const useGalleryImages = ({
   modelConfigs = {}
 }) => {
   const { following } = useFollows(userId);
-  const nsfwModels = Object.entries(modelConfigs)
-    .filter(([_, config]) => config.category === "NSFW")
-    .map(([model]) => model);
 
   const {
     data,
@@ -25,7 +23,7 @@ export const useGalleryImages = ({
     isFetchingNextPage,
     isLoading,
   } = useInfiniteQuery({
-    queryKey: ['galleryImages', userId, activeView, nsfwEnabled, showPrivate, activeFilters, searchQuery, nsfwModels],
+    queryKey: ['galleryImages', userId, activeView, nsfwEnabled, showPrivate, activeFilters, searchQuery, following],
     queryFn: async ({ pageParam = { page: 0 } }) => {
       if (!userId) return { data: [], nextPage: null };
 
@@ -42,10 +40,8 @@ export const useGalleryImages = ({
         baseQuery = baseQuery.eq('is_private', showPrivate);
 
         // Apply NSFW filter
-        if (nsfwEnabled) {
-          baseQuery = baseQuery.in('model', nsfwModels);
-        } else {
-          baseQuery = baseQuery.not('model', 'in', '(' + nsfwModels.join(',') + ')');
+        if (!nsfwEnabled) {
+          baseQuery = baseQuery.not('model', 'in', '(' + NSFW_MODELS.join(',') + ')');
         }
 
         // Apply style and model filters
@@ -88,10 +84,8 @@ export const useGalleryImages = ({
         .eq('is_private', false);
 
       // Apply NSFW filter
-      if (nsfwEnabled) {
-        baseQuery = baseQuery.in('model', nsfwModels);
-      } else {
-        baseQuery = baseQuery.not('model', 'in', '(' + nsfwModels.join(',') + ')');
+      if (!nsfwEnabled) {
+        baseQuery = baseQuery.not('model', 'in', '(' + NSFW_MODELS.join(',') + ')');
       }
 
       // Apply style and model filters
