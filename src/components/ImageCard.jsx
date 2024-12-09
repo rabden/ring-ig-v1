@@ -46,14 +46,6 @@ const ImageCard = ({
 
   const handleImageClick = (e) => {
     e.preventDefault();
-    if (isMobileDevice) {
-      setDetailsDialogOpen(true);
-    } else {
-      navigate(`/image/${image.id}`);
-    }
-  };
-
-  const handleViewDetails = () => {
     setDetailsDialogOpen(true);
   };
 
@@ -126,7 +118,7 @@ const ImageCard = ({
             isLiked={isLiked}
             likeCount={likeCount}
             onToggleLike={onToggleLike}
-            onViewDetails={handleViewDetails}
+            onViewDetails={() => setDetailsDialogOpen(true)}
             onDownload={handleDownload}
             onDiscard={handleDiscard}
             onRemix={handleRemixClick}

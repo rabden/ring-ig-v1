@@ -29,16 +29,17 @@ const ImageCardActions = ({
     onViewDetails(image);
   };
 
+  const handleDiscard = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!image?.id) return;
+    onDiscard(image);
+  };
+
   const handleDownload = (e) => {
     e.preventDefault();
     e.stopPropagation();
     onDownload(image);
-  };
-
-  const handleDiscard = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onDiscard(image);
   };
 
   const handleRemixClick = (e) => {
