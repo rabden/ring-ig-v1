@@ -21,7 +21,14 @@ export const usePromptImprovement = (updateCredits) => {
       if (result) {
         // Deduct one credit after successful improvement
         if (updateCredits) {
-          await updateCredits(-1);
+          const updatedCredits = await updateCredits(1); // Pass 1 as a direct cost
+          if (updatedCredits === -1) {
+            toast.error('Not enough credits for prompt improvement', { 
+              id: toastId,
+              position: 'top-center'
+            });
+            return;
+          }
         }
         onSuccess(result);
         toast.success('Prompt improved!', { 
