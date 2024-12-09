@@ -12,6 +12,7 @@ import UserProfile from '@/pages/UserProfile';
 import LoadingScreen from '@/components/LoadingScreen';
 import Login from '@/pages/Login';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import RemixPage from './pages/RemixPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -71,6 +72,7 @@ function App() {
                 <Routes>
                   {/* Public Routes */}
                   <Route path="/image/:imageId" element={<SingleImageView />} />
+                  <Route path="/remix/:imageId" element={<RemixPage />} />
                   
                   {/* Auth Routes */}
                   <Route 
