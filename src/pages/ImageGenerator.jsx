@@ -183,6 +183,32 @@ const ImageGenerator = () => {
   }, [remixImage, isRemixRoute]);
 
   useEffect(() => {
+    const storedImage = sessionStorage.getItem('pendingRemixImage');
+    if (storedImage) {
+      try {
+        const remixImage = JSON.parse(storedImage);
+        setPrompt(remixImage.prompt);
+        setSeed(remixImage.seed);
+        setRandomizeSeed(false);
+        setWidth(remixImage.width);
+        setHeight(remixImage.height);
+        setModel(remixImage.model);
+        setQuality(remixImage.quality);
+        if (remixImage.aspect_ratio) {
+          setAspectRatio(remixImage.aspect_ratio);
+          setUseAspectRatio(true);
+        }
+        setActiveTab('input');
+        // Clear the stored data
+        sessionStorage.removeItem('pendingRemixImage');
+      } catch (error) {
+        console.error('Error handling remix data:', error);
+        toast.error('Failed to load remix data');
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     setActiveTab('images');
   }, []);
 
