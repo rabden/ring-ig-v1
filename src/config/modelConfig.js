@@ -38,7 +38,7 @@ export const modelConfig = {
     apiUrl: "https://api-inference.huggingface.co/models/strangerzonehf/Flux-Ultimate-LoRA-Collection",
     inferenceSteps: [30],
     defaultStep: 30,
-    qualityLimits: ["SD", "HD"],
+    qualityLimits: null,
     noStyleSuffix: false,
     isPremium: true,
     promptSuffix: null
