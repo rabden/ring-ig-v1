@@ -40,6 +40,8 @@ const ImageGeneratorContent = ({
 }) => {
   const isInspiration = activeView === 'inspiration';
   
+  const shouldShowSettings = !isInspiration || (activeTab === 'input' && window.innerWidth < 768);
+  
   return (
     <>
       <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
@@ -95,19 +97,21 @@ const ImageGeneratorContent = ({
           </div>
         </div>
 
-        <div 
-          className={`w-full md:w-[350px] bg-card text-card-foreground overflow-hidden
-            ${!isInspiration ? 'md:fixed md:right-0 md:top-12 md:bottom-0' : ''} 
-            ${activeTab === 'input' ? 'block' : (isInspiration ? 'hidden' : 'hidden md:block')} 
-            max-h-[calc(100vh-56px)] md:max-h-[calc(100vh-3rem)] relative`}
-        >
-          <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-10" />
-          <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-10" />
-          
-          <div className="overflow-y-auto scrollbar-none h-full px-4 md:px-6 py-8">
-            <ImageGeneratorSettings {...imageGeneratorProps} />
+        {shouldShowSettings && (
+          <div 
+            className={`w-full md:w-[350px] bg-card text-card-foreground overflow-hidden
+              ${!isInspiration ? 'md:fixed md:right-0 md:top-12 md:bottom-0' : ''} 
+              ${activeTab === 'input' ? 'block' : 'hidden md:block'} 
+              max-h-[calc(100vh-56px)] md:max-h-[calc(100vh-3rem)] relative`}
+          >
+            <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-10" />
+            <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-10" />
+            
+            <div className="overflow-y-auto md:scrollbar-none h-full px-4 md:px-6 py-8">
+              <ImageGeneratorSettings {...imageGeneratorProps} />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <MobileNotificationsMenu activeTab={activeTab} />
