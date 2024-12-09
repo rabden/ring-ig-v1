@@ -11,11 +11,23 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import ImageCardMedia from './image-card/ImageCardMedia';
 import ImageCardBadges from './image-card/ImageCardBadges';
+<<<<<<< HEAD
+import { cn } from '@/lib/utils';
+=======
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+>>>>>>> 66c2e013e88f56074c8c841ced1225f311f22095
 
+<<<<<<< HEAD
+const ImageCard = ({ 
+  image, 
+  onDiscard = () => {}, 
+  onRemix = () => {}, 
+  userId,
+=======
 const ImageCard = ({
   image,
+>>>>>>> 66c2e013e88f56074c8c841ced1225f311f22095
   isMobile,
   isLiked,
   likeCount,
@@ -34,7 +46,6 @@ const ImageCard = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const { data: modelConfigs } = useModelConfigs();
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
-  const navigate = useNavigate();
 
   const { data: likeCount = 0 } = useQuery({
     queryKey: ['imageLikes', image.id],
@@ -51,9 +62,13 @@ const ImageCard = ({
 
   const handleCardClick = (e) => {
     e.preventDefault();
+<<<<<<< HEAD
+    setDetailsDialogOpen(true);
+=======
     if (typeof onViewDetails === 'function') {
       onViewDetails(image, false);
     }
+>>>>>>> 66c2e013e88f56074c8c841ced1225f311f22095
   };
 
   const handleRemixClick = () => {
@@ -84,6 +99,7 @@ const ImageCard = ({
     try {
       setIsDeleted(true);
       await handleImageDiscard(image);
+      onDiscard(image);
     } catch (error) {
       console.error('Error in handleDiscard:', error);
       setIsDeleted(false);
@@ -97,6 +113,26 @@ const ImageCard = ({
 
   return (
     <>
+<<<<<<< HEAD
+      <div className="group relative rounded-lg overflow-hidden bg-background/50 hover:bg-background/80 transition-colors duration-200">
+        <div 
+          className="relative aspect-[1/1.5] overflow-hidden cursor-pointer"
+          onClick={handleImageClick}
+        >
+          <img
+            src={image.url}
+            alt={image.prompt || "Generated image"}
+            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+            onDoubleClick={handleDoubleClick}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute bottom-0 left-0 right-0 p-3 flex justify-between items-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div className="text-xs text-white/90 line-clamp-2 pr-2">
+              {image.prompt}
+            </div>
+            <ImageCardActions
+=======
       <div 
         className={cn(
           "group relative rounded-lg overflow-hidden bg-background/50 hover:bg-background/80 transition-colors duration-200",
@@ -117,7 +153,21 @@ const ImageCard = ({
               {image.prompt}
             </div>
             <ImageCardActions
+>>>>>>> 66c2e013e88f56074c8c841ced1225f311f22095
               image={image}
+<<<<<<< HEAD
+              isMobile={isMobile}
+              isLiked={isLiked}
+              likeCount={likeCount}
+              onToggleLike={onToggleLike}
+              onViewDetails={handleImageClick}
+              onDownload={handleDownload}
+              onDiscard={handleDiscard}
+              onRemix={handleRemixClick}
+              userId={userId}
+              setStyle={null}
+              setActiveTab={setActiveTab}
+=======
               isMobile={isMobile}
               isLiked={isLiked}
               likeCount={likeCount}
@@ -129,6 +179,7 @@ const ImageCard = ({
               userId={userId}
               setStyle={setStyle}
               setActiveTab={setActiveTab}
+>>>>>>> 66c2e013e88f56074c8c841ced1225f311f22095
             />
           </div>
         </div>
