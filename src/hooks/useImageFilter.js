@@ -10,7 +10,10 @@ export const useImageFilter = () => {
     modelConfigs,
     activeFilters,
     searchQuery,
-    showPrivate
+    showPrivate,
+    showFollowing,
+    showTop,
+    following = []
   }) => {
     let filteredData = images.filter(img => {
       const isNsfw = NSFW_MODELS.includes(img.model);
@@ -26,6 +29,19 @@ export const useImageFilter = () => {
           if (!isNsfw) return false;
         } else {
           if (isNsfw) return false;
+        }
+
+        // Apply following filter
+        if (showFollowing && !showTop) {
+          if (!following.includes(img.user_id)) return false;
+        }
+        // Apply top filter
+        else if (showTop && !showFollowing) {
+          if (!img.is_hot && !img.is_trending) return false;
+        }
+        // Apply both filters
+        else if (showTop && showFollowing) {
+          if (!following.includes(img.user_id) && (!img.is_hot && !img.is_trending)) return false;
         }
         
         // Apply style and model filters

@@ -4,6 +4,7 @@ import ActionButtons from '../ActionButtons';
 import SearchBar from '../search/SearchBar';
 import NotificationBell from '../notifications/NotificationBell';
 import PrivateFilterButton from '../filters/PrivateFilterButton';
+import InspirationFilterButtons from '../filters/InspirationFilterButtons';
 
 const DesktopHeader = ({ 
   user, 
@@ -16,7 +17,11 @@ const DesktopHeader = ({
   showPrivate,
   onTogglePrivate,
   nsfwEnabled,
-  setNsfwEnabled
+  setNsfwEnabled,
+  showFollowing,
+  showTop,
+  onFollowingChange,
+  onTopChange
 }) => {
   return (
     <>
@@ -44,6 +49,14 @@ const DesktopHeader = ({
               <PrivateFilterButton
                 showPrivate={showPrivate}
                 onToggle={onTogglePrivate}
+              />
+            )}
+            {activeView === 'inspiration' && (
+              <InspirationFilterButtons
+                showFollowing={showFollowing}
+                showTop={showTop}
+                onFollowingChange={onFollowingChange}
+                onTopChange={onTopChange}
               />
             )}
             <SearchBar onSearch={onSearch} />

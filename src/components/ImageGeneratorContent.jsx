@@ -49,6 +49,8 @@ const ImageGeneratorContent = ({
   const [isPromptExpanded, setIsPromptExpanded] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [isSidebarMounted, setIsSidebarMounted] = useState(false);
+  const [showFollowing, setShowFollowing] = useState(false);
+  const [showTop, setShowTop] = useState(false);
 
   // Handle sidebar visibility with transitions
   useEffect(() => {
@@ -109,6 +111,10 @@ const ImageGeneratorContent = ({
                 setNsfwEnabled={imageGeneratorProps.setNsfwEnabled}
                 showPrivate={showPrivate}
                 onTogglePrivate={() => setShowPrivate(!showPrivate)}
+                showFollowing={showFollowing}
+                showTop={showTop}
+                onFollowingChange={setShowFollowing}
+                onTopChange={setShowTop}
               />
               <MobileHeader
                 activeFilters={activeFilters}
@@ -120,6 +126,10 @@ const ImageGeneratorContent = ({
                 showPrivate={showPrivate}
                 onTogglePrivate={() => setShowPrivate(!showPrivate)}
                 activeView={activeView}
+                showFollowing={showFollowing}
+                showTop={showTop}
+                onFollowingChange={setShowFollowing}
+                onTopChange={setShowTop}
               />
               
               {!isInspiration && (
@@ -155,6 +165,8 @@ const ImageGeneratorContent = ({
                   searchQuery={imageGeneratorProps.searchQuery}
                   setActiveTab={setActiveTab}
                   showPrivate={showPrivate}
+                  showFollowing={showFollowing}
+                  showTop={showTop}
                 />
               </div>
             </>
