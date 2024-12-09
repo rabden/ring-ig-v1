@@ -23,11 +23,22 @@ const DesktopPromptBox = ({
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Get the ImageGeneratorSettings component
-      const imageGeneratorSettings = document.querySelector('.image-generator-settings');
-      
-      // Don't collapse if click is inside settings or prompt box
-      if (imageGeneratorSettings?.contains(event.target) || boxRef.current?.contains(event.target)) {
+      // Check if click is inside the prompt box
+      if (boxRef.current?.contains(event.target)) {
+        return;
+      }
+
+      // Check if click is inside the settings panel or its children
+      const settingsPanel = document.querySelector('.bg-card.text-card-foreground');
+      if (settingsPanel?.contains(event.target)) {
+        return;
+      }
+
+      // Check if click is on a settings-related button or control
+      if (event.target.closest('[class*="settings"]') || 
+          event.target.closest('[role="dialog"]') ||
+          event.target.closest('button') ||
+          event.target.closest('[role="tab"]')) {
         return;
       }
 
