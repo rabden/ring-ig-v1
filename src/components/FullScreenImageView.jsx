@@ -25,6 +25,7 @@ const FullScreenImageView = ({
   onDiscard,
   onRemix,
   isOwner,
+  setStyle,
   setActiveTab 
 }) => {
   const { session } = useSupabaseAuth();
@@ -35,7 +36,7 @@ const FullScreenImageView = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
   const queryClient = useQueryClient();
-  const { handleRemix } = useImageRemix(session, onRemix, setActiveTab, onClose);
+  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, onClose);
 
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],

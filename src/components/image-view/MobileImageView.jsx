@@ -5,20 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download, RefreshCw, Copy, Share2 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/supabase';
-import { useImageRemix } from '@/hooks/useImageRemix';
-import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
-const MobileImageView = ({ 
-  image, 
-  session, 
-  modelConfigs, 
-  styleConfigs, 
-  onClose,
-  onRemix,
-  setActiveTab,
-  handlers: { handleDownload, handleCopyPrompt, handleShare } 
-}) => {
-  const { handleRemix: handleRemixWithNavigation } = useImageRemix(session, onRemix, setActiveTab, onClose);
+const MobileImageView = ({ image, session, modelConfigs, styleConfigs, handlers }) => {
+  const { handleDownload, handleRemix, handleCopyPrompt, handleShare } = handlers;
   
   return (
     <Drawer.Root defaultOpen>
@@ -42,12 +31,7 @@ const MobileImageView = ({
                     <Download className="mr-2 h-4 w-4" />
                     Download
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="flex-1" 
-                    onClick={() => handleRemixWithNavigation(image)}
-                  >
+                  <Button variant="ghost" size="sm" className="flex-1" onClick={handleRemix}>
                     <RefreshCw className="mr-2 h-4 w-4" />
                     Remix
                   </Button>
