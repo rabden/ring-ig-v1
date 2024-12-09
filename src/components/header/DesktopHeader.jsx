@@ -47,11 +47,7 @@ const DesktopHeader = ({
         </div>
       </div>
       {/* Fade-out gradient */}
-<<<<<<< HEAD
-      <div className="hidden md:block fixed top-12 left-0 right-0 h-2 bg-gradient-to-b from-background/80 to-transparent pointer-events-none z-10" />
-=======
       <div className="hidden md:block fixed top-12 left-0 right-0 h-6 bg-gradient-to-b from-background to-transparent pointer-events-none z-10" />
->>>>>>> 18d42a353c1fee5c4836d5d483de865c19457d1c
     </>
   );
 };
