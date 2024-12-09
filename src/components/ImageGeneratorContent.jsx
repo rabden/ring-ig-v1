@@ -107,7 +107,7 @@ const ImageGeneratorContent = ({
             <div className="hidden md:block absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-10" />
             <div className="hidden md:block absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-10" />
             
-            <div className="min-h-[calc(100vh-56px)] md:h-full overflow-y-auto px-4 md:px-6 py-4 md:py-8">
+            <div className="min-h-[calc(100vh-56px)] md:h-full overflow-y-auto md:scrollbar-none px-4 md:px-6 py-4 md:py-8">
               <ImageGeneratorSettings {...imageGeneratorProps} />
             </div>
           </div>
