@@ -35,9 +35,10 @@ const ImageGeneratorSettings = ({
   setImageCount,
   isPrivate,
   setIsPrivate,
-  hidePromptOnDesktop = false
+  hidePromptOnDesktop = false,
+  updateCredits
 }) => {
-  const { isImproving, improveCurrentPrompt } = usePromptImprovement();
+  const { isImproving, improveCurrentPrompt } = usePromptImprovement(updateCredits);
   const creditCost = { "HD": 1, "HD+": 2, "4K": 3 }[quality] * imageCount;
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
@@ -97,6 +98,8 @@ const ImageGeneratorSettings = ({
           onClear={handleClearPrompt}
           onImprove={handleImprovePrompt}
           isImproving={isImproving}
+          credits={credits}
+          bonusCredits={bonusCredits}
         />
       </div>
 
