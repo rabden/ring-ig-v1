@@ -21,8 +21,12 @@ export const useImageFilter = () => {
         if (img.is_private) return false;
         if (img.user_id === userId) return false;
         
-        // Hide NSFW content when disabled
-        if (!nsfwEnabled && isNsfw) return false;
+        // Show only NSFW content when enabled
+        if (nsfwEnabled) {
+          if (!isNsfw) return false;
+        } else {
+          if (isNsfw) return false;
+        }
         
         // Apply style and model filters
         if (activeFilters.style && img.style !== activeFilters.style) return false;
@@ -49,8 +53,12 @@ export const useImageFilter = () => {
           if (img.is_private) return false;
         }
 
-        // Hide NSFW content when disabled
-        if (!nsfwEnabled && isNsfw) return false;
+        // Show only NSFW content when enabled
+        if (nsfwEnabled) {
+          if (!isNsfw) return false;
+        } else {
+          if (isNsfw) return false;
+        }
 
         // Apply style and model filters
         if (activeFilters.style && img.style !== activeFilters.style) return false;

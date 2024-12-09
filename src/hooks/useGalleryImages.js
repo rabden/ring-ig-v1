@@ -40,7 +40,9 @@ export const useGalleryImages = ({
         baseQuery = baseQuery.eq('is_private', showPrivate);
 
         // Apply NSFW filter
-        if (!nsfwEnabled) {
+        if (nsfwEnabled) {
+          baseQuery = baseQuery.in('model', NSFW_MODELS);
+        } else {
           baseQuery = baseQuery.not('model', 'in', '(' + NSFW_MODELS.join(',') + ')');
         }
 
@@ -84,7 +86,9 @@ export const useGalleryImages = ({
         .eq('is_private', false);
 
       // Apply NSFW filter
-      if (!nsfwEnabled) {
+      if (nsfwEnabled) {
+        baseQuery = baseQuery.in('model', NSFW_MODELS);
+      } else {
         baseQuery = baseQuery.not('model', 'in', '(' + NSFW_MODELS.join(',') + ')');
       }
 
