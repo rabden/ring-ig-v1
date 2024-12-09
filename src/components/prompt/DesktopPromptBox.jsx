@@ -97,7 +97,7 @@ const DesktopPromptBox = ({
                 <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-[1]" />
               </div>
 
-              <div className="flex justify-between items-center mt-4">
+              <div className="flex justify-between items-center mt-1">
                 {renderCredits()}
                 <div className="flex items-center gap-2">
                   {prompt?.length > 0 && (
