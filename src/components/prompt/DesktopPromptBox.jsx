@@ -1,83 +1,64 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { X, ArrowRight, Sparkles, Loader } from "lucide-react";
+import { Sparkles, Wand2, X } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
-const DesktopPromptBox = ({ 
+const DesktopPromptBox = ({
   prompt,
   onChange,
   onKeyDown,
   onGenerate,
   hasEnoughCredits,
-  onClear,
+  isGenerating,
   onImprove,
-  isImproving,
-  credits,
+  onClear,
+  totalCredits,
   bonusCredits,
   className
 }) => {
-  const handleChange = (e) => {
-    onChange(e);
-  };
-
   return (
     <div className={`hidden md:block w-full max-w-full px-10 mt-16 mb-8 ${className}`}>
       <div className="relative bg-card rounded-lg shadow-sm border border-border/50">
-        <div className="p-6">
+        <div className="flex flex-col">
           <div className="relative">
-            {/* Fade overlay for textarea only */}
-            <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-[1]" />
-            <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-[1]" />
-            
-            <textarea
-              value={prompt}
-              onChange={handleChange}
-              onKeyDown={onKeyDown}
-              placeholder="A 4D HDR immersive 3D image..."
-              className="w-full min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-4 px-2"
-              style={{ 
-                caretColor: 'currentColor',
-              }}
-            />
+            <ScrollArea className="h-full max-h-[400px]">
+              <textarea
+                value={prompt}
+                onChange={onChange}
+                onKeyDown={onKeyDown}
+                placeholder="A 4D HDR immersive 3D image..."
+                className="w-full min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-4 px-2"
+              />
+            </ScrollArea>
           </div>
-          
-          <div className="flex justify-between items-center mt-4">
-            <div className="text-sm font-medium text-muted-foreground">
-              Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
+
+          <div className="flex items-center justify-between p-4">
+            <div className="text-sm text-muted-foreground">
+              Credits: {totalCredits + (bonusCredits || 0)}
             </div>
-            
             <div className="flex items-center gap-2">
-              {prompt?.length > 0 && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="rounded-full"
-                  onClick={onClear}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
               <Button
-                size="sm"
-                variant="outline"
-                className="rounded-full"
-                onClick={onImprove}
-                disabled={!prompt?.length || isImproving}
+                variant="ghost"
+                size="icon"
+                onClick={onClear}
+                disabled={!prompt}
               >
-                {isImproving ? (
-                  <Loader className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Sparkles className="h-4 w-4 mr-2" />
-                )}
-                Improve
+                <X className="h-4 w-4" />
               </Button>
               <Button
-                size="sm"
-                className="rounded-full"
-                onClick={onGenerate}
-                disabled={!prompt?.length || !hasEnoughCredits}
+                variant="ghost"
+                size="icon"
+                onClick={onImprove}
+                disabled={!prompt}
               >
+                <Sparkles className="h-4 w-4" />
+              </Button>
+              <Button
+                onClick={onGenerate}
+                disabled={!hasEnoughCredits || !prompt || isGenerating}
+              >
+                <Wand2 className="mr-2 h-4 w-4" />
                 Generate
-                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
           </div>
