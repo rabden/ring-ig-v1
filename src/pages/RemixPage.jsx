@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { toast } from 'sonner';
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -12,6 +13,7 @@ const RemixPage = () => {
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   // Fetch the image data
   const { data: image, isLoading, error } = useQuery({
@@ -76,22 +78,15 @@ const RemixPage = () => {
           aspect_ratio: image.aspect_ratio || null
         };
 
-        // Log for debugging
-        console.log('Preparing remix for model:', {
-          originalModel: image.model,
-          targetModel,
-          quality: remixImage.quality,
-          modelConfig: modelConfig.name
-        });
-
         // Store the image data for the main page to use
         sessionStorage.setItem('pendingRemixImage', JSON.stringify(remixImage));
 
-        // Navigate to main page with remix state
-        navigate('/?view=myImages', { 
+        // Navigate to main page with proper state
+        navigate('/', { 
           state: { 
             shouldRemix: true,
-            source: 'remix-page'
+            source: 'remix-page',
+            isMobile
           } 
         });
       } catch (err) {
@@ -100,7 +95,7 @@ const RemixPage = () => {
         navigate('/');
       }
     }
-  }, [image, isLoading, error, session, navigate, modelConfigs]);
+  }, [image, isLoading, error, session, navigate, modelConfigs, isMobile]);
 
   if (isLoading) {
     return (

@@ -187,6 +187,8 @@ const ImageGenerator = () => {
     if (storedImage && modelConfigs) {
       try {
         const remixImage = JSON.parse(storedImage);
+        const { state } = location;
+        const isMobileRemix = state?.isMobile;
         
         // Get model config
         const modelConfig = modelConfigs[remixImage.model];
@@ -194,13 +196,6 @@ const ImageGenerator = () => {
           console.error('Model not found:', remixImage.model);
           throw new Error('Model configuration not found');
         }
-
-        // Log for debugging
-        console.log('Applying remix for model:', {
-          model: remixImage.model,
-          modelName: modelConfig.name,
-          quality: remixImage.quality
-        });
 
         // Set basic image properties
         setPrompt(remixImage.prompt);
@@ -230,8 +225,13 @@ const ImageGenerator = () => {
           setUseAspectRatio(false);
         }
 
-        // Switch to input tab
-        setActiveTab('input');
+        // Set proper tab based on device
+        if (isMobileRemix) {
+          setActiveTab('input');
+          setActiveView('input');
+        } else {
+          setActiveTab('input');
+        }
         
         // Clear the stored data
         sessionStorage.removeItem('pendingRemixImage');
@@ -243,7 +243,7 @@ const ImageGenerator = () => {
         toast.error('Failed to load remix data: ' + (error.message || 'Unknown error'));
       }
     }
-  }, [modelConfigs]);
+  }, [modelConfigs, location]);
 
   useEffect(() => {
     setActiveTab('images');
