@@ -18,10 +18,22 @@ export const useImageFilter = () => {
         // Never show private images in inspiration
         if (img.is_private) return false;
         if (img.user_id === userId) return false;
-        if (nsfwEnabled) {
-          return isNsfw;
+        
+        // Show NSFW content only when enabled
+        if (isNsfw && !nsfwEnabled) return false;
+        
+        // Apply style and model filters
+        if (activeFilters.style && img.style !== activeFilters.style) return false;
+        if (activeFilters.model && img.model !== activeFilters.model) return false;
+
+        // Filter by search query
+        if (searchQuery) {
+          const query = searchQuery.toLowerCase();
+          const prompt = img.prompt?.toLowerCase() || '';
+          if (!prompt.includes(query)) return false;
         }
-        return !isNsfw;
+
+        return true;
       }
       
       // My Images view
@@ -30,29 +42,26 @@ export const useImageFilter = () => {
         
         // Filter by privacy setting
         if (showPrivate) {
-          // When private filter is on, show only private images
-          return img.is_private;
+          if (!img.is_private) return false;
         } else {
-          // When private filter is off, show only non-private images
-          return !img.is_private;
+          if (img.is_private) return false;
         }
 
-        // NSFW filtering happens after privacy filtering
-        if (nsfwEnabled) {
-          return isNsfw;
+        // Show NSFW content only when enabled
+        if (isNsfw && !nsfwEnabled) return false;
+
+        // Apply style and model filters
+        if (activeFilters.style && img.style !== activeFilters.style) return false;
+        if (activeFilters.model && img.model !== activeFilters.model) return false;
+
+        // Filter by search query
+        if (searchQuery) {
+          const query = searchQuery.toLowerCase();
+          const prompt = img.prompt?.toLowerCase() || '';
+          if (!prompt.includes(query)) return false;
         }
-        return !isNsfw;
-      }
 
-      // Filter by style and model
-      if (activeFilters.style && img.style !== activeFilters.style) return false;
-      if (activeFilters.model && img.model !== activeFilters.model) return false;
-
-      // Filter by search query
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        const prompt = img.prompt?.toLowerCase() || '';
-        if (!prompt.includes(query)) return false;
+        return true;
       }
 
       return true;
