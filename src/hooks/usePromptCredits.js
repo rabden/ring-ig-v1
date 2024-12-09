@@ -41,7 +41,8 @@ export const usePromptCredits = (userId) => {
     return { newCreditCount, newBonusCredits };
   };
 
-  const deductCreditsMutation = useMutation({
+  const mutation = useMutation({
+    mutationKey: ['deductPromptCredits', userId],
     mutationFn: deductPromptCredits,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userCredits', userId] });
@@ -49,8 +50,8 @@ export const usePromptCredits = (userId) => {
   });
 
   return {
-    deductCredits: deductCreditsMutation.mutate,
-    isDeducting: deductCreditsMutation.isPending,
-    error: deductCreditsMutation.error
+    deductCredits: () => mutation.mutate(),
+    isDeducting: mutation.isPending,
+    error: mutation.error
   };
 }; 
