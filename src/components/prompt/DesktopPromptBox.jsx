@@ -3,6 +3,7 @@ import PromptInput from './PromptInput';
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 import { Button } from '@/components/ui/button';
 import { X, ArrowRight, Sparkles, Loader } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
 const DesktopPromptBox = ({ 
   prompt,
@@ -16,6 +17,8 @@ const DesktopPromptBox = ({
   className
 }) => {
   const { isImproving, improveCurrentPrompt } = usePromptImprovement();
+  const MAX_CREDITS = 50;
+  const creditsProgress = (credits / MAX_CREDITS) * 100;
 
   const handleImprovePrompt = async () => {
     await improveCurrentPrompt(prompt, (improvedPrompt) => {
@@ -24,12 +27,18 @@ const DesktopPromptBox = ({
   };
 
   const renderCredits = () => (
-    <div className="text-sm">
-      <span className="text-muted-foreground">Credits: </span>
-      <span className="font-medium">{credits}</span>
-      {bonusCredits > 0 && (
-        <span className="text-green-500 ml-1">+{bonusCredits}</span>
-      )}
+    <div className="space-y-2 min-w-[120px]">
+      <div className="flex justify-between text-sm">
+        <span className="text-muted-foreground">Credits</span>
+        <span>
+          {credits}
+          <span className="text-muted-foreground"> / {MAX_CREDITS}</span>
+          {bonusCredits > 0 && (
+            <span className="text-green-500 ml-1">+{bonusCredits}</span>
+          )}
+        </span>
+      </div>
+      <Progress value={creditsProgress} className="h-2" />
     </div>
   );
 
