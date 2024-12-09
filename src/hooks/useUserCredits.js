@@ -17,12 +17,20 @@ export const useUserCredits = (userId) => {
     return data;
   };
 
-  const updateCredits = async (quality) => {
-    const creditCost = {
-      "HD": 1,
-      "HD+": 2,
-      "4K": 3
-    }[quality];
+  const updateCredits = async (quality, imageCount = 1) => {
+    let creditCost;
+    
+    if (typeof quality === 'number') {
+      // If quality is a number, use it directly as the cost
+      creditCost = Math.abs(quality);
+    } else {
+      // Otherwise, calculate cost based on quality and image count
+      creditCost = {
+        "HD": 1,
+        "HD+": 2,
+        "4K": 3
+      }[quality] * imageCount;
+    }
 
     const { data: profile } = await supabase
       .from('profiles')

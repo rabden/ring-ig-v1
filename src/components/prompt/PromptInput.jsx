@@ -11,14 +11,40 @@ const PromptInput = ({
   hasEnoughCredits,
   onClear,
   onImprove,
-  isImproving
+  isImproving,
+  credits = 0,
+  bonusCredits = 0,
+  updateCredits
 }) => {
+  const totalCredits = (credits || 0) + (bonusCredits || 0);
+  const hasEnoughCreditsForImprovement = totalCredits >= 1;
+
   const handleGenerate = async () => {
     if (!value.trim()) {
       toast.error('Please enter a prompt');
       return;
     }
     await onGenerate();
+  };
+
+  const handleImprove = async () => {
+    if (!hasEnoughCreditsForImprovement) {
+      toast.error('Not enough credits for prompt improvement');
+      return;
+    }
+
+    try {
+      // Deduct one credit for improvement
+      const updatedCredits = await updateCredits(1);
+      if (updatedCredits === -1) {
+        toast.error('Not enough credits for prompt improvement');
+        return;
+      }
+      await onImprove();
+    } catch (error) {
+      toast.error('Failed to improve prompt');
+      console.error(error);
+    }
   };
 
   return (
@@ -54,8 +80,8 @@ const PromptInput = ({
           size="sm"
           variant="outline"
           className="rounded-full"
-          onClick={onImprove}
-          disabled={!value?.length || isImproving}
+          onClick={handleImprove}
+          disabled={!value?.length || isImproving || !hasEnoughCreditsForImprovement}
         >
           {isImproving ? (
             <Loader className="h-4 w-4 mr-2 animate-spin" />
