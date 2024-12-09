@@ -94,24 +94,39 @@ const ImageCard = ({
   return (
     <>
       <div className="mb-4">
-        <div className={cn(
-          "relative overflow-hidden rounded-lg bg-card",
-          "transition-all duration-300 ease-in-out transform-gpu"
-        )}>
-          <ImageStatusIndicators 
-            isTrending={image.is_trending} 
-            isHot={image.is_hot} 
-          />
-          <ImageCardMedia
-            image={image}
-            onImageClick={handleImageClick}
-            onDoubleClick={handleDoubleClick}
-            isAnimating={isAnimating}
-          />
-          <ImageCardBadges
-            modelName={modelName}
-            isNsfw={isNsfw}
-          />
+        <div 
+          className={cn(
+            "group relative rounded-lg overflow-hidden bg-card",
+            "transition-all duration-300 ease-in-out transform-gpu",
+            "hover:shadow-lg"
+          )}
+          onClick={() => handleImageClick(image)}
+        >
+          <div className="relative aspect-[1/1]">
+            <img
+              src={image.url}
+              alt={image.prompt}
+              className={cn(
+                "w-full h-full object-cover",
+                "transition-all duration-300 ease-in-out transform-gpu"
+              )}
+              loading="lazy"
+            />
+            <ImageStatusIndicators 
+              isTrending={image.is_trending} 
+              isHot={image.is_hot} 
+            />
+            <ImageCardMedia
+              image={image}
+              onImageClick={handleImageClick}
+              onDoubleClick={handleDoubleClick}
+              isAnimating={isAnimating}
+            />
+            <ImageCardBadges
+              modelName={modelName}
+              isNsfw={isNsfw}
+            />
+          </div>
         </div>
         <div className="mt-1 flex items-center justify-between">
           <p className="text-sm truncate w-[70%]">{image.prompt}</p>
@@ -127,8 +142,6 @@ const ImageCard = ({
             onRemix={handleRemixClick}
             userId={userId}
             setActiveTab={setActiveTab}
-            setStyle={setStyle}
-            style={style}
           />
         </div>
       </div>
