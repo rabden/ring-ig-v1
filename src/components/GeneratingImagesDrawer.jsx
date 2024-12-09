@@ -3,14 +3,11 @@ import { Badge } from "@/components/ui/badge"
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useModelConfigs } from '@/hooks/useModelConfigs'
-import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import { Loader, Check } from "lucide-react"
-import { getCleanPrompt } from '@/utils/promptUtils';
 import { cn } from "@/lib/utils"
 
 const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) => {
   const { data: modelConfigs } = useModelConfigs();
-  const { data: styleConfigs } = useStyleConfigs();
   const [showCheckmark, setShowCheckmark] = useState(false);
   const [prevLength, setPrevLength] = useState(generatingImages.length);
 
@@ -55,19 +52,13 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
               </div>
               {img.prompt && (
                 <p className="text-sm text-muted-foreground">
-                  {getCleanPrompt(img.prompt, img.style).length > 100 
-                    ? `${getCleanPrompt(img.prompt, img.style).substring(0, 100)}...` 
-                    : getCleanPrompt(img.prompt, img.style)}
+                  {img.prompt.length > 100 
+                    ? `${img.prompt.substring(0, 100)}...` 
+                    : img.prompt}
                 </p>
               )}
               <div className="flex gap-2 text-xs text-muted-foreground">
                 <span>{modelConfigs?.[img.model]?.name || img.model}</span>
-                {img.style && modelConfigs?.[img.model]?.category !== "NSFW" && (
-                  <>
-                    <span>•</span>
-                    <span>{styleConfigs?.[img.style]?.name || img.style}</span>
-                  </>
-                )}
               </div>
             </div>
           ))}
