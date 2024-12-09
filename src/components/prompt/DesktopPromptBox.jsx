@@ -21,6 +21,7 @@ const DesktopPromptBox = ({
   onExpandedChange
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isFixed, setIsFixed] = useState(false);
   const boxRef = useRef(null);
   const textareaRef = useRef(null);
   const totalCredits = (credits || 0) + (bonusCredits || 0);
@@ -35,24 +36,12 @@ const DesktopPromptBox = ({
   // Handle click outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Check if click is inside the prompt box
-      if (boxRef.current?.contains(event.target)) {
-        return;
-      }
-
-      // Check if click is inside the settings panel or its children
-      const settingsPanel = document.querySelector('.bg-card.text-card-foreground');
-      if (settingsPanel?.contains(event.target)) {
-        return;
-      }
-
-      // Check if click is on a settings-related button or control
+      if (boxRef.current?.contains(event.target)) return;
+      if (document.querySelector('.bg-card.text-card-foreground')?.contains(event.target)) return;
       if (event.target.closest('[class*="settings"]') || 
           event.target.closest('[role="dialog"]') ||
           event.target.closest('button') ||
-          event.target.closest('[role="tab"]')) {
-        return;
-      }
+          event.target.closest('[role="tab"]')) return;
 
       setIsExpanded(false);
     };
@@ -63,33 +52,29 @@ const DesktopPromptBox = ({
 
   // Handle scroll visibility
   useEffect(() => {
-    if (!boxRef.current || !isExpanded) return;
+    if (!boxRef.current) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // If the box is not visible and expanded, collapse it
+        setIsFixed(!entry.isIntersecting);
         if (!entry.isIntersecting && isExpanded) {
           setIsExpanded(false);
         }
       },
       {
-        threshold: 0.1, // Collapse when less than 10% is visible
-        rootMargin: '-50px' // Add a 50px margin to trigger earlier
+        threshold: 0,
+        rootMargin: '-64px 0px 0px 0px'
       }
     );
 
     observer.observe(boxRef.current);
-
-    return () => {
-      observer.disconnect();
-    };
+    return () => observer.disconnect();
   }, [isExpanded]);
 
   // Focus textarea when expanded
   useEffect(() => {
     if (isExpanded && textareaRef.current) {
       textareaRef.current.focus();
-      // Move cursor to end of text
       const length = textareaRef.current.value.length;
       textareaRef.current.setSelectionRange(length, length);
     }
@@ -118,124 +103,169 @@ const DesktopPromptBox = ({
 
   const handleExpand = () => {
     if (!isExpanded) {
-      setIsExpanded(true);
+      if (isFixed) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Wait for scroll to complete before expanding
+        setTimeout(() => {
+          setIsExpanded(true);
+          setIsFixed(false);
+        }, 300);
+      } else {
+        setIsExpanded(true);
+      }
     }
   };
 
   return (
-    <div 
-      ref={boxRef}
-      className={cn(
-        "hidden md:block w-full max-w-full px-4 mt-16 mb-8",
-        className
-      )}
-    >
+    <>
+      {/* Normal position box */}
       <div 
+        ref={boxRef}
         className={cn(
-          "relative bg-card shadow-sm border border-border/50",
-          "transform-gpu",
-          "[transition:border-radius_200ms_ease,transform_400ms_ease-in-out,box-shadow_400ms_ease-in-out]",
-          isExpanded ? [
-            "rounded-lg",
-            "scale-100",
-            "shadow-lg"
-          ] : [
-            "rounded-full",
-            "scale-[0.98]",
-            "hover:scale-[0.99]",
-            "hover:shadow-md",
-            "cursor-pointer"
-          ]
+          "hidden md:block w-full max-w-full px-4 mt-16 mb-8",
+          className
         )}
-        onClick={handleExpand}
       >
-        <div className={cn(
-          "transition-all duration-400 ease-in-out",
-          isExpanded ? "p-2" : "p-1"
-        )}>
-          {isExpanded ? (
-            <>
-              <div className="relative">
-                <textarea
-                  ref={textareaRef}
-                  value={prompt}
-                  onChange={onChange}
-                  onKeyDown={onKeyDown}
-                  placeholder="A 4D HDR immersive 3D image..."
-                  className="w-full min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-4 px-2 transition-colors duration-200"
-                  style={{ 
-                    caretColor: 'currentColor',
-                  }}
-                />
-                <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-[1] transition-opacity duration-200" />
-                <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-[1] transition-opacity duration-200" />
-              </div>
+        <div 
+          className={cn(
+            "relative bg-card shadow-sm border border-border/50",
+            "transform-gpu",
+            "[transition:border-radius_200ms_ease,transform_400ms_ease-in-out,box-shadow_400ms_ease-in-out]",
+            isExpanded ? [
+              "rounded-lg",
+              "scale-100",
+              "shadow-lg"
+            ] : [
+              "rounded-full",
+              "scale-[0.98]",
+              "hover:scale-[0.99]",
+              "hover:shadow-md",
+              "cursor-pointer"
+            ]
+          )}
+          onClick={handleExpand}
+        >
+          <div className={cn(
+            "transition-all duration-400 ease-in-out",
+            isExpanded ? "p-2" : "p-1"
+          )}>
+            {isExpanded ? (
+              <>
+                <div className="relative">
+                  <textarea
+                    ref={textareaRef}
+                    value={prompt}
+                    onChange={onChange}
+                    onKeyDown={onKeyDown}
+                    placeholder="A 4D HDR immersive 3D image..."
+                    className="w-full min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-4 px-2 transition-colors duration-200"
+                    style={{ caretColor: 'currentColor' }}
+                  />
+                  <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-[1] transition-opacity duration-200" />
+                  <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-[1] transition-opacity duration-200" />
+                </div>
 
-              <div className="flex justify-between items-center mt-0">
-                <CreditCounter credits={credits} bonusCredits={bonusCredits} />
-                <div className="flex items-center gap-2">
-                  {prompt?.length > 0 && (
+                <div className="flex justify-between items-center mt-0">
+                  <CreditCounter credits={credits} bonusCredits={bonusCredits} />
+                  <div className="flex items-center gap-2">
+                    {prompt?.length > 0 && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="rounded-full transition-transform duration-200 hover:scale-105"
+                        onClick={onClear}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
                     <Button
                       size="sm"
                       variant="outline"
                       className="rounded-full transition-transform duration-200 hover:scale-105"
-                      onClick={onClear}
+                      onClick={handleImprovePrompt}
+                      disabled={!prompt?.length || isImproving || !hasEnoughCreditsForImprovement}
                     >
-                      <X className="h-4 w-4" />
+                      {isImproving ? (
+                        <Loader className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-4 w-4 mr-2" />
+                      )}
+                      Improve
                     </Button>
-                  )}
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="rounded-full transition-transform duration-200 hover:scale-105"
-                    onClick={handleImprovePrompt}
-                    disabled={!prompt?.length || isImproving || !hasEnoughCreditsForImprovement}
-                  >
-                    {isImproving ? (
-                      <Loader className="h-4 w-4 mr-2 animate-spin" />
-                    ) : (
-                      <Sparkles className="h-4 w-4 mr-2" />
-                    )}
-                    Improve
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="rounded-full transition-transform duration-200 hover:scale-105"
-                    onClick={onSubmit}
-                    disabled={!prompt?.length || !hasEnoughCredits}
-                  >
-                    Create
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
+                    <Button
+                      size="sm"
+                      className="rounded-full transition-transform duration-200 hover:scale-105"
+                      onClick={onSubmit}
+                      disabled={!prompt?.length || !hasEnoughCredits}
+                    >
+                      Create
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
+              </>
+            ) : (
+              <div className="flex items-center gap-4">
+                <input
+                  value={prompt}
+                  onChange={onChange}
+                  onKeyDown={onKeyDown}
+                  placeholder="A 4D HDR immersive 3D image..."
+                  className="flex-1 bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 px-4"
+                />
+                <Button
+                  size="sm"
+                  className="rounded-full transition-transform duration-200 hover:scale-105"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSubmit();
+                  }}
+                  disabled={!prompt?.length || !hasEnoughCredits}
+                >
+                  Create
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
               </div>
-            </>
-          ) : (
-            <div className="flex items-center gap-4">
-              <input
-                value={prompt}
-                onChange={onChange}
-                onKeyDown={onKeyDown}
-                placeholder="A 4D HDR immersive 3D image..."
-                className="flex-1 bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 px-4"
-              />
-              <Button
-                size="sm"
-                className="rounded-full transition-transform duration-200 hover:scale-105"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSubmit();
-                }}
-                disabled={!prompt?.length || !hasEnoughCredits}
-              >
-                Create
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Fixed position box */}
+      <div 
+        className={cn(
+          "hidden md:block fixed top-12 left-0 right-0 z-50 px-4 py-2",
+          "transform-gpu transition-all duration-300 ease-in-out",
+          isFixed ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
+        )}
+      >
+        <div 
+          className={cn(
+            "relative bg-card shadow-sm border border-border/50 rounded-full cursor-pointer",
+            "transform-gpu hover:shadow-md hover:scale-[1.01]"
+          )}
+          onClick={handleExpand}
+        >
+          <div className="flex items-center gap-4 p-1">
+            <div className="flex-1 px-4 text-muted-foreground/50 truncate">
+              {prompt || "A 4D HDR immersive 3D image..."}
+            </div>
+            <Button
+              size="sm"
+              className="rounded-full transition-transform duration-200 hover:scale-105"
+              onClick={(e) => {
+                e.stopPropagation();
+                onSubmit();
+              }}
+              disabled={!prompt?.length || !hasEnoughCredits}
+            >
+              Create
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 
