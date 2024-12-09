@@ -6,7 +6,18 @@ import { useLikes } from '@/hooks/useLikes';
 import NoResults from './NoResults';
 import { useGalleryImages } from '@/hooks/useGalleryImages';
 import { cn } from '@/lib/utils';
-import { format, isToday, isThisWeek, isThisMonth, parseISO } from 'date-fns';
+import { 
+  format, 
+  isToday, 
+  isYesterday, 
+  isThisWeek, 
+  isThisMonth, 
+  isThisYear,
+  differenceInCalendarDays,
+  differenceInCalendarWeeks,
+  differenceInCalendarMonths,
+  parseISO 
+} from 'date-fns';
 
 const getBreakpointColumns = (activeView) => {
   if (activeView === 'inspiration' || activeView === 'profile') {
@@ -26,25 +37,76 @@ const getBreakpointColumns = (activeView) => {
   };
 };
 
+const getDateGroup = (date) => {
+  const now = new Date();
+  const parsedDate = parseISO(date);
+  
+  if (isToday(parsedDate)) {
+    const formattedTime = format(parsedDate, 'h:mm a');
+    return { key: 'today', label: `Today at ${formattedTime}` };
+  }
+  
+  if (isYesterday(parsedDate)) {
+    return { key: 'yesterday', label: 'Yesterday' };
+  }
+  
+  const daysAgo = differenceInCalendarDays(now, parsedDate);
+  if (daysAgo < 7) {
+    return { key: `${daysAgo}days`, label: format(parsedDate, 'EEEE') };
+  }
+  
+  if (isThisWeek(parsedDate)) {
+    return { key: 'thisweek', label: 'This Week' };
+  }
+  
+  const weeksAgo = differenceInCalendarWeeks(now, parsedDate);
+  if (weeksAgo === 1) {
+    return { key: 'lastweek', label: 'Last Week' };
+  }
+  
+  if (isThisMonth(parsedDate)) {
+    return { key: 'thismonth', label: format(parsedDate, 'MMMM d') };
+  }
+  
+  const monthsAgo = differenceInCalendarMonths(now, parsedDate);
+  if (monthsAgo < 2) {
+    return { key: 'lastmonth', label: 'Last Month' };
+  }
+  
+  if (isThisYear(parsedDate)) {
+    return { key: format(parsedDate, 'MMMM'), label: format(parsedDate, 'MMMM') };
+  }
+  
+  return { 
+    key: format(parsedDate, 'yyyy'), 
+    label: format(parsedDate, 'MMMM yyyy') 
+  };
+};
+
 const groupImagesByDate = (images) => {
-  return images.reduce((groups, image) => {
-    const date = parseISO(image.created_at);
-    let group = 'Earlier';
-
-    if (isToday(date)) {
-      group = 'Today';
-    } else if (isThisWeek(date)) {
-      group = 'This Week';
-    } else if (isThisMonth(date)) {
-      group = 'This Month';
+  const groups = images.reduce((acc, image) => {
+    const group = getDateGroup(image.created_at);
+    if (!acc[group.key]) {
+      acc[group.key] = {
+        label: group.label,
+        images: []
+      };
     }
-
-    if (!groups[group]) {
-      groups[group] = [];
-    }
-    groups[group].push(image);
-    return groups;
+    acc[group.key].images.push(image);
+    return acc;
   }, {});
+
+  // Sort groups by date (most recent first)
+  return Object.entries(groups)
+    .sort(([keyA], [keyB]) => {
+      const dateA = parseISO(groups[keyA].images[0].created_at);
+      const dateB = parseISO(groups[keyB].images[0].created_at);
+      return dateB - dateA;
+    })
+    .reduce((acc, [key, value]) => {
+      acc[key] = value;
+      return acc;
+    }, {});
 };
 
 const ImageGallery = ({ 
@@ -150,21 +212,19 @@ const ImageGallery = ({
 
     // Group images by date for myImages view
     const groupedImages = groupImagesByDate(filteredImages);
-    const dateGroups = ['Today', 'This Week', 'This Month', 'Earlier'];
 
-    return dateGroups.map(group => {
-      const groupImages = groupedImages[group] || [];
+    return Object.entries(groupedImages).map(([key, { label, images: groupImages }]) => {
       if (groupImages.length === 0) return null;
 
       return (
-        <React.Fragment key={group}>
-          <div className="col-span-full px-2 pt-6 pb-2">
-            <h2 className="text-lg font-semibold text-foreground/80">{group}</h2>
+        <React.Fragment key={key}>
+          <div className="col-span-full sticky top-14 z-10 px-2 py-3 -mx-2 backdrop-blur-sm bg-background/80">
+            <h2 className="text-sm font-medium text-muted-foreground">{label}</h2>
           </div>
           {groupImages.map((image, index) => (
             <div
               key={image.id}
-              ref={index === groupImages.length - 1 && group === 'Earlier' ? lastImageRef : null}
+              ref={index === groupImages.length - 1 ? lastImageRef : null}
             >
               <ImageCard
                 image={image}
