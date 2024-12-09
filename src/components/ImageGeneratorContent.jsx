@@ -72,11 +72,12 @@ const ImageGeneratorContent = ({
           setPrompt={imageGeneratorProps.setPrompt}
           handlePromptKeyDown={imageGeneratorProps.handlePromptKeyDown}
           isGenerating={generatingImages.length > 0}
-          isImproving={false}
+          isImproving={imageGeneratorProps.isImproving}
           handleGenerate={imageGeneratorProps.generateImage}
-          handleImprove={() => {}}
+          handleImprove={imageGeneratorProps.handleImprove}
           credits={credits}
           bonusCredits={bonusCredits}
+          hasEnoughCredits={imageGeneratorProps.hasEnoughCredits}
         />
       )}
 
