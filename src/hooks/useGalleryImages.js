@@ -12,10 +12,11 @@ export const useGalleryImages = ({
   showPrivate,
   activeFilters = {},
   searchQuery = '',
-  modelConfigs = {}
+  modelConfigs = {},
+  showFollowing = false,
+  showTop = false,
+  following = []
 }) => {
-  const { following } = useFollows(userId);
-
   const {
     data,
     fetchNextPage,
@@ -23,7 +24,7 @@ export const useGalleryImages = ({
     isFetchingNextPage,
     isLoading,
   } = useInfiniteQuery({
-    queryKey: ['galleryImages', userId, activeView, nsfwEnabled, showPrivate, activeFilters, searchQuery, following],
+    queryKey: ['galleryImages', userId, activeView, nsfwEnabled, showPrivate, activeFilters, searchQuery, showFollowing, showTop, following],
     queryFn: async ({ pageParam = { page: 0 } }) => {
       if (!userId) return { data: [], nextPage: null };
 
@@ -90,6 +91,19 @@ export const useGalleryImages = ({
         baseQuery = baseQuery.in('model', NSFW_MODELS);
       } else {
         baseQuery = baseQuery.not('model', 'in', '(' + NSFW_MODELS.join(',') + ')');
+      }
+
+      // Apply following filter
+      if (showFollowing && !showTop && following?.length > 0) {
+        baseQuery = baseQuery.in('user_id', following);
+      }
+      // Apply top filter
+      else if (showTop && !showFollowing) {
+        baseQuery = baseQuery.or('is_hot.eq.true,is_trending.eq.true');
+      }
+      // Apply both filters
+      else if (showTop && showFollowing && following?.length > 0) {
+        baseQuery = baseQuery.or(`user_id.in.(${following.join(',')}),is_hot.eq.true,is_trending.eq.true`);
       }
 
       // Apply style and model filters

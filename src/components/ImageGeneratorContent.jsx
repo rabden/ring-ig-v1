@@ -13,6 +13,7 @@ import CreditCounter from '@/components/ui/credit-counter';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useFollows } from '@/hooks/useFollows';
 
 const ImageGeneratorContent = ({
   session,
@@ -51,6 +52,7 @@ const ImageGeneratorContent = ({
   const [isSidebarMounted, setIsSidebarMounted] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
   const [showTop, setShowTop] = useState(false);
+  const { following } = useFollows(session?.user?.id);
 
   // Handle sidebar visibility with transitions
   useEffect(() => {
@@ -167,6 +169,7 @@ const ImageGeneratorContent = ({
                   showPrivate={showPrivate}
                   showFollowing={showFollowing}
                   showTop={showTop}
+                  following={following}
                 />
               </div>
             </>
