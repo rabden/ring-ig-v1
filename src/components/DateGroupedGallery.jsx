@@ -63,23 +63,26 @@ const DateGroupedGallery = ({
   className
 }) => {
   const groupedImages = groupImagesByDate(images);
+  
+  // Debug log
+  console.log('Grouped Images:', groupedImages);
 
   return (
-    <div className={cn("space-y-12", className)}>
+    <div className={cn("flex flex-col gap-8", className)}>
       {DATE_GROUP_ORDER.map(groupTitle => {
         const groupImages = groupedImages[groupTitle];
         if (!groupImages?.length) return null;
 
         return (
-          <motion.div
+          <motion.section
             key={groupTitle}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className="space-y-4"
+            className="flex flex-col gap-4"
           >
             <DateGroupHeader title={groupTitle} />
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 px-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {groupImages.map((image, index) => (
                 <ImageCard
                   key={image.id}
@@ -93,7 +96,7 @@ const DateGroupedGallery = ({
                 />
               ))}
             </div>
-          </motion.div>
+          </motion.section>
         );
       })}
     </div>
