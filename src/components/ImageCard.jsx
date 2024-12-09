@@ -12,22 +12,17 @@ import { handleImageDiscard } from '@/utils/discardUtils';
 import ImageCardMedia from './image-card/ImageCardMedia';
 import ImageCardBadges from './image-card/ImageCardBadges';
 import { useNavigate } from 'react-router-dom';
-import { cn } from '@/lib/utils';
 
-const ImageCard = ({
-  image,
+const ImageCard = ({ 
+  image, 
+  onImageClick = () => {}, 
+  onDiscard = () => {}, 
+  onRemix = () => {}, 
+  userId,
   isMobile,
   isLiked,
-  likeCount,
-  onToggleLike,
-  onViewDetails,
-  onDownload,
-  onDiscard,
-  onRemix,
-  userId,
-  setStyle,
+  onToggleLike = () => {},
   setActiveTab,
-  className = "",
 }) => {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
@@ -49,11 +44,9 @@ const ImageCard = ({
     },
   });
 
-  const handleCardClick = (e) => {
+  const handleImageClick = (e) => {
     e.preventDefault();
-    if (typeof onViewDetails === 'function') {
-      onViewDetails(image, false);
-    }
+    navigate(`/image/${image.id}`);
   };
 
   const handleRemixClick = () => {
@@ -97,40 +90,39 @@ const ImageCard = ({
 
   return (
     <>
-      <div 
-        className={cn(
-          "group relative rounded-lg overflow-hidden bg-background/50 hover:bg-background/80 transition-colors duration-200",
-          className
-        )}
-        onClick={handleCardClick}
-      >
-        <div className="relative aspect-[1/1.5] overflow-hidden">
-          <img
-            src={image.url}
-            alt={image.prompt || "Generated image"}
-            className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-            loading="lazy"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="absolute bottom-0 left-0 right-0 p-3 flex justify-between items-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="text-xs text-white/90 line-clamp-2 pr-2">
-              {image.prompt}
-            </div>
-            <ImageCardActions
-              image={image}
-              isMobile={isMobile}
-              isLiked={isLiked}
-              likeCount={likeCount}
-              onToggleLike={onToggleLike}
-              onViewDetails={onViewDetails}
-              onDownload={onDownload}
-              onDiscard={onDiscard}
-              onRemix={onRemix}
-              userId={userId}
-              setStyle={setStyle}
-              setActiveTab={setActiveTab}
+      <div className="mb-2">
+        <Card className="overflow-hidden">
+          <CardContent className="p-0 relative">
+            <ImageStatusIndicators 
+              isTrending={image.is_trending} 
+              isHot={image.is_hot} 
             />
-          </div>
+            <ImageCardMedia
+              image={image}
+              onImageClick={handleImageClick}
+              onDoubleClick={handleDoubleClick}
+              isAnimating={isAnimating}
+            />
+            <ImageCardBadges
+              modelName={modelName}
+              isNsfw={isNsfw}
+            />
+          </CardContent>
+        </Card>
+        <div className="mt-1 flex items-center justify-between">
+          <p className="text-sm truncate w-[70%]">{image.prompt}</p>
+          <ImageCardActions
+            image={image}
+            isMobile={isMobile}
+            isLiked={isLiked}
+            likeCount={likeCount}
+            onToggleLike={onToggleLike}
+            onDownload={handleDownload}
+            onDiscard={handleDiscard}
+            onRemix={handleRemixClick}
+            userId={userId}
+            setActiveTab={setActiveTab}
+          />
         </div>
       </div>
 

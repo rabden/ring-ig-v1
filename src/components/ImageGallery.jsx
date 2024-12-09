@@ -127,7 +127,7 @@ const ImageGallery = ({
       <Masonry
         breakpointCols={breakpointColumnsObj}
         className="flex w-auto md:px-2 -mx-1 md:mx-0"
-        columnClassName="bg-clip-padding px-1 md:px-2 [&>*]:mb-4"
+        columnClassName="bg-clip-padding px-1 md:px-2"
       >
         {renderContent()}
       </Masonry>
