@@ -22,7 +22,6 @@ const DesktopPromptBox = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const boxRef = useRef(null);
   const totalCredits = (credits || 0) + (bonusCredits || 0);
-  const hasEnoughCreditsForImprovement = totalCredits >= 1;
   const { isImproving, improveCurrentPrompt } = usePromptImprovement(updateCredits);
 
   useEffect(() => {
@@ -54,18 +53,12 @@ const DesktopPromptBox = ({
   }, []);
 
   const handleImprovePrompt = async () => {
-    if (!hasEnoughCreditsForImprovement) {
+    if (totalCredits < 1) {
       toast.error('Not enough credits for prompt improvement');
       return;
     }
 
     try {
-      // Deduct one credit for improvement
-      const updatedCredits = await updateCredits(1);
-      if (updatedCredits === -1) {
-        toast.error('Not enough credits for prompt improvement');
-        return;
-      }
       await improveCurrentPrompt(prompt, (improvedPrompt) => {
         onChange({ target: { value: improvedPrompt } });
       });
@@ -141,7 +134,7 @@ const DesktopPromptBox = ({
                     variant="outline"
                     className="rounded-full transition-transform duration-200 hover:scale-105"
                     onClick={handleImprovePrompt}
-                    disabled={!prompt?.length || isImproving || !hasEnoughCreditsForImprovement}
+                    disabled={!prompt?.length || isImproving || totalCredits < 1}
                   >
                     {isImproving ? (
                       <Loader className="h-4 w-4 mr-2 animate-spin" />
