@@ -6,6 +6,7 @@ import { useLikes } from '@/hooks/useLikes';
 import NoResults from './NoResults';
 import { useGalleryImages } from '@/hooks/useGalleryImages';
 import { cn } from '@/lib/utils';
+import { format, isToday, isThisWeek, isThisMonth, parseISO } from 'date-fns';
 
 const getBreakpointColumns = (activeView) => {
   if (activeView === 'inspiration' || activeView === 'profile') {
@@ -23,6 +24,27 @@ const getBreakpointColumns = (activeView) => {
     700: 2,
     500: 2
   };
+};
+
+const groupImagesByDate = (images) => {
+  return images.reduce((groups, image) => {
+    const date = parseISO(image.created_at);
+    let group = 'Earlier';
+
+    if (isToday(date)) {
+      group = 'Today';
+    } else if (isThisWeek(date)) {
+      group = 'This Week';
+    } else if (isThisMonth(date)) {
+      group = 'This Month';
+    }
+
+    if (!groups[group]) {
+      groups[group] = [];
+    }
+    groups[group].push(image);
+    return groups;
+  }, {});
 };
 
 const ImageGallery = ({ 
@@ -100,28 +122,69 @@ const ImageGallery = ({
       }
       return !img.is_private;
     });
-    
-    return filteredImages.map((image, index) => (
-      <div
-        key={image.id}
-        ref={index === filteredImages.length - 1 ? lastImageRef : null}
-      >
-        <ImageCard
-          image={image}
-          onImageClick={() => onImageClick(image)}
-          onDownload={onDownload}
-          onDiscard={onDiscard}
-          onRemix={onRemix}
-          onViewDetails={onViewDetails}
-          onMoreClick={handleMobileMoreClick}
-          userId={userId}
-          isMobile={isMobile}
-          isLiked={userLikes.includes(image.id)}
-          onToggleLike={toggleLike}
-          setActiveTab={setActiveTab}
-        />
-      </div>
-    ));
+
+    // If not in myImages view, render normally
+    if (activeView !== 'myImages') {
+      return filteredImages.map((image, index) => (
+        <div
+          key={image.id}
+          ref={index === filteredImages.length - 1 ? lastImageRef : null}
+        >
+          <ImageCard
+            image={image}
+            onImageClick={() => onImageClick(image)}
+            onDownload={onDownload}
+            onDiscard={onDiscard}
+            onRemix={onRemix}
+            onViewDetails={onViewDetails}
+            onMoreClick={handleMobileMoreClick}
+            userId={userId}
+            isMobile={isMobile}
+            isLiked={userLikes.includes(image.id)}
+            onToggleLike={toggleLike}
+            setActiveTab={setActiveTab}
+          />
+        </div>
+      ));
+    }
+
+    // Group images by date for myImages view
+    const groupedImages = groupImagesByDate(filteredImages);
+    const dateGroups = ['Today', 'This Week', 'This Month', 'Earlier'];
+
+    return dateGroups.map(group => {
+      const groupImages = groupedImages[group] || [];
+      if (groupImages.length === 0) return null;
+
+      return (
+        <React.Fragment key={group}>
+          <div className="col-span-full px-2 pt-6 pb-2">
+            <h2 className="text-lg font-semibold text-foreground/80">{group}</h2>
+          </div>
+          {groupImages.map((image, index) => (
+            <div
+              key={image.id}
+              ref={index === groupImages.length - 1 && group === 'Earlier' ? lastImageRef : null}
+            >
+              <ImageCard
+                image={image}
+                onImageClick={() => onImageClick(image)}
+                onDownload={onDownload}
+                onDiscard={onDiscard}
+                onRemix={onRemix}
+                onViewDetails={onViewDetails}
+                onMoreClick={handleMobileMoreClick}
+                userId={userId}
+                isMobile={isMobile}
+                isLiked={userLikes.includes(image.id)}
+                onToggleLike={toggleLike}
+                setActiveTab={setActiveTab}
+              />
+            </div>
+          ))}
+        </React.Fragment>
+      ));
+    });
   };
 
   return (
