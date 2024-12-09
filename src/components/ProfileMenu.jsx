@@ -12,7 +12,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { LogOut, ChevronRight } from 'lucide-react';
 import ProfileAvatar from './profile/ProfileAvatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Progress } from '@/components/ui/progress';
+import CreditCounter from '@/components/ui/credit-counter';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -77,8 +77,6 @@ const ProfileMenu = ({ user, credits, bonusCredits, isMobile }) => {
   if (!user) return null;
 
   const displayName = user?.user_metadata?.display_name || user?.email?.split('@')[0] || '';
-  const MAX_CREDITS = 50;
-  const creditsProgress = (credits / MAX_CREDITS) * 100;
 
   return (
     <>
@@ -132,19 +130,7 @@ const ProfileMenu = ({ user, credits, bonusCredits, isMobile }) => {
             </Link>
 
             {/* Credits Progress */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Credits</span>
-                <span>
-                  {credits} 
-                  <span className="text-muted-foreground"> / {MAX_CREDITS}</span>
-                  {bonusCredits > 0 && (
-                    <span className="text-green-500 ml-1">+{bonusCredits}</span>
-                  )}
-                </span>
-              </div>
-              <Progress value={creditsProgress} className="h-2" />
-            </div>
+            <CreditCounter credits={credits} bonusCredits={bonusCredits} />
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-2 text-sm py-2">

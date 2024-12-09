@@ -9,6 +9,7 @@ import FullScreenImageView from './FullScreenImageView';
 import DesktopHeader from './header/DesktopHeader';
 import MobileHeader from './header/MobileHeader';
 import DesktopPromptBox from './prompt/DesktopPromptBox';
+import CreditCounter from '@/components/ui/credit-counter';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 
@@ -46,25 +47,28 @@ const ImageGeneratorContent = ({
 
   return (
     <>
-      <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
+      <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground image-generator-content">
         <div className={`flex-grow p-2 md:p-6 overflow-y-auto ${activeTab === 'images' ? 'block' : 'hidden md:block'} ${isInspiration ? '' : 'md:pr-[350px]'} pb-20 md:pb-6`}>
           {session && (
             <>
-              <DesktopHeader
-                user={session.user}
-                credits={credits}
-                bonusCredits={bonusCredits}
-                activeView={activeView}
-                setActiveView={setActiveView}
-                generatingImages={generatingImages}
-                activeFilters={activeFilters}
-                onFilterChange={onFilterChange}
-                onRemoveFilter={onRemoveFilter}
-                onSearch={onSearch}
-                nsfwEnabled={nsfwEnabled}
-                showPrivate={showPrivate}
-                onTogglePrivate={() => setShowPrivate(!showPrivate)}
-              />
+              <div className="flex items-center justify-between mb-6">
+                <DesktopHeader
+                  user={session.user}
+                  credits={credits}
+                  bonusCredits={bonusCredits}
+                  activeView={activeView}
+                  setActiveView={setActiveView}
+                  generatingImages={generatingImages}
+                  activeFilters={activeFilters}
+                  onFilterChange={onFilterChange}
+                  onRemoveFilter={onRemoveFilter}
+                  onSearch={onSearch}
+                  nsfwEnabled={nsfwEnabled}
+                  showPrivate={showPrivate}
+                  onTogglePrivate={() => setShowPrivate(!showPrivate)}
+                />
+                <CreditCounter credits={credits} bonusCredits={bonusCredits} className="hidden md:block" />
+              </div>
               <MobileHeader
                 activeFilters={activeFilters}
                 onFilterChange={onFilterChange}

@@ -3,7 +3,7 @@ import PromptInput from './PromptInput';
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 import { Button } from '@/components/ui/button';
 import { X, ArrowRight, Sparkles, Loader } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
+import CreditCounter from '@/components/ui/credit-counter';
 import { cn } from '@/lib/utils';
 
 const DesktopPromptBox = ({ 
@@ -20,20 +20,33 @@ const DesktopPromptBox = ({
   const [isExpanded, setIsExpanded] = useState(false);
   const boxRef = useRef(null);
   const { isImproving, improveCurrentPrompt } = usePromptImprovement();
-  const MAX_CREDITS = 50;
-  const creditsProgress = (credits / MAX_CREDITS) * 100;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Ignore clicks inside image generator settings or its components
+      // Get all possible content-related elements
+      const imageGeneratorContent = document.querySelector('.image-generator-content');
       const settingsPanel = document.querySelector('.image-generator-settings');
       const settingsSidebar = document.querySelector('.settings-sidebar');
-      if (settingsPanel?.contains(event.target) || settingsSidebar?.contains(event.target)) return;
+      const settingsContainer = document.querySelector('[class*="settings-container"]');
+      const settingsContent = document.querySelector('[class*="settings-content"]');
+      const settingsWrapper = document.querySelector('[class*="settings-wrapper"]');
+      
+      // Check if click is inside any content or settings-related element
+      const isContentClick = imageGeneratorContent?.contains(event.target);
+      const isSettingsClick = [
+        settingsPanel,
+        settingsSidebar,
+        settingsContainer,
+        settingsContent,
+        settingsWrapper
+      ].some(element => element?.contains(event.target));
 
-      // Check if click is outside the prompt box
-      if (boxRef.current && !boxRef.current.contains(event.target)) {
-        setIsExpanded(false);
+      // Don't collapse if click is inside content, settings, or prompt box
+      if (isContentClick || isSettingsClick || boxRef.current?.contains(event.target)) {
+        return;
       }
+
+      setIsExpanded(false);
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -46,27 +59,11 @@ const DesktopPromptBox = ({
     });
   };
 
-  const renderCredits = () => (
-    <div className="space-y-2 min-w-[200px]">
-      <div className="flex justify-between text-sm">
-        <span className="text-muted-foreground">Credits</span>
-        <span className="font-medium">
-          {credits}
-          <span className="text-muted-foreground font-normal"> / {MAX_CREDITS}</span>
-          {bonusCredits > 0 && (
-            <span className="text-green-500 ml-1">+{bonusCredits}</span>
-          )}
-        </span>
-      </div>
-      <Progress value={creditsProgress} className="h-2 bg-secondary" />
-    </div>
-  );
-
   return (
     <div 
       ref={boxRef}
       className={cn(
-        "hidden md:block w-full max-w-full px-16 mt-20 mb-8 transition-all duration-300",
+        "hidden md:block w-full max-w-full px-10 mt-16 mb-8 transition-all duration-300",
         className
       )}
     >
@@ -99,7 +96,7 @@ const DesktopPromptBox = ({
               </div>
 
               <div className="flex justify-between items-center mt-4">
-                {renderCredits()}
+                <CreditCounter credits={credits} bonusCredits={bonusCredits} />
                 <div className="flex items-center gap-2">
                   {prompt?.length > 0 && (
                     <Button
