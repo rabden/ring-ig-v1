@@ -122,7 +122,7 @@ const DesktopPromptBox = ({
       <div 
         ref={boxRef}
         className={cn(
-          "hidden md:block w-full max-w-full px-4 mt-16 mb-8",
+          "hidden md:block w-full max-w-[1400px] mx-auto px-4 mt-16 mb-8",
           className
         )}
       >
@@ -234,34 +234,36 @@ const DesktopPromptBox = ({
       {/* Fixed position box */}
       <div 
         className={cn(
-          "hidden md:block fixed top-12 left-0 right-0 z-50 px-4 py-2",
+          "hidden md:block fixed top-12 left-0 right-0 z-50",
           "transform-gpu transition-all duration-300 ease-in-out",
           isFixed ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
         )}
       >
-        <div 
-          className={cn(
-            "relative bg-card shadow-sm border border-border/50 rounded-full cursor-pointer",
-            "transform-gpu hover:shadow-md hover:scale-[1.01]"
-          )}
-          onClick={handleExpand}
-        >
-          <div className="flex items-center gap-4 p-1">
-            <div className="flex-1 px-4 text-muted-foreground/50 truncate">
-              {prompt || "A 4D HDR immersive 3D image..."}
+        <div className="max-w-[1400px] mx-auto px-4 py-2">
+          <div 
+            className={cn(
+              "relative bg-card shadow-sm border border-border/50 rounded-full cursor-pointer",
+              "transform-gpu hover:shadow-md hover:scale-[1.01]"
+            )}
+            onClick={handleExpand}
+          >
+            <div className="flex items-center gap-4 p-1">
+              <div className="flex-1 px-4 text-muted-foreground/50 truncate">
+                {prompt || "A 4D HDR immersive 3D image..."}
+              </div>
+              <Button
+                size="sm"
+                className="rounded-full transition-transform duration-200 hover:scale-105"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSubmit();
+                }}
+                disabled={!prompt?.length || !hasEnoughCredits}
+              >
+                Create
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
             </div>
-            <Button
-              size="sm"
-              className="rounded-full transition-transform duration-200 hover:scale-105"
-              onClick={(e) => {
-                e.stopPropagation();
-                onSubmit();
-              }}
-              disabled={!prompt?.length || !hasEnoughCredits}
-            >
-              Create
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
           </div>
         </div>
       </div>
