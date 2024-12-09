@@ -78,7 +78,7 @@ const ImageGeneratorContent = ({
               {!isInspiration && (
                 <DesktopPromptBox
                   prompt={imageGeneratorProps.prompt}
-                  onChange={imageGeneratorProps.setPrompt}
+                  onChange={(e) => imageGeneratorProps.setPrompt(e.target.value)}
                   onKeyDown={imageGeneratorProps.handlePromptKeyDown}
                   onGenerate={imageGeneratorProps.generateImage}
                   hasEnoughCredits={true}
@@ -92,7 +92,7 @@ const ImageGeneratorContent = ({
             </>
           )}
 
-          <div className="md:mt-4 mt-12">
+          <div className="md:mt-16">
             <ImageGallery
               userId={session?.user?.id}
               onImageClick={handleImageClick}

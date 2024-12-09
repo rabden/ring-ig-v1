@@ -15,6 +15,10 @@ const DesktopPromptBox = ({
   bonusCredits,
   className
 }) => {
+  const handleChange = (e) => {
+    onChange(e);
+  };
+
   return (
     <div className={`hidden md:block w-full max-w-full px-10 mt-16 mb-8 ${className}`}>
       <div className="relative bg-card rounded-lg shadow-sm border border-border/50">
@@ -26,7 +30,7 @@ const DesktopPromptBox = ({
             
             <textarea
               value={prompt}
-              onChange={onChange}
+              onChange={handleChange}
               onKeyDown={onKeyDown}
               placeholder="A 4D HDR immersive 3D image..."
               className="w-full min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-4 px-2"
