@@ -37,8 +37,7 @@ const ImageGeneratorSettings = ({
   setIsPrivate,
   hidePromptOnDesktop = false
 }) => {
-  const userId = session?.user?.id;
-  const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
+  const { isImproving, improveCurrentPrompt } = usePromptImprovement(session?.user?.id);
   const creditCost = { "HD": 1, "HD+": 2, "4K": 3 }[quality] * imageCount;
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
