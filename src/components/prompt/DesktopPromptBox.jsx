@@ -20,7 +20,7 @@ const DesktopPromptBox = ({
   userId,
   onExpandedChange
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const [isFixed, setIsFixed] = useState(false);
   const boxRef = useRef(null);
   const textareaRef = useRef(null);
@@ -33,23 +33,6 @@ const DesktopPromptBox = ({
     onExpandedChange?.(isExpanded);
   }, [isExpanded, onExpandedChange]);
 
-  // Handle click outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (boxRef.current?.contains(event.target)) return;
-      if (document.querySelector('.bg-card.text-card-foreground')?.contains(event.target)) return;
-      if (event.target.closest('[class*="settings"]') || 
-          event.target.closest('[role="dialog"]') ||
-          event.target.closest('button') ||
-          event.target.closest('[role="tab"]')) return;
-
-      setIsExpanded(false);
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
   // Handle scroll visibility
   useEffect(() => {
     if (!boxRef.current) return;
@@ -57,9 +40,7 @@ const DesktopPromptBox = ({
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsFixed(!entry.isIntersecting);
-        if (!entry.isIntersecting && isExpanded) {
-          setIsExpanded(false);
-        }
+        setIsExpanded(entry.isIntersecting);
       },
       {
         threshold: 0,
@@ -69,7 +50,7 @@ const DesktopPromptBox = ({
 
     observer.observe(boxRef.current);
     return () => observer.disconnect();
-  }, [isExpanded]);
+  }, []);
 
   // Focus textarea when expanded
   useEffect(() => {
@@ -102,17 +83,8 @@ const DesktopPromptBox = ({
   };
 
   const handleExpand = () => {
-    if (!isExpanded) {
-      if (isFixed) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        // Wait for scroll to complete before expanding
-        setTimeout(() => {
-          setIsExpanded(true);
-          setIsFixed(false);
-        }, 300);
-      } else {
-        setIsExpanded(true);
-      }
+    if (isFixed) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
