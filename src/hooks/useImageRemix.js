@@ -26,28 +26,35 @@ export const useImageRemix = (session, onRemix = () => {}, setActiveTab = () => 
       model: image.model === 'ultra' || image.model === 'preLar' ? 'preLar' : image.model
     };
 
-    // Get current view from URL or default to empty
-    const currentView = new URLSearchParams(location.search).get('view') || '';
+    // Store the image data in sessionStorage for retrieval after navigation
+    sessionStorage.setItem('pendingRemixImage', JSON.stringify(remixImage));
 
-    // Navigate based on device type and current view
+    // Navigate based on device type
     if (isMobile) {
-      navigate('/');
+      navigate('/', { state: { shouldRemix: true } });
     } else {
-      // Always navigate to myImages view, regardless of current location
-      navigate('/?view=myImages');
+      // For desktop, always navigate to myImages view
+      navigate('/?view=myImages', { state: { shouldRemix: true } });
     }
 
-    // Then perform the remix after a short delay to ensure navigation is complete
+    // Close any open dialogs or drawers
+    if (onClose) onClose();
+
+    // Then perform the remix after navigation is complete
     setTimeout(() => {
-      if (typeof onRemix === 'function') {
-        onRemix(remixImage);
+      // Retrieve the stored image data
+      const storedImage = sessionStorage.getItem('pendingRemixImage');
+      if (storedImage) {
+        const imageToRemix = JSON.parse(storedImage);
+        if (typeof onRemix === 'function') {
+          onRemix(imageToRemix);
+        }
+        // Clear the stored data
+        sessionStorage.removeItem('pendingRemixImage');
       }
 
-      // Check if the original image was made with a NSFW model
-      const isNsfwModel = modelConfigs?.[remixImage.model]?.category === "NSFW";
-
+      // Switch to input tab
       setActiveTab('input');
-      if (onClose) onClose();
     }, 100);
   };
 
