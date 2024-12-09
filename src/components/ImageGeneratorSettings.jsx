@@ -34,7 +34,8 @@ const ImageGeneratorSettings = ({
   imageCount = 1,
   setImageCount,
   isPrivate,
-  setIsPrivate
+  setIsPrivate,
+  hidePromptOnDesktop = false
 }) => {
   const { isImproving, improveCurrentPrompt } = usePromptImprovement();
   const creditCost = { "HD": 1, "HD+": 2, "4K": 3 }[quality] * imageCount;
@@ -86,29 +87,31 @@ const ImageGeneratorSettings = ({
 
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
-      <div className="flex justify-between items-center mb-4">
-        {session && (
-          <div className="text-sm font-medium">
-            Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
-            {!hasEnoughCredits && (
-              <span className="text-destructive ml-2">
-                Need {creditCost} credits
-              </span>
-            )}
-          </div>
-        )}
-      </div>
+      <div className={hidePromptOnDesktop ? 'md:hidden' : ''}>
+        <div className="flex justify-between items-center mb-4">
+          {session && (
+            <div className="text-sm font-medium">
+              Credits: {credits}{bonusCredits > 0 ? ` + B${bonusCredits}` : ''}
+              {!hasEnoughCredits && (
+                <span className="text-destructive ml-2">
+                  Need {creditCost} credits
+                </span>
+              )}
+            </div>
+          )}
+        </div>
 
-      <PromptInput
-        value={prompt}
-        onChange={handlePromptChange}
-        onKeyDown={handlePromptKeyDown}
-        onGenerate={generateImage}
-        hasEnoughCredits={hasEnoughCredits}
-        onClear={handleClearPrompt}
-        onImprove={handleImprovePrompt}
-        isImproving={isImproving}
-      />
+        <PromptInput
+          value={prompt}
+          onChange={handlePromptChange}
+          onKeyDown={handlePromptKeyDown}
+          onGenerate={generateImage}
+          hasEnoughCredits={hasEnoughCredits}
+          onClear={handleClearPrompt}
+          onImprove={handleImprovePrompt}
+          isImproving={isImproving}
+        />
+      </div>
 
       <ModelChooser
         model={model}

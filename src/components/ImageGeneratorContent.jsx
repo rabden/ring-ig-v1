@@ -8,6 +8,7 @@ import ImageDetailsDialog from './ImageDetailsDialog';
 import FullScreenImageView from './FullScreenImageView';
 import DesktopHeader from './header/DesktopHeader';
 import MobileHeader from './header/MobileHeader';
+import DesktopPromptBox from './prompt/DesktopPromptBox';
 
 const ImageGeneratorContent = ({
   session,
@@ -39,9 +40,8 @@ const ImageGeneratorContent = ({
   imageGeneratorProps
 }) => {
   const isInspiration = activeView === 'inspiration';
-  
   const shouldShowSettings = !isInspiration || (activeTab === 'input' && window.innerWidth < 768);
-  
+
   return (
     <>
       <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground">
@@ -74,10 +74,25 @@ const ImageGeneratorContent = ({
                 onTogglePrivate={() => setShowPrivate(!showPrivate)}
                 activeView={activeView}
               />
+              
+              {!isInspiration && (
+                <DesktopPromptBox
+                  prompt={imageGeneratorProps.prompt}
+                  onChange={imageGeneratorProps.setPrompt}
+                  onKeyDown={imageGeneratorProps.handlePromptKeyDown}
+                  onGenerate={imageGeneratorProps.generateImage}
+                  hasEnoughCredits={true}
+                  onClear={() => imageGeneratorProps.setPrompt('')}
+                  onImprove={imageGeneratorProps.improveCurrentPrompt}
+                  isImproving={imageGeneratorProps.isImproving}
+                  credits={credits}
+                  bonusCredits={bonusCredits}
+                />
+              )}
             </>
           )}
 
-          <div className="md:mt-12 mt-12">
+          <div className="md:mt-4 mt-12">
             <ImageGallery
               userId={session?.user?.id}
               onImageClick={handleImageClick}
@@ -108,7 +123,7 @@ const ImageGeneratorContent = ({
             <div className="hidden md:block absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-10" />
             
             <div className="min-h-[calc(100vh-56px)] md:h-full overflow-y-auto md:scrollbar-none px-4 md:px-6 py-4 md:py-8">
-              <ImageGeneratorSettings {...imageGeneratorProps} />
+              <ImageGeneratorSettings {...imageGeneratorProps} hidePromptOnDesktop={true} />
             </div>
           </div>
         )}
