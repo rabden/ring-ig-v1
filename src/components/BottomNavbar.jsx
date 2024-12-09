@@ -7,7 +7,18 @@ import MobileNavButton from './navbar/MobileNavButton';
 import NotificationBell from './notifications/NotificationBell';
 import ProfileMenu from './ProfileMenu';
 
-const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits, activeView, setActiveView, generatingImages = [] }) => {
+const BottomNavbar = ({ 
+  activeTab, 
+  setActiveTab, 
+  session, 
+  credits, 
+  bonusCredits, 
+  activeView, 
+  setActiveView, 
+  generatingImages = [],
+  nsfwEnabled,
+  setNsfwEnabled
+}) => {
   const { unreadCount } = useNotifications();
   const { data: isPro } = useProUser(session?.user?.id);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -52,6 +63,8 @@ const BottomNavbar = ({ activeTab, setActiveTab, session, credits, bonusCredits,
                   credits={credits} 
                   bonusCredits={bonusCredits} 
                   isMobile={true}
+                  nsfwEnabled={nsfwEnabled}
+                  setNsfwEnabled={setNsfwEnabled}
                 />
               </div>
             ) : (

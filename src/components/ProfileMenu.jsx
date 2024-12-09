@@ -16,7 +16,14 @@ import CreditCounter from '@/components/ui/credit-counter';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
-const ProfileMenu = ({ user, credits, bonusCredits, isMobile }) => {
+const ProfileMenu = ({ 
+  user, 
+  credits, 
+  bonusCredits, 
+  isMobile,
+  nsfwEnabled,
+  setNsfwEnabled 
+}) => {
   const { logout } = useSupabaseAuth();
   const [showImageDialog, setShowImageDialog] = useState(false);
   const { data: isPro } = useProUser(user?.id);
@@ -148,8 +155,21 @@ const ProfileMenu = ({ user, credits, bonusCredits, isMobile }) => {
               </div>
             </div>
 
-            {/* Sign Out Button */}
-            <div className="flex justify-end pt-2">
+            {/* Sign Out and NSFW Buttons */}
+            <div className="flex justify-between items-center pt-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setNsfwEnabled(!nsfwEnabled)}
+                className={cn(
+                  "text-xs",
+                  nsfwEnabled 
+                    ? "hover:bg-destructive/10 hover:text-destructive text-destructive/90" 
+                    : "hover:bg-primary/10 hover:text-primary text-primary/90"
+                )}
+              >
+                {nsfwEnabled ? 'Unsafe' : 'Safe'}
+              </Button>
               <Button 
                 variant="ghost" 
                 size="sm" 
