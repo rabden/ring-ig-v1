@@ -129,7 +129,7 @@ const ImageGallery = ({
       "w-full h-full",
       "md:px-4",
       "md:pt-0",
-      "pt-20",
+      "pt-16",
       className
     )}>
       <Masonry
