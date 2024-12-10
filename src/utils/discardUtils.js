@@ -13,7 +13,7 @@ export const handleImageDiscard = async (image, queryClient) => {
       .from('user_images')
       .select('storage_path')
       .eq('id', image.id)
-      .single();
+      .maybeSingle();
 
     if (fetchError) {
       console.error('Error fetching image:', fetchError);
@@ -21,16 +21,36 @@ export const handleImageDiscard = async (image, queryClient) => {
       return;
     }
 
-    if (!imageData?.storage_path) {
+    // If no image found, it might have been already deleted
+    if (!imageData) {
+      console.log('Image not found in database, might have been already deleted');
+      if (queryClient) {
+        queryClient.invalidateQueries({ queryKey: ['galleryImages'] });
+      }
+      return;
+    }
+
+    if (!imageData.storage_path) {
       console.error('No storage path found for image');
       toast.error('Image file not found');
+      return;
+    }
+
+    // Extract the relative path from the full URL
+    // Example URL: https://axrooawblvsspndfmvan.supabase.co/storage/v1/object/public/user-images/path/to/image.png
+    // We need: path/to/image.png
+    const relativePath = imageData.storage_path.split('/user-images/')[1];
+    
+    if (!relativePath) {
+      console.error('Invalid storage path format');
+      toast.error('Invalid file path');
       return;
     }
 
     // 2. Delete from storage bucket
     const { error: storageError } = await supabase.storage
       .from('user-images')
-      .remove([imageData.storage_path]);
+      .remove([relativePath]);
 
     if (storageError) {
       console.error('Error deleting from storage:', storageError);
