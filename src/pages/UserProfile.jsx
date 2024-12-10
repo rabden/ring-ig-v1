@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
 import { toast } from "sonner";
 import { Button } from '@/components/ui/button';
-import { LogOut } from 'lucide-react';
+import { ArrowLeft, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
