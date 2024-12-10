@@ -21,12 +21,12 @@ const NotificationBell = () => {
       variant="ghost" 
       size="icon" 
       className={cn(
-        "h-7 w-7 p-0 relative md:flex",
+        "h-8 w-8 p-0 relative md:flex",
         unreadCount > 0 && "after:content-[''] after:absolute after:top-1 after:right-1 after:w-2 after:h-2 after:bg-red-500 after:rounded-full after:ring-2 after:ring-background"
       )}
       onClick={handleClick}
     >
-      <Bell className="h-4 w-4" />
+      <Bell className="h-6 w-6" />
     </Button>
   ) : (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -35,11 +35,11 @@ const NotificationBell = () => {
           variant="ghost" 
           size="icon" 
           className={cn(
-            "h-7 w-7 p-0 relative md:flex",
+            "h-8 w-8 p-0 relative md:flex",
             unreadCount > 0 && "after:content-[''] after:absolute after:top-1 after:right-1 after:w-2 after:h-2 after:bg-red-500 after:rounded-full after:ring-2 after:ring-background"
           )}
         >
-          <Bell className="h-4 w-4" />
+          <Bell className="h-6 w-6" />
         </Button>
       </SheetTrigger>
       <SheetContent 
