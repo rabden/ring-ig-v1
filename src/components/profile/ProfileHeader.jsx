@@ -15,7 +15,7 @@ const ProfileHeader = ({
   onAvatarUpload
 }) => {
   return (
-    <div className="flex flex-col items-center space-y-0 sm:space-y-3">
+    <div className="flex flex-col items-center space-y-2 sm:space-y-3">
       <div className="relative cursor-pointer" onClick={onAvatarEdit}>
         <ProfileAvatar 
           user={user} 

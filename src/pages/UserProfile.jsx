@@ -125,8 +125,8 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/95 px-2 sm:px-0">
-      <div className="container mx-auto py-2 sm:py-4 space-y-4 sm:space-y-6 animate-fade-in">
+    <div className="min-h-screen bg-gradient-to-b from-background to-background/95 px-2 sm:px-4">
+      <div className="container mx-auto py-2 sm:py-4 space-y-0 sm:space-y-6 animate-fade-in">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-4">
