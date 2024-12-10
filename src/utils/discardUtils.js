@@ -36,10 +36,20 @@ export const handleImageDiscard = async (image, queryClient) => {
       return;
     }
 
+    console.log('Full storage path:', imageData.storage_path);
+
     // Extract the relative path from the full URL
-    // Example URL: https://axrooawblvsspndfmvan.supabase.co/storage/v1/object/public/user-images/path/to/image.png
-    // We need: path/to/image.png
-    const relativePath = imageData.storage_path.split('/user-images/')[1];
+    // The storage_path might be in one of these formats:
+    // 1. Full URL: https://axrooawblvsspndfmvan.supabase.co/storage/v1/object/public/user-images/uuid/filename.png
+    // 2. Relative: user-images/uuid/filename.png
+    // 3. Just the path: uuid/filename.png
+    let relativePath = imageData.storage_path;
+    
+    if (relativePath.includes('user-images/')) {
+      relativePath = relativePath.split('user-images/')[1];
+    }
+
+    console.log('Extracted relative path:', relativePath);
     
     if (!relativePath) {
       console.error('Invalid storage path format');
