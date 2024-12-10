@@ -125,17 +125,17 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/95 px-1 sm:px-4">
-      <div className="container mx-auto py-0 sm:py-4 space-y-2 sm:space-y-4 animate-fade-in">
+    <div className="min-h-screen bg-gradient-to-b from-background to-background/95 px-4">
+      <div className="container mx-auto py-4 space-y-6 animate-fade-in">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-4">
             <Link to="/">
               <Button variant="ghost" size="icon" className="hover:bg-background/80">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             </Link>
-            <h1 className="text-xl font-bold">Profile Settings</h1>
+            <h1 className="text-2xl font-bold">Profile Settings</h1>
           </div>
           <Button 
             variant="ghost" 
@@ -150,29 +150,26 @@ const UserProfile = () => {
           </Button>
         </div>
 
-        {isStatsLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        {/* Profile and Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="sm:col-span-2">
+            <ProfileHeaderSection
+              user={session.user}
+              isPro={isPro}
+              displayName={displayName}
+              isEditing={isEditing}
+              setIsEditing={setIsEditing}
+              setDisplayName={setTempDisplayName}
+              onUpdate={handleDisplayNameUpdate}
+              onAvatarEdit={() => setShowFullImage(true)}
+              onAvatarUpload={onAvatarUpload}
+            />
           </div>
-        ) : (
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 sm:gap-8">
-              <ProfileHeaderSection
-                user={session.user}
-                isPro={isPro}
-                displayName={displayName}
-                isEditing={isEditing}
-                setIsEditing={setIsEditing}
-                setDisplayName={setTempDisplayName}
-                onUpdate={handleDisplayNameUpdate}
-                onAvatarEdit={() => setShowFullImage(true)}
-                onAvatarUpload={onAvatarUpload}
-              />
-              <StatsSection userStats={userStats} />
-            </div>
-            <CreditsSection userStats={userStats} />
-          </div>
-        )}
+          <StatsSection userStats={userStats} />
+        </div>
+
+        {/* Credits Section */}
+        <CreditsSection userStats={userStats} />
 
         {/* Full Image Dialog */}
         <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
