@@ -11,7 +11,8 @@ import { format, isToday, isYesterday, isThisWeek, isThisMonth, parseISO, subWee
 const getBreakpointColumns = () => ({
   default: 4,
   1600: 4,
-  1200: 4,
+  1000: 4,
+  900: 3,
   700: 3,
   500: 2
 });
