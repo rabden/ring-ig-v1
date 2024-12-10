@@ -1,20 +1,12 @@
 import React, { useRef, useCallback } from 'react';
-import Masonry from 'react-masonry-css';
 import SkeletonImageCard from './SkeletonImageCard';
-import ImageCard from './ImageCard';
 import { useLikes } from '@/hooks/useLikes';
 import NoResults from './NoResults';
 import { useGalleryImages } from '@/hooks/useGalleryImages';
 import { cn } from '@/lib/utils';
 import { format, isToday, isYesterday, isThisWeek, isThisMonth, parseISO, subWeeks, isAfter } from 'date-fns';
-
-const getBreakpointColumns = () => ({
-  default: 5,
-  1600: 5,
-  1200: 4,
-  700: 2,
-  500: 2
-});
+import DateHeader from './gallery/DateHeader';
+import MasonryGrid from './gallery/MasonryGrid';
 
 const groupImagesByDate = (images) => {
   const groups = {
@@ -53,13 +45,6 @@ const groupImagesByDate = (images) => {
   return groups;
 };
 
-const DateHeader = ({ children }) => (
-  <div className="flex items-center gap-3 px-2 mb-6">
-    <h2 className="text-sm font-medium text-muted-foreground">{children}</h2>
-    <div className="h-px flex-grow bg-border/30" />
-  </div>
-);
-
 const ImageGallery = ({ 
   userId, 
   onImageClick, 
@@ -84,7 +69,6 @@ const ImageGallery = ({
 }) => {
   const { userLikes, toggleLike } = useLikes(userId);
   const isMobile = window.innerWidth <= 768;
-  const breakpointColumnsObj = getBreakpointColumns();
   
   const { 
     images, 
@@ -107,15 +91,12 @@ const ImageGallery = ({
   const observer = useRef();
   const lastImageRef = useCallback(node => {
     if (isLoading || isFetchingNextPage) return;
-    
     if (observer.current) observer.current.disconnect();
-    
     observer.current = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting && hasNextPage) {
         fetchNextPage();
       }
     });
-    
     if (node) observer.current.observe(node);
   }, [isLoading, isFetchingNextPage, hasNextPage, fetchNextPage]);
 
@@ -128,15 +109,11 @@ const ImageGallery = ({
   if (isLoading && !images.length) {
     return (
       <div className={cn("w-full h-full md:px-0 md:pt-0 pt-12", className)}>
-        <Masonry
-          breakpointCols={breakpointColumnsObj}
-          className="flex w-auto md:px-2 -mx-1 md:mx-0"
-          columnClassName="bg-clip-padding px-1 md:px-2"
-        >
-          {Array.from({ length: 8 }).map((_, index) => (
-            <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
-          ))}
-        </Masonry>
+        <MasonryGrid
+          images={Array(8).fill({})}
+          activeView={activeView}
+          renderItem={() => <SkeletonImageCard width={512} height={512} />}
+        />
       </div>
     );
   }
@@ -145,7 +122,6 @@ const ImageGallery = ({
     return <NoResults />;
   }
 
-  // Filter images based on privacy setting
   const filteredImages = images.filter(img => {
     if (activeView === 'myImages') {
       return showPrivate ? img.is_private : !img.is_private;
@@ -153,7 +129,6 @@ const ImageGallery = ({
     return !img.is_private;
   });
 
-  // Use date grouping for My Images view
   if (activeView === 'myImages' && !profileUserId) {
     const groupedImages = groupImagesByDate(filteredImages);
     const nonEmptyGroups = Object.entries(groupedImages)
@@ -172,36 +147,24 @@ const ImageGallery = ({
               {groupName === 'lastMonth' && 'Last Month'}
               {groupName === 'earlier' && 'Earlier'}
             </DateHeader>
-            <Masonry
-              breakpointCols={breakpointColumnsObj}
-              className="flex w-auto md:px-2 -mx-1 md:mx-0"
-              columnClassName="bg-clip-padding px-1 md:px-2 space-y-6"
-            >
-              {groupImages.map((image, index) => (
-                <div
-                  key={image.id}
-                  ref={groupIndex === nonEmptyGroups.length - 1 && index === groupImages.length - 1 ? lastImageRef : null}
-                  className="mb-6"
-                >
-                  <ImageCard
-                    image={image}
-                    onImageClick={() => onImageClick(image)}
-                    onDownload={onDownload}
-                    onDiscard={onDiscard}
-                    onRemix={onRemix}
-                    onViewDetails={onViewDetails}
-                    onMoreClick={handleMobileMoreClick}
-                    userId={userId}
-                    isMobile={isMobile}
-                    isLiked={userLikes.includes(image.id)}
-                    onToggleLike={toggleLike}
-                    setActiveTab={setActiveTab}
-                    setStyle={setStyle}
-                    style={style}
-                  />
-                </div>
-              ))}
-            </Masonry>
+            <MasonryGrid
+              images={groupImages}
+              lastImageRef={groupIndex === nonEmptyGroups.length - 1 ? lastImageRef : null}
+              onImageClick={onImageClick}
+              onDownload={onDownload}
+              onDiscard={onDiscard}
+              onRemix={onRemix}
+              onViewDetails={onViewDetails}
+              handleMobileMoreClick={handleMobileMoreClick}
+              userId={userId}
+              isMobile={isMobile}
+              userLikes={userLikes}
+              toggleLike={toggleLike}
+              setActiveTab={setActiveTab}
+              setStyle={setStyle}
+              style={style}
+              activeView={activeView}
+            />
           </div>
         ))}
         {isFetchingNextPage && (
@@ -213,38 +176,26 @@ const ImageGallery = ({
     );
   }
 
-  // Regular masonry grid for other views
   return (
     <div className={cn("w-full h-full md:px-0 md:pt-0 pt-12", className)}>
-      <Masonry
-        breakpointCols={breakpointColumnsObj}
-        className="flex w-auto md:px-2 -mx-1 md:mx-0"
-        columnClassName="bg-clip-padding px-1 md:px-2"
-      >
-        {filteredImages.map((image, index) => (
-          <div
-            key={image.id}
-            ref={index === filteredImages.length - 1 ? lastImageRef : null}
-          >
-            <ImageCard
-              image={image}
-              onImageClick={() => onImageClick(image)}
-              onDownload={onDownload}
-              onDiscard={onDiscard}
-              onRemix={onRemix}
-              onViewDetails={onViewDetails}
-              onMoreClick={handleMobileMoreClick}
-              userId={userId}
-              isMobile={isMobile}
-              isLiked={userLikes.includes(image.id)}
-              onToggleLike={toggleLike}
-              setActiveTab={setActiveTab}
-              setStyle={setStyle}
-              style={style}
-            />
-          </div>
-        ))}
-      </Masonry>
+      <MasonryGrid
+        images={filteredImages}
+        lastImageRef={lastImageRef}
+        onImageClick={onImageClick}
+        onDownload={onDownload}
+        onDiscard={onDiscard}
+        onRemix={onRemix}
+        onViewDetails={onViewDetails}
+        handleMobileMoreClick={handleMobileMoreClick}
+        userId={userId}
+        isMobile={isMobile}
+        userLikes={userLikes}
+        toggleLike={toggleLike}
+        setActiveTab={setActiveTab}
+        setStyle={setStyle}
+        style={style}
+        activeView={activeView}
+      />
       {isFetchingNextPage && (
         <div className="flex justify-center my-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
