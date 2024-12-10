@@ -14,6 +14,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import CreditCounter from "@/components/ui/credit-counter";
+import ProfileStats from "@/components/profile/ProfileStats";
 
 const UserProfile = () => {
   const { session, loading, logout } = useSupabaseAuth();
@@ -189,7 +190,7 @@ const UserProfile = () => {
                     <h2 className="text-xl font-semibold">Account</h2>
                     {isPro && (
                       <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                        Pro Trial
+                        Pro
                       </span>
                     )}
                   </div>
@@ -199,14 +200,11 @@ const UserProfile = () => {
                     credits={userStats?.credits || 0} 
                     bonusCredits={userStats?.bonusCredits || 0}
                   />
-                  <div className="flex gap-2">
+                  {!isPro && (
                     <Button className="w-full" variant="default">
                       Upgrade to Pro
                     </Button>
-                    <Button className="w-full" variant="outline">
-                      Upgrade to Business
-                    </Button>
-                  </div>
+                  )}
                   <Button 
                     variant="ghost" 
                     onClick={() => {
@@ -224,28 +222,17 @@ const UserProfile = () => {
 
             {/* Right Column */}
             <div className="space-y-6">
-              {/* Usage Card */}
+              {/* Stats Card */}
               <div className="rounded-xl border border-border/40 bg-card text-card-foreground">
                 <div className="p-6">
-                  <h2 className="text-xl font-semibold">Usage</h2>
+                  <h2 className="text-xl font-semibold">Stats</h2>
                 </div>
-                <div className="p-6 pt-0 space-y-6">
-                  <div className="space-y-4">
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">Premium models</div>
-                      <div className="text-lg font-medium">0 / 500</div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        You've used no requests out of your 500 fast requests quota.
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">gpt-4o-mini or cursor-small</div>
-                      <div className="text-lg font-medium">0 / No Limit</div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        You've used 0 fast requests of this model. You have no monthly quota.
-                      </div>
-                    </div>
-                  </div>
+                <div className="p-6 pt-0">
+                  <ProfileStats 
+                    followersCount={userStats?.followers || 0}
+                    followingCount={userStats?.following || 0}
+                    totalLikes={userStats?.likes || 0}
+                  />
                 </div>
               </div>
             </div>
