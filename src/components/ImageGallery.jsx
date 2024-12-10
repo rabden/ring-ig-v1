@@ -9,10 +9,10 @@ import { cn } from '@/lib/utils';
 import { format, isToday, isYesterday, isThisWeek, isThisMonth, parseISO, subWeeks, isAfter } from 'date-fns';
 
 const getBreakpointColumns = () => ({
-  default: 5,
-  1600: 5,
+  default: 4,
+  1600: 4,
   1200: 4,
-  700: 2,
+  700: 3,
   500: 2
 });
 
