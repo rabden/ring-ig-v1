@@ -13,15 +13,17 @@ const ProfileHeader = ({
   onAvatarEdit 
 }) => {
   return (
-    <div className="flex flex-col items-center space-y-3">
-      <ProfileAvatar 
-        user={user} 
-        isPro={isPro} 
-        size="lg" 
-        onEditClick={onAvatarEdit}
-        showEditOnHover={true}
-      />
-      <div className="text-center space-y-1">
+    <div className="flex flex-col items-center space-y-2 sm:space-y-3">
+      <div className="relative">
+        <ProfileAvatar 
+          user={user} 
+          isPro={isPro} 
+          size="lg" 
+          onEditClick={onAvatarEdit}
+          showEditOnHover={true}
+        />
+      </div>
+      <div className="text-center space-y-1 w-full px-2 sm:px-4">
         <DisplayNameEditor
           isEditing={isEditing}
           displayName={displayName}

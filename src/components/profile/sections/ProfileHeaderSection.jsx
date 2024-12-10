@@ -14,7 +14,7 @@ const ProfileHeaderSection = ({
 }) => {
   return (
     <Card className="w-full bg-gradient-to-br from-background/95 to-background/98 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <CardContent className="p-6">
+      <CardContent className="p-3 sm:p-6">
         <ProfileHeader
           user={user}
           isPro={isPro}

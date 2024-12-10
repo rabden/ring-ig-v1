@@ -125,11 +125,11 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/95 p-4">
-      <div className="container max-w-2xl py-4 space-y-6 animate-fade-in">
+    <div className="min-h-screen bg-gradient-to-b from-background to-background/95 px-2 sm:px-4">
+      <div className="container max-w-2xl py-2 sm:py-4 space-y-4 sm:space-y-6 animate-fade-in">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Link to="/">
               <Button variant="ghost" size="icon" className="hover:bg-background/80">
                 <ArrowLeft className="h-4 w-4" />
@@ -174,9 +174,11 @@ const UserProfile = () => {
         )}
 
         {/* Floating Upload Icon */}
-        <label className="absolute right-4 bottom-4 cursor-pointer">
+        <label className="fixed bottom-4 right-4 sm:absolute sm:bottom-auto sm:right-auto sm:top-[6.5rem] sm:left-[60%] cursor-pointer z-10">
           <input type="file" accept="image/*" onChange={onAvatarUpload} className="hidden" />
-          <Upload className="w-10 h-10 text-primary bg-white rounded-full shadow-md p-2 hover:bg-gray-200 transition" />
+          <div className="flex items-center justify-center w-10 h-10 text-primary bg-white rounded-full shadow-lg hover:bg-gray-100 transition-all transform hover:scale-105">
+            <Upload className="w-5 h-5" />
+          </div>
         </label>
 
         {/* Full Image Dialog */}
