@@ -5,13 +5,14 @@ import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
 import { toast } from "sonner";
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, LogOut } from 'lucide-react';
+import { ArrowLeft, LogOut, Upload } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import ProfileHeaderSection from '@/components/profile/sections/ProfileHeaderSection';
 import CreditsSection from '@/components/profile/sections/CreditsSection';
 import StatsSection from '@/components/profile/sections/StatsSection';
+import { handleAvatarUpload } from '@/utils/profileUtils';
 
 const UserProfile = () => {
   const { session, loading, logout } = useSupabaseAuth();
@@ -104,6 +105,16 @@ const UserProfile = () => {
     }
   };
 
+  const onAvatarUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const newAvatarUrl = await handleAvatarUpload(file, session.user.id);
+      if (newAvatarUrl) {
+        toast.success("Profile picture updated successfully");
+      }
+    }
+  };
+
   if (loading) {
     return <LoadingScreen />;
   }
@@ -114,8 +125,8 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/95">
-      <div className="container max-w-2xl py-8 space-y-6 animate-fade-in">
+    <div className="min-h-screen bg-gradient-to-b from-background to-background/95 p-4">
+      <div className="container max-w-2xl py-4 space-y-6 animate-fade-in">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -161,6 +172,12 @@ const UserProfile = () => {
             <StatsSection userStats={userStats} />
           </div>
         )}
+
+        {/* Floating Upload Icon */}
+        <label className="absolute right-4 bottom-4 cursor-pointer">
+          <input type="file" accept="image/*" onChange={onAvatarUpload} className="hidden" />
+          <Upload className="w-10 h-10 text-primary bg-white rounded-full shadow-md p-2 hover:bg-gray-200 transition" />
+        </label>
 
         {/* Full Image Dialog */}
         <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
