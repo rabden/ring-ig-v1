@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
 import { toast } from "sonner";
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -115,16 +115,16 @@ const UserProfile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/95">
-      <div className="container max-w-2xl py-8 space-y-6 animate-fade-in">
+      <div className="container max-w-2xl px-4 py-4 md:py-8 space-y-4 md:space-y-6 animate-fade-in">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <Link to="/">
               <Button variant="ghost" size="icon" className="hover:bg-background/80">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             </Link>
-            <h1 className="text-2xl font-bold">Profile Settings</h1>
+            <h1 className="text-xl md:text-2xl font-bold">Profile Settings</h1>
           </div>
           <Button 
             variant="ghost" 
@@ -144,7 +144,7 @@ const UserProfile = () => {
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             <ProfileHeaderSection
               user={session.user}
               isPro={isPro}
@@ -166,14 +166,6 @@ const UserProfile = () => {
         <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
           <DialogContent className="max-w-screen-lg p-0">
             <div className="relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-2 top-2 z-10"
-                onClick={() => setShowFullImage(false)}
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
               <img
                 src={session.user.user_metadata?.avatar_url}
                 alt={session.user.email}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const ProfileAvatar = ({ 
   user, 
@@ -30,12 +31,21 @@ const ProfileAvatar = ({
         </Avatar>
       </div>
       {showEditOnHover && onEditClick && (
-        <button 
-          onClick={onEditClick}
-          className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-        >
-          <Camera className={`${cameraSizeClasses[size]} text-white`} />
-        </button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button 
+                onClick={onEditClick}
+                className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <Camera className={`${cameraSizeClasses[size]} text-white`} />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Change profile picture</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       )}
     </div>
   );

@@ -1,24 +1,23 @@
-import { Progress } from '@/components/ui/progress';
+import React from 'react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-const CreditCounter = ({ credits, bonusCredits, className }) => {
-  const MAX_CREDITS = 50;
-  const creditsProgress = (credits / MAX_CREDITS) * 100;
+const CreditCounter = ({ credits = 0, bonusCredits = 0, maxCredits = 50 }) => {
+  const tooltipText = `You have ${credits} daily credits out of ${maxCredits}${bonusCredits > 0 ? ` and ${bonusCredits} bonus credits` : ''}`;
 
   return (
-    <div className={`space-y-2 min-w-[200px] ${className}`}>
-      <div className="flex justify-between text-sm">
-        <span className="text-muted-foreground">Credits</span>
-        <span className="font-medium">
-          {credits}
-          <span className="text-muted-foreground font-normal"> / {MAX_CREDITS}</span>
-          {bonusCredits > 0 && (
-            <span className="text-green-500 ml-1">+{bonusCredits}</span>
-          )}
-        </span>
-      </div>
-      <Progress value={creditsProgress} className="h-2 bg-secondary" />
-    </div>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="font-medium">
+            {credits + bonusCredits}
+          </span>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{tooltipText}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
 
-export default CreditCounter; 
+export default CreditCounter;
