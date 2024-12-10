@@ -30,7 +30,7 @@ const ProfileAvatar = ({
         </Avatar>
       </div>
       {showEditOnHover && onEditClick && (
-        <button
+        <button 
           onClick={onEditClick}
           className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
         >

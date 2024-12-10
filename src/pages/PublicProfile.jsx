@@ -13,7 +13,6 @@ import { format, isValid, parseISO } from 'date-fns';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { Separator } from '@/components/ui/separator';
 import FullScreenImageView from '@/components/FullScreenImageView';
-import { useProUser } from '@/hooks/useProUser';
 
 const PublicProfile = () => {
   const { userId } = useParams();
@@ -21,7 +20,6 @@ const PublicProfile = () => {
   const { session } = useSupabaseAuth();
   const currentUserId = session?.user?.id;
   const [selectedImage, setSelectedImage] = useState(null);
-  const { data: isPro } = useProUser(userId);
 
   const { data: profile, isLoading: isProfileLoading } = useQuery({
     queryKey: ['profile', userId],
@@ -95,7 +93,6 @@ const PublicProfile = () => {
             <ProfileAvatar 
               user={{ user_metadata: { avatar_url: profile.avatar_url } }} 
               size="lg" 
-              isPro={isPro}
             />
           </div>
           
