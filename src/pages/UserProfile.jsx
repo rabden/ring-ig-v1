@@ -1,26 +1,21 @@
 import React, { useState } from 'react';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
 import { toast } from "sonner";
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { handleAvatarUpload } from '@/utils/profileUtils';
-import ProfileAvatar from '@/components/profile/ProfileAvatar';
-import { ArrowLeft, Camera, LogOut, Upload, X } from 'lucide-react';
+import { ArrowLeft, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Progress } from '@/components/ui/progress';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import ProfileHeaderSection from '@/components/profile/sections/ProfileHeaderSection';
+import CreditsSection from '@/components/profile/sections/CreditsSection';
+import StatsSection from '@/components/profile/sections/StatsSection';
 
 const UserProfile = () => {
   const { session, loading, logout } = useSupabaseAuth();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [tempDisplayName, setTempDisplayName] = useState('');
@@ -103,26 +98,9 @@ const UserProfile = () => {
       setDisplayName(tempDisplayName);
       toast.success("Display name updated successfully");
       setIsEditing(false);
-      queryClient.invalidateQueries(['user']);
     } catch (error) {
       toast.error("Failed to update display name");
       console.error('Error updating display name:', error);
-    }
-  };
-
-  const handleImageUpload = async (event) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      try {
-        const newAvatarUrl = await handleAvatarUpload(file, session.user.id);
-        if (newAvatarUrl) {
-          queryClient.invalidateQueries(['user']);
-          toast.success("Profile picture updated successfully");
-        }
-      } catch (error) {
-        console.error('Error uploading image:', error);
-        toast.error("Failed to update profile picture");
-      }
     }
   };
 
@@ -135,184 +113,78 @@ const UserProfile = () => {
     return null;
   }
 
-  const MAX_CREDITS = 50;
-  const creditsProgress = ((userStats?.credits || 0) / MAX_CREDITS) * 100;
-
   return (
-    <div className="container max-w-2xl py-8 space-y-8">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link to="/">
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
-        <h1 className="text-2xl font-bold">Profile Settings</h1>
-      </div>
-
-      {/* Profile Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Profile Information</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {isStatsLoading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            </div>
-          ) : (
-            <>
-              {/* Avatar Section */}
-              <div className="flex flex-col items-center gap-6">
-                <div className="relative">
-                  <div 
-                    onClick={() => setShowFullImage(true)}
-                    className="cursor-pointer hover:opacity-90 transition-opacity relative group"
-                  >
-                    <ProfileAvatar 
-                      user={session.user} 
-                      isPro={isPro} 
-                      size="xl" 
-                      className="w-40 h-40"
-                    />
-                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Camera className="w-8 h-8 text-white" />
-                    </div>
-                  </div>
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    className="absolute bottom-2 right-2 rounded-full h-8 w-8"
-                    onClick={() => document.getElementById('avatar-input').click()}
-                  >
-                    <Upload className="h-4 w-4" />
-                  </Button>
-                  <input
-                    id="avatar-input"
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageUpload}
-                  />
-                </div>
-                <div className="text-center w-full max-w-sm">
-                  <div className="flex items-center justify-center gap-2">
-                    {isEditing ? (
-                      <div className="flex gap-2">
-                        <Input
-                          value={tempDisplayName}
-                          onChange={(e) => setTempDisplayName(e.target.value)}
-                          className="text-xl font-medium text-center max-w-[200px]"
-                          placeholder="Enter display name"
-                        />
-                        <Button onClick={handleDisplayNameUpdate}>Save</Button>
-                        <Button 
-                          variant="ghost" 
-                          onClick={() => {
-                            setTempDisplayName(displayName);
-                            setIsEditing(false);
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <span className="text-xl font-medium">{displayName}</span>
-                        <Button 
-                          variant="ghost" 
-                          size="sm" 
-                          onClick={() => setIsEditing(true)}
-                        >
-                          Edit
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-muted-foreground mt-1">{session.user.email}</p>
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Credits Section */}
-              <div className="space-y-2">
-                <Label>Credits</Label>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Available Credits</span>
-                  <span>
-                    {userStats?.credits || 0} 
-                    <span className="text-muted-foreground"> / {MAX_CREDITS}</span>
-                    {userStats?.bonusCredits > 0 && (
-                      <span className="text-green-500 ml-1">+{userStats.bonusCredits}</span>
-                    )}
-                  </span>
-                </div>
-                <Progress value={creditsProgress} className="h-2" />
-              </div>
-
-              <Separator />
-
-              {/* Stats Grid */}
-              <div className="grid grid-cols-3 gap-4 py-2">
-                <div className="text-center">
-                  <span className="text-2xl font-semibold block">{userStats?.followers || 0}</span>
-                  <span className="text-muted-foreground text-sm">Followers</span>
-                </div>
-                <div className="text-center">
-                  <span className="text-2xl font-semibold block">{userStats?.following || 0}</span>
-                  <span className="text-muted-foreground text-sm">Following</span>
-                </div>
-                <div className="text-center">
-                  <span className="text-2xl font-semibold block">{userStats?.likes || 0}</span>
-                  <span className="text-muted-foreground text-sm">Likes</span>
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Sign Out Button */}
-              <div className="flex justify-end">
-                <Button 
-                  variant="ghost" 
-                  onClick={() => {
-                    logout();
-                    navigate('/');
-                  }}
-                  className="text-destructive hover:bg-destructive/10"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign out
-                </Button>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Full Image Dialog */}
-      <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
-        <DialogContent className="max-w-screen-lg p-0">
-          <div className="relative aspect-square">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-2 z-10"
-              onClick={() => setShowFullImage(false)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-            <ProfileAvatar 
-              user={session.user} 
-              isPro={isPro} 
-              size="xl" 
-              className="w-full h-full"
-            />
+    <div className="min-h-screen bg-gradient-to-b from-background to-background/95">
+      <div className="container max-w-2xl py-8 space-y-6 animate-fade-in">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Link to="/">
+              <Button variant="ghost" size="icon" className="hover:bg-background/80">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </Link>
+            <h1 className="text-2xl font-bold">Profile Settings</h1>
           </div>
-        </DialogContent>
-      </Dialog>
+          <Button 
+            variant="ghost" 
+            onClick={() => {
+              logout();
+              navigate('/');
+            }}
+            className="text-destructive hover:bg-destructive/10"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign out
+          </Button>
+        </div>
+
+        {isStatsLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <ProfileHeaderSection
+              user={session.user}
+              isPro={isPro}
+              displayName={displayName}
+              isEditing={isEditing}
+              setIsEditing={setIsEditing}
+              setDisplayName={setTempDisplayName}
+              onUpdate={handleDisplayNameUpdate}
+              onAvatarEdit={() => setShowFullImage(true)}
+            />
+            
+            <CreditsSection userStats={userStats} />
+            
+            <StatsSection userStats={userStats} />
+          </div>
+        )}
+
+        {/* Full Image Dialog */}
+        <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
+          <DialogContent className="max-w-screen-lg p-0">
+            <div className="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-2 z-10"
+                onClick={() => setShowFullImage(false)}
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <img
+                src={session.user.user_metadata?.avatar_url}
+                alt={session.user.email}
+                className="w-full h-auto rounded-lg"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 };
 
-export default UserProfile; 
+export default UserProfile;
