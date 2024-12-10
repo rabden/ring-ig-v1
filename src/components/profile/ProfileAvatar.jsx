@@ -23,8 +23,8 @@ const ProfileAvatar = ({
 
   return (
     <div className="relative group">
-      <div className={`rounded-full ${isPro ? 'p-[3px] bg-gradient-to-r from-yellow-300 via-yellow-500 to-amber-500' : ''}`}>
-        <Avatar className={`${sizeClasses[size]} ${isPro ? 'border-2 border-background rounded-full' : ''}`}>
+      <div className={`rounded-full ${isPro ? 'p-[3.5px] bg-gradient-to-tr from-yellow-200 via-yellow-400 to-amber-500 ring-2 ring-yellow-500/50' : ''}`}>
+        <Avatar className={`${sizeClasses[size]} ${isPro ? 'border-2 border-black rounded-full' : ''}`}>
           <AvatarImage src={user.user_metadata?.avatar_url} alt={user.email} />
           <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
         </Avatar>
