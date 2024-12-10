@@ -135,7 +135,7 @@ const UserProfile = () => {
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             </Link>
-            <h1 className="text-2xl font-bold">Profile Settings</h1>
+            <h1 className="text-xl font-bold">Profile Settings</h1>
           </div>
           <Button 
             variant="ghost" 
@@ -176,12 +176,12 @@ const UserProfile = () => {
 
         {/* Full Image Dialog */}
         <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
-          <DialogContent className="max-w-screen-lg p-0">
-            <div className="relative">
+          <DialogContent className="p-0 max-h-[90vh] overflow-hidden">
+            <div className="relative w-full h-full flex items-center justify-center">
               <img
                 src={session.user.user_metadata?.avatar_url}
                 alt={session.user.email}
-                className="w-full h-auto rounded-lg"
+                className="w-full h-full object-contain"
               />
             </div>
           </DialogContent>
