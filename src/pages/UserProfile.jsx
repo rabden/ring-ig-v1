@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
 import { toast } from "sonner";
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -166,14 +166,6 @@ const UserProfile = () => {
         <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
           <DialogContent className="max-w-screen-lg p-0">
             <div className="relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-2 top-2 z-10"
-                onClick={() => setShowFullImage(false)}
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
               <img
                 src={session.user.user_metadata?.avatar_url}
                 alt={session.user.email}
