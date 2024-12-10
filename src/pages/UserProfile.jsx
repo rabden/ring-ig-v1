@@ -5,14 +5,14 @@ import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
 import { toast } from "sonner";
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, LogOut } from 'lucide-react';
+import { ArrowLeft, LogOut, Pencil, Camera } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import LoadingScreen from '@/components/LoadingScreen';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import ProfileHeaderSection from '@/components/profile/sections/ProfileHeaderSection';
-import CreditsSection from '@/components/profile/sections/CreditsSection';
-import StatsSection from '@/components/profile/sections/StatsSection';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { handleAvatarUpload } from '@/utils/profileUtils';
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 
 const UserProfile = () => {
   const { session, loading, logout } = useSupabaseAuth();
@@ -125,29 +125,14 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/95 px-1 sm:px-4">
-      <div className="container mx-auto py-0 sm:py-4 space-y-2 sm:space-y-4 animate-fade-in">
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="container max-w-3xl mx-auto py-8 px-4 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 sm:gap-4">
-            <Link to="/">
-              <Button variant="ghost" size="icon" className="hover:bg-background/80">
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            </Link>
-            <h1 className="text-xl font-bold">Profile Settings</h1>
-          </div>
-          <Button 
-            variant="ghost" 
-            onClick={() => {
-              logout();
-              navigate('/');
-            }}
-            className="text-destructive hover:bg-destructive/10"
-          >
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign out
-          </Button>
+        <div className="space-y-1">
+          <h1 className="text-4xl font-medium tracking-tight">Settings</h1>
+          <p className="text-muted-foreground">
+            You can manage your account, billing, and team settings here.
+          </p>
         </div>
 
         {isStatsLoading ? (
@@ -156,33 +141,164 @@ const UserProfile = () => {
           </div>
         ) : (
           <div className="space-y-6">
-            <ProfileHeaderSection
-              user={session.user}
-              isPro={isPro}
-              displayName={displayName}
-              isEditing={isEditing}
-              setIsEditing={setIsEditing}
-              setDisplayName={setTempDisplayName}
-              onUpdate={handleDisplayNameUpdate}
-              onAvatarEdit={() => setShowFullImage(true)}
-              onAvatarUpload={onAvatarUpload}
-            />
-            
-            <CreditsSection userStats={userStats} />
-            
-            <StatsSection userStats={userStats} />
+            {/* Basic Information Card */}
+            <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+              <div className="flex items-center justify-between p-6">
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-semibold tracking-tight">Basic Information</h2>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsEditing(true)}
+                >
+                  <Pencil className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="p-6 pt-0 space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="relative group">
+                    <Avatar className="h-16 w-16">
+                      <AvatarImage
+                        src={session.user.user_metadata?.avatar_url}
+                        alt={displayName}
+                      />
+                      <AvatarFallback>{displayName[0]?.toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="font-medium">Name</div>
+                    <div className="text-muted-foreground">{displayName}</div>
+                  </div>
+                </div>
+                <div>
+                  <div className="font-medium">Email</div>
+                  <div className="text-muted-foreground">{session.user.email}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats Card */}
+            <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+              <div className="p-6">
+                <h2 className="text-2xl font-semibold tracking-tight">Stats</h2>
+              </div>
+              <div className="p-6 pt-0 grid gap-4">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <div className="text-muted-foreground">Followers</div>
+                    <div>{userStats?.followers.toLocaleString()}</div>
+                  </div>
+                  <Progress value={userStats?.followers / 10} />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <div className="text-muted-foreground">Following</div>
+                    <div>{userStats?.following.toLocaleString()}</div>
+                  </div>
+                  <Progress value={userStats?.following / 10} />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <div className="text-muted-foreground">Likes</div>
+                    <div>{userStats?.likes.toLocaleString()}</div>
+                  </div>
+                  <Progress value={userStats?.likes / 10} />
+                </div>
+              </div>
+            </div>
+
+            {/* Credits Card */}
+            <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+              <div className="p-6">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-2xl font-semibold tracking-tight">Credits</h2>
+                  {isPro && (
+                    <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                      Pro Trial
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="p-6 pt-0 space-y-6">
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <div className="text-muted-foreground">Standard Credits</div>
+                      <div>{userStats?.credits.toLocaleString()}</div>
+                    </div>
+                    <Progress value={(userStats?.credits / 500) * 100} />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <div className="text-muted-foreground">Bonus Credits</div>
+                      <div>{userStats?.bonusCredits.toLocaleString()}</div>
+                    </div>
+                    <Progress value={(userStats?.bonusCredits / 500) * 100} />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button className="w-full" variant="default">
+                    Upgrade to Pro
+                  </Button>
+                  <Button className="w-full" variant="outline">
+                    Upgrade to Business
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Advanced Section */}
+            <div className="pt-4">
+              <Button variant="ghost" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                Delete Account
+              </Button>
+            </div>
           </div>
         )}
 
-        {/* Full Image Dialog */}
-        <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
-          <DialogContent className="p-0 max-h-[90vh] overflow-hidden">
-            <div className="relative w-full h-full flex items-center justify-center">
-              <img
-                src={session.user.user_metadata?.avatar_url}
-                alt={session.user.email}
-                className="w-full h-full object-contain"
-              />
+        {/* Edit Dialog */}
+        <Dialog open={isEditing} onOpenChange={setIsEditing}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Profile</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="flex items-center gap-4">
+                <div className="relative group">
+                  <Avatar className="h-16 w-16">
+                    <AvatarImage
+                      src={session.user.user_metadata?.avatar_url}
+                      alt={displayName}
+                    />
+                    <AvatarFallback>{displayName[0]?.toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-full cursor-pointer">
+                    <Camera className="w-6 h-6 text-white" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={onAvatarUpload}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+                <div className="flex-1">
+                  <Input
+                    value={tempDisplayName}
+                    onChange={(e) => setTempDisplayName(e.target.value)}
+                    placeholder="Display Name"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="ghost" onClick={() => setIsEditing(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleDisplayNameUpdate}>
+                  Save Changes
+                </Button>
+              </div>
             </div>
           </DialogContent>
         </Dialog>
