@@ -26,7 +26,7 @@ const PublicProfile = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('*, is_pro')
         .eq('id', userId)
         .single();
       
@@ -93,6 +93,7 @@ const PublicProfile = () => {
             <ProfileAvatar 
               user={{ user_metadata: { avatar_url: profile.avatar_url } }} 
               size="lg" 
+              isPro={profile.is_pro}
             />
           </div>
           
