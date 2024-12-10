@@ -76,7 +76,7 @@ const ImageCard = ({
     try {
       setIsDeleted(true);
       await handleImageDiscard(image);
-      onDiscard(image);
+      onDiscard(image.id);
     } catch (error) {
       console.error('Error in handleDiscard:', error);
       setIsDeleted(false);
