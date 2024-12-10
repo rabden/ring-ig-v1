@@ -99,7 +99,7 @@ const ProfileMenu = ({
           >
             <ProfileAvatar 
               user={user} 
-              isPro={isPro} 
+              isPro={isPro}
               size={isMobile ? "sm" : "sm"} 
               showEditOnHover={false}
               className={cn(

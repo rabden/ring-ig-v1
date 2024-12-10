@@ -4,9 +4,11 @@ import ProfileAvatar from '../profile/ProfileAvatar';
 import FollowButton from '../profile/FollowButton';
 import ImagePrivacyToggle from './ImagePrivacyToggle';
 import LikeButton from '../LikeButton';
+import { useProUser } from '@/hooks/useProUser';
 
 const ImageOwnerHeader = ({ owner, image, isOwner, userLikes, toggleLike, likeCount }) => {
   const navigate = useNavigate();
+  const { data: isPro } = useProUser(image.user_id);
 
   const handleProfileClick = () => {
     navigate(`/profile/${image.user_id}`);
@@ -18,7 +20,11 @@ const ImageOwnerHeader = ({ owner, image, isOwner, userLikes, toggleLike, likeCo
         className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
         onClick={handleProfileClick}
       >
-        <ProfileAvatar user={{ user_metadata: { avatar_url: owner?.avatar_url } }} size="sm" />
+        <ProfileAvatar 
+          user={{ user_metadata: { avatar_url: owner?.avatar_url } }} 
+          size="sm"
+          isPro={isPro}
+        />
         <span className="text-sm font-medium">{owner?.display_name}</span>
       </div>
       <div className="flex items-center gap-2">
