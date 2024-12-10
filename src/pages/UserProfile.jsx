@@ -156,21 +156,21 @@ const UserProfile = () => {
           </div>
         ) : (
           <div className="space-y-6">
-            <ProfileHeaderSection
-              user={session.user}
-              isPro={isPro}
-              displayName={displayName}
-              isEditing={isEditing}
-              setIsEditing={setIsEditing}
-              setDisplayName={setTempDisplayName}
-              onUpdate={handleDisplayNameUpdate}
-              onAvatarEdit={() => setShowFullImage(true)}
-              onAvatarUpload={onAvatarUpload}
-            />
-            
+            <div className="flex flex-col sm:flex-row items-center sm:items-start justify-between gap-4 sm:gap-8">
+              <ProfileHeaderSection
+                user={session.user}
+                isPro={isPro}
+                displayName={displayName}
+                isEditing={isEditing}
+                setIsEditing={setIsEditing}
+                setDisplayName={setTempDisplayName}
+                onUpdate={handleDisplayNameUpdate}
+                onAvatarEdit={() => setShowFullImage(true)}
+                onAvatarUpload={onAvatarUpload}
+              />
+              <StatsSection userStats={userStats} />
+            </div>
             <CreditsSection userStats={userStats} />
-            
-            <StatsSection userStats={userStats} />
           </div>
         )}
 
