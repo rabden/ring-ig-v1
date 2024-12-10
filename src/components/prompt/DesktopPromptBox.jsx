@@ -101,24 +101,17 @@ const DesktopPromptBox = ({
         <div 
           className={cn(
             "relative bg-card shadow-sm border border-border/50",
-            "transform-gpu",
-            "[transition:border-radius_200ms_ease,transform_400ms_ease-in-out,box-shadow_400ms_ease-in-out]",
             isExpanded ? [
               "rounded-lg",
-              "scale-100",
               "shadow-lg"
             ] : [
               "rounded-full",
-              "scale-[0.98]",
-              "hover:scale-[0.99]",
-              "hover:shadow-md",
               "cursor-pointer"
             ]
           )}
           onClick={handleExpand}
         >
           <div className={cn(
-            "transition-all duration-400 ease-in-out",
             isExpanded ? "p-2" : "p-1"
           )}>
             {isExpanded ? (
@@ -130,11 +123,11 @@ const DesktopPromptBox = ({
                     onChange={onChange}
                     onKeyDown={onKeyDown}
                     placeholder="A 4D HDR immersive 3D image..."
-                    className="w-full min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-4 px-2 transition-colors duration-200"
+                    className="w-full min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-4 px-2"
                     style={{ caretColor: 'currentColor' }}
                   />
-                  <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-[1] transition-opacity duration-200" />
-                  <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-[1] transition-opacity duration-200" />
+                  <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-[1]" />
+                  <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-[1]" />
                 </div>
 
                 <div className="flex justify-between items-center mt-0">
@@ -144,7 +137,7 @@ const DesktopPromptBox = ({
                       <Button
                         size="sm"
                         variant="outline"
-                        className="rounded-full transition-transform duration-200 hover:scale-105"
+                        className="rounded-full"
                         onClick={onClear}
                       >
                         <X className="h-4 w-4" />
@@ -153,7 +146,7 @@ const DesktopPromptBox = ({
                     <Button
                       size="sm"
                       variant="outline"
-                      className="rounded-full transition-transform duration-200 hover:scale-105"
+                      className="rounded-full"
                       onClick={handleImprovePrompt}
                       disabled={!prompt?.length || isImproving || !hasEnoughCreditsForImprovement}
                     >
@@ -166,7 +159,7 @@ const DesktopPromptBox = ({
                     </Button>
                     <Button
                       size="sm"
-                      className="rounded-full transition-transform duration-200 hover:scale-105"
+                      className="rounded-full"
                       onClick={onSubmit}
                       disabled={!prompt?.length || !hasEnoughCredits}
                     >
@@ -187,7 +180,7 @@ const DesktopPromptBox = ({
                 />
                 <Button
                   size="sm"
-                  className="rounded-full transition-transform duration-200 hover:scale-105"
+                  className="rounded-full"
                   onClick={(e) => {
                     e.stopPropagation();
                     onSubmit();
@@ -207,16 +200,12 @@ const DesktopPromptBox = ({
       <div 
         className={cn(
           "hidden md:block fixed top-12 left-0 right-0 z-50",
-          "transform-gpu transition-all duration-300 ease-in-out",
           isFixed ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
         )}
       >
         <div className="max-w-[700px] mx-auto px-10 py-2">
           <div 
-            className={cn(
-              "relative bg-card shadow-sm border border-border/50 rounded-full cursor-pointer",
-              "transform-gpu hover:shadow-md hover:scale-[1.01]"
-            )}
+            className="relative bg-card shadow-sm border border-border/50 rounded-full cursor-pointer"
             onClick={handleExpand}
           >
             <div className="flex items-center gap-4 p-1">
@@ -225,7 +214,7 @@ const DesktopPromptBox = ({
               </div>
               <Button
                 size="sm"
-                className="rounded-full transition-transform duration-200 hover:scale-105"
+                className="rounded-full"
                 onClick={(e) => {
                   e.stopPropagation();
                   onSubmit();
