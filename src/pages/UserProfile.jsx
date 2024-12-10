@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
 import { toast } from "sonner";
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, LogOut, Upload } from 'lucide-react';
+import { ArrowLeft, LogOut } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -125,7 +125,7 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-background/95 px-2 sm:px-4">
+    <div className="min-h-screen bg-gradient-to-b from-background to-background/95 px-2 sm:px-0">
       <div className="container max-w-2xl py-2 sm:py-4 space-y-4 sm:space-y-6 animate-fade-in">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -165,6 +165,7 @@ const UserProfile = () => {
               setDisplayName={setTempDisplayName}
               onUpdate={handleDisplayNameUpdate}
               onAvatarEdit={() => setShowFullImage(true)}
+              onAvatarUpload={onAvatarUpload}
             />
             
             <CreditsSection userStats={userStats} />
@@ -172,14 +173,6 @@ const UserProfile = () => {
             <StatsSection userStats={userStats} />
           </div>
         )}
-
-        {/* Floating Upload Icon */}
-        <label className="fixed bottom-4 right-4 sm:absolute sm:bottom-auto sm:right-auto sm:top-[6.5rem] sm:left-[60%] cursor-pointer z-10">
-          <input type="file" accept="image/*" onChange={onAvatarUpload} className="hidden" />
-          <div className="flex items-center justify-center w-10 h-10 text-primary bg-white rounded-full shadow-lg hover:bg-gray-100 transition-all transform hover:scale-105">
-            <Upload className="w-5 h-5" />
-          </div>
-        </label>
 
         {/* Full Image Dialog */}
         <Dialog open={showFullImage} onOpenChange={setShowFullImage}>

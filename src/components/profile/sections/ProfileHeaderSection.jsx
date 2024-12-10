@@ -10,7 +10,8 @@ const ProfileHeaderSection = ({
   setIsEditing, 
   setDisplayName, 
   onUpdate, 
-  onAvatarEdit 
+  onAvatarEdit,
+  onAvatarUpload
 }) => {
   return (
     <Card className="w-full bg-gradient-to-br from-background/95 to-background/98 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -24,6 +25,7 @@ const ProfileHeaderSection = ({
           setDisplayName={setDisplayName}
           onUpdate={onUpdate}
           onAvatarEdit={onAvatarEdit}
+          onAvatarUpload={onAvatarUpload}
         />
       </CardContent>
     </Card>
