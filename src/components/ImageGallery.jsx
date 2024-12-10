@@ -161,7 +161,7 @@ const ImageGallery = ({
       .filter(([_, images]) => images.length > 0);
 
     return (
-      <div className={cn("w-full h-full md:px-0 md:pt-0 pt-12 space-y-12", className)}>
+      <div className={cn("w-full h-full md:px-0 md:pt-18 pt-12 space-y-12", className)}>
         {nonEmptyGroups.map(([groupName, groupImages], groupIndex) => (
           <div key={groupName}>
             <DateHeader>
