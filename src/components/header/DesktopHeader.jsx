@@ -1,5 +1,4 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
 import ProfileMenu from '../ProfileMenu';
 import ActionButtons from '../ActionButtons';
 import SearchBar from '../search/SearchBar';
@@ -11,6 +10,8 @@ const DesktopHeader = ({
   user, 
   credits, 
   bonusCredits, 
+  activeView, 
+  setActiveView, 
   generatingImages,
   onSearch,
   showPrivate,
@@ -22,10 +23,6 @@ const DesktopHeader = ({
   onFollowingChange,
   onTopChange
 }) => {
-  const location = useLocation();
-  const isInspiration = location.pathname === '/inspiration';
-  const isMyImages = location.pathname === '/' && (!location.hash || location.hash === '#myimages');
-
   return (
     <>
       <div className="hidden md:block fixed top-0 left-0 right-0 bg-background z-10 h-12">
@@ -44,15 +41,17 @@ const DesktopHeader = ({
               <NotificationBell />
             </div>
             <ActionButtons 
+              activeView={activeView} 
+              setActiveView={setActiveView} 
               generatingImages={generatingImages}
             />
-            {isMyImages && (
+            {activeView === 'myImages' && (
               <PrivateFilterButton
                 showPrivate={showPrivate}
                 onToggle={onTogglePrivate}
               />
             )}
-            {isInspiration && (
+            {activeView === 'inspiration' && (
               <InspirationFilterButtons
                 showFollowing={showFollowing}
                 showTop={showTop}

@@ -183,25 +183,8 @@ const ImageGenerator = () => {
   }, [remixImage, isRemixRoute]);
 
   useEffect(() => {
-    const hash = location.hash.replace('#', '');
-    switch (hash) {
-      case 'myimages':
-        setActiveTab('images');
-        setActiveView('myImages');
-        break;
-      case 'imagegenerate':
-        setActiveTab('input');
-        break;
-      case 'notifications':
-        setActiveTab('notifications');
-        break;
-      default:
-        if (!hash) {
-          setActiveTab('images');
-          setActiveView('myImages');
-        }
-    }
-  }, [location.hash, setActiveView]);
+    setActiveTab('images');
+  }, []);
 
   return (
     <div className="relative">
