@@ -67,10 +67,40 @@ module.exports = {
           to: { height: "0" },
         },
         mesh: {
-          "0%, 100%": { transform: "rotate(0deg) scale(1)" },
-          "25%": { transform: "rotate(90deg) scale(1.1)" },
-          "50%": { transform: "rotate(180deg) scale(1)" },
-          "75%": { transform: "rotate(270deg) scale(0.9)" },
+          "0%": { transform: "translate(0px, 0px) scale(1)", opacity: "0.5" },
+          "33%": { transform: "translate(30px, -50px) scale(1.2)", opacity: "0.25" },
+          "66%": { transform: "translate(-20px, 20px) scale(0.8)", opacity: "0.75" },
+          "100%": { transform: "translate(0px, 0px) scale(1)", opacity: "0.5" },
+        },
+        "gradient-x": {
+          "0%, 100%": {
+            "background-size": "200% 200%",
+            "background-position": "left center",
+          },
+          "50%": {
+            "background-size": "200% 200%",
+            "background-position": "right center",
+          },
+        },
+        "gradient-y": {
+          "0%, 100%": {
+            "background-size": "200% 200%",
+            "background-position": "center top",
+          },
+          "50%": {
+            "background-size": "200% 200%",
+            "background-position": "center bottom",
+          },
+        },
+        "gradient-xy": {
+          "0%, 100%": {
+            "background-size": "400% 400%",
+            "background-position": "left center",
+          },
+          "50%": {
+            "background-size": "200% 200%",
+            "background-position": "right center",
+          },
         },
         "fade-in": {
           "0%": { opacity: "0" },
@@ -84,7 +114,10 @@ module.exports = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "mesh": "mesh 15s ease infinite",
+        "mesh": "mesh 10s ease-in-out infinite",
+        "gradient-x": "gradient-x 10s ease infinite",
+        "gradient-y": "gradient-y 10s ease infinite",
+        "gradient-xy": "gradient-xy 10s ease infinite",
         "fade-in": "fade-in 1s ease-out",
         "fade-out": "fade-out 1s ease-out",
       },

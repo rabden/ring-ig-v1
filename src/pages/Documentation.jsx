@@ -35,8 +35,8 @@ const sections = [
 ];
 
 const glowStyles = {
-  heroGlow: "after:absolute after:inset-0 after:bg-[radial-gradient(circle_at_50%_50%,rgba(var(--primary-rgb),0.1),rgba(var(--primary-rgb),0.05),transparent)] after:animate-mesh after:-z-10",
-  cardGlow: "after:absolute after:inset-0 after:bg-[radial-gradient(circle_at_50%_50%,rgba(var(--primary-rgb),0.08),rgba(var(--primary-rgb),0.03),transparent)] after:animate-mesh after:-z-10",
+  heroGlow: "after:absolute after:inset-0 after:bg-[radial-gradient(ellipse_at_center,rgba(var(--primary-rgb),0.15),transparent_50%)] after:animate-mesh after:-z-10",
+  cardGlow: "after:absolute after:inset-0 after:bg-[radial-gradient(ellipse_at_center,rgba(var(--primary-rgb),0.1),transparent_50%)] after:animate-mesh after:-z-10",
   textGlow: "text-shadow-glow",
 };
 
@@ -149,63 +149,71 @@ const ModelShowcase = () => {
   const currentModel = models[currentModelIndex];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-      {/* Model Info */}
-      <motion.div
-        key={currentModel?.id}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 1, ease: "easeInOut" }}
-        className="space-y-6 relative"
-      >
-        <div className={glowStyles.cardGlow}>
-          <Badge 
-            variant="outline" 
-            className="mb-2 bg-gradient-to-r from-primary/20 via-primary/30 to-primary/10 border-primary/20 backdrop-blur-sm"
-          >
-            Model
-          </Badge>
-          <h3 className={`text-2xl font-bold mb-2 bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent ${glowStyles.textGlow}`}>
-            {currentModel?.name}
-          </h3>
-          <p className="text-muted-foreground backdrop-blur-sm">{currentModel?.description}</p>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <Badge 
-            variant="secondary" 
-            className="bg-gradient-to-r from-secondary/50 via-secondary/40 to-secondary/30 backdrop-blur-sm"
-          >
-            {currentModel?.category}
-          </Badge>
-          {currentModel?.isPremium && (
+    <div className="relative">
+      {/* Background gradient for the section */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(var(--primary-rgb),0.15),transparent_50%)] animate-mesh" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(var(--primary-rgb),0.15),transparent_50%)] animate-mesh" />
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center relative">
+        {/* Model Info */}
+        <motion.div
+          key={currentModel?.id}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1, ease: "easeInOut" }}
+          className="space-y-6 relative"
+        >
+          <div className={glowStyles.cardGlow}>
             <Badge 
-              variant="default" 
-              className="bg-gradient-to-r from-orange-500 via-purple-500 to-pink-500 animate-gradient-x backdrop-blur-sm"
+              variant="outline" 
+              className="mb-2 bg-gradient-to-r from-primary/30 via-primary/20 to-transparent border-primary/30 backdrop-blur-sm"
             >
-              Premium
+              Model
             </Badge>
-          )}
-        </div>
-      </motion.div>
+            <h3 className={`text-2xl font-bold mb-2 bg-gradient-to-r from-primary via-primary/80 to-transparent bg-clip-text text-transparent ${glowStyles.textGlow}`}>
+              {currentModel?.name}
+            </h3>
+            <p className="text-muted-foreground backdrop-blur-sm">{currentModel?.description}</p>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Badge 
+              variant="secondary" 
+              className="bg-gradient-to-r from-secondary/50 via-secondary/30 to-transparent backdrop-blur-sm"
+            >
+              {currentModel?.category}
+            </Badge>
+            {currentModel?.isPremium && (
+              <Badge 
+                variant="default" 
+                className="bg-gradient-to-r from-orange-500 via-purple-500 to-pink-500 animate-gradient-x backdrop-blur-sm"
+              >
+                Premium
+              </Badge>
+            )}
+          </div>
+        </motion.div>
 
-      {/* Model Image */}
-      <motion.div
-        key={`image-${currentModel?.id}`}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 1, ease: "easeInOut" }}
-        className={`relative aspect-square rounded-lg overflow-hidden shadow-2xl shadow-primary/20 ${glowStyles.heroGlow}`}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/80" />
-        <img
-          src={`/model-examples/${currentModel?.id}.jpg`}
-          alt={currentModel?.name}
-          className="w-full h-full object-cover"
-        />
-      </motion.div>
+        {/* Model Image */}
+        <motion.div
+          key={`image-${currentModel?.id}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1, ease: "easeInOut" }}
+          className="relative aspect-square rounded-lg overflow-hidden shadow-2xl shadow-primary/20"
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/80" />
+          <img
+            src={`/model-examples/${currentModel?.id}.jpg`}
+            alt={currentModel?.name}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(var(--primary-rgb),0.1),transparent_70%)] animate-mesh" />
+        </motion.div>
+      </div>
     </div>
   );
 };
@@ -249,49 +257,59 @@ const FeatureShowcase = () => {
   const currentFeature = features[currentFeatureIndex];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-      <motion.div
-        key={currentFeature.title}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 1, ease: "easeInOut" }}
-        className="space-y-6 relative"
-      >
-        <div className={glowStyles.cardGlow}>
-          <Badge 
-            variant="outline" 
-            className="mb-2 bg-gradient-to-r from-primary/20 via-primary/30 to-primary/10 border-primary/20 backdrop-blur-sm"
-          >
-            Feature
-          </Badge>
-          <div className="flex items-center gap-3 mb-3">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 via-primary/15 to-primary/5 backdrop-blur-sm">
-              <currentFeature.icon className="h-6 w-6 text-primary animate-pulse" />
-            </div>
-            <h3 className={`text-2xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent ${glowStyles.textGlow}`}>
-              {currentFeature.title}
-            </h3>
-          </div>
-          <p className="text-muted-foreground backdrop-blur-sm">{currentFeature.description}</p>
-        </div>
-      </motion.div>
+    <div className="relative">
+      {/* Background gradient for the section */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(var(--primary-rgb),0.1),transparent_50%)] animate-mesh" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(var(--primary-rgb),0.1),transparent_50%)] animate-mesh" />
 
-      <motion.div
-        key={`image-${currentFeature.title}`}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 1, ease: "easeInOut" }}
-        className={`relative aspect-square rounded-lg overflow-hidden shadow-2xl shadow-primary/20 ${glowStyles.heroGlow}`}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/80" />
-        <img
-          src={currentFeature.image}
-          alt={currentFeature.title}
-          className="w-full h-full object-cover"
-        />
-      </motion.div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center relative">
+        {/* Feature Info */}
+        <motion.div
+          key={currentFeature.title}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1, ease: "easeInOut" }}
+          className="space-y-6 relative"
+        >
+          <div className={glowStyles.cardGlow}>
+            <Badge 
+              variant="outline" 
+              className="mb-2 bg-gradient-to-r from-primary/30 via-primary/20 to-transparent border-primary/30 backdrop-blur-sm"
+            >
+              Feature
+            </Badge>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 rounded-lg bg-gradient-to-br from-primary/30 via-primary/20 to-transparent backdrop-blur-sm">
+                <currentFeature.icon className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className={`text-2xl font-bold bg-gradient-to-r from-primary via-primary/80 to-transparent bg-clip-text text-transparent ${glowStyles.textGlow}`}>
+                {currentFeature.title}
+              </h3>
+            </div>
+            <p className="text-muted-foreground backdrop-blur-sm">{currentFeature.description}</p>
+          </div>
+        </motion.div>
+
+        {/* Feature Image */}
+        <motion.div
+          key={`image-${currentFeature.title}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1, ease: "easeInOut" }}
+          className="relative aspect-square rounded-lg overflow-hidden shadow-2xl shadow-primary/20"
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/80" />
+          <img
+            src={currentFeature.image}
+            alt={currentFeature.title}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(var(--primary-rgb),0.1),transparent_70%)] animate-mesh" />
+        </motion.div>
+      </div>
     </div>
   );
 };
@@ -349,7 +367,11 @@ const Documentation = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <div className={`relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-background border-b ${glowStyles.heroGlow}`}>
+      <div className={`relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-background border-b`}>
+        {/* Add meshing gradients */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(var(--primary-rgb),0.15),transparent_50%)] animate-mesh" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(var(--primary-rgb),0.15),transparent_50%)] animate-mesh" />
+        
         <div className="container max-w-6xl mx-auto px-4 py-8 md:py-16 lg:py-24">
           <Link to="/" className="inline-block mb-8">
             <Button variant="ghost" size="sm">
@@ -415,8 +437,8 @@ const Documentation = () => {
         </div>
 
         {/* Decorative Elements */}
-        <div className="absolute -top-24 right-0 w-96 h-96 bg-[radial-gradient(circle_at_50%_50%,rgba(var(--primary-rgb),0.15),rgba(var(--primary-rgb),0.05),transparent)] rounded-full blur-3xl animate-mesh" />
-        <div className="absolute -bottom-24 right-48 w-64 h-64 bg-[radial-gradient(circle_at_50%_50%,rgba(var(--primary-rgb),0.2),rgba(var(--primary-rgb),0.1),transparent)] rounded-full blur-2xl animate-mesh" />
+        <div className="absolute -top-24 right-0 w-96 h-96 bg-[radial-gradient(circle_at_center,rgba(var(--primary-rgb),0.2),transparent_70%)] rounded-full blur-3xl animate-mesh" />
+        <div className="absolute -bottom-24 right-48 w-64 h-64 bg-[radial-gradient(circle_at_center,rgba(var(--primary-rgb),0.25),transparent_70%)] rounded-full blur-2xl animate-mesh" />
       </div>
 
       {/* Main Content */}
