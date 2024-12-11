@@ -1,26 +1,29 @@
 import React from 'react'
 import { Button } from "@/components/ui/button"
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import GeneratingImagesDropdown from './GeneratingImagesDropdown'
 
-const ActionButtons = ({ activeView, generatingImages }) => {
+const ActionButtons = ({ generatingImages }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isInspiration = location.pathname === '/inspiration';
+  const isMyImages = location.pathname === '/' && (!location.hash || location.hash === '#myimages');
 
   return (
     <div className="hidden md:flex items-center space-x-2">
       <Button
-        variant={activeView === 'myImages' ? 'default' : 'outline'}
-        onClick={() => navigate('/')}
+        variant={isMyImages ? 'default' : 'outline'}
+        onClick={() => navigate('/#myimages')}
         className="text-xs px-2 py-1 h-8 transition-colors hover:bg-accent hover:text-accent-foreground"
-        aria-pressed={activeView === 'myImages'}
+        aria-pressed={isMyImages}
       >
         My Images
       </Button>
       <Button
-        variant={activeView === 'inspiration' ? 'default' : 'outline'}
+        variant={isInspiration ? 'default' : 'outline'}
         onClick={() => navigate('/inspiration')}
         className="text-xs px-2 py-1 h-8 transition-colors hover:bg-accent hover:text-accent-foreground"
-        aria-pressed={activeView === 'inspiration'}
+        aria-pressed={isInspiration}
       >
         Inspiration
       </Button>
