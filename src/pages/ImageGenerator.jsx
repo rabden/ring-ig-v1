@@ -236,7 +236,9 @@ const ImageGenerator = () => {
         setIsPrivate,
         isGenerating,
         isImproving,
-        setIsImproving
+        setIsImproving,
+        proMode: isPro,
+        modelConfigs
       }}
     />
   );

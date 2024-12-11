@@ -21,7 +21,7 @@ const ImageCardActions = ({
   setActiveTab
 }) => {
   const { session } = useSupabaseAuth();
-  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, () => {});
+  const { handleRemix } = useImageRemix(session, onRemix, () => {});
 
   const handleViewDetails = (e) => {
     e.preventDefault();
