@@ -32,13 +32,6 @@ const MobileImageView = ({ image, session, modelConfigs }) => {
     }
   };
 
-  // Early return if no image
-  if (!image) return null;
-
-  const imageUrl = image.storage_path 
-    ? supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl
-    : image.image_url;
-
   return (
     <Drawer.Root defaultOpen>
       <Drawer.Portal>
@@ -49,15 +42,15 @@ const MobileImageView = ({ image, session, modelConfigs }) => {
             <ScrollArea className="h-[calc(96vh-32px)] px-4 pb-8">
               <div className="relative rounded-lg overflow-hidden mb-4">
                 <img
-                  src={imageUrl}
-                  alt={image.prompt || 'Image'}
+                  src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                  alt={image.prompt}
                   className="w-full h-auto"
                 />
               </div>
               
               {session && (
                 <div className="flex gap-2 justify-between mb-6">
-                  <Button variant="ghost" size="sm" className="flex-1" onClick={handleDownload}>
+                  <Button variant="ghost" size="sm" className="flex-1" onClick={() => handleDownload(image)}>
                     <Download className="mr-2 h-4 w-4" />
                     Download
                   </Button>
