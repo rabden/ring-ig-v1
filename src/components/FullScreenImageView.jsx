@@ -16,6 +16,7 @@ import { useImageRemix } from '@/hooks/useImageRemix';
 import HeartAnimation from './animations/HeartAnimation';
 import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 import { format } from 'date-fns';
+import { useRemixNavigation } from '@/utils/remixUtils';
 
 const FullScreenImageView = ({ 
   image, 
@@ -23,7 +24,6 @@ const FullScreenImageView = ({
   onClose,
   onDownload,
   onDiscard,
-  onRemix,
   isOwner,
   setStyle,
   setActiveTab 
@@ -37,6 +37,18 @@ const FullScreenImageView = ({
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
   const queryClient = useQueryClient();
   const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, onClose);
+
+  const { handleRemixRedirect } = useRemixNavigation(
+    () => {}, // These are placeholder functions since we're only using handleRemixRedirect
+    () => {},
+    () => {},
+    () => {},
+    () => {},
+    () => {},
+    () => {},
+    () => {},
+    () => {}
+  );
 
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],
@@ -109,6 +121,11 @@ const FullScreenImageView = ({
 
   if (!image) return null;
 
+  const handleRemix = () => {
+    handleRemixRedirect(image);
+    onClose();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-background data-[state=open]:duration-0 [&>button]:hidden">
@@ -160,7 +177,7 @@ const FullScreenImageView = ({
                             Discard
                           </Button>
                         )}
-                        <Button onClick={() => handleRemix(image)} className="flex-1" variant="ghost" size="sm">
+                        <Button onClick={handleRemix} className="flex-1" variant="ghost" size="sm">
                           <RefreshCw className="mr-2 h-4 w-4" />
                           Remix
                         </Button>

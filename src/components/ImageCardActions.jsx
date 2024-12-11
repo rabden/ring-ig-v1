@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { MoreVertical, Download, Trash2, Wand2, Info } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import LikeButton from './LikeButton';
-import { useImageRemix } from '@/hooks/useImageRemix';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { useRemixNavigation } from '@/utils/remixUtils';
 
 const ImageCardActions = ({ 
   image, 
@@ -15,13 +15,22 @@ const ImageCardActions = ({
   onViewDetails = () => {},
   onDownload = () => {},
   onDiscard = () => {},
-  onRemix = () => {},
   userId,
   setStyle,
   setActiveTab
 }) => {
   const { session } = useSupabaseAuth();
-  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, () => {});
+  const { handleRemixRedirect } = useRemixNavigation(
+    () => {}, // These are placeholder functions since we're only using handleRemixRedirect
+    () => {},
+    () => {},
+    () => {},
+    () => {},
+    () => {},
+    () => {},
+    () => {},
+    () => {}
+  );
 
   const handleViewDetails = (e) => {
     e.preventDefault();
@@ -45,7 +54,7 @@ const ImageCardActions = ({
   const handleRemixClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    handleRemix(image);
+    handleRemixRedirect(image);
   };
 
   return (

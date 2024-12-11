@@ -15,6 +15,7 @@ import HeartAnimation from './animations/HeartAnimation';
 import { useLikes } from '@/hooks/useLikes';
 import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 import { format } from 'date-fns';
+import { useRemixNavigation } from '@/utils/remixUtils';
 
 const MobileImageView = ({ 
   image, 
@@ -107,6 +108,23 @@ const MobileImageView = ({
     { label: 'Created', value: format(new Date(image.created_at), 'MMM d, yyyy h:mm a') }
   ];
 
+  const { handleRemixRedirect } = useRemixNavigation(
+    () => {}, // These are placeholder functions since we're only using handleRemixRedirect
+    () => {},
+    () => {},
+    () => {},
+    () => {},
+    () => {},
+    () => {},
+    () => {},
+    () => {}
+  );
+
+  const handleRemix = () => {
+    handleRemixRedirect(image);
+    onClose();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Button 
@@ -154,7 +172,7 @@ const MobileImageView = ({
                     Discard
                   </Button>
                 )}
-                <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={() => handleRemix(image)}>
+                <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={handleRemix}>
                   <Wand2 className="mr-1 h-3 w-3" />
                   Remix
                 </Button>
