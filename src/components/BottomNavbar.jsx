@@ -126,7 +126,6 @@ const BottomNavbar = ({
   // Handle showing checkmark when an image completes
   useEffect(() => {
     if (generatingImages.length < prevLength && prevLength > 0) {
-      // Show checkmark for 1.5s when an image completes
       setShowCheckmark(true);
       const timer = setTimeout(() => {
         setShowCheckmark(false);
@@ -137,18 +136,19 @@ const BottomNavbar = ({
   }, [generatingImages.length, prevLength]);
 
   const handleNavigation = (tab, view) => {
-    if (tab === 'images') {
-      if (view === 'myImages' && location.pathname !== '/') {
-        navigate('/');
-      } else if (view === 'inspiration' && location.pathname !== '/inspiration') {
-        navigate('/inspiration');
-      }
-    } else if (tab === 'notifications' || tab === 'input') {
-      navigate('/');
-    }
+    // First set the tab and view state
     setActiveTab(tab);
-    if (setActiveView) {
+    if (setActiveView && view) {
       setActiveView(view);
+    }
+
+    // Then handle navigation based on tab and current location
+    if (location.pathname === '/inspiration') {
+      if (tab === 'notifications' || tab === 'input' || (tab === 'images' && view === 'myImages')) {
+        navigate('/');
+      }
+    } else if (tab === 'images' && view === 'inspiration') {
+      navigate('/inspiration');
     }
   };
 
