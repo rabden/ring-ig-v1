@@ -1,11 +1,10 @@
-import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useProUser } from '@/hooks/useProUser';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
-export const useImageRemix = (session, onRemix, setStyle, setActiveTab, onClose) => {
-  const { data: styleConfigs } = useStyleConfigs();
-  const { data: modelConfigs } = useModelConfigs();
+export const useImageRemix = (session) => {
+  const navigate = useNavigate();
   const { data: isPro = false } = useProUser(session?.user?.id);
 
   const handleRemix = (image) => {
@@ -14,27 +13,38 @@ export const useImageRemix = (session, onRemix, setStyle, setActiveTab, onClose)
       return;
     }
 
-    onRemix(image);
-
-    // Check if the original image was made with a pro style
-    const isProStyle = styleConfigs?.[image.style]?.isPremium;
-    const isNsfwModel = modelConfigs?.[image.model]?.category === "NSFW";
-
-    // Set style based on NSFW status and pro status
-    if (isNsfwModel) {
-      // For NSFW models, don't use any style
-      setStyle(null);
-    } else if (isProStyle && !isPro) {
-      // If it's a pro style and user is not pro, reset to no style
-      setStyle(null);
-    } else {
-      // Otherwise keep the original style
-      setStyle(image.style);
-    }
-
-    setActiveTab('input');
-    onClose();
+    // Clear any existing remix data before starting new remix
+    sessionStorage.removeItem('remixData');
+    
+    // Navigate to remix route which will redirect back with credentials
+    navigate(`/remix/${image.id}`);
   };
 
-  return { handleRemix };
+  // Function to get and clear remix data
+  const getAndClearRemixData = () => {
+    try {
+      const remixDataStr = sessionStorage.getItem('remixData');
+      if (!remixDataStr) return null;
+
+      const remixData = JSON.parse(remixDataStr);
+      const now = Date.now();
+
+      // Clear the data immediately to prevent reuse
+      sessionStorage.removeItem('remixData');
+
+      // Only return data if it's less than 10 seconds old
+      if (now - remixData.timestamp < 10000) {
+        // Remove timestamp from returned data
+        const { timestamp, ...cleanData } = remixData;
+        return cleanData;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error parsing remix data:', error);
+      sessionStorage.removeItem('remixData');
+      return null;
+    }
+  };
+
+  return { handleRemix, getAndClearRemixData };
 };
