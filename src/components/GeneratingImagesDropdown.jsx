@@ -4,12 +4,10 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { useModelConfigs } from '@/hooks/useModelConfigs'
-import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import { cn } from "@/lib/utils"
 
-const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
+const GeneratingImagesDropdown = ({ generatingImages = [], onCancel }) => {
   const { data: modelConfigs } = useModelConfigs();
-  const { data: styleConfigs } = useStyleConfigs();
   const [showDropdown, setShowDropdown] = useState(false);
   const [completedImages, setCompletedImages] = useState(new Set());
   const [prevLength, setPrevLength] = useState(generatingImages.length);
@@ -59,28 +57,23 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[300px]">
-        {generatingImages.map((img) => (
-          <DropdownMenuItem key={img.id} className="flex flex-col items-start gap-1 py-2">
-            <div className="flex items-center gap-2 w-full">
-              <span className="font-medium">Generating...</span>
-              <Badge variant="secondary" className="ml-auto">
-                {img.width}x{img.height}
-              </Badge>
-            </div>
-            {img.prompt && (
-              <span className="text-xs text-muted-foreground truncate w-full">
-                {img.prompt.length > 50 ? `${img.prompt.substring(0, 50)}...` : img.prompt}
-              </span>
-            )}
-            <div className="flex gap-2 text-xs text-muted-foreground">
-              <span>{modelConfigs?.[img.model]?.name || img.model}</span>
-              {img.style && modelConfigs?.[img.model]?.category !== "NSFW" && (
-                <>
-                  <span>•</span>
-                  <span>{styleConfigs?.[img.style]?.name || img.style}</span>
-                </>
-              )}
-            </div>
+        {generatingImages.map((img, index) => (
+          <DropdownMenuItem key={index} className="justify-between">
+            <span className="truncate flex-1">
+              {modelConfigs?.[img.model]?.name || img.model}
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-4 w-4 ml-2"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onCancel(img.id);
+              }}
+            >
+              <X className="h-3 w-3" />
+            </Button>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
