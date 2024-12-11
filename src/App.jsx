@@ -13,6 +13,7 @@ import LoadingScreen from '@/components/LoadingScreen';
 import Login from '@/pages/Login';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import Inspiration from '@/pages/Inspiration';
+import Documentation from '@/pages/Documentation';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -72,6 +73,7 @@ function App() {
                 <Routes>
                   {/* Public Routes */}
                   <Route path="/image/:imageId" element={<SingleImageView />} />
+                  <Route path="/docs" element={<Documentation />} />
                   
                   {/* Auth Routes */}
                   <Route 
