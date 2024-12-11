@@ -110,7 +110,6 @@ const BottomNavbar = ({
   credits, 
   bonusCredits, 
   activeView, 
-  setActiveView, 
   generatingImages = [],
   nsfwEnabled,
   setNsfwEnabled
@@ -135,21 +134,17 @@ const BottomNavbar = ({
     setPrevLength(generatingImages.length);
   }, [generatingImages.length, prevLength]);
 
-  const handleNavigation = (tab, view) => {
+  const handleTabChange = (newTab, view) => {
     if (location.pathname === '/inspiration') {
-      if (tab === 'input' || tab === 'notifications' || tab === 'profile') {
-        navigate('/', { state: { activeTab: tab } });
-      } else if (tab === 'images' && view === 'myImages') {
+      if (newTab === 'input' || newTab === 'notifications' || newTab === 'profile') {
+        navigate('/', { state: { activeTab: newTab } });
+      } else if (newTab === 'images' && view === 'myImages') {
         navigate('/');
       }
-    } else if (tab === 'images' && view === 'inspiration') {
+    } else if (newTab === 'images' && view === 'inspiration') {
       navigate('/inspiration');
     }
-    
-    setActiveTab(tab);
-    if (setActiveView && view) {
-      setActiveView(view);
-    }
+    setActiveTab(newTab);
   };
 
   return (
@@ -159,17 +154,17 @@ const BottomNavbar = ({
           <NavButton
             icon={Image}
             isActive={location.pathname === '/' && activeView === 'myImages'}
-            onClick={() => handleNavigation('images', 'myImages')}
+            onClick={() => handleTabChange('images', 'myImages')}
           />
           <NavButton
             icon={Sparkles}
             isActive={location.pathname === '/inspiration'}
-            onClick={() => handleNavigation('images', 'inspiration')}
+            onClick={() => handleTabChange('images', 'inspiration')}
           />
           <NavButton
             icon={Plus}
             isActive={activeTab === 'input'}
-            onClick={() => handleNavigation('input')}
+            onClick={() => handleTabChange('input')}
             onLongPress={() => setDrawerOpen(true)}
             badge={generatingImages.length}
             showCheckmark={showCheckmark}
@@ -177,7 +172,7 @@ const BottomNavbar = ({
           <NavButton
             icon={NotificationBell}
             isActive={activeTab === 'notifications'}
-            onClick={() => handleNavigation('notifications')}
+            onClick={() => handleTabChange('notifications')}
           />
           <div className="flex items-center justify-center">
             {session ? (
@@ -195,7 +190,7 @@ const BottomNavbar = ({
               <NavButton
                 icon={User}
                 isActive={activeTab === 'profile'}
-                onClick={() => handleNavigation('profile')}
+                onClick={() => handleTabChange('profile')}
               />
             )}
           </div>
