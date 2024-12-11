@@ -1,10 +1,8 @@
-import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useProUser } from '@/hooks/useProUser';
 import { toast } from 'sonner';
 
-export const useImageRemix = (session, onRemix, setStyle, setActiveTab, onClose) => {
-  const { data: styleConfigs } = useStyleConfigs();
+export const useImageRemix = (session, onRemix, setActiveTab, onClose) => {
   const { data: modelConfigs } = useModelConfigs();
   const { data: isPro = false } = useProUser(session?.user?.id);
 
@@ -15,23 +13,6 @@ export const useImageRemix = (session, onRemix, setStyle, setActiveTab, onClose)
     }
 
     onRemix(image);
-
-    // Check if the original image was made with a pro style
-    const isProStyle = styleConfigs?.[image.style]?.isPremium;
-    const isNsfwModel = modelConfigs?.[image.model]?.category === "NSFW";
-
-    // Set style based on NSFW status and pro status
-    if (isNsfwModel) {
-      // For NSFW models, don't use any style
-      setStyle(null);
-    } else if (isProStyle && !isPro) {
-      // If it's a pro style and user is not pro, reset to no style
-      setStyle(null);
-    } else {
-      // Otherwise keep the original style
-      setStyle(image.style);
-    }
-
     setActiveTab('input');
     onClose();
   };
