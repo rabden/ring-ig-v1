@@ -16,7 +16,6 @@ import { useNavigate } from 'react-router-dom';
 const Inspiration = () => {
   const { session } = useSupabaseAuth();
   const navigate = useNavigate();
-  const isHeaderVisible = useScrollDirection();
   const [selectedImage, setSelectedImage] = useState(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false);
@@ -28,6 +27,7 @@ const Inspiration = () => {
   const [showTop, setShowTop] = useState(false);
   const { credits, bonusCredits } = useUserCredits(session?.user?.id);
   const { following } = useFollows(session?.user?.id);
+  const isHeaderVisible = useScrollDirection();
 
   const handleImageClick = (image) => {
     setSelectedImage(image);
@@ -101,7 +101,7 @@ const Inspiration = () => {
       />
 
       {/* Main Content */}
-      <main className="pt-12 px-2 md:px-6 pb-20 md:pb-6">
+      <main className="pt-16 md:pt-20 px-2 md:px-6 pb-20 md:pb-6">
         <ImageGallery
           userId={session?.user?.id}
           onImageClick={handleImageClick}
