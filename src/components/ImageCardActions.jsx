@@ -1,5 +1,5 @@
 import React from 'react';
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Download, Trash2, Sparkles } from "lucide-react";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useImageRemix } from '@/hooks/useImageRemix';
@@ -32,7 +32,7 @@ const ImageCardActions = ({
   };
 
   return (
-    <>
+    <DropdownMenuContent align="end">
       <DropdownMenuItem onClick={handleDownloadClick}>
         <Download className="mr-2 h-4 w-4" />
         <span className="font-medium">Download</span>
@@ -47,7 +47,7 @@ const ImageCardActions = ({
         <Sparkles className="mr-2 h-4 w-4" />
         <span className="font-medium">Remix</span>
       </DropdownMenuItem>
-    </>
+    </DropdownMenuContent>
   );
 };
 
