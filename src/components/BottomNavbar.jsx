@@ -136,19 +136,19 @@ const BottomNavbar = ({
   }, [generatingImages.length, prevLength]);
 
   const handleNavigation = (tab, view) => {
-    // First set the tab and view state
-    setActiveTab(tab);
-    if (setActiveView && view) {
-      setActiveView(view);
-    }
-
-    // Then handle navigation based on tab and current location
     if (location.pathname === '/inspiration') {
-      if (tab === 'notifications' || tab === 'input' || (tab === 'images' && view === 'myImages')) {
+      if (tab === 'input' || tab === 'notifications' || tab === 'profile') {
+        navigate('/', { state: { activeTab: tab } });
+      } else if (tab === 'images' && view === 'myImages') {
         navigate('/');
       }
     } else if (tab === 'images' && view === 'inspiration') {
       navigate('/inspiration');
+    }
+    
+    setActiveTab(tab);
+    if (setActiveView && view) {
+      setActiveView(view);
     }
   };
 
