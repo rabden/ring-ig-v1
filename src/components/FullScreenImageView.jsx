@@ -17,6 +17,7 @@ import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const FullScreenImageView = ({ 
   image, 
@@ -37,6 +38,7 @@ const FullScreenImageView = ({
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const { handleRemix } = useImageRemix(session, onRemix, onClose);
 
@@ -93,8 +95,7 @@ const FullScreenImageView = ({
       toast.error('Please sign in to remix images');
       return;
     }
-    const hash = isMobile ? '#imagegenerate' : '#myimages';
-    navigate(`/?remix=${image.id}${hash}`, { replace: true });
+    navigate(`/?remix=${image.id}#myimages`, { replace: true });
   };
 
   const detailItems = image ? [

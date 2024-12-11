@@ -103,8 +103,7 @@ const MobileImageView = ({
       toast.error('Please sign in to remix images');
       return;
     }
-    const hash = isMobile ? '#imagegenerate' : '#myimages';
-    navigate(`/?remix=${image.id}${hash}`, { replace: true });
+    navigate(`/?remix=${image.id}#imagegenerate`, { replace: true });
   };
 
   const detailItems = [
