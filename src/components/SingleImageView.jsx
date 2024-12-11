@@ -15,7 +15,7 @@ const SingleImageView = () => {
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const { handleRemix } = useImageRemix(session, undefined, () => navigate(-1));
+  const { handleRemix } = useImageRemix(session, null, () => navigate(-1));
 
   const { data: image, isLoading } = useQuery({
     queryKey: ['singleImage', imageId],
@@ -58,7 +58,7 @@ const SingleImageView = () => {
       image={image}
       onClose={() => navigate(-1)}
       onDownload={handleDownload}
-      onRemix={handleRemix}
+      onRemix={() => handleRemix(image)}
       isOwner={image.user_id === session?.user?.id}
       setActiveTab={() => {}}
       setStyle={() => {}}
@@ -71,7 +71,7 @@ const SingleImageView = () => {
       onClose={() => navigate(-1)}
       onDownload={handleDownload}
       onDiscard={() => {}}
-      onRemix={handleRemix}
+      onRemix={() => handleRemix(image)}
       isOwner={image.user_id === session?.user?.id}
       setStyle={() => {}}
       setActiveTab={() => {}}
