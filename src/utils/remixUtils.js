@@ -28,11 +28,19 @@ export const useRemixNavigation = (setPrompt, setSeed, setModel, setQuality, set
     // Store remix data in sessionStorage
     sessionStorage.setItem('remixData', JSON.stringify(remixData));
     
-    // Navigate based on device type
+    // Navigate to root path first, then add hash
     if (isMobile) {
-      navigate('/#imagegenerate');
+      navigate('/');
+      setTimeout(() => {
+        window.location.hash = 'imagegenerate';
+        setActiveTab('input');
+      }, 100);
     } else {
-      navigate('/#myimages');
+      navigate('/');
+      setTimeout(() => {
+        window.location.hash = 'myimages';
+        setActiveTab('input');
+      }, 100);
     }
 
     // Show success toast
@@ -45,19 +53,18 @@ export const useRemixNavigation = (setPrompt, setSeed, setModel, setQuality, set
       try {
         const data = JSON.parse(remixData);
         
-        // Set all the image generation parameters
-        setPrompt(data.prompt);
-        setSeed(data.seed);
-        setModel(data.model);
-        setQuality(data.quality);
-        setWidth(data.width);
-        setHeight(data.height);
-        setAspectRatio(data.aspectRatio);
-        setUseAspectRatio(data.useAspectRatio);
-        
-        if (isMobile) {
+        // Set all the image generation parameters with a slight delay to ensure components are mounted
+        setTimeout(() => {
+          setPrompt(data.prompt);
+          setSeed(data.seed);
+          setModel(data.model);
+          setQuality(data.quality);
+          setWidth(data.width);
+          setHeight(data.height);
+          setAspectRatio(data.aspectRatio);
+          setUseAspectRatio(data.useAspectRatio);
           setActiveTab('input');
-        }
+        }, 200);
         
         // Clear the stored data to prevent reapplying on subsequent navigation
         sessionStorage.removeItem('remixData');
@@ -66,7 +73,7 @@ export const useRemixNavigation = (setPrompt, setSeed, setModel, setQuality, set
         toast.error('Failed to load remix settings');
       }
     }
-  }, [location.hash, setPrompt, setSeed, setModel, setQuality, setWidth, setHeight, setAspectRatio, setUseAspectRatio, setActiveTab, isMobile]);
+  }, [location.pathname, setPrompt, setSeed, setModel, setQuality, setWidth, setHeight, setAspectRatio, setUseAspectRatio, setActiveTab]);
 
   return { handleRemixRedirect };
 };
