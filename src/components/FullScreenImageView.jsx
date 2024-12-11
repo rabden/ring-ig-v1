@@ -89,12 +89,7 @@ const FullScreenImageView = ({
   };
 
   const handleRemixClick = () => {
-    if (!session) {
-      toast.error('Please sign in to remix images');
-      return;
-    }
-    onClose();
-    navigate(`/?remix=${image.id}`);
+    handleRemix(image);
   };
 
   const detailItems = image ? [

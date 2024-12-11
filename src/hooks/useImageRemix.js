@@ -1,10 +1,14 @@
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useProUser } from '@/hooks/useProUser';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 export const useImageRemix = (session, onRemix, onClose) => {
   const { data: modelConfigs } = useModelConfigs() || {};
   const { data: isPro = false } = useProUser(session?.user?.id);
+  const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const handleRemix = (image) => {
     if (!session) {
@@ -18,6 +22,13 @@ export const useImageRemix = (session, onRemix, onClose) => {
     
     if (onClose && typeof onClose === 'function') {
       onClose();
+    }
+
+    // Navigate based on device type
+    if (isMobile) {
+      navigate('/#imagegenerate');
+    } else {
+      navigate('/#myimages');
     }
   };
 
