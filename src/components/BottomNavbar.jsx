@@ -1,107 +1,12 @@
-import React, { memo, useState, useRef, useEffect } from 'react';
-import { Image, Plus, Sparkles, User, Check } from 'lucide-react';
-import { cn } from "@/lib/utils";
+import React, { memo, useState, useEffect } from 'react';
+import { Image, Plus, Sparkles, User } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useProUser } from '@/hooks/useProUser';
-import GeneratingImagesDrawer from './GeneratingImagesDrawer';
 import { useNavigate, useLocation } from 'react-router-dom';
+import GeneratingImagesDrawer from './GeneratingImagesDrawer';
+import MobileNavButton from './navbar/MobileNavButton';
 import NotificationBell from './notifications/NotificationBell';
 import ProfileMenu from './ProfileMenu';
-
-const NavButton = memo(({ icon: Icon, isActive, onClick, children, badge, onLongPress, showCheckmark }) => {
-  const [isPressed, setIsPressed] = useState(false);
-  const pressTimer = useRef(null);
-  const touchStartTime = useRef(0);
-  const isMoved = useRef(false);
-
-  const handleTouchStart = (e) => {
-    isMoved.current = false;
-    touchStartTime.current = Date.now();
-    if (onLongPress) {
-      pressTimer.current = setTimeout(() => {
-        if (!isMoved.current) {
-          setIsPressed(true);
-          onLongPress();
-        }
-      }, 500);
-    }
-  };
-
-  const handleTouchMove = () => {
-    isMoved.current = true;
-    if (pressTimer.current) {
-      clearTimeout(pressTimer.current);
-      setIsPressed(false);
-    }
-  };
-
-  const handleTouchEnd = (e) => {
-    const touchDuration = Date.now() - touchStartTime.current;
-    if (pressTimer.current) {
-      clearTimeout(pressTimer.current);
-    }
-    setIsPressed(false);
-
-    // Only trigger click if it wasn't a long press and the touch didn't move
-    if (touchDuration < 500 && !isMoved.current) {
-      onClick?.(e);
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (pressTimer.current) {
-        clearTimeout(pressTimer.current);
-      }
-    };
-  }, []);
-
-  return (
-    <button
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onClick={(e) => {
-        // Only handle click for non-touch devices
-        if (e.pointerType !== 'touch') {
-          onClick?.(e);
-        }
-      }}
-      className={cn(
-        "flex items-center justify-center w-14 h-12 transition-all relative",
-        isActive ? "text-primary" : "text-muted-foreground",
-        "relative group"
-      )}
-    >
-      <div className={cn(
-        "absolute inset-x-2 h-0.5 -top-1 rounded-full transition-all",
-        isActive ? "bg-primary" : "bg-transparent"
-      )} />
-      {children || (
-        <>
-          <Icon size={20} className={cn(
-            "transition-transform duration-200",
-            isActive ? "scale-100" : "scale-90 group-hover:scale-100"
-          )} />
-          {(badge > 0 || showCheckmark) && (
-            <span className={cn(
-              "absolute top-1 right-2 h-4 w-4 rounded-full bg-primary text-[10px] font-medium text-primary-foreground flex items-center justify-center",
-              showCheckmark && "animate-in zoom-in duration-300"
-            )}>
-              {showCheckmark ? (
-                <Check className="h-3 w-3" />
-              ) : (
-                badge > 9 ? '9+' : badge
-              )}
-            </span>
-          )}
-        </>
-      )}
-    </button>
-  );
-});
-
-NavButton.displayName = 'NavButton';
 
 const BottomNavbar = ({ 
   activeTab, 
@@ -109,7 +14,6 @@ const BottomNavbar = ({
   session, 
   credits, 
   bonusCredits, 
-  activeView, 
   generatingImages = [],
   nsfwEnabled,
   setNsfwEnabled
@@ -134,45 +38,37 @@ const BottomNavbar = ({
     setPrevLength(generatingImages.length);
   }, [generatingImages.length, prevLength]);
 
-  const handleTabChange = (newTab, view) => {
-    if (location.pathname === '/inspiration') {
-      if (newTab === 'input' || newTab === 'notifications' || newTab === 'profile') {
-        navigate('/', { state: { activeTab: newTab } });
-      } else if (newTab === 'images' && view === 'myImages') {
-        navigate('/');
-      }
-    } else if (newTab === 'images' && view === 'inspiration') {
-      navigate('/inspiration');
-    }
-    setActiveTab(newTab);
+  const handleNavigation = (route, tab) => {
+    setActiveTab(tab);
+    navigate(route);
   };
 
   return (
     <>
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/30 md:hidden z-50">
         <div className="flex items-center justify-around px-2 max-w-md mx-auto">
-          <NavButton
+          <MobileNavButton
             icon={Image}
-            isActive={location.pathname === '/' && activeView === 'myImages'}
-            onClick={() => handleTabChange('images', 'myImages')}
+            isActive={location.pathname === '/' && (!location.hash || location.hash === '#myimages')}
+            onClick={() => handleNavigation('/#myimages', 'images')}
           />
-          <NavButton
+          <MobileNavButton
             icon={Sparkles}
             isActive={location.pathname === '/inspiration'}
-            onClick={() => handleTabChange('images', 'inspiration')}
+            onClick={() => handleNavigation('/inspiration', 'images')}
           />
-          <NavButton
+          <MobileNavButton
             icon={Plus}
-            isActive={activeTab === 'input'}
-            onClick={() => handleTabChange('input')}
+            isActive={location.hash === '#imagegenerate'}
+            onClick={() => handleNavigation('/#imagegenerate', 'input')}
             onLongPress={() => setDrawerOpen(true)}
             badge={generatingImages.length}
             showCheckmark={showCheckmark}
           />
-          <NavButton
+          <MobileNavButton
             icon={NotificationBell}
-            isActive={activeTab === 'notifications'}
-            onClick={() => handleTabChange('notifications')}
+            isActive={location.hash === '#notifications'}
+            onClick={() => handleNavigation('/#notifications', 'notifications')}
           />
           <div className="flex items-center justify-center">
             {session ? (
@@ -187,10 +83,10 @@ const BottomNavbar = ({
                 />
               </div>
             ) : (
-              <NavButton
+              <MobileNavButton
                 icon={User}
                 isActive={activeTab === 'profile'}
-                onClick={() => handleTabChange('profile')}
+                onClick={() => setActiveTab('profile')}
               />
             )}
           </div>
