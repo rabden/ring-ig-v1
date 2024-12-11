@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, RefreshCw, Copy, Share2 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/supabase';
 
-const DesktopImageView = ({ image, session, modelConfigs, handlers, onBack }) => {
+const DesktopImageView = ({ image, session, modelConfigs, styleConfigs, handlers, onBack }) => {
   const { handleDownload, handleRemix, handleCopyPrompt, handleShare } = handlers;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4">
         <Button variant="ghost" className="mb-4" onClick={onBack}>
           <ArrowLeft className="mr-2 h-4 w-4" />
@@ -43,15 +43,15 @@ const DesktopImageView = ({ image, session, modelConfigs, handlers, onBack }) =>
 
               <div className="space-y-2">
                 <h4 className="text-sm font-medium">Settings</h4>
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <div>Model:</div>
-                    <div className="text-muted-foreground">{modelConfigs?.[image.model]?.name || image.model}</div>
-                  </div>
-                  <div>
-                    <div>Quality:</div>
-                    <div className="text-muted-foreground">{image.quality || "Standard"}</div>
-                  </div>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>Model:</div>
+                  <div className="text-muted-foreground">{modelConfigs?.[image.model]?.name || image.model}</div>
+                  <div>Quality:</div>
+                  <div className="text-muted-foreground">{image.quality}</div>
+                  <div>Size:</div>
+                  <div className="text-muted-foreground">{image.width}x{image.height}</div>
+                  <div>Style:</div>
+                  <div className="text-muted-foreground">{styleConfigs?.[image.style]?.name || "General"}</div>
                 </div>
               </div>
 

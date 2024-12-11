@@ -12,10 +12,6 @@ import { handleImageDiscard } from '@/utils/discardUtils';
 import ImageCardMedia from './image-card/ImageCardMedia';
 import ImageCardBadges from './image-card/ImageCardBadges';
 import { useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 const ImageCard = ({ 
   image, 
@@ -95,13 +91,8 @@ const ImageCard = ({
   return (
     <>
       <div className="mb-4">
-        <Card 
-          className={cn(
-            "group relative overflow-hidden rounded-lg border bg-card text-card-foreground shadow-sm transition-colors hover:bg-accent",
-          )}
-          onClick={handleImageClick}
-        >
-          <CardContent className="p-0 relative" style={{ paddingTop: `${(image.height / image.width) * 100}%` }}>
+        <Card className="overflow-hidden">
+          <CardContent className="p-0 relative">
             <ImageStatusIndicators 
               isTrending={image.is_trending} 
               isHot={image.is_hot} 
@@ -116,37 +107,23 @@ const ImageCard = ({
               modelName={modelName}
               isNsfw={isNsfw}
             />
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <ImageCardActions
-                  image={image}
-                  isMobile={isMobile}
-                  isLiked={isLiked}
-                  likeCount={likeCount}
-                  onToggleLike={onToggleLike}
-                  onViewDetails={() => setDetailsDialogOpen(true)}
-                  onDownload={handleDownload}
-                  onDiscard={handleDiscard}
-                  onRemix={handleRemixClick}
-                  userId={userId}
-                  setActiveTab={setActiveTab}
-                />
-              </DropdownMenu>
-            </div>
           </CardContent>
         </Card>
         <div className="mt-1 flex items-center justify-between">
           <p className="text-sm truncate w-[70%]">{image.prompt}</p>
+          <ImageCardActions
+            image={image}
+            isMobile={isMobile}
+            isLiked={isLiked}
+            likeCount={likeCount}
+            onToggleLike={onToggleLike}
+            onViewDetails={() => setDetailsDialogOpen(true)}
+            onDownload={handleDownload}
+            onDiscard={handleDiscard}
+            onRemix={handleRemixClick}
+            userId={userId}
+            setActiveTab={setActiveTab}
+          />
         </div>
       </div>
 

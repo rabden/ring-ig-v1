@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Download, Trash2, Wand2, Copy, Share2, Check, ArrowLeft } from "lucide-react";
+import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import TruncatablePrompt from './TruncatablePrompt';
@@ -20,15 +21,19 @@ const MobileImageView = ({
   onClose, 
   onDownload, 
   onDiscard, 
+  onRemix, 
   isOwner,
+  setActiveTab,
+  setStyle,
   showFullImage = false
 }) => {
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
+  const { data: styleConfigs } = useStyleConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   const [isAnimating, setIsAnimating] = useState(false);
-  const { handleRemix } = useImageRemix(session);
+  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, onClose);
   const queryClient = useQueryClient();
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
 
@@ -56,13 +61,6 @@ const MobileImageView = ({
     },
     enabled: !!image?.id
   });
-
-  // Early return if no image
-  if (!image) return null;
-
-  const imageUrl = image.storage_path 
-    ? supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl
-    : image.image_url;
 
   const handleCopyPrompt = async () => {
     await navigator.clipboard.writeText(image.user_prompt || image.prompt);
@@ -125,8 +123,8 @@ const MobileImageView = ({
           {showFullImage && (
             <div className="relative rounded-lg overflow-hidden mb-6">
               <img
-                src={imageUrl}
-                alt={image.prompt || 'Image'}
+                src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                alt={image.prompt}
                 className="w-full h-auto"
                 onDoubleClick={handleDoubleClick}
               />
