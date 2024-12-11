@@ -15,7 +15,7 @@ const SingleImageView = () => {
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const { handleRemix } = useImageRemix(session);
+  const { handleRemix } = useImageRemix(session, undefined, () => navigate(-1));
 
   const { data: image, isLoading } = useQuery({
     queryKey: ['singleImage', imageId],
