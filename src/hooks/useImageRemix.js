@@ -25,11 +25,8 @@ export const useImageRemix = (session, onRemix, onClose) => {
     }
 
     // Navigate based on device type
-    if (isMobile) {
-      navigate('/#imagegenerate');
-    } else {
-      navigate('/#myimages');
-    }
+    const path = isMobile ? '/imagegenerate' : '/myimages';
+    navigate(path, { replace: true });
   };
 
   return { handleRemix };
