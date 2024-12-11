@@ -16,7 +16,7 @@ import HeartAnimation from './animations/HeartAnimation';
 import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
+import { toast } from 'sonner';
 
 const FullScreenImageView = ({ 
   image, 
