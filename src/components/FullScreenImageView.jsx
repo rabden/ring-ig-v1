@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { supabase } from '@/integrations/supabase/supabase';
+import { Button } from "@/components/ui/button";
+import { Download, Trash2, RefreshCw, ArrowLeft } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useLikes } from '@/hooks/useLikes';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { format } from 'date-fns';
-import { useRemixNavigation } from '@/utils/remixUtils';
 import ImagePromptSection from './image-view/ImagePromptSection';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
-import ImageOwnerHeader from './image-view/ImageOwnerHeader';
-import ImageViewHeader from './image-view/ImageViewHeader';
-import ImageViewActions from './image-view/ImageViewActions';
-import HeartAnimation from './animations/HeartAnimation';
 import { handleImageDiscard } from '@/utils/discardUtils';
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { useImageRemix } from '@/hooks/useImageRemix';
+import HeartAnimation from './animations/HeartAnimation';
+import ImageOwnerHeader from './image-view/ImageOwnerHeader';
+import { format } from 'date-fns';
 
 const FullScreenImageView = ({ 
   image, 
@@ -23,6 +23,7 @@ const FullScreenImageView = ({
   onClose,
   onDownload,
   onDiscard,
+  onRemix,
   isOwner,
   setStyle,
   setActiveTab 
@@ -35,18 +36,7 @@ const FullScreenImageView = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
   const queryClient = useQueryClient();
-
-  const { handleRemixRedirect } = useRemixNavigation(
-    () => {}, // These are placeholder functions since we're only using handleRemixRedirect
-    () => {},
-    () => {},
-    () => {},
-    () => {},
-    () => {},
-    () => {},
-    () => {},
-    () => {}
-  );
+  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, onClose);
 
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],
@@ -87,7 +77,7 @@ const FullScreenImageView = ({
     setTimeout(() => setShareIcon('share'), 1500);
   };
 
-  const handleDiscardImage = async () => {
+  const handleDiscard = async () => {
     try {
       await handleImageDiscard(image, queryClient);
       onClose();
@@ -95,6 +85,15 @@ const FullScreenImageView = ({
       console.error('Error in handleDiscard:', error);
     }
   };
+
+  const detailItems = image ? [
+    { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
+    { label: "Seed", value: image.seed },
+    { label: "Size", value: `${image.width}x${image.height}` },
+    { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
+    { label: "Quality", value: image.quality },
+    { label: "Created", value: format(new Date(image.created_at), 'MMM d, yyyy h:mm a') }
+  ] : [];
 
   const handleDoubleClick = (e) => {
     e.preventDefault();
@@ -108,26 +107,21 @@ const FullScreenImageView = ({
     }
   };
 
-  const handleRemixClick = () => {
-    handleRemixRedirect(image);
-    onClose();
-  };
-
-  const detailItems = image ? [
-    { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
-    { label: "Seed", value: image.seed },
-    { label: "Size", value: `${image.width}x${image.height}` },
-    { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
-    { label: "Quality", value: image.quality },
-    { label: "Created", value: format(new Date(image.created_at), 'MMM d, yyyy h:mm a') }
-  ] : [];
-
   if (!image) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-background data-[state=open]:duration-0 [&>button]:hidden">
-        <ImageViewHeader onClose={onClose} />
+        <div className="absolute left-4 top-4 z-50">
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={onClose}
+            className="bg-background/80 backdrop-blur-sm hover:bg-background/90"
+          >
+            <ArrowLeft className="h-6 w-6" />
+          </Button>
+        </div>
         
         <div className="flex h-full">
           <div className="flex-1 relative flex items-center justify-center bg-black/10 dark:bg-black/30 p-8">
@@ -155,12 +149,22 @@ const FullScreenImageView = ({
                         likeCount={likeCount}
                       />
 
-                      <ImageViewActions 
-                        onDownload={onDownload}
-                        onDiscard={handleDiscardImage}
-                        onRemixClick={handleRemixClick}
-                        isOwner={isOwner}
-                      />
+                      <div className="flex gap-2 justify-between">
+                        <Button onClick={onDownload} className="flex-1" variant="ghost" size="sm">
+                          <Download className="mr-2 h-4 w-4" />
+                          Download
+                        </Button>
+                        {isOwner && (
+                          <Button onClick={handleDiscard} className="flex-1 text-destructive hover:text-destructive" variant="ghost" size="sm">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Discard
+                          </Button>
+                        )}
+                        <Button onClick={() => handleRemix(image)} className="flex-1" variant="ghost" size="sm">
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          Remix
+                        </Button>
+                      </div>
                     </>
                   )}
 
