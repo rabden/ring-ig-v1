@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { useUserCredits } from '@/hooks/useUserCredits';
+import { useFollows } from '@/hooks/useFollows';
 import ImageGallery from '@/components/ImageGallery';
 import DesktopHeader from '@/components/header/DesktopHeader';
 import MobileHeader from '@/components/header/MobileHeader';
@@ -9,7 +11,6 @@ import BottomNavbar from '@/components/BottomNavbar';
 import MobileNotificationsMenu from '@/components/MobileNotificationsMenu';
 import MobileProfileMenu from '@/components/MobileProfileMenu';
 import { useNavigate } from 'react-router-dom';
-import { useUserCredits } from '@/hooks/useUserCredits';
 
 const Inspiration = () => {
   const { session } = useSupabaseAuth();
@@ -21,8 +22,10 @@ const Inspiration = () => {
   const [activeFilters, setActiveFilters] = useState({});
   const [nsfwEnabled, setNsfwEnabled] = useState(false);
   const [activeTab, setActiveTab] = useState('images');
-  const [activeView, setActiveView] = useState('inspiration');
+  const [showFollowing, setShowFollowing] = useState(false);
+  const [showTop, setShowTop] = useState(false);
   const { credits, bonusCredits } = useUserCredits(session?.user?.id);
+  const { following } = useFollows(session?.user?.id);
 
   const handleImageClick = (image) => {
     setSelectedImage(image);
@@ -61,6 +64,18 @@ const Inspiration = () => {
         activeView="inspiration"
         onSearch={setSearchQuery}
         nsfwEnabled={nsfwEnabled}
+        setNsfwEnabled={setNsfwEnabled}
+        activeFilters={activeFilters}
+        onFilterChange={(type, value) => setActiveFilters(prev => ({ ...prev, [type]: value }))}
+        onRemoveFilter={(type) => {
+          const newFilters = { ...activeFilters };
+          delete newFilters[type];
+          setActiveFilters(newFilters);
+        }}
+        showFollowing={showFollowing}
+        showTop={showTop}
+        onFollowingChange={setShowFollowing}
+        onTopChange={setShowTop}
       />
 
       {/* Mobile Header */}
@@ -77,6 +92,10 @@ const Inspiration = () => {
         nsfwEnabled={nsfwEnabled}
         onToggleNsfw={() => setNsfwEnabled(!nsfwEnabled)}
         activeView="inspiration"
+        showFollowing={showFollowing}
+        showTop={showTop}
+        onFollowingChange={setShowFollowing}
+        onTopChange={setShowTop}
       />
 
       {/* Main Content */}
@@ -91,6 +110,9 @@ const Inspiration = () => {
           nsfwEnabled={nsfwEnabled}
           activeFilters={activeFilters}
           searchQuery={searchQuery}
+          showFollowing={showFollowing}
+          showTop={showTop}
+          following={following}
         />
       </main>
 
@@ -101,8 +123,6 @@ const Inspiration = () => {
         session={session}
         credits={credits}
         bonusCredits={bonusCredits}
-        activeView={activeView}
-        setActiveView={setActiveView}
         generatingImages={[]}
       />
       <MobileNotificationsMenu activeTab={activeTab} />

@@ -2,6 +2,7 @@ import React, { memo, useState, useEffect } from 'react';
 import { Image, Plus, Sparkles, User } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useProUser } from '@/hooks/useProUser';
+import { useNavigate, useLocation } from 'react-router-dom';
 import GeneratingImagesDrawer from './GeneratingImagesDrawer';
 import MobileNavButton from './navbar/MobileNavButton';
 import NotificationBell from './notifications/NotificationBell';
@@ -13,8 +14,6 @@ const BottomNavbar = ({
   session, 
   credits, 
   bonusCredits, 
-  activeView, 
-  setActiveView, 
   generatingImages = [],
   nsfwEnabled,
   setNsfwEnabled
@@ -24,6 +23,8 @@ const BottomNavbar = ({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showCheckmark, setShowCheckmark] = useState(false);
   const [prevLength, setPrevLength] = useState(generatingImages.length);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Handle showing checkmark when an image completes
   useEffect(() => {
@@ -44,24 +45,27 @@ const BottomNavbar = ({
         <div className="flex items-center justify-around px-2 max-w-md mx-auto">
           <MobileNavButton
             icon={Image}
-            isActive={activeTab === 'images' && activeView === 'myImages'}
+            isActive={activeTab === 'images' && location.pathname === '/'}
             onClick={() => {
               setActiveTab('images');
-              setActiveView('myImages');
+              navigate('/');
             }}
           />
           <MobileNavButton
             icon={Sparkles}
-            isActive={activeTab === 'images' && activeView === 'inspiration'}
+            isActive={location.pathname === '/inspiration'}
             onClick={() => {
               setActiveTab('images');
-              setActiveView('inspiration');
+              navigate('/inspiration');
             }}
           />
           <MobileNavButton
             icon={Plus}
             isActive={activeTab === 'input'}
-            onClick={() => setActiveTab('input')}
+            onClick={() => {
+              setActiveTab('input');
+              navigate('/');
+            }}
             onLongPress={() => setDrawerOpen(true)}
             badge={generatingImages.length}
             showCheckmark={showCheckmark}

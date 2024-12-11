@@ -1,13 +1,16 @@
 import React from 'react'
 import { Button } from "@/components/ui/button"
+import { useNavigate } from 'react-router-dom'
 import GeneratingImagesDropdown from './GeneratingImagesDropdown'
 
-const ActionButtons = ({ activeView, setActiveView, generatingImages }) => {
+const ActionButtons = ({ activeView, generatingImages }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="hidden md:flex items-center space-x-2">
       <Button
         variant={activeView === 'myImages' ? 'default' : 'outline'}
-        onClick={() => setActiveView('myImages')}
+        onClick={() => navigate('/')}
         className="text-xs px-2 py-1 h-8 transition-colors hover:bg-accent hover:text-accent-foreground"
         aria-pressed={activeView === 'myImages'}
       >
@@ -15,7 +18,7 @@ const ActionButtons = ({ activeView, setActiveView, generatingImages }) => {
       </Button>
       <Button
         variant={activeView === 'inspiration' ? 'default' : 'outline'}
-        onClick={() => setActiveView('inspiration')}
+        onClick={() => navigate('/inspiration')}
         className="text-xs px-2 py-1 h-8 transition-colors hover:bg-accent hover:text-accent-foreground"
         aria-pressed={activeView === 'inspiration'}
       >
