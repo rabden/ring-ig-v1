@@ -3,7 +3,6 @@ import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Download, Trash2, Wand2, Copy, Share2, Check, ArrowLeft } from "lucide-react";
-import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import TruncatablePrompt from './TruncatablePrompt';
@@ -29,7 +28,6 @@ const MobileImageView = ({
 }) => {
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
-  const { data: styleConfigs } = useStyleConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   const [isAnimating, setIsAnimating] = useState(false);

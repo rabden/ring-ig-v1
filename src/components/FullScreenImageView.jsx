@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Download, Trash2, RefreshCw, ArrowLeft } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
-import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useLikes } from '@/hooks/useLikes';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -30,7 +29,6 @@ const FullScreenImageView = ({
 }) => {
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
-  const { data: styleConfigs } = useStyleConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   const [isAnimating, setIsAnimating] = useState(false);
