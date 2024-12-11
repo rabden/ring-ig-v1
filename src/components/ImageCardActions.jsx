@@ -8,28 +8,21 @@ const ImageCardActions = ({
   image,
   onDownload = () => {},
   onDiscard = () => {},
-  onRemix = () => {},
-  setActiveTab = () => {},
-  onClose = () => {},
   isOwner = false
 }) => {
   const { session } = useSupabaseAuth();
-  const { handleRemix } = useImageRemix(session, onRemix, setActiveTab, onClose);
+  const { handleRemix } = useImageRemix(session);
 
   const handleDownloadClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (typeof onDownload === 'function') {
-      onDownload(image);
-    }
+    onDownload(image);
   };
 
   const handleDiscardClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (typeof onDiscard === 'function') {
-      onDiscard(image);
-    }
+    onDiscard(image);
   };
 
   const handleRemixClick = (e) => {

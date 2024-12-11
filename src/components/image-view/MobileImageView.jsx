@@ -5,10 +5,32 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download, RefreshCw, Copy, Share2 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/supabase';
+import { useImageRemix } from '@/hooks/useImageRemix';
+import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
-const MobileImageView = ({ image, session, modelConfigs, handlers }) => {
-  const { handleDownload, handleRemix, handleCopyPrompt, handleShare } = handlers;
+const MobileImageView = ({ image, session, modelConfigs }) => {
+  const { session: authSession } = useSupabaseAuth();
+  const { handleRemix } = useImageRemix(authSession);
   
+  const handleCopyPrompt = () => {
+    navigator.clipboard.writeText(image.prompt);
+    toast.success('Prompt copied to clipboard');
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.share({
+        title: 'Share Image',
+        text: image.prompt,
+        url: window.location.href
+      });
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        console.error('Error sharing:', error);
+      }
+    }
+  };
+
   return (
     <Drawer.Root defaultOpen>
       <Drawer.Portal>
@@ -27,11 +49,11 @@ const MobileImageView = ({ image, session, modelConfigs, handlers }) => {
               
               {session && (
                 <div className="flex gap-2 justify-between mb-6">
-                  <Button variant="ghost" size="sm" className="flex-1" onClick={handleDownload}>
+                  <Button variant="ghost" size="sm" className="flex-1" onClick={() => handleDownload(image)}>
                     <Download className="mr-2 h-4 w-4" />
                     Download
                   </Button>
-                  <Button variant="ghost" size="sm" className="flex-1" onClick={handleRemix}>
+                  <Button variant="ghost" size="sm" className="flex-1" onClick={() => handleRemix(image)}>
                     <RefreshCw className="mr-2 h-4 w-4" />
                     Remix
                   </Button>

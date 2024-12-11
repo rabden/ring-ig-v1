@@ -2,6 +2,7 @@ import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useProUser } from '@/hooks/useProUser';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { isMobile } from '@/lib/utils';
 
 export const useImageRemix = (session) => {
   const navigate = useNavigate();
@@ -16,8 +17,10 @@ export const useImageRemix = (session) => {
     // Clear any existing remix data before starting new remix
     sessionStorage.removeItem('remixData');
     
-    // Navigate to remix route which will redirect back with credentials
-    navigate(`/remix/${image.id}`);
+    // Navigate to remix route which will redirect based on device
+    navigate(`/remix/${image.id}`, {
+      state: { isMobile: isMobile() } // Pass device type to RemixRoute
+    });
   };
 
   // Function to get and clear remix data

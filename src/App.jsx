@@ -56,6 +56,8 @@ const RemixRoute = ({ children }) => {
   const { session } = useSupabaseAuth();
   const navigate = useNavigate();
   const { imageId } = useParams();
+  const location = useLocation();
+  const isMobileDevice = location.state?.isMobile;
 
   useEffect(() => {
     async function fetchAndSetupRemix() {
@@ -78,11 +80,15 @@ const RemixRoute = ({ children }) => {
             width: image.width,
             height: image.height,
             sourceImageId: image.id,
-            timestamp: Date.now() // Add timestamp
+            timestamp: Date.now()
           }));
 
-          // Redirect to generator with hash
-          navigate('/#imagegenerate', { replace: true });
+          // Redirect based on device type
+          if (isMobileDevice) {
+            navigate('/#imagegenerate', { replace: true });
+          } else {
+            navigate('/#myimages', { replace: true });
+          }
         } catch (error) {
           console.error('Error fetching image:', error);
           toast.error('Failed to load image for remix');
@@ -92,7 +98,7 @@ const RemixRoute = ({ children }) => {
     }
 
     fetchAndSetupRemix();
-  }, [session, imageId, navigate]);
+  }, [session, imageId, navigate, isMobileDevice]);
 
   if (!session) {
     // Clear any existing remix data when not authenticated

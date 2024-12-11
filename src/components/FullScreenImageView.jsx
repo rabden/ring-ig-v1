@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Download, X, Sparkles, Share2, Copy } from 'lucide-react';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useImageRemix } from '@/hooks/useImageRemix';
+import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -14,12 +15,11 @@ const FullScreenImageView = ({
   onClose, 
   onDownload, 
   onDiscard, 
-  onRemix,
-  isOwner,
-  setActiveTab
+  isOwner
 }) => {
   const { data: modelConfigs } = useModelConfigs();
-  const { handleRemix } = useImageRemix(session, onRemix, setActiveTab, onClose);
+  const { session } = useSupabaseAuth();
+  const { handleRemix } = useImageRemix(session);
 
   const handleCopyPrompt = () => {
     navigator.clipboard.writeText(image.prompt);
