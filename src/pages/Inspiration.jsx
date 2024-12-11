@@ -122,7 +122,6 @@ const Inspiration = () => {
           nsfwEnabled={nsfwEnabled}
           activeFilters={activeFilters}
           searchQuery={searchQuery}
-          showPrivate={false}
           showFollowing={showFollowing}
           showTop={showTop}
           following={following}

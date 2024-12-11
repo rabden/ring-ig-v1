@@ -1,5 +1,4 @@
 import React, { useRef, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
 import Masonry from 'react-masonry-css';
 import SkeletonImageCard from './SkeletonImageCard';
 import ImageCard from './ImageCard';
@@ -69,6 +68,7 @@ const ImageGallery = ({
   onDiscard, 
   onRemix, 
   onViewDetails, 
+  activeView, 
   generatingImages = [], 
   nsfwEnabled,
   activeFilters = {},
@@ -76,6 +76,8 @@ const ImageGallery = ({
   showPrivate,
   profileUserId,
   className,
+  setStyle,
+  style,
   showFollowing,
   showTop,
   following
@@ -83,8 +85,6 @@ const ImageGallery = ({
   const { userLikes, toggleLike } = useLikes(userId);
   const isMobile = window.innerWidth <= 768;
   const breakpointColumnsObj = getBreakpointColumns();
-  const location = useLocation();
-  const activeView = location.pathname === '/inspiration' ? 'inspiration' : 'myImages';
   
   const { 
     images, 
@@ -195,6 +195,8 @@ const ImageGallery = ({
                     isMobile={isMobile}
                     isLiked={userLikes.includes(image.id)}
                     onToggleLike={toggleLike}
+                    setStyle={setStyle}
+                    style={style}
                   />
                 </div>
               ))}
@@ -235,6 +237,8 @@ const ImageGallery = ({
               isMobile={isMobile}
               isLiked={userLikes.includes(image.id)}
               onToggleLike={toggleLike}
+              setStyle={setStyle}
+              style={style}
             />
           </div>
         ))}
