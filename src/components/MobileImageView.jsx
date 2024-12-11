@@ -14,6 +14,7 @@ import HeartAnimation from './animations/HeartAnimation';
 import { useLikes } from '@/hooks/useLikes';
 import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 const MobileImageView = ({ 
   image, 
@@ -22,7 +23,6 @@ const MobileImageView = ({
   onDiscard, 
   onRemix, 
   isOwner,
-  setActiveTab,
   setStyle,
   showFullImage = false
 }) => {
@@ -31,9 +31,13 @@ const MobileImageView = ({
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   const [isAnimating, setIsAnimating] = useState(false);
-  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, onClose);
+  const { handleRemix } = useImageRemix(session, () => {
+    onClose();
+    navigate(`/?remix=${image.id}`);
+  }, onClose);
   const queryClient = useQueryClient();
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
+  const navigate = useNavigate();
 
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],

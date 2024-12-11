@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useSearchParams, useLocation } from 'react-router-dom';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/integrations/supabase/components/AuthProvider';
@@ -50,6 +50,7 @@ const AuthRoute = ({ children }) => {
   return children;
 };
 
+// Main App Component
 function App() {
   const [isLoading, setIsLoading] = useState(true);
 

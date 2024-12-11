@@ -1,115 +1,94 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { MoreVertical, Download, Trash2, Wand2, Info } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import LikeButton from './LikeButton';
-import { useImageRemix } from '@/hooks/useImageRemix';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, Download, Trash2, RefreshCw } from "lucide-react";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { useImageRemix } from '@/hooks/useImageRemix';
+import { useNavigate } from 'react-router-dom';
 
-const ImageCardActions = ({ 
-  image, 
-  isMobile, 
-  isLiked, 
-  likeCount = 0, 
-  onToggleLike = () => {},
-  onViewDetails = () => {},
-  onDownload = () => {},
-  onDiscard = () => {},
-  onRemix = () => {},
-  userId,
+const ImageCardActions = ({
+  image,
+  onDownload,
+  onDiscard,
+  isOwner,
   setStyle,
-  setActiveTab
+  setActiveTab,
+  onRemix = () => {},
+  size = "default"
 }) => {
   const { session } = useSupabaseAuth();
-  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, () => {});
+  const navigate = useNavigate();
+  const { handleRemix } = useImageRemix(session, () => {
+    navigate(`/?remix=${image.id}`);
+  }, () => {});
 
-  const handleViewDetails = (e) => {
-    e.preventDefault();
+  const handleDiscardClick = (e) => {
     e.stopPropagation();
-    onViewDetails(image);
+    if (onDiscard) {
+      onDiscard(image);
+    }
   };
 
-  const handleDiscard = (e) => {
-    e.preventDefault();
+  const handleDownloadClick = (e) => {
     e.stopPropagation();
-    if (!image?.id) return;
-    onDiscard(image);
-  };
-
-  const handleDownload = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onDownload(image);
+    if (onDownload) {
+      onDownload(image);
+    }
   };
 
   const handleRemixClick = (e) => {
-    e.preventDefault();
     e.stopPropagation();
     handleRemix(image);
   };
 
-  return (
-    <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-      {session && (
-        <div className="flex items-center gap-1">
-          <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
-          <span className="text-xs text-muted-foreground">{likeCount}</span>
-        </div>
-      )}
+  if (size === "sm") {
+    return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button 
             variant="ghost" 
             size="icon"
-            className="h-6 w-6 p-0 hover:bg-background/80 transition-colors duration-200"
+            className="h-8 w-8 absolute top-2 right-2 bg-background/80 backdrop-blur-sm hover:bg-background/90"
           >
-            <MoreVertical className="h-4 w-4" />
+            <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent 
-          align="end"
-          className="w-48 p-1 animate-in fade-in-0 zoom-in-95"
-        >
-          <DropdownMenuItem 
-            onClick={handleDownload}
-            className="flex items-center gap-2 py-2 px-3 cursor-pointer hover:bg-accent rounded-sm group"
-          >
-            <Download className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-            <span className="font-medium">Download</span>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={handleDownloadClick}>
+            <Download className="mr-2 h-4 w-4" />
+            Download
           </DropdownMenuItem>
-
-          {session && (
-            <>
-              <DropdownMenuSeparator className="my-1" />
-              {image.user_id === userId && (
-                <DropdownMenuItem 
-                  onClick={handleDiscard}
-                  className="flex items-center gap-2 py-2 px-3 cursor-pointer hover:bg-accent rounded-sm group text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="h-4 w-4 group-hover:text-destructive transition-colors" />
-                  <span className="font-medium">Discard</span>
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem 
-                onClick={handleRemixClick}
-                className="flex items-center gap-2 py-2 px-3 cursor-pointer hover:bg-accent rounded-sm group"
-              >
-                <Wand2 className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-                <span className="font-medium">Remix</span>
-              </DropdownMenuItem>
-            </>
+          {isOwner && (
+            <DropdownMenuItem onClick={handleDiscardClick} className="text-destructive">
+              <Trash2 className="mr-2 h-4 w-4" />
+              Discard
+            </DropdownMenuItem>
           )}
-
-          <DropdownMenuSeparator className="my-1" />
-          <DropdownMenuItem 
-            onClick={handleViewDetails}
-            className="flex items-center gap-2 py-2 px-3 cursor-pointer hover:bg-accent rounded-sm group"
-          >
-            <Info className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-            <span className="font-medium">View Details</span>
+          <DropdownMenuItem onClick={handleRemixClick}>
+            <RefreshCw className="mr-2 h-4 w-4" />
+            <span className="font-medium">Remix</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+    );
+  }
+
+  return (
+    <div className="flex gap-2">
+      <Button variant="ghost" size="sm" onClick={handleDownloadClick}>
+        <Download className="mr-2 h-4 w-4" />
+        Download
+      </Button>
+      {isOwner && (
+        <Button variant="ghost" size="sm" onClick={handleDiscardClick} className="text-destructive hover:text-destructive">
+          <Trash2 className="mr-2 h-4 w-4" />
+          Discard
+        </Button>
+      )}
+      <Button variant="ghost" size="sm" onClick={handleRemixClick}>
+        <RefreshCw className="mr-2 h-4 w-4" />
+        Remix
+      </Button>
     </div>
   );
 };

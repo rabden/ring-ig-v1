@@ -2,7 +2,7 @@ import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useProUser } from '@/hooks/useProUser';
 import { toast } from 'sonner';
 
-export const useImageRemix = (session, onRemix, setActiveTab, onClose) => {
+export const useImageRemix = (session, onRemix, onClose) => {
   const { data: modelConfigs } = useModelConfigs() || {};
   const { data: isPro = false } = useProUser(session?.user?.id);
 
@@ -14,10 +14,6 @@ export const useImageRemix = (session, onRemix, setActiveTab, onClose) => {
 
     if (onRemix && typeof onRemix === 'function') {
       onRemix(image);
-    }
-    
-    if (setActiveTab && typeof setActiveTab === 'function') {
-      setActiveTab('input');
     }
     
     if (onClose && typeof onClose === 'function') {

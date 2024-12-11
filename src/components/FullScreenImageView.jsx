@@ -15,6 +15,7 @@ import { useImageRemix } from '@/hooks/useImageRemix';
 import HeartAnimation from './animations/HeartAnimation';
 import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 const FullScreenImageView = ({ 
   image, 
@@ -34,7 +35,11 @@ const FullScreenImageView = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
   const queryClient = useQueryClient();
-  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, onClose);
+  const navigate = useNavigate();
+  const { handleRemix } = useImageRemix(session, () => {
+    onClose();
+    navigate(`/?remix=${image.id}`);
+  }, onClose);
 
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],
