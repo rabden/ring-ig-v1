@@ -16,13 +16,10 @@ const ImageCardActions = ({
   onViewDetails = () => {},
   onDownload = () => {},
   onDiscard = () => {},
-  onRemix = () => {},
-  userId,
-  setStyle,
-  setActiveTab
+  userId
 }) => {
   const { session } = useSupabaseAuth();
-  const { handleRemix } = useImageRemix(session, onRemix, () => {});
+  const navigate = useNavigate();
 
   const handleViewDetails = (e) => {
     e.preventDefault();
