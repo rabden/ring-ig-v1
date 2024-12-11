@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useUserCredits } from '@/hooks/useUserCredits';
 import { useFollows } from '@/hooks/useFollows';
+import { useScrollDirection } from '@/hooks/useScrollDirection';
 import ImageGallery from '@/components/ImageGallery';
 import DesktopHeader from '@/components/header/DesktopHeader';
 import MobileHeader from '@/components/header/MobileHeader';
@@ -15,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 const Inspiration = () => {
   const { session } = useSupabaseAuth();
   const navigate = useNavigate();
+  const isHeaderVisible = useScrollDirection();
   const [selectedImage, setSelectedImage] = useState(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false);
@@ -88,7 +90,7 @@ const Inspiration = () => {
           setActiveFilters(newFilters);
         }}
         onSearch={setSearchQuery}
-        isVisible={true}
+        isVisible={isHeaderVisible}
         nsfwEnabled={nsfwEnabled}
         onToggleNsfw={() => setNsfwEnabled(!nsfwEnabled)}
         activeView="inspiration"
