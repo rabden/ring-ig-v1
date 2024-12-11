@@ -22,7 +22,6 @@ api_url = "http://localhost"
 
 [storage]
 enabled = true
-file_size_limit = "50MiB"
 buckets = ["user-images"]
 
 [auth]
@@ -43,10 +42,3 @@ enable_confirmations = false
 enabled = true
 client_id = "229422397213-lqrek8a0jftrlvf178gi7mqlvc7pnj2o.apps.googleusercontent.com"
 secret = "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"
-
-[analytics]
-enabled = false
-
-[functions]
-[realtime]
-enabled = true
