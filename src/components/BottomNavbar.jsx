@@ -38,6 +38,11 @@ const BottomNavbar = ({
     setPrevLength(generatingImages.length);
   }, [generatingImages.length, prevLength]);
 
+  const handleNavigation = (route, tab) => {
+    setActiveTab(tab);
+    navigate(route);
+  };
+
   return (
     <>
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/30 md:hidden z-50">
@@ -45,26 +50,17 @@ const BottomNavbar = ({
           <MobileNavButton
             icon={Image}
             isActive={location.pathname === '/' && (!location.hash || location.hash === '#myimages')}
-            onClick={() => {
-              setActiveTab('images');
-              navigate('/#myimages');
-            }}
+            onClick={() => handleNavigation('/#myimages', 'images')}
           />
           <MobileNavButton
             icon={Sparkles}
             isActive={location.pathname === '/inspiration'}
-            onClick={() => {
-              setActiveTab('images');
-              navigate('/inspiration');
-            }}
+            onClick={() => handleNavigation('/inspiration', 'images')}
           />
           <MobileNavButton
             icon={Plus}
             isActive={location.hash === '#imagegenerate'}
-            onClick={() => {
-              setActiveTab('input');
-              navigate('/#imagegenerate');
-            }}
+            onClick={() => handleNavigation('/#imagegenerate', 'input')}
             onLongPress={() => setDrawerOpen(true)}
             badge={generatingImages.length}
             showCheckmark={showCheckmark}
@@ -72,10 +68,7 @@ const BottomNavbar = ({
           <MobileNavButton
             icon={NotificationBell}
             isActive={location.hash === '#notifications'}
-            onClick={() => {
-              setActiveTab('notifications');
-              navigate('/#notifications');
-            }}
+            onClick={() => handleNavigation('/#notifications', 'notifications')}
           />
           <div className="flex items-center justify-center">
             {session ? (

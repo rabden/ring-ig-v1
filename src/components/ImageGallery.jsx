@@ -73,7 +73,6 @@ const ImageGallery = ({
   nsfwEnabled,
   activeFilters = {},
   searchQuery = '',
-  setActiveTab,
   showPrivate,
   profileUserId,
   className,
@@ -196,7 +195,6 @@ const ImageGallery = ({
                     isMobile={isMobile}
                     isLiked={userLikes.includes(image.id)}
                     onToggleLike={toggleLike}
-                    setActiveTab={setActiveTab}
                     setStyle={setStyle}
                     style={style}
                   />
@@ -239,7 +237,6 @@ const ImageGallery = ({
               isMobile={isMobile}
               isLiked={userLikes.includes(image.id)}
               onToggleLike={toggleLike}
-              setActiveTab={setActiveTab}
               setStyle={setStyle}
               style={style}
             />

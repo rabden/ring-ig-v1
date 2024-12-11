@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import SearchBar from '../search/SearchBar';
 import PrivateFilterButton from '../filters/PrivateFilterButton';
 import InspirationFilterButtons from '../filters/InspirationFilterButtons';
@@ -13,12 +14,15 @@ const MobileHeader = ({
   nsfwEnabled,
   showPrivate,
   onTogglePrivate,
-  activeView,
   showFollowing,
   showTop,
   onFollowingChange,
   onTopChange
 }) => {
+  const location = useLocation();
+  const isInspiration = location.pathname === '/inspiration';
+  const isMyImages = location.pathname === '/' && (!location.hash || location.hash === '#myimages');
+
   return (
     <div 
       className={cn(
@@ -28,13 +32,13 @@ const MobileHeader = ({
     >
       <div className="flex flex-col gap-2 p-2">
         <div className="flex items-center gap-2">
-          {activeView === 'myImages' && (
+          {isMyImages && (
             <PrivateFilterButton
               showPrivate={showPrivate}
               onToggle={onTogglePrivate}
             />
           )}
-          {activeView === 'inspiration' && (
+          {isInspiration && (
             <InspirationFilterButtons
               showFollowing={showFollowing}
               showTop={showTop}
