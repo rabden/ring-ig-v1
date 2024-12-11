@@ -6,7 +6,6 @@ import { Download, X, Sparkles, Share2, Copy } from 'lucide-react';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useImageRemix } from '@/hooks/useImageRemix';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { supabase } from '@/integrations/supabase/supabase';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -21,13 +20,6 @@ const FullScreenImageView = ({
   const { data: modelConfigs } = useModelConfigs();
   const { session } = useSupabaseAuth();
   const { handleRemix } = useImageRemix(session);
-
-  // Early return if no image
-  if (!image || !isOpen) return null;
-
-  const imageUrl = image.storage_path 
-    ? supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl
-    : image.image_url;
 
   const handleCopyPrompt = () => {
     navigator.clipboard.writeText(image.prompt);
@@ -55,8 +47,8 @@ const FullScreenImageView = ({
           <CardContent className="p-0">
             <div className="relative">
               <img
-                src={imageUrl}
-                alt={image.prompt || 'Image'}
+                src={image.image_url}
+                alt={image.prompt}
                 className="w-full h-auto"
               />
               <button
@@ -67,12 +59,10 @@ const FullScreenImageView = ({
               </button>
             </div>
             <div className="p-4 space-y-4 bg-card">
-              {image.prompt && (
-                <div className="space-y-2">
-                  <div className="text-sm text-muted-foreground">Prompt</div>
-                  <div className="text-sm">{image.prompt}</div>
-                </div>
-              )}
+              <div className="space-y-2">
+                <div className="text-sm text-muted-foreground">Prompt</div>
+                <div className="text-sm">{image.prompt}</div>
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <div className="text-sm text-muted-foreground">Model</div>
@@ -80,7 +70,7 @@ const FullScreenImageView = ({
                 </div>
                 <div>
                   <div className="text-sm text-muted-foreground">Quality</div>
-                  <div className="text-sm">{image.quality || 'Standard'}</div>
+                  <div className="text-sm">{image.quality}</div>
                 </div>
               </div>
               <div className="flex gap-2">
