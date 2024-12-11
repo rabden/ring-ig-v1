@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useParams, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/integrations/supabase/components/AuthProvider';
@@ -13,8 +13,6 @@ import LoadingScreen from '@/components/LoadingScreen';
 import Login from '@/pages/Login';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import Inspiration from '@/pages/Inspiration';
-import { supabase } from '@/integrations/supabase/supabase';
-import { toast } from 'sonner';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,64 +49,6 @@ const AuthRoute = ({ children }) => {
   return children;
 };
 
-// Remix Route Component
-const RemixRoute = ({ children }) => {
-  const { session } = useSupabaseAuth();
-  const navigate = useNavigate();
-  const { imageId } = useParams();
-  const location = useLocation();
-  const isMobileDevice = location.state?.isMobile;
-
-  useEffect(() => {
-    async function fetchAndSetupRemix() {
-      if (session && imageId) {
-        try {
-          // Fetch the image data
-          const { data: image, error } = await supabase
-            .from('images')
-            .select('*')
-            .eq('id', imageId)
-            .single();
-
-          if (error) throw error;
-
-          // Store the remix data with timestamp
-          sessionStorage.setItem('remixData', JSON.stringify({
-            prompt: image.prompt,
-            model: image.model,
-            quality: image.quality,
-            width: image.width,
-            height: image.height,
-            sourceImageId: image.id,
-            timestamp: Date.now()
-          }));
-
-          // Redirect based on device type
-          if (isMobileDevice) {
-            navigate('/#imagegenerate', { replace: true });
-          } else {
-            navigate('/#myimages', { replace: true });
-          }
-        } catch (error) {
-          console.error('Error fetching image:', error);
-          toast.error('Failed to load image for remix');
-          navigate('/', { replace: true });
-        }
-      }
-    }
-
-    fetchAndSetupRemix();
-  }, [session, imageId, navigate, isMobileDevice]);
-
-  if (!session) {
-    // Clear any existing remix data when not authenticated
-    sessionStorage.removeItem('remixData');
-    return <Navigate to="/login" replace />;
-  }
-
-  return children;
-};
-
 function App() {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -140,16 +80,6 @@ function App() {
                       <AuthRoute>
                         <Login />
                       </AuthRoute>
-                    } 
-                  />
-
-                  {/* Remix Route */}
-                  <Route 
-                    path="/remix/:imageId" 
-                    element={
-                      <RemixRoute>
-                        <ImageGenerator />
-                      </RemixRoute>
                     } 
                   />
 
