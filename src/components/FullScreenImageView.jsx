@@ -12,7 +12,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import ImagePromptSection from './image-view/ImagePromptSection';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
 import { handleImageDiscard } from '@/utils/discardUtils';
-import { useImageRemix } from '@/hooks/useImageRemix';
 import HeartAnimation from './animations/HeartAnimation';
 import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 import { format } from 'date-fns';
@@ -36,7 +35,6 @@ const FullScreenImageView = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
   const queryClient = useQueryClient();
-  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, onClose);
 
   const { handleRemixRedirect } = useRemixNavigation(
     () => {}, // These are placeholder functions since we're only using handleRemixRedirect
@@ -98,15 +96,6 @@ const FullScreenImageView = ({
     }
   };
 
-  const detailItems = image ? [
-    { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
-    { label: "Seed", value: image.seed },
-    { label: "Size", value: `${image.width}x${image.height}` },
-    { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
-    { label: "Quality", value: image.quality },
-    { label: "Created", value: format(new Date(image.created_at), 'MMM d, yyyy h:mm a') }
-  ] : [];
-
   const handleDoubleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -119,9 +108,18 @@ const FullScreenImageView = ({
     }
   };
 
+  const detailItems = image ? [
+    { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
+    { label: "Seed", value: image.seed },
+    { label: "Size", value: `${image.width}x${image.height}` },
+    { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
+    { label: "Quality", value: image.quality },
+    { label: "Created", value: format(new Date(image.created_at), 'MMM d, yyyy h:mm a') }
+  ] : [];
+
   if (!image) return null;
 
-  const handleRemix = () => {
+  const handleRemixClick = () => {
     handleRemixRedirect(image);
     onClose();
   };
@@ -177,7 +175,7 @@ const FullScreenImageView = ({
                             Discard
                           </Button>
                         )}
-                        <Button onClick={handleRemix} className="flex-1" variant="ghost" size="sm">
+                        <Button onClick={handleRemixClick} className="flex-1" variant="ghost" size="sm">
                           <RefreshCw className="mr-2 h-4 w-4" />
                           Remix
                         </Button>
