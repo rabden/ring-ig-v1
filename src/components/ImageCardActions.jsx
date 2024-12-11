@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { MoreVertical, Download, Trash2, Wand2, Info } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import LikeButton from './LikeButton';
-import { useImageRemix } from '@/hooks/useImageRemix';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const ImageCardActions = ({ 
   image, 
@@ -45,7 +46,11 @@ const ImageCardActions = ({
   const handleRemixClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    handleRemix(image);
+    if (!session) {
+      toast.error('Please sign in to remix images');
+      return;
+    }
+    navigate(`/?remix=${image.id}`);
   };
 
   return (
