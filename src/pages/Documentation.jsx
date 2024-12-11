@@ -35,8 +35,8 @@ const sections = [
 ];
 
 const glowStyles = {
-  heroGlow: "after:absolute after:inset-0 after:bg-gradient-to-t after:from-primary/20 after:via-primary/5 after:to-transparent after:blur-2xl after:opacity-50 after:-z-10",
-  cardGlow: "after:absolute after:inset-0 after:bg-gradient-to-br after:from-primary/10 after:via-primary/5 after:to-transparent after:blur-xl after:opacity-50 after:-z-10",
+  heroGlow: "after:absolute after:inset-0 after:bg-[radial-gradient(circle_at_50%_50%,rgba(var(--primary-rgb),0.1),rgba(var(--primary-rgb),0.05),transparent)] after:animate-mesh after:-z-10",
+  cardGlow: "after:absolute after:inset-0 after:bg-[radial-gradient(circle_at_50%_50%,rgba(var(--primary-rgb),0.08),rgba(var(--primary-rgb),0.03),transparent)] after:animate-mesh after:-z-10",
   textGlow: "text-shadow-glow",
 };
 
@@ -153,10 +153,10 @@ const ModelShowcase = () => {
       {/* Model Info */}
       <motion.div
         key={currentModel?.id}
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: 20 }}
-        transition={{ duration: 0.5 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 1, ease: "easeInOut" }}
         className="space-y-6 relative"
       >
         <div className={glowStyles.cardGlow}>
@@ -193,10 +193,10 @@ const ModelShowcase = () => {
       {/* Model Image */}
       <motion.div
         key={`image-${currentModel?.id}`}
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 1.05 }}
-        transition={{ duration: 0.5 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 1, ease: "easeInOut" }}
         className={`relative aspect-square rounded-lg overflow-hidden shadow-2xl shadow-primary/20 ${glowStyles.heroGlow}`}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/80" />
@@ -252,10 +252,10 @@ const FeatureShowcase = () => {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
       <motion.div
         key={currentFeature.title}
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: 20 }}
-        transition={{ duration: 0.5 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 1, ease: "easeInOut" }}
         className="space-y-6 relative"
       >
         <div className={glowStyles.cardGlow}>
@@ -279,10 +279,10 @@ const FeatureShowcase = () => {
 
       <motion.div
         key={`image-${currentFeature.title}`}
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 1.05 }}
-        transition={{ duration: 0.5 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 1, ease: "easeInOut" }}
         className={`relative aspect-square rounded-lg overflow-hidden shadow-2xl shadow-primary/20 ${glowStyles.heroGlow}`}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/80" />
@@ -398,10 +398,10 @@ const Documentation = () => {
 
             <motion.div
               key={currentHeroImage}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.05 }}
-              transition={{ duration: 0.5 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1, ease: "easeInOut" }}
               className={`relative aspect-square rounded-lg overflow-hidden shadow-2xl shadow-primary/20 ${glowStyles.heroGlow} hidden md:block`}
             >
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/80" />
@@ -415,30 +415,8 @@ const Documentation = () => {
         </div>
 
         {/* Decorative Elements */}
-        <div className="absolute -top-24 right-0 w-96 h-96 bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-24 right-48 w-64 h-64 bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10 rounded-full blur-2xl animate-pulse" />
-      </div>
-
-      {/* Mobile Navigation */}
-      <div className="fixed bottom-4 left-4 right-4 z-50 md:hidden">
-        <div className="bg-background/80 backdrop-blur-lg rounded-lg border border-primary/20 shadow-lg p-2">
-          <ScrollArea className="h-12 w-full" orientation="horizontal">
-            <div className="flex gap-2">
-              {sections.map(({ id, title, icon: Icon }) => (
-                <Button
-                  key={id}
-                  variant={activeSection === id ? "secondary" : "ghost"}
-                  size="sm"
-                  onClick={() => scrollToSection(id)}
-                  className="whitespace-nowrap"
-                >
-                  <Icon className="h-4 w-4 mr-2" />
-                  {title}
-                </Button>
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
+        <div className="absolute -top-24 right-0 w-96 h-96 bg-[radial-gradient(circle_at_50%_50%,rgba(var(--primary-rgb),0.15),rgba(var(--primary-rgb),0.05),transparent)] rounded-full blur-3xl animate-mesh" />
+        <div className="absolute -bottom-24 right-48 w-64 h-64 bg-[radial-gradient(circle_at_50%_50%,rgba(var(--primary-rgb),0.2),rgba(var(--primary-rgb),0.1),transparent)] rounded-full blur-2xl animate-mesh" />
       </div>
 
       {/* Main Content */}
