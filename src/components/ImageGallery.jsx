@@ -76,8 +76,6 @@ const ImageGallery = ({
   showPrivate,
   profileUserId,
   className,
-  setStyle,
-  style,
   showFollowing,
   showTop,
   following
@@ -197,8 +195,6 @@ const ImageGallery = ({
                     isMobile={isMobile}
                     isLiked={userLikes.includes(image.id)}
                     onToggleLike={toggleLike}
-                    setStyle={setStyle}
-                    style={style}
                   />
                 </div>
               ))}
@@ -239,8 +235,6 @@ const ImageGallery = ({
               isMobile={isMobile}
               isLiked={userLikes.includes(image.id)}
               onToggleLike={toggleLike}
-              setStyle={setStyle}
-              style={style}
             />
           </div>
         ))}

@@ -8,7 +8,7 @@ import SettingSection from './settings/SettingSection';
 import ModelChooser from './settings/ModelChooser';
 import ImageCountChooser from './settings/ImageCountChooser';
 import PromptInput from './prompt/PromptInput';
-import StyledScrollArea from './style/StyledScrollArea';
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { qualityOptions } from '@/utils/imageConfigs';
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 
