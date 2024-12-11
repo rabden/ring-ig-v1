@@ -89,7 +89,12 @@ const FullScreenImageView = ({
   };
 
   const handleRemixClick = () => {
-    handleRemix(image);
+    if (!session) {
+      toast.error('Please sign in to remix images');
+      return;
+    }
+    const hash = isMobile ? '#imagegenerate' : '#myimages';
+    navigate(`/?remix=${image.id}${hash}`, { replace: true });
   };
 
   const detailItems = image ? [
@@ -166,7 +171,7 @@ const FullScreenImageView = ({
                             Discard
                           </Button>
                         )}
-                        <Button onClick={() => handleRemixClick()} className="flex-1" variant="ghost" size="sm">
+                        <Button onClick={handleRemixClick} className="flex-1" variant="ghost" size="sm">
                           <RefreshCw className="mr-2 h-4 w-4" />
                           Remix
                         </Button>
