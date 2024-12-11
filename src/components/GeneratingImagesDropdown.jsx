@@ -4,12 +4,10 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { useModelConfigs } from '@/hooks/useModelConfigs'
-import { useStyleConfigs } from '@/hooks/useStyleConfigs'
 import { cn } from "@/lib/utils"
 
 const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
   const { data: modelConfigs } = useModelConfigs();
-  const { data: styleConfigs } = useStyleConfigs();
   const [showDropdown, setShowDropdown] = useState(false);
   const [completedImages, setCompletedImages] = useState(new Set());
   const [prevLength, setPrevLength] = useState(generatingImages.length);
@@ -74,12 +72,6 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
             )}
             <div className="flex gap-2 text-xs text-muted-foreground">
               <span>{modelConfigs?.[img.model]?.name || img.model}</span>
-              {img.style && modelConfigs?.[img.model]?.category !== "NSFW" && (
-                <>
-                  <span>•</span>
-                  <span>{styleConfigs?.[img.style]?.name || img.style}</span>
-                </>
-              )}
             </div>
           </DropdownMenuItem>
         ))}

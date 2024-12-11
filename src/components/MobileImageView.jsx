@@ -3,24 +3,24 @@ import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Download, Trash2, Wand2, Copy, Share2, Check, ArrowLeft } from "lucide-react";
-import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import TruncatablePrompt from './TruncatablePrompt';
 import { handleImageDiscard } from '@/utils/discardUtils';
+import { useImageRemix } from '@/hooks/useImageRemix';
 import ImageDetailsSection from './image-view/ImageDetailsSection';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import HeartAnimation from './animations/HeartAnimation';
 import { useLikes } from '@/hooks/useLikes';
 import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 import { format } from 'date-fns';
-import { useRemixNavigation } from '@/utils/remixUtils';
 
 const MobileImageView = ({ 
   image, 
   onClose, 
   onDownload, 
   onDiscard, 
+  onRemix, 
   isOwner,
   setActiveTab,
   setStyle,
@@ -28,24 +28,12 @@ const MobileImageView = ({
 }) => {
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
-  const { data: styleConfigs } = useStyleConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   const [isAnimating, setIsAnimating] = useState(false);
+  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, onClose);
   const queryClient = useQueryClient();
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
-
-  const { handleRemixRedirect } = useRemixNavigation(
-    () => {}, // These are placeholder functions since we're only using handleRemixRedirect
-    () => {},
-    () => {},
-    () => {},
-    () => {},
-    () => {},
-    () => {},
-    () => {},
-    () => {}
-  );
 
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],
@@ -108,11 +96,6 @@ const MobileImageView = ({
     }
   };
 
-  const handleRemixClick = () => {
-    handleRemixRedirect(image);
-    onClose();
-  };
-
   const detailItems = [
     { label: 'Model', value: modelConfigs?.[image.model]?.name || image.model },
     { label: 'Size', value: `${image.width}x${image.height}` },
@@ -169,7 +152,7 @@ const MobileImageView = ({
                     Discard
                   </Button>
                 )}
-                <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={handleRemixClick}>
+                <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={() => handleRemix(image)}>
                   <Wand2 className="mr-1 h-3 w-3" />
                   Remix
                 </Button>

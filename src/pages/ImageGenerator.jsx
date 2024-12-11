@@ -14,7 +14,6 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { toast } from 'sonner';
 import ImageGeneratorContent from '@/components/ImageGeneratorContent';
-import { useRemixNavigation } from '@/utils/remixUtils';
 
 const ImageGenerator = () => {
   const { imageId } = useParams();
@@ -106,22 +105,11 @@ const ImageGenerator = () => {
     }
   };
 
-  const { handleRemixRedirect } = useRemixNavigation(
-    setPrompt,
-    setSeed,
-    setModel,
-    setQuality,
-    setWidth,
-    setHeight,
-    setAspectRatio,
-    setUseAspectRatio,
-    setActiveTab
-  );
-
   const {
     handleImageClick,
     handleModelChange,
     handlePromptKeyDown,
+    handleRemix,
     handleDownload,
     handleDiscard,
     handleViewDetails,
@@ -237,7 +225,7 @@ const ImageGenerator = () => {
         handleImageClick={handleImageClick}
         handleDownload={handleDownload}
         handleDiscard={handleDiscard}
-        handleRemix={handleRemixRedirect}
+        handleRemix={handleRemix}
         handleViewDetails={handleViewDetails}
         selectedImage={selectedImage}
         detailsDialogOpen={detailsDialogOpen}
