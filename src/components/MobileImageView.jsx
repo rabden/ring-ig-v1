@@ -108,6 +108,11 @@ const MobileImageView = ({
     }
   };
 
+  const handleRemixClick = () => {
+    handleRemixRedirect(image);
+    onClose();
+  };
+
   const detailItems = [
     { label: 'Model', value: modelConfigs?.[image.model]?.name || image.model },
     { label: 'Size', value: `${image.width}x${image.height}` },
@@ -116,11 +121,6 @@ const MobileImageView = ({
     { label: 'Aspect Ratio', value: image.aspect_ratio },
     { label: 'Created', value: format(new Date(image.created_at), 'MMM d, yyyy h:mm a') }
   ];
-
-  const handleRemixClick = () => {
-    handleRemixRedirect(image);
-    onClose();
-  };
 
   return (
     <div className="min-h-screen bg-background">
