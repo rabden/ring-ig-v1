@@ -1,32 +1,21 @@
 import React from 'react';
-import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SettingSection from './SettingSection';
-import { cn } from "@/lib/utils";
 
 const ImageCountChooser = ({ count, setCount }) => {
-  const counts = [1, 2, 3, 4];
-
   return (
     <SettingSection 
       label="Number of Images" 
       tooltip="Generate multiple images at once. Higher counts require more credits."
     >
-      <div className="flex items-center gap-2">
-        {counts.map((value) => (
-          <Button
-            key={value}
-            variant={count === value ? "secondary" : "ghost"}
-            size="sm"
-            onClick={() => setCount(value)}
-            className={cn(
-              "rounded-full w-8 h-8 p-0",
-              count === value ? "bg-muted hover:bg-muted/80" : "hover:bg-muted/50"
-            )}
-          >
-            {value}
-          </Button>
-        ))}
-      </div>
+      <Tabs value={count.toString()} onValueChange={(value) => setCount(parseInt(value))}>
+        <TabsList className="grid grid-cols-4">
+          <TabsTrigger value="1">1</TabsTrigger>
+          <TabsTrigger value="2">2</TabsTrigger>
+          <TabsTrigger value="3">3</TabsTrigger>
+          <TabsTrigger value="4">4</TabsTrigger>
+        </TabsList>
+      </Tabs>
     </SettingSection>
   );
 };
