@@ -60,7 +60,7 @@ const ImageGeneratorContent = ({
   useEffect(() => {
     const shouldMount = isMobile 
       ? isGenerateTab
-      : shouldShowSettings && !isPromptExpanded && !isInspiration;
+      : shouldShowSettings && isPromptExpanded && !isInspiration;
 
     if (shouldMount) {
       setIsSidebarMounted(true);
