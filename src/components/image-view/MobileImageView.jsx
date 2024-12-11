@@ -7,7 +7,6 @@ import { Download, RefreshCw, Copy, Share2 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/supabase';
 import { useImageRemix } from '@/hooks/useImageRemix';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { toast } from 'sonner';
 
 const MobileImageView = ({ image, session, modelConfigs }) => {
   const { session: authSession } = useSupabaseAuth();
