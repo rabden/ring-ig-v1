@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Download, RefreshCw, Copy, Share2 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/supabase';
 
-const MobileImageView = ({ image, session, modelConfigs, handlers }) => {
+const MobileImageView = ({ image, session, modelConfigs, styleConfigs, handlers }) => {
   const { handleDownload, handleRemix, handleCopyPrompt, handleShare } = handlers;
   
   return (
@@ -56,18 +56,30 @@ const MobileImageView = ({ image, session, modelConfigs, handlers }) => {
                   </p>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
                     <p className="text-sm font-medium text-muted-foreground">Model</p>
-                    <p className="text-sm">
+                    <Badge variant="outline" className="text-xs sm:text-sm font-normal">
                       {modelConfigs?.[image.model]?.name || image.model}
-                    </p>
+                    </Badge>
                   </div>
-                  <div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-muted-foreground">Style</p>
+                    <Badge variant="outline" className="text-xs sm:text-sm font-normal">
+                      {styleConfigs?.[image.style]?.name || "General"}
+                    </Badge>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium text-muted-foreground">Size</p>
+                    <Badge variant="outline" className="text-xs sm:text-sm font-normal">
+                      {image.width}x{image.height}
+                    </Badge>
+                  </div>
+                  <div className="space-y-1">
                     <p className="text-sm font-medium text-muted-foreground">Quality</p>
-                    <p className="text-sm">
-                      {image.quality || "Standard"}
-                    </p>
+                    <Badge variant="outline" className="text-xs sm:text-sm font-normal">
+                      {image.quality}
+                    </Badge>
                   </div>
                 </div>
               </div>
