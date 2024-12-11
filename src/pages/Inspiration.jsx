@@ -99,7 +99,7 @@ const Inspiration = () => {
       />
 
       {/* Main Content */}
-      <main className="pt-12 px-2 md:px-6 pb-20 md:pb-6">
+      <main className="pt-4 md:pt-16 px-2 md:px-6 pb-20 md:pb-6">
         <ImageGallery
           userId={session?.user?.id}
           onImageClick={handleImageClick}
@@ -117,21 +117,23 @@ const Inspiration = () => {
       </main>
 
       {/* Mobile Navigation */}
-      <BottomNavbar 
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        session={session}
-        credits={credits}
-        bonusCredits={bonusCredits}
-        generatingImages={[]}
-      />
-      <MobileNotificationsMenu activeTab={activeTab} />
-      <MobileProfileMenu 
-        user={session?.user}
-        credits={credits}
-        bonusCredits={bonusCredits}
-        activeTab={activeTab}
-      />
+      <div className="relative z-50">
+        <BottomNavbar 
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          session={session}
+          credits={credits}
+          bonusCredits={bonusCredits}
+          generatingImages={[]}
+        />
+        <MobileNotificationsMenu activeTab={activeTab} />
+        <MobileProfileMenu 
+          user={session?.user}
+          credits={credits}
+          bonusCredits={bonusCredits}
+          activeTab={activeTab}
+        />
+      </div>
 
       {/* Dialogs */}
       <ImageDetailsDialog
