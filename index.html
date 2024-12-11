@@ -2,21 +2,27 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>imaginative-snapshot-generator</title>
-    <meta name="description" content="GPT Engineer Generated Project" />
-    <meta name="author" content="GPT Engineer" />
-    <meta property="og:image" content="/og-image.svg" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Ring Image Generator" />
+    <title>Ring Image Generator</title>
+    <style>
+      .loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
-    <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
-    <script src="/.gpt_engineer/index.js" type="module"></script>
-    <script src="/src/main.jsx" type="module"></script>
-    <style>
-      a#lovable-badge {
-        display: none !important;
-      }
-    </style>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
