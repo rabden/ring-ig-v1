@@ -5,10 +5,32 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download, RefreshCw, Copy, Share2 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/supabase';
+import { useImageRemix } from '@/hooks/useImageRemix';
+import { useSupabaseAuth } from '@/integrations/supabase/auth';
 
-const MobileImageView = ({ image, session, modelConfigs, styleConfigs, handlers }) => {
-  const { handleDownload, handleRemix, handleCopyPrompt, handleShare } = handlers;
+const MobileImageView = ({ image, session, modelConfigs }) => {
+  const { session: authSession } = useSupabaseAuth();
+  const { handleRemix } = useImageRemix(authSession);
   
+  const handleCopyPrompt = () => {
+    navigator.clipboard.writeText(image.prompt);
+    toast.success('Prompt copied to clipboard');
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.share({
+        title: 'Share Image',
+        text: image.prompt,
+        url: window.location.href
+      });
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        console.error('Error sharing:', error);
+      }
+    }
+  };
+
   return (
     <Drawer.Root defaultOpen>
       <Drawer.Portal>
@@ -27,11 +49,11 @@ const MobileImageView = ({ image, session, modelConfigs, styleConfigs, handlers 
               
               {session && (
                 <div className="flex gap-2 justify-between mb-6">
-                  <Button variant="ghost" size="sm" className="flex-1" onClick={handleDownload}>
+                  <Button variant="ghost" size="sm" className="flex-1" onClick={() => handleDownload(image)}>
                     <Download className="mr-2 h-4 w-4" />
                     Download
                   </Button>
-                  <Button variant="ghost" size="sm" className="flex-1" onClick={handleRemix}>
+                  <Button variant="ghost" size="sm" className="flex-1" onClick={() => handleRemix(image)}>
                     <RefreshCw className="mr-2 h-4 w-4" />
                     Remix
                   </Button>
@@ -56,30 +78,18 @@ const MobileImageView = ({ image, session, modelConfigs, styleConfigs, handlers 
                   </p>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
                     <p className="text-sm font-medium text-muted-foreground">Model</p>
-                    <Badge variant="outline" className="text-xs sm:text-sm font-normal">
+                    <p className="text-sm">
                       {modelConfigs?.[image.model]?.name || image.model}
-                    </Badge>
+                    </p>
                   </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-muted-foreground">Style</p>
-                    <Badge variant="outline" className="text-xs sm:text-sm font-normal">
-                      {styleConfigs?.[image.style]?.name || "General"}
-                    </Badge>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-muted-foreground">Size</p>
-                    <Badge variant="outline" className="text-xs sm:text-sm font-normal">
-                      {image.width}x{image.height}
-                    </Badge>
-                  </div>
-                  <div className="space-y-1">
+                  <div>
                     <p className="text-sm font-medium text-muted-foreground">Quality</p>
-                    <Badge variant="outline" className="text-xs sm:text-sm font-normal">
-                      {image.quality}
-                    </Badge>
+                    <p className="text-sm">
+                      {image.quality || "Standard"}
+                    </p>
                   </div>
                 </div>
               </div>
