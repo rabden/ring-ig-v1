@@ -20,7 +20,10 @@ import {
   Code,
   Key,
   Menu,
-  X
+  X,
+  BookOpen,
+  Copy,
+  Workflow
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -222,28 +225,28 @@ const FeatureShowcase = () => {
   const [currentFeatureIndex, setCurrentFeatureIndex] = useState(0);
   const features = [
     {
-      title: "Multiple AI Models",
-      description: "Choose from various specialized models, each optimized for different artistic styles and purposes.",
-      icon: Wand2,
-      image: "/feature-models.jpg" // Replace with actual image path
+      title: "Smart Prompt Enhancement",
+      description: "No need to learn complex prompt engineering - our AI automatically enhances your natural language descriptions into optimal prompts. Just describe what you want in simple terms, and our system handles the technical details.",
+      icon: Sparkles,
+      image: "/features/smart-prompt.jpg"
     },
     {
-      title: "Advanced Controls",
-      description: "Fine-tune your generations with precise controls over size, quality, and style variations.",
-      icon: Settings,
-      image: "/feature-controls.jpg"
+      title: "Instant Style Application",
+      description: "Browse our curated collection of artistic styles and apply them with a single click. Our platform handles all the technical aspects of style transfer, letting you focus on creativity.",
+      icon: Palette,
+      image: "/features/style-transfer.jpg"
     },
     {
-      title: "Community Features",
-      description: "Share your creations, follow other artists, and get inspired by the community gallery.",
-      icon: Share2,
-      image: "/feature-community.jpg"
+      title: "Smart Variations",
+      description: "Explore different interpretations of your vision with our intelligent variation system. Each variation maintains the core elements of your concept while offering unique artistic perspectives.",
+      icon: Copy,
+      image: "/features/variations.jpg"
     },
     {
-      title: "Privacy Controls",
-      description: "Keep your generations private or share them with the world. You're in control.",
-      icon: Lock,
-      image: "/feature-privacy.jpg"
+      title: "Professional Workflow",
+      description: "Focus on your creative process while our platform handles technical optimization. Features like automatic upscaling, enhancement, and style preservation ensure professional results every time.",
+      icon: Workflow,
+      image: "/features/workflow.jpg"
     }
   ];
 
@@ -368,16 +371,17 @@ const Documentation = () => {
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <div className={`relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-background border-b`}>
-        {/* Add meshing gradients */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(var(--primary-rgb),0.15),transparent_50%)] animate-mesh" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(var(--primary-rgb),0.15),transparent_50%)] animate-mesh" />
+        {/* Background gradients */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(var(--primary-rgb),0.15),transparent_50%)] animate-mesh pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(var(--primary-rgb),0.15),transparent_50%)] animate-mesh pointer-events-none" />
         
-        <div className="container max-w-6xl mx-auto px-4 py-8 md:py-16 lg:py-24">
-          <Link to="/" className="inline-block mb-8">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to App
-            </Button>
+        <div className="container max-w-6xl mx-auto px-4 py-8 md:py-16 lg:py-24 relative">
+          <Link 
+            to="/" 
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors relative z-10"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to App
           </Link>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
@@ -399,21 +403,27 @@ const Documentation = () => {
               <p className="text-lg md:text-xl text-muted-foreground mb-8 backdrop-blur-sm">
                 Learn how to use our powerful AI image generation platform to bring your creative vision to life.
               </p>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-col sm:flex-row gap-4 mt-8">
                 <Button 
                   size="lg" 
-                  onClick={() => scrollToSection('getting-started')}
-                  className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 hover:from-primary/90 hover:via-primary/80 hover:to-primary/70 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300"
+                  className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                  onClick={() => window.open('https://www.youtube.com/watch?v=your-tutorial-id', '_blank')}
                 >
-                  Quick Start Guide
-                  <ChevronRight className="h-4 w-4 ml-2" />
+                  <Play className="w-4 h-4 mr-2" />
+                  Watch Tutorial
                 </Button>
                 <Button 
-                  size="lg" 
-                  variant="outline"
-                  className="border-primary/20 hover:bg-primary/5 backdrop-blur-sm"
+                  variant="outline" 
+                  size="lg"
+                  onClick={() => {
+                    const docsElement = document.getElementById('features');
+                    if (docsElement) {
+                      docsElement.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
                 >
-                  Watch Tutorial
+                  <BookOpen className="w-4 h-4 mr-2" />
+                  Read Docs
                 </Button>
               </div>
             </motion.div>
@@ -437,8 +447,8 @@ const Documentation = () => {
         </div>
 
         {/* Decorative Elements */}
-        <div className="absolute -top-24 right-0 w-96 h-96 bg-[radial-gradient(circle_at_center,rgba(var(--primary-rgb),0.2),transparent_70%)] rounded-full blur-3xl animate-mesh" />
-        <div className="absolute -bottom-24 right-48 w-64 h-64 bg-[radial-gradient(circle_at_center,rgba(var(--primary-rgb),0.25),transparent_70%)] rounded-full blur-2xl animate-mesh" />
+        <div className="absolute -top-24 right-0 w-96 h-96 bg-[radial-gradient(circle_at_center,rgba(var(--primary-rgb),0.2),transparent_70%)] rounded-full blur-3xl animate-mesh pointer-events-none" />
+        <div className="absolute -bottom-24 right-48 w-64 h-64 bg-[radial-gradient(circle_at_center,rgba(var(--primary-rgb),0.25),transparent_70%)] rounded-full blur-2xl animate-mesh pointer-events-none" />
       </div>
 
       {/* Main Content */}
@@ -466,25 +476,18 @@ const Documentation = () => {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="mb-24 scroll-mt-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-12"
-          >
-            <Badge variant="outline" className="mb-2 bg-gradient-to-r from-primary/20 to-primary/10 border-primary/20">
-              Features
-            </Badge>
-            <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Powerful Creation Tools
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              Everything you need to create stunning AI-generated artwork.
-            </p>
-          </motion.div>
-
-          <FeatureShowcase />
+        <section className="py-16 md:py-24" id="features">
+          <div className="container max-w-6xl">
+            <div className="text-center mb-12">
+              <Badge variant="outline" className="mb-4">Features</Badge>
+              <h2 className="text-3xl font-bold mb-4">Advanced Features Made Simple</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Our platform handles the complexity of AI image generation, so you can focus on your creative vision. 
+                No technical expertise required - just pure creativity.
+              </p>
+            </div>
+            {/* Rest of the features section */}
+          </div>
         </section>
 
         {/* Getting Started Section */}
