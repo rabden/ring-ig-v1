@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { improvePrompt } from '@/utils/promptImprovement';
 import { toast } from 'sonner';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/integrations/supabase/supabase';
 
 export const usePromptImprovement = (userId) => {
   const [isImproving, setIsImproving] = useState(false);
