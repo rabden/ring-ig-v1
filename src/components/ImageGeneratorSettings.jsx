@@ -9,8 +9,8 @@ import ModelChooser from './settings/ModelChooser';
 import ImageCountChooser from './settings/ImageCountChooser';
 import PromptInput from './prompt/PromptInput';
 import { qualityOptions } from '@/utils/imageConfigs';
-import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 import { toast } from 'sonner';
+import CreditCounter from '@/components/ui/credit-counter';
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -35,7 +35,8 @@ const ImageGeneratorSettings = ({
   setImageCount,
   isPrivate,
   setIsPrivate,
-  hidePromptOnDesktop = false
+  hidePromptOnDesktop = false,
+  isImproving = false
 }) => {
   const userId = session?.user?.id;
   const creditCost = { "HD": 1, "HD+": 2, "4K": 3 }[quality] * imageCount;
@@ -73,6 +74,9 @@ const ImageGeneratorSettings = ({
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className={hidePromptOnDesktop ? 'md:hidden' : ''}>
+        <div className="mb-4">
+          <CreditCounter credits={credits} bonusCredits={bonusCredits} />
+        </div>
         <PromptInput
           value={prompt}
           onChange={handlePromptChange}
@@ -81,13 +85,13 @@ const ImageGeneratorSettings = ({
           hasEnoughCredits={hasEnoughCredits}
           onClear={() => setPrompt('')}
           onImprove={async () => {
-            if (!userId) {
+            if (!session) {
               toast.error('Please sign in to improve prompts');
               return;
             }
             await generateImage(true);
           }}
-          isImproving={false}
+          isImproving={isImproving}
           userId={userId}
           credits={credits}
           bonusCredits={bonusCredits}
