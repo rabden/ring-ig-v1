@@ -32,10 +32,24 @@ const MobileImageView = ({
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   const [isAnimating, setIsAnimating] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const navigate = useNavigate();
   const { handleRemix } = useImageRemix(session, onRemix, onClose, isPro);
   const queryClient = useQueryClient();
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
+
+  const getImageUrl = () => {
+    if (!image?.storage_path) return null;
+    try {
+      const { data } = supabase.storage.from('user-images').getPublicUrl(image.storage_path);
+      return data?.publicUrl;
+    } catch (error) {
+      console.error('Error getting image URL:', error);
+      return null;
+    }
+  };
+
+  const imageUrl = getImageUrl();
 
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],
@@ -128,15 +142,24 @@ const MobileImageView = ({
 
       <ScrollArea className="h-screen">
         <div className="p-4 space-y-6 pt-16">
-          {isOpen && image?.storage_path && (
+          {isOpen && imageUrl && (
             <div className="relative rounded-lg overflow-hidden mb-6">
               <img
-                src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                src={imageUrl}
                 alt={image.prompt || 'Generated image'}
                 className="w-full h-auto"
                 onDoubleClick={handleDoubleClick}
                 loading="eager"
+                onError={() => {
+                  setImageError(true);
+                  toast.error('Failed to load image');
+                }}
               />
+              {imageError && (
+                <div className="absolute inset-0 flex items-center justify-center bg-background/10 backdrop-blur-sm">
+                  <p className="text-muted-foreground">Failed to load image</p>
+                </div>
+              )}
               <HeartAnimation isAnimating={isAnimating} />
             </div>
           )}
