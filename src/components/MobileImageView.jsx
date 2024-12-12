@@ -144,67 +144,62 @@ const MobileImageView = ({
       </Button>
 
       <ScrollArea className={isMobile ? "h-[100dvh]" : "h-screen"}>
-        <div className="p-4 space-y-6 pt-16">
+        <div className="space-y-6 pt-16">
           {image && (
-            <div className="relative flex items-center justify-center bg-black/10 dark:bg-black/30 p-4 rounded-lg">
+            <div className="relative flex items-center justify-center bg-black/10 dark:bg-black/30">
               <img
                 src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
                 alt={image.prompt || 'Generated image'}
-                className={isMobile ? 
-                  "w-full h-auto max-h-[calc(100dvh-12rem)]" : 
-                  "max-w-full max-h-[calc(100vh-8rem)] object-contain"
-                }
+                className="w-full h-auto"
                 onDoubleClick={handleDoubleClick}
                 loading="eager"
-                onError={() => {
-                  setImageError(true);
-                  toast.error('Failed to load image');
-                }}
               />
               <HeartAnimation isAnimating={isAnimating} />
             </div>
           )}
 
-          {session && (
-            <>
-              <ImageOwnerHeader 
-                owner={owner}
-                image={image}
-                isOwner={isOwner}
-                userLikes={userLikes}
-                toggleLike={toggleLike}
-                likeCount={likeCount}
-              />
-              
-              <div className="flex gap-1 justify-between mb-6">
-                <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={onDownload}>
-                  <Download className="mr-1 h-3 w-3" />
-                  Download
-                </Button>
-                {isOwner && (
-                  <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs text-destructive hover:text-destructive" onClick={handleDiscardImage}>
-                    <Trash2 className="mr-1 h-3 w-3" />
-                    Discard
+          <div className="px-4">
+            {session && (
+              <>
+                <ImageOwnerHeader 
+                  owner={owner}
+                  image={image}
+                  isOwner={isOwner}
+                  userLikes={userLikes}
+                  toggleLike={toggleLike}
+                  likeCount={likeCount}
+                />
+                
+                <div className="flex gap-1 justify-between mb-6">
+                  <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={onDownload}>
+                    <Download className="mr-1 h-3 w-3" />
+                    Download
                   </Button>
-                )}
-                <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={handleRemixClick}>
-                  <RefreshCw className="mr-1 h-3 w-3" />
-                  Remix
-                </Button>
-              </div>
-            </>
-          )}
+                  {isOwner && (
+                    <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs text-destructive hover:text-destructive" onClick={handleDiscardImage}>
+                      <Trash2 className="mr-1 h-3 w-3" />
+                      Discard
+                    </Button>
+                  )}
+                  <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={handleRemixClick}>
+                    <RefreshCw className="mr-1 h-3 w-3" />
+                    Remix
+                  </Button>
+                </div>
+              </>
+            )}
 
-          <ImagePromptSection 
-            prompt={image.user_prompt || image.prompt}
-            copyIcon={copyIcon}
-            shareIcon={shareIcon}
-            onCopyPrompt={handleCopyPrompt}
-            onShare={handleShare}
-          />
+            <ImagePromptSection 
+              prompt={image.user_prompt || image.prompt}
+              copyIcon={copyIcon}
+              shareIcon={shareIcon}
+              onCopyPrompt={handleCopyPrompt}
+              onShare={handleShare}
+            />
 
-          <div className="mt-4">
-            <ImageDetailsSection detailItems={detailItems} />
+            <div className="mt-4">
+              <ImageDetailsSection detailItems={detailItems} />
+            </div>
           </div>
         </div>
       </ScrollArea>
