@@ -28,7 +28,13 @@ const NotificationItem = ({ notification }) => {
     }
   };
 
-  const images = notification.image_url ? notification.image_url.split(',').map(url => url.trim()) : [];
+  // Parse image URLs and ensure they are valid
+  const images = notification.image_url 
+    ? notification.image_url.split(',')
+        .map(url => url.trim())
+        .filter(url => url.length > 0)
+    : [];
+
   const links = notification.link ? notification.link.split(',').map(link => link.trim()) : [];
   const linkNames = notification.link_names ? notification.link_names.split(',').map(name => name.trim()) : [];
 
@@ -48,8 +54,10 @@ const NotificationItem = ({ notification }) => {
               alt=""
               className="rounded-md object-cover w-full h-full"
               onError={(e) => {
+                console.error('Failed to load notification image:', images[0]);
                 e.target.style.display = 'none';
               }}
+              loading="lazy"
             />
           </AspectRatio>
         </div>
