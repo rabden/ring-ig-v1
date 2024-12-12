@@ -8,11 +8,17 @@ const PromptInput = ({
   onChange, 
   onKeyDown, 
   onGenerate, 
-  hasEnoughCredits,
+  hasEnoughCredits = true,
   onClear,
   onImprove,
-  isImproving
+  isImproving,
+  userId,
+  credits = 0,
+  bonusCredits = 0
 }) => {
+  const totalCredits = (credits || 0) + (bonusCredits || 0);
+  const hasEnoughCreditsForImprovement = totalCredits >= 1;
+
   const handleGenerate = async () => {
     if (!value.trim()) {
       toast.error('Please enter a prompt');
@@ -55,7 +61,7 @@ const PromptInput = ({
           variant="outline"
           className="rounded-full"
           onClick={onImprove}
-          disabled={!value?.length || isImproving}
+          disabled={!value?.length || isImproving || !hasEnoughCreditsForImprovement}
         >
           {isImproving ? (
             <Loader className="h-4 w-4 mr-2 animate-spin" />
