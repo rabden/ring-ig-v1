@@ -24,6 +24,7 @@ const ImageGeneratorContent = ({
   setActiveTab,
   generatingImages,
   nsfwEnabled,
+  setNsfwEnabled,
   showPrivate,
   setShowPrivate,
   activeFilters,
@@ -121,7 +122,7 @@ const ImageGeneratorContent = ({
                 onRemoveFilter={onRemoveFilter}
                 onSearch={onSearch}
                 nsfwEnabled={nsfwEnabled}
-                setNsfwEnabled={imageGeneratorProps.setNsfwEnabled}
+                setNsfwEnabled={setNsfwEnabled}
                 showPrivate={showPrivate}
                 onTogglePrivate={() => setShowPrivate(!showPrivate)}
                 showFollowing={showFollowing}
@@ -218,7 +219,7 @@ const ImageGeneratorContent = ({
         bonusCredits={bonusCredits}
         activeTab={activeTab}
         nsfwEnabled={nsfwEnabled}
-        setNsfwEnabled={imageGeneratorProps.setNsfwEnabled}
+        setNsfwEnabled={setNsfwEnabled}
       />
 
       <BottomNavbar 
@@ -229,7 +230,7 @@ const ImageGeneratorContent = ({
         bonusCredits={bonusCredits}
         generatingImages={generatingImages}
         nsfwEnabled={nsfwEnabled}
-        setNsfwEnabled={imageGeneratorProps.setNsfwEnabled}
+        setNsfwEnabled={setNsfwEnabled}
       />
       
       <ImageDetailsDialog

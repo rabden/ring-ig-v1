@@ -14,23 +14,26 @@ import HeartAnimation from './animations/HeartAnimation';
 import { useLikes } from '@/hooks/useLikes';
 import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const MobileImageView = ({ 
   image, 
-  onClose, 
-  onDownload, 
-  onDiscard, 
-  onRemix, 
+  isOpen, 
+  onClose,
+  onDownload,
+  onDiscard,
+  onRemix,
   isOwner,
-  setStyle,
-  showFullImage = false
+  isPro = false
 }) => {
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   const [isAnimating, setIsAnimating] = useState(false);
-  const { handleRemix } = useImageRemix(session, onRemix, onClose);
+  const navigate = useNavigate();
+  const { handleRemix } = useImageRemix(session, onRemix, onClose, isPro);
   const queryClient = useQueryClient();
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
 
@@ -95,6 +98,14 @@ const MobileImageView = ({
     }
   };
 
+  const handleRemixClick = () => {
+    if (!session) {
+      toast.error('Please sign in to remix images');
+      return;
+    }
+    navigate(`/?remix=${image.id}#imagegenerate`, { replace: true });
+  };
+
   const detailItems = [
     { label: 'Model', value: modelConfigs?.[image.model]?.name || image.model },
     { label: 'Size', value: `${image.width}x${image.height}` },
@@ -117,13 +128,14 @@ const MobileImageView = ({
 
       <ScrollArea className="h-screen">
         <div className="p-4 space-y-6 pt-16">
-          {showFullImage && (
+          {isOpen && image?.storage_path && (
             <div className="relative rounded-lg overflow-hidden mb-6">
               <img
                 src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                alt={image.prompt}
+                alt={image.prompt || 'Generated image'}
                 className="w-full h-auto"
                 onDoubleClick={handleDoubleClick}
+                loading="eager"
               />
               <HeartAnimation isAnimating={isAnimating} />
             </div>
@@ -151,7 +163,7 @@ const MobileImageView = ({
                     Discard
                   </Button>
                 )}
-                <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={() => handleRemix(image)}>
+                <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={handleRemixClick}>
                   <Wand2 className="mr-1 h-3 w-3" />
                   Remix
                 </Button>

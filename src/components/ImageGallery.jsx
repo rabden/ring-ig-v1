@@ -162,7 +162,7 @@ const ImageGallery = ({
       .filter(([_, images]) => images.length > 0);
 
     return (
-      <div className={cn("w-full h-full md:px-0 md:pt-0 pt-12 space-y-12", className)}>
+      <div className={cn("w-full h-full md:px-0 pt-12 space-y-12", className)}>
         {nonEmptyGroups.map(([groupName, groupImages], groupIndex) => (
           <div key={groupName}>
             <DateHeader>
@@ -216,7 +216,7 @@ const ImageGallery = ({
 
   // Regular masonry grid for other views
   return (
-    <div className={cn("w-full h-full md:px-0 md:pt-0 pt-12", className)}>
+    <div className={cn("w-full h-full md:px-0 md:pt-0 pt-0", className)}>
       <Masonry
         breakpointCols={breakpointColumnsObj}
         className="flex w-auto md:px-2 -mx-1 md:mx-0"

@@ -15,6 +15,9 @@ import { useImageRemix } from '@/hooks/useImageRemix';
 import HeartAnimation from './animations/HeartAnimation';
 import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const FullScreenImageView = ({ 
   image, 
@@ -25,7 +28,7 @@ const FullScreenImageView = ({
   onRemix,
   isOwner,
   setStyle,
-  setActiveTab 
+  setActiveTab
 }) => {
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
@@ -34,6 +37,9 @@ const FullScreenImageView = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
   const { handleRemix } = useImageRemix(session, onRemix, onClose);
 
   const { data: owner } = useQuery({
@@ -82,6 +88,14 @@ const FullScreenImageView = ({
     } catch (error) {
       console.error('Error in handleDiscard:', error);
     }
+  };
+
+  const handleRemixClick = () => {
+    if (!session) {
+      toast.error('Please sign in to remix images');
+      return;
+    }
+    navigate(`/?remix=${image.id}#myimages`, { replace: true });
   };
 
   const detailItems = image ? [
@@ -158,7 +172,7 @@ const FullScreenImageView = ({
                             Discard
                           </Button>
                         )}
-                        <Button onClick={() => handleRemix(image)} className="flex-1" variant="ghost" size="sm">
+                        <Button onClick={handleRemixClick} className="flex-1" variant="ghost" size="sm">
                           <RefreshCw className="mr-2 h-4 w-4" />
                           Remix
                         </Button>
