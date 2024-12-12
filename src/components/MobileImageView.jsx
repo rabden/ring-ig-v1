@@ -170,7 +170,7 @@ const MobileImageView = ({
                   likeCount={likeCount}
                 />
                 
-                <div className="flex gap-1 justify-between mb-6">
+                <div className="flex gap-1 justify-between mb-6 mt-6">
                   <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={onDownload}>
                     <Download className="mr-1 h-3 w-3" />
                     Download
