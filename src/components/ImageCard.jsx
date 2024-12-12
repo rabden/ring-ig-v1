@@ -16,10 +16,12 @@ import { useNavigate } from 'react-router-dom';
 const ImageCard = ({ 
   image, 
   onDiscard = () => {}, 
+  onRemix = () => {}, 
   userId,
   isMobile,
   isLiked,
   onToggleLike = () => {},
+  setActiveTab,
 }) => {
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
@@ -44,6 +46,13 @@ const ImageCard = ({
   const handleImageClick = (e) => {
     e.preventDefault();
     navigate(`/image/${image.id}`);
+  };
+
+  const handleRemixClick = () => {
+    if (typeof onRemix === 'function') {
+      onRemix(image);
+      setActiveTab('input');
+    }
   };
 
   const handleDownload = async () => {
@@ -111,7 +120,9 @@ const ImageCard = ({
             onViewDetails={() => setDetailsDialogOpen(true)}
             onDownload={handleDownload}
             onDiscard={handleDiscard}
+            onRemix={handleRemixClick}
             userId={userId}
+            setActiveTab={setActiveTab}
           />
         </div>
       </div>
