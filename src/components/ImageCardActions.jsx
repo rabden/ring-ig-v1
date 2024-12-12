@@ -6,7 +6,6 @@ import LikeButton from './LikeButton';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const ImageCardActions = ({ 
   image, 
@@ -21,7 +20,6 @@ const ImageCardActions = ({
 }) => {
   const { session } = useSupabaseAuth();
   const navigate = useNavigate();
-  const isMobileDevice = useMediaQuery('(max-width: 768px)');
 
   const handleViewDetails = (e) => {
     e.preventDefault();
@@ -49,8 +47,7 @@ const ImageCardActions = ({
       toast.error('Please sign in to remix images');
       return;
     }
-    const hash = isMobileDevice ? '#imagegenerate' : '#myimages';
-    navigate(`/?remix=${image.id}${hash}`, { replace: true });
+    navigate(`/?remix=${image.id}`);
   };
 
   return (

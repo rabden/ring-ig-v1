@@ -15,7 +15,7 @@ import { useLikes } from '@/hooks/useLikes';
 import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
+import { toast } from 'react-hot-toast';
 
 const MobileImageView = ({ 
   image, 
@@ -103,7 +103,8 @@ const MobileImageView = ({
       toast.error('Please sign in to remix images');
       return;
     }
-    navigate(`/?remix=${image.id}#imagegenerate`, { replace: true });
+    onClose();
+    navigate(`/?remix=${image.id}`);
   };
 
   const detailItems = [

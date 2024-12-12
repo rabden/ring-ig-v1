@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { PasswordInput } from './PasswordInput';
@@ -19,8 +20,6 @@ export const AuthUI = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [showEmailForm, setShowEmailForm] = useState(false);
-  const [isSignIn, setIsSignIn] = useState(false);
 
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
@@ -85,15 +84,6 @@ export const AuthUI = () => {
     }
   };
 
-  const resetForm = () => {
-    setEmail('');
-    setPassword('');
-    setDisplayName('');
-    setError('');
-    setShowEmailForm(false);
-    setIsSignIn(false);
-  };
-
   if (showConfirmation) {
     return (
       <div className="space-y-4 text-center p-6">
@@ -107,7 +97,12 @@ export const AuthUI = () => {
         <Button 
           variant="outline" 
           className="mt-4"
-          onClick={resetForm}
+          onClick={() => {
+            setShowConfirmation(false);
+            setEmail('');
+            setPassword('');
+            setDisplayName('');
+          }}
         >
           Back to Sign In
         </Button>
@@ -150,31 +145,35 @@ export const AuthUI = () => {
             </>
           )}
         </Button>
-
-        {!showEmailForm && (
-          <Button 
-            variant="outline" 
-            className="w-full"
-            onClick={() => setShowEmailForm(true)}
-          >
-            Continue with Email
-          </Button>
-        )}
       </div>
 
-      {showEmailForm && (
-        <>
-          {error && (
-            <Alert variant="destructive" className="animate-in fade-in-50">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">Or continue with email</span>
+        </div>
+      </div>
 
-          <form onSubmit={isSignIn ? handleEmailSignIn : handleEmailSignUp} className="space-y-4">
+      {error && (
+        <Alert variant="destructive" className="animate-in fade-in-50">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      <Tabs defaultValue="signin" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-4">
+          <TabsTrigger value="signin">Sign In</TabsTrigger>
+          <TabsTrigger value="signup">Sign Up</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="signin" className="mt-0">
+          <form onSubmit={handleEmailSignIn} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="signin-email">Email</Label>
               <Input
-                id="email"
+                id="signin-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -185,64 +184,73 @@ export const AuthUI = () => {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="signin-password">Password</Label>
               <PasswordInput
-                id="password"
+                id="signin-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
-                placeholder={isSignIn ? "Enter your password" : "Create a secure password"}
-                autoComplete={isSignIn ? "current-password" : "new-password"}
+                autoComplete="current-password"
               />
             </div>
-            {!isSignIn && (
-              <div className="space-y-2">
-                <Label htmlFor="display-name">Display Name (Optional)</Label>
-                <Input
-                  id="display-name"
-                  type="text"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="Enter display name or leave blank for random"
-                  disabled={isLoading}
-                  autoComplete="username"
-                />
-              </div>
-            )}
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                isSignIn ? 'Sign In' : 'Create Account'
+                'Sign In'
               )}
             </Button>
           </form>
+        </TabsContent>
 
-          <div className="text-center text-sm">
-            {isSignIn ? (
-              <p className="text-muted-foreground">
-                Don't have an account yet?{' '}
-                <button
-                  onClick={() => setIsSignIn(false)}
-                  className="text-primary hover:underline font-medium"
-                >
-                  Sign up here
-                </button>
-              </p>
-            ) : (
-              <p className="text-muted-foreground">
-                Already have an account?{' '}
-                <button
-                  onClick={() => setIsSignIn(true)}
-                  className="text-primary hover:underline font-medium"
-                >
-                  Sign in here
-                </button>
-              </p>
-            )}
-          </div>
-        </>
-      )}
+        <TabsContent value="signup" className="mt-0">
+          <form onSubmit={handleEmailSignUp} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="signup-email">Email</Label>
+              <Input
+                id="signup-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="name@example.com"
+                disabled={isLoading}
+                autoComplete="email"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="signup-password">Password</Label>
+              <PasswordInput
+                id="signup-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
+                placeholder="Create a secure password"
+                autoComplete="new-password"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="signup-display-name">Display Name (Optional)</Label>
+              <Input
+                id="signup-display-name"
+                type="text"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="Enter display name or leave blank for random"
+                disabled={isLoading}
+                autoComplete="username"
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                'Create Account'
+              )}
+            </Button>
+          </form>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
