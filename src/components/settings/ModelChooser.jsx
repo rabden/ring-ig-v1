@@ -9,13 +9,13 @@ import { modelConfig } from "@/config/modelConfig";
 const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, disabled, proMode }) => (
   <div
     className={cn(
-      "flex items-center gap-3 p-3 rounded-lg transition-colors",
+      "flex items-center gap-2 p-2 rounded-lg transition-colors border border-border/50",
       isActive ? "bg-muted" : "hover:bg-muted/50",
       disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
     )}
     onClick={disabled ? undefined : onClick}
   >
-    <div className="relative h-10 w-10 rounded-md overflow-hidden bg-background">
+    <div className="relative h-9 w-9 rounded-md overflow-hidden bg-background flex-shrink-0">
       <img
         src={config.image}
         alt={config.name}
@@ -24,10 +24,10 @@ const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, dis
     </div>
     <div className="flex-1 min-w-0">
       <div className="flex items-center gap-1">
-        <span className="font-medium truncate">{config.name}</span>
+        <span className="font-medium text-sm truncate">{config.name}</span>
         {config.isPremium && !proMode && <Lock className="h-3 w-3 flex-shrink-0" />}
       </div>
-      <p className="text-sm text-muted-foreground truncate">
+      <p className="text-xs text-muted-foreground truncate">
         {config.tagline}
       </p>
     </div>
@@ -54,10 +54,7 @@ const ModelChooser = ({ model, setModel, nsfwEnabled, proMode }) => {
     >
       <Popover>
         <PopoverTrigger asChild>
-          <Button 
-            variant="outline" 
-            className="w-full p-0 border-0 shadow-none hover:bg-transparent"
-          >
+          <div className="w-full">
             <ModelCard
               modelKey={model}
               config={currentModel}
@@ -65,12 +62,12 @@ const ModelChooser = ({ model, setModel, nsfwEnabled, proMode }) => {
               proMode={proMode}
               onClick={() => {}}
             />
-          </Button>
+          </div>
         </PopoverTrigger>
         <PopoverContent 
           side="left" 
           align="start" 
-          className="w-[280px] p-2"
+          className="w-[250px] p-2"
         >
           <div className="space-y-1">
             {filteredModels.map(([key, config]) => (

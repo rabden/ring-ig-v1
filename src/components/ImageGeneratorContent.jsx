@@ -218,7 +218,7 @@ const ImageGeneratorContent = ({
         bonusCredits={bonusCredits}
         activeTab={activeTab}
         nsfwEnabled={nsfwEnabled}
-        setNsfwEnabled={imageGeneratorProps.setNsfwEnabled}
+        setNsfwEnabled={setNsfwEnabled}
       />
 
       <BottomNavbar 
@@ -229,7 +229,7 @@ const ImageGeneratorContent = ({
         bonusCredits={bonusCredits}
         generatingImages={generatingImages}
         nsfwEnabled={nsfwEnabled}
-        setNsfwEnabled={imageGeneratorProps.setNsfwEnabled}
+        setNsfwEnabled={setNsfwEnabled}
       />
       
       <ImageDetailsDialog
