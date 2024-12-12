@@ -38,7 +38,6 @@ const ImageGeneratorSettings = ({
   hidePromptOnDesktop = false
 }) => {
   const userId = session?.user?.id;
-  const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
   const creditCost = { "HD": 1, "HD+": 2, "4K": 3 }[quality] * imageCount;
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
@@ -64,41 +63,10 @@ const ImageGeneratorSettings = ({
     
     if (model === 'turbo') {
       const promptLength = e.target.value.length;
-      if (promptLength <= 100) {
-        setSteps(4);
-      } else if (promptLength <= 150) {
-        setSteps(8);
-      } else if (promptLength <= 200) {
-        setSteps(10);
-      } else {
-        setSteps(12);
-      }
-    }
-  };
-
-  const handleClearPrompt = () => {
-    setPrompt('');
-  };
-
-  const handleImprovePrompt = async () => {
-    if (!userId) {
-      toast.error('Please sign in to improve prompts');
-      return;
-    }
-
-    const hasEnoughCreditsForImprovement = totalCredits >= 1;
-    if (!hasEnoughCreditsForImprovement) {
-      toast.error('Not enough credits for prompt improvement');
-      return;
-    }
-
-    try {
-      await improveCurrentPrompt(prompt, (improvedPrompt) => {
-        setPrompt(improvedPrompt);
-      });
-    } catch (error) {
-      console.error('Error improving prompt:', error);
-      toast.error('Failed to improve prompt');
+      if (promptLength <= 100) setSteps(4);
+      else if (promptLength <= 150) setSteps(8);
+      else if (promptLength <= 200) setSteps(10);
+      else setSteps(12);
     }
   };
 
@@ -111,9 +79,15 @@ const ImageGeneratorSettings = ({
           onKeyDown={handlePromptKeyDown}
           onGenerate={generateImage}
           hasEnoughCredits={hasEnoughCredits}
-          onClear={handleClearPrompt}
-          onImprove={handleImprovePrompt}
-          isImproving={isImproving}
+          onClear={() => setPrompt('')}
+          onImprove={async () => {
+            if (!userId) {
+              toast.error('Please sign in to improve prompts');
+              return;
+            }
+            await generateImage(true);
+          }}
+          isImproving={false}
           userId={userId}
           credits={credits}
           bonusCredits={bonusCredits}
