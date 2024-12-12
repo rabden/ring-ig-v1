@@ -52,7 +52,7 @@ const NotificationItem = ({ notification }) => {
       onClick={handleClick}
     >
       {images.length > 0 && (
-        <div className="flex-shrink-0 block w-12">
+        <div className="flex-shrink-0 block w-24">
           <AspectRatio ratio={1} className="w-full">
             <img
               src={images[0]}
