@@ -1,22 +1,20 @@
 import { useState, useEffect } from 'react';
 
 export const useMediaQuery = (query) => {
-  // Initialize with null to avoid hydration mismatch
-  const [matches, setMatches] = useState(null);
+  const [matches, setMatches] = useState(
+    typeof window !== 'undefined' ? window.matchMedia(query).matches : false
+  );
 
   useEffect(() => {
-    // Set initial value once mounted
+    if (typeof window === 'undefined') return;
+
     const media = window.matchMedia(query);
     setMatches(media.matches);
 
-    // Setup listener for changes
-    const listener = (e) => setMatches(e.matches);
+    const listener = () => setMatches(media.matches);
     media.addEventListener('change', listener);
-
-    // Cleanup
     return () => media.removeEventListener('change', listener);
-  }, [query]); // Only re-run if query changes
+  }, [query]);
 
-  // Return null during SSR/initial render, then actual value once mounted
   return matches;
 };

@@ -28,8 +28,7 @@ const FullScreenImageView = ({
   onRemix,
   isOwner,
   setStyle,
-  setActiveTab,
-  isPro = false
+  setActiveTab
 }) => {
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
@@ -41,7 +40,7 @@ const FullScreenImageView = ({
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  const { handleRemix } = useImageRemix(session, onRemix, onClose, isPro);
+  const { handleRemix } = useImageRemix(session, onRemix, onClose);
 
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],
