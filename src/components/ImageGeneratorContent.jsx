@@ -246,6 +246,7 @@ const ImageGeneratorContent = ({
         onDiscard={handleDiscard}
         onRemix={handleRemix}
         isOwner={selectedImage?.user_id === session?.user?.id}
+        isPro={imageGeneratorProps.proMode}
       />
     </>
   );

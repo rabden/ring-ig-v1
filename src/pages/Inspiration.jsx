@@ -165,6 +165,7 @@ const Inspiration = () => {
         onDownload={handleDownload}
         onRemix={handleRemix}
         isOwner={selectedImage?.user_id === session?.user?.id}
+        isPro={isPro}
       />
     </div>
   );
