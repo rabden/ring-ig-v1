@@ -11,10 +11,7 @@ const PromptInput = ({
   hasEnoughCredits,
   onClear,
   onImprove,
-  isImproving,
-  userId,
-  credits,
-  bonusCredits
+  isImproving
 }) => {
   const handleGenerate = async () => {
     if (!value.trim()) {
