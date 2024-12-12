@@ -128,11 +128,11 @@ const MobileImageView = ({
 
       <ScrollArea className="h-screen">
         <div className="p-4 space-y-6 pt-16">
-          {isOpen && (
+          {isOpen && image?.storage_path && (
             <div className="relative rounded-lg overflow-hidden mb-6">
               <img
                 src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                alt={image.prompt}
+                alt={image.prompt || 'Generated image'}
                 className="w-full h-auto"
                 onDoubleClick={handleDoubleClick}
                 loading="eager"

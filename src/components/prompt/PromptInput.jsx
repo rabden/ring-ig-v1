@@ -12,12 +12,8 @@ const PromptInput = ({
   onClear,
   onImprove,
   isImproving,
-  userId,
-  credits = 0,
-  bonusCredits = 0
+  userId
 }) => {
-  const totalCredits = (credits || 0) + (bonusCredits || 0);
-  const hasEnoughCreditsForImprovement = totalCredits >= 1;
   const hasText = value && value.trim().length > 0;
 
   const handleGenerate = async () => {
@@ -62,7 +58,7 @@ const PromptInput = ({
           variant="outline"
           className="rounded-full"
           onClick={onImprove}
-          disabled={!hasText || isImproving || !hasEnoughCreditsForImprovement}
+          disabled={!hasText || isImproving}
         >
           {isImproving ? (
             <Loader className="h-4 w-4 mr-2 animate-spin" />
