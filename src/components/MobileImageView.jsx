@@ -131,10 +131,11 @@ const MobileImageView = ({
           {isOpen && (
             <div className="relative rounded-lg overflow-hidden mb-6">
               <img
-                src={image.url || supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
+                src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
                 alt={image.prompt}
                 className="w-full h-auto"
                 onDoubleClick={handleDoubleClick}
+                loading="eager"
               />
               <HeartAnimation isAnimating={isAnimating} />
             </div>

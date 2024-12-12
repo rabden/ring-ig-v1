@@ -18,9 +18,10 @@ const PromptInput = ({
 }) => {
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCreditsForImprovement = totalCredits >= 1;
+  const hasText = value && value.trim().length > 0;
 
   const handleGenerate = async () => {
-    if (!value.trim()) {
+    if (!hasText) {
       toast.error('Please enter a prompt');
       return;
     }
@@ -46,7 +47,7 @@ const PromptInput = ({
       </div>
       
       <div className="flex justify-end items-center mt-4 gap-2">
-        {value?.length > 0 && (
+        {hasText && (
           <Button
             size="sm"
             variant="outline"
@@ -61,7 +62,7 @@ const PromptInput = ({
           variant="outline"
           className="rounded-full"
           onClick={onImprove}
-          disabled={!value?.length || isImproving || !hasEnoughCreditsForImprovement}
+          disabled={!hasText || isImproving || !hasEnoughCreditsForImprovement}
         >
           {isImproving ? (
             <Loader className="h-4 w-4 mr-2 animate-spin" />
@@ -74,7 +75,7 @@ const PromptInput = ({
           size="sm"
           className="rounded-full"
           onClick={handleGenerate}
-          disabled={!value?.length || !hasEnoughCredits}
+          disabled={!hasText || !hasEnoughCredits}
         >
           Create
           <ArrowRight className="ml-2 h-4 w-4" />
