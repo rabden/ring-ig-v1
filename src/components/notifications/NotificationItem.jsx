@@ -28,12 +28,17 @@ const NotificationItem = ({ notification }) => {
     }
   };
 
+  console.log('Notification data:', notification);
+  console.log('Raw image_url:', notification.image_url);
+
   // Parse image URLs and ensure they are valid
   const images = notification.image_url 
     ? notification.image_url.split(',')
         .map(url => url.trim())
         .filter(url => url.length > 0)
     : [];
+
+  console.log('Processed images array:', images);
 
   const links = notification.link ? notification.link.split(',').map(link => link.trim()) : [];
   const linkNames = notification.link_names ? notification.link_names.split(',').map(name => name.trim()) : [];
@@ -47,8 +52,8 @@ const NotificationItem = ({ notification }) => {
       onClick={handleClick}
     >
       {images.length > 0 && (
-        <div className="flex-shrink-0">
-          <AspectRatio ratio={1} className="w-12">
+        <div className="flex-shrink-0 block w-12">
+          <AspectRatio ratio={1} className="w-full">
             <img
               src={images[0]}
               alt=""
@@ -58,6 +63,7 @@ const NotificationItem = ({ notification }) => {
                 e.target.style.display = 'none';
               }}
               loading="lazy"
+              style={{ display: 'block' }}
             />
           </AspectRatio>
         </div>
