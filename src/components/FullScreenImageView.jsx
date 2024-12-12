@@ -28,7 +28,7 @@ const FullScreenImageView = ({
   onRemix,
   isOwner,
   setStyle,
-  setActiveTab 
+  setActiveTab
 }) => {
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();

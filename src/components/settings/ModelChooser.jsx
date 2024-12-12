@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Lock, ChevronRight, Check } from "lucide-react";
 import SettingSection from './SettingSection';
@@ -28,7 +28,7 @@ const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, dis
         {config.isPremium && !proMode && <Lock className="h-3 w-3 flex-shrink-0" />}
       </div>
       <p className="text-xs text-muted-foreground truncate">
-        {config.tagline}
+        {config.tagline || (config.category === "NSFW" ? "NSFW Generation" : "Image Generation")}
       </p>
     </div>
     {showRadio ? (
@@ -46,6 +46,14 @@ const ModelChooser = ({ model, setModel, nsfwEnabled, proMode }) => {
 
   const currentModel = modelConfig[model];
   if (!currentModel) return null;
+
+  // Check if current model is premium and user is not pro
+  useEffect(() => {
+    if (currentModel.isPremium && !proMode) {
+      // Revert to default non-premium model
+      setModel('flux');
+    }
+  }, [currentModel, proMode, setModel]);
 
   return (
     <SettingSection 
