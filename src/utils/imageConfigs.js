@@ -22,30 +22,6 @@ export const qualityOptions = {
   "4K": 2048
 }
 
-export const modelConfigs = {
-  turbo: {
-    name: "Turbo",
-    category: "General",
-    isPremium: false,
-    tagline: "Fast generation with good quality",
-    image: "/models/turbo.png"
-  },
-  preLar: {
-    name: "PreLar",
-    category: "General",
-    isPremium: true,
-    tagline: "High-quality artistic creations",
-    image: "/models/prelar.png"
-  },
-  fluxDev: {
-    name: "FluxDev",
-    category: "NSFW",
-    isPremium: true,
-    tagline: "Advanced NSFW generation",
-    image: "/models/fluxdev.png"
-  }
-}
-
 export const findClosestAspectRatio = (width, height) => {
   const targetRatio = width / height;
   let closestRatio = "1:1";

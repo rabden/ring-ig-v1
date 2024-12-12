@@ -186,7 +186,6 @@ const ImageGenerator = () => {
       setActiveTab={setActiveTab}
       generatingImages={generatingImages}
       nsfwEnabled={nsfwEnabled}
-      setNsfwEnabled={setNsfwEnabled}
       showPrivate={false}
       setShowPrivate={() => {}}
       activeFilters={activeFilters}
@@ -239,9 +238,7 @@ const ImageGenerator = () => {
         isImproving,
         setIsImproving,
         proMode: isPro,
-        modelConfigs,
-        nsfwEnabled,
-        setNsfwEnabled
+        modelConfigs
       }}
     />
   );
