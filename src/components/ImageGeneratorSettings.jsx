@@ -9,6 +9,8 @@ import ModelChooser from './settings/ModelChooser';
 import ImageCountChooser from './settings/ImageCountChooser';
 import PromptInput from './prompt/PromptInput';
 import { qualityOptions } from '@/utils/imageConfigs';
+import { usePromptImprovement } from '@/hooks/usePromptImprovement';
+import { toast } from 'sonner';
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -36,6 +38,7 @@ const ImageGeneratorSettings = ({
   hidePromptOnDesktop = false
 }) => {
   const userId = session?.user?.id;
+  const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
   const creditCost = { "HD": 1, "HD+": 2, "4K": 3 }[quality] * imageCount;
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
@@ -77,6 +80,28 @@ const ImageGeneratorSettings = ({
     setPrompt('');
   };
 
+  const handleImprovePrompt = async () => {
+    if (!userId) {
+      toast.error('Please sign in to improve prompts');
+      return;
+    }
+
+    const hasEnoughCreditsForImprovement = totalCredits >= 1;
+    if (!hasEnoughCreditsForImprovement) {
+      toast.error('Not enough credits for prompt improvement');
+      return;
+    }
+
+    try {
+      await improveCurrentPrompt(prompt, (improvedPrompt) => {
+        setPrompt(improvedPrompt);
+      });
+    } catch (error) {
+      console.error('Error improving prompt:', error);
+      toast.error('Failed to improve prompt');
+    }
+  };
+
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className={hidePromptOnDesktop ? 'md:hidden' : ''}>
@@ -87,9 +112,8 @@ const ImageGeneratorSettings = ({
           onGenerate={generateImage}
           hasEnoughCredits={hasEnoughCredits}
           onClear={handleClearPrompt}
-          userId={userId}
-          credits={credits}
-          bonusCredits={bonusCredits}
+          onImprove={handleImprovePrompt}
+          isImproving={isImproving}
         />
       </div>
 

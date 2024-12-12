@@ -31,14 +31,7 @@ export const improvePrompt = async (originalPrompt) => {
       messages: [
         {
           role: "system",
-          content: `You are an expert at improving image generation prompts. Follow these rules:
-1. Keep the core subject and concept from the original prompt
-2. Add artistic details like lighting, camera angles, and atmosphere
-3. Include relevant style descriptors (cinematic, photorealistic, etc.)
-4. Add technical aspects like quality modifiers (4K, HDR, etc.)
-5. Keep the prompt concise and clear
-6. Do not add NSFW content
-7. Return ONLY the improved prompt text, no explanations or comments`
+          content: "You are an AI that enhances image generation prompts. Your task is to add descriptive details to make the prompt more specific and vivid. Only respond with the improved prompt, nothing else. No explanations, no commentary, just the enhanced prompt text."
         },
         {
           role: "user",
