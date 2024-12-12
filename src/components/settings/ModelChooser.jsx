@@ -15,8 +15,12 @@ const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, dis
     )}
     onClick={disabled ? undefined : onClick}
   >
-    <div className="h-9 w-9 rounded-md bg-background flex items-center justify-center text-lg font-semibold">
-      {config.name.charAt(0)}
+    <div className="relative h-9 w-9 rounded-md overflow-hidden bg-background flex-shrink-0">
+      <img
+        src={config.image}
+        alt={config.name}
+        className="w-full h-full object-cover"
+      />
     </div>
     <div className="flex-1 min-w-0">
       <div className="flex items-center gap-1">
