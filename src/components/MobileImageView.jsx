@@ -14,8 +14,6 @@ import HeartAnimation from './animations/HeartAnimation';
 import { useLikes } from '@/hooks/useLikes';
 import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 import { format } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-hot-toast';
 
 const MobileImageView = ({ 
   image, 
@@ -32,7 +30,6 @@ const MobileImageView = ({
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   const [isAnimating, setIsAnimating] = useState(false);
-  const navigate = useNavigate();
   const { handleRemix } = useImageRemix(session, onRemix, onClose);
   const queryClient = useQueryClient();
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
@@ -98,15 +95,6 @@ const MobileImageView = ({
     }
   };
 
-  const handleRemixClick = () => {
-    if (!session) {
-      toast.error('Please sign in to remix images');
-      return;
-    }
-    onClose();
-    navigate(`/?remix=${image.id}`);
-  };
-
   const detailItems = [
     { label: 'Model', value: modelConfigs?.[image.model]?.name || image.model },
     { label: 'Size', value: `${image.width}x${image.height}` },
@@ -163,7 +151,7 @@ const MobileImageView = ({
                     Discard
                   </Button>
                 )}
-                <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={handleRemixClick}>
+                <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={() => handleRemix(image)}>
                   <Wand2 className="mr-1 h-3 w-3" />
                   Remix
                 </Button>
