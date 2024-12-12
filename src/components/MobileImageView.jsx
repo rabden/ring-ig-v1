@@ -144,7 +144,7 @@ const MobileImageView = ({
       </Button>
 
       <ScrollArea className={isMobile ? "h-[100dvh]" : "h-screen"}>
-        <div className="space-y-6 pt-16">
+        <div className="space-y-6">
           {image && (
             <div className="relative flex items-center justify-center bg-black/10 dark:bg-black/30">
               <img
