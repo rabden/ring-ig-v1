@@ -40,13 +40,16 @@ const NotificationItem = ({ notification }) => {
       )}
       onClick={handleClick}
     >
-      {notification.image_url && (
+      {images.length > 0 && (
         <div className="flex-shrink-0">
           <AspectRatio ratio={1} className="w-12">
             <img
               src={images[0]}
               alt=""
               className="rounded-md object-cover w-full h-full"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
             />
           </AspectRatio>
         </div>
