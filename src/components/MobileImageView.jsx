@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Download, Trash2, Wand2, Copy, Share2, Check, ArrowLeft } from "lucide-react";
+import { Download, Trash2, RefreshCw, ArrowLeft, Copy, Share2, Check, Wand2 } from "lucide-react";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import TruncatablePrompt from './TruncatablePrompt';
+import { useLikes } from '@/hooks/useLikes';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import ImagePromptSection from './image-view/ImagePromptSection';
+import ImageDetailsSection from './image-view/ImageDetailsSection';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import { useImageRemix } from '@/hooks/useImageRemix';
-import ImageDetailsSection from './image-view/ImageDetailsSection';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
 import HeartAnimation from './animations/HeartAnimation';
-import { useLikes } from '@/hooks/useLikes';
 import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const MobileImageView = ({ 
   image, 
@@ -37,6 +39,7 @@ const MobileImageView = ({
   const { handleRemix } = useImageRemix(session, onRemix, onClose, isPro);
   const queryClient = useQueryClient();
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const getImageUrl = () => {
     if (!image?.storage_path) return null;
@@ -140,14 +143,17 @@ const MobileImageView = ({
         <ArrowLeft className="h-5 w-5" />
       </Button>
 
-      <ScrollArea className="h-screen">
+      <ScrollArea className={isMobile ? "h-[100dvh]" : "h-screen"}>
         <div className="p-4 space-y-6 pt-16">
-          {isOpen && imageUrl && (
-            <div className="relative rounded-lg overflow-hidden mb-6">
+          {image && (
+            <div className="relative flex items-center justify-center bg-black/10 dark:bg-black/30 p-4 rounded-lg">
               <img
-                src={imageUrl}
+                src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
                 alt={image.prompt || 'Generated image'}
-                className="w-full h-auto"
+                className={isMobile ? 
+                  "w-full h-auto max-h-[calc(100dvh-12rem)]" : 
+                  "max-w-full max-h-[calc(100vh-8rem)] object-contain"
+                }
                 onDoubleClick={handleDoubleClick}
                 loading="eager"
                 onError={() => {
@@ -155,11 +161,6 @@ const MobileImageView = ({
                   toast.error('Failed to load image');
                 }}
               />
-              {imageError && (
-                <div className="absolute inset-0 flex items-center justify-center bg-background/10 backdrop-blur-sm">
-                  <p className="text-muted-foreground">Failed to load image</p>
-                </div>
-              )}
               <HeartAnimation isAnimating={isAnimating} />
             </div>
           )}
@@ -187,27 +188,20 @@ const MobileImageView = ({
                   </Button>
                 )}
                 <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={handleRemixClick}>
-                  <Wand2 className="mr-1 h-3 w-3" />
+                  <RefreshCw className="mr-1 h-3 w-3" />
                   Remix
                 </Button>
               </div>
             </>
           )}
 
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Prompt</h3>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="icon" onClick={handleCopyPrompt}>
-                  {copyIcon === 'copy' ? <Copy className="h-4 w-4" /> : <Check className="h-4 w-4" />}
-                </Button>
-                <Button variant="ghost" size="icon" onClick={handleShare}>
-                  {shareIcon === 'share' ? <Share2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
-                </Button>
-              </div>
-            </div>
-            <TruncatablePrompt prompt={image.user_prompt || image.prompt} />
-          </div>
+          <ImagePromptSection 
+            prompt={image.user_prompt || image.prompt}
+            copyIcon={copyIcon}
+            shareIcon={shareIcon}
+            onCopyPrompt={handleCopyPrompt}
+            onShare={handleShare}
+          />
 
           <div className="mt-4">
             <ImageDetailsSection detailItems={detailItems} />
