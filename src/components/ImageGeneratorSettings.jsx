@@ -115,8 +115,10 @@ const ImageGeneratorSettings = ({
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className={hidePromptOnDesktop ? 'md:hidden' : ''}>
-        <CreditCounter credits={credits} bonusCredits={bonusCredits} />
         <div className="relative mb-8">
+          <div className="mb-4">
+            <CreditCounter credits={credits} bonusCredits={bonusCredits} />
+          </div>
           <PromptInput
             value={prompt}
             onChange={handlePromptChange}
@@ -139,7 +141,7 @@ const ImageGeneratorSettings = ({
               variant="outline"
               className="rounded-full"
               onClick={handleImprove}
-              disabled={!hasText || isImproving || totalCredits < 1}
+              disabled={!hasText || isImproving || !session}
             >
               {isImproving ? (
                 <Loader className="h-4 w-4 mr-2 animate-spin" />
@@ -152,64 +154,64 @@ const ImageGeneratorSettings = ({
               size="sm"
               className="rounded-full"
               onClick={handleGenerate}
-              disabled={!hasText || !hasEnoughCredits}
+              disabled={!hasText || !session}
             >
               Create
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </div>
-      </div>
 
-      <ModelChooser
-        model={model}
-        setModel={handleModelChange}
-        nsfwEnabled={nsfwEnabled}
-        proMode={proMode}
-        modelConfigs={modelConfigs}
-      />
-
-      <ImageCountChooser
-        count={imageCount}
-        setCount={setImageCount}
-      />
-
-      <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more credits.">
-        <Tabs value={quality} onValueChange={setQuality}>
-          <TabsList className="grid" style={{ gridTemplateColumns: `repeat(${getAvailableQualities().length}, 1fr)` }}>
-            {getAvailableQualities().map((q) => (
-              <TabsTrigger key={q} value={q}>{q}</TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-      </SettingSection>
-
-      <SettingSection label="Aspect Ratio" tooltip="Slide left for portrait, center for square, right for landscape">
-        <AspectRatioChooser 
-          aspectRatio={aspectRatio} 
-          setAspectRatio={setAspectRatio}
-          proMode={proMode} 
+        <ModelChooser
+          model={model}
+          setModel={handleModelChange}
+          nsfwEnabled={nsfwEnabled}
+          proMode={proMode}
+          modelConfigs={modelConfigs}
         />
-      </SettingSection>
 
-      <SettingSection label="Seed" tooltip="A seed is a number that initializes the random generation process. Using the same seed with the same settings will produce the same image.">
-        <div className="flex items-center space-x-2">
-          <Input
-            type="number"
-            value={seed}
-            onChange={(e) => setSeed(parseInt(e.target.value))}
-            disabled={randomizeSeed}
+        <ImageCountChooser
+          count={imageCount}
+          setCount={setImageCount}
+        />
+
+        <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more credits.">
+          <Tabs value={quality} onValueChange={setQuality}>
+            <TabsList className="grid" style={{ gridTemplateColumns: `repeat(${getAvailableQualities().length}, 1fr)` }}>
+              {getAvailableQualities().map((q) => (
+                <TabsTrigger key={q} value={q}>{q}</TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        </SettingSection>
+
+        <SettingSection label="Aspect Ratio" tooltip="Slide left for portrait, center for square, right for landscape">
+          <AspectRatioChooser 
+            aspectRatio={aspectRatio} 
+            setAspectRatio={setAspectRatio}
+            proMode={proMode} 
           />
+        </SettingSection>
+
+        <SettingSection label="Seed" tooltip="A seed is a number that initializes the random generation process. Using the same seed with the same settings will produce the same image.">
           <div className="flex items-center space-x-2">
-            <Switch
-              id="randomizeSeed"
-              checked={randomizeSeed}
-              onCheckedChange={setRandomizeSeed}
+            <Input
+              type="number"
+              value={seed}
+              onChange={(e) => setSeed(parseInt(e.target.value))}
+              disabled={randomizeSeed}
             />
-            <Label htmlFor="randomizeSeed">Random</Label>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="randomizeSeed"
+                checked={randomizeSeed}
+                onCheckedChange={setRandomizeSeed}
+              />
+              <Label htmlFor="randomizeSeed">Random</Label>
+            </div>
           </div>
-        </div>
-      </SettingSection>
+        </SettingSection>
+      </div>
     </div>
   );
 };
