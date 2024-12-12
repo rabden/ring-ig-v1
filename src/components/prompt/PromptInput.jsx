@@ -15,9 +15,9 @@ const PromptInput = ({
   credits,
   bonusCredits
 }) => {
+  const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCreditsForImprovement = totalCredits >= 1;
-  const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
 
   const handleGenerate = async () => {
     if (!value.trim()) {
