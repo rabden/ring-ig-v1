@@ -137,6 +137,8 @@ const Inspiration = () => {
         credits={credits}
         bonusCredits={bonusCredits}
         generatingImages={[]}
+        nsfwEnabled={nsfwEnabled}
+        setNsfwEnabled={setNsfwEnabled}
       />
       <MobileNotificationsMenu activeTab={activeTab} />
       <MobileProfileMenu 
@@ -144,6 +146,8 @@ const Inspiration = () => {
         credits={credits}
         bonusCredits={bonusCredits}
         activeTab={activeTab}
+        nsfwEnabled={nsfwEnabled}
+        setNsfwEnabled={setNsfwEnabled}
       />
 
       {/* Dialogs */}
