@@ -5,7 +5,6 @@ import SettingSection from './SettingSection';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { modelConfig } from "@/config/modelConfig";
-import Image from "next/image";
 
 const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, disabled, proMode }) => (
   <div
@@ -17,11 +16,10 @@ const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, dis
     onClick={disabled ? undefined : onClick}
   >
     <div className="relative h-10 w-10 rounded-md overflow-hidden bg-background">
-      <Image
+      <img
         src={config.image}
         alt={config.name}
-        fill
-        className="object-cover"
+        className="w-full h-full object-cover"
       />
     </div>
     <div className="flex-1 min-w-0">
