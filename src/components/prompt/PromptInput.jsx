@@ -2,7 +2,6 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight, Sparkles, Loader } from "lucide-react";
 import { toast } from "sonner";
-import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 
 const PromptInput = ({ 
   value = '', 
@@ -11,41 +10,18 @@ const PromptInput = ({
   onGenerate, 
   hasEnoughCredits,
   onClear,
+  onImprove,
+  isImproving,
   userId,
   credits,
   bonusCredits
 }) => {
-  const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
-  const totalCredits = (credits || 0) + (bonusCredits || 0);
-  const hasEnoughCreditsForImprovement = totalCredits >= 1;
-
   const handleGenerate = async () => {
     if (!value.trim()) {
       toast.error('Please enter a prompt');
       return;
     }
     await onGenerate();
-  };
-
-  const handleImprovePrompt = async () => {
-    if (!userId) {
-      toast.error('Please sign in to improve prompts');
-      return;
-    }
-
-    if (!hasEnoughCreditsForImprovement) {
-      toast.error('Not enough credits for prompt improvement');
-      return;
-    }
-
-    try {
-      await improveCurrentPrompt(value, (improvedPrompt) => {
-        onChange({ target: { value: improvedPrompt } });
-      });
-    } catch (error) {
-      console.error('Error improving prompt:', error);
-      toast.error('Failed to improve prompt');
-    }
   };
 
   return (
@@ -81,8 +57,8 @@ const PromptInput = ({
           size="sm"
           variant="outline"
           className="rounded-full"
-          onClick={handleImprovePrompt}
-          disabled={!value?.length || isImproving || !hasEnoughCreditsForImprovement}
+          onClick={onImprove}
+          disabled={!value?.length || isImproving}
         >
           {isImproving ? (
             <Loader className="h-4 w-4 mr-2 animate-spin" />
