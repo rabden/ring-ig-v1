@@ -3,6 +3,8 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { X, ArrowRight, Sparkles, Loader } from "lucide-react";
 import AspectRatioChooser from './AspectRatioChooser';
 import SettingSection from './settings/SettingSection';
 import ModelChooser from './settings/ModelChooser';
@@ -44,6 +46,7 @@ const ImageGeneratorSettings = ({
   const hasEnoughCredits = totalCredits >= creditCost;
   const showGuidanceScale = model === 'fluxDev';
   const isNsfwModel = modelConfigs?.[model]?.category === "NSFW";
+  const hasText = prompt && prompt.trim().length > 0;
 
   const handleModelChange = (newModel) => {
     if (newModel === 'turbo' && (quality === 'HD+' || quality === '4K')) {
@@ -71,31 +74,91 @@ const ImageGeneratorSettings = ({
     }
   };
 
+  const handleGenerate = async () => {
+    if (!session) {
+      toast.error('Please sign in to generate images');
+      return;
+    }
+    
+    if (!hasText) {
+      toast.error('Please enter a prompt');
+      return;
+    }
+
+    if (!hasEnoughCredits) {
+      toast.error('Not enough credits');
+      return;
+    }
+
+    await generateImage();
+  };
+
+  const handleImprove = async () => {
+    if (!session) {
+      toast.error('Please sign in to improve prompts');
+      return;
+    }
+
+    if (!hasText) {
+      toast.error('Please enter a prompt');
+      return;
+    }
+
+    if (totalCredits < 1) {
+      toast.error('Not enough credits for prompt improvement');
+      return;
+    }
+
+    await generateImage(true);
+  };
+
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className={hidePromptOnDesktop ? 'md:hidden' : ''}>
-        <div className="mb-4">
-          <CreditCounter credits={credits} bonusCredits={bonusCredits} />
+        <CreditCounter credits={credits} bonusCredits={bonusCredits} />
+        <div className="relative mb-8">
+          <PromptInput
+            value={prompt}
+            onChange={handlePromptChange}
+            onKeyDown={handlePromptKeyDown}
+          />
+          
+          <div className="flex items-center justify-end mt-4 gap-2">
+            {hasText && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="rounded-full"
+                onClick={() => setPrompt('')}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+            <Button
+              size="sm"
+              variant="outline"
+              className="rounded-full"
+              onClick={handleImprove}
+              disabled={!hasText || isImproving || totalCredits < 1}
+            >
+              {isImproving ? (
+                <Loader className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4 mr-2" />
+              )}
+              Improve
+            </Button>
+            <Button
+              size="sm"
+              className="rounded-full"
+              onClick={handleGenerate}
+              disabled={!hasText || !hasEnoughCredits}
+            >
+              Create
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
         </div>
-        <PromptInput
-          value={prompt}
-          onChange={handlePromptChange}
-          onKeyDown={handlePromptKeyDown}
-          onGenerate={generateImage}
-          hasEnoughCredits={hasEnoughCredits}
-          onClear={() => setPrompt('')}
-          onImprove={async () => {
-            if (!session) {
-              toast.error('Please sign in to improve prompts');
-              return;
-            }
-            await generateImage(true);
-          }}
-          isImproving={isImproving}
-          userId={userId}
-          credits={credits}
-          bonusCredits={bonusCredits}
-        />
       </div>
 
       <ModelChooser
