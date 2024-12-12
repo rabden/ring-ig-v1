@@ -15,8 +15,10 @@ export const AuthProvider = ({ children }) => {
   const clearAuthData = () => {
     setSession(null);
     queryClient.invalidateQueries('user');
-    // Clear all supabase auth related data from localStorage
-    Object.keys(localStorage).forEach(key => {
+    window.localStorage.removeItem('supabase.auth.token');
+    // Clear any other auth-related data from localStorage
+    const keys = Object.keys(localStorage);
+    keys.forEach(key => {
       if (key.startsWith('supabase.auth.')) {
         localStorage.removeItem(key);
       }
@@ -26,13 +28,12 @@ export const AuthProvider = ({ children }) => {
   const handleAuthSession = async () => {
     try {
       const { data: { session: currentSession }, error } = await supabase.auth.getSession();
-      
       if (error) {
         console.error('Auth session error:', error);
         clearAuthData();
         return;
       }
-
+      
       if (!currentSession) {
         clearAuthData();
         return;
@@ -40,14 +41,9 @@ export const AuthProvider = ({ children }) => {
 
       // Verify the session is still valid
       const { data: user, error: userError } = await supabase.auth.getUser();
-      
       if (userError) {
         console.error('User verification error:', userError);
-        // If we get a 403 or session_not_found error, clear the session
-        if (userError.status === 403 || userError.message?.includes('session_not_found')) {
-          await supabase.auth.signOut();
-          clearAuthData();
-        }
+        clearAuthData();
         return;
       }
 
@@ -112,6 +108,7 @@ export const AuthProvider = ({ children }) => {
           clearAuthData();
           break;
         default:
+          // Handle any unexpected events
           if (!session) {
             clearAuthData();
           }
