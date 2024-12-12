@@ -19,13 +19,13 @@ import { toast } from 'sonner';
 
 const MobileImageView = ({ 
   image, 
-  isOpen, 
-  onClose,
-  onDownload,
-  onDiscard,
-  onRemix,
+  onClose, 
+  onDownload, 
+  onDiscard, 
+  onRemix, 
   isOwner,
-  isPro = false
+  setStyle,
+  showFullImage = false
 }) => {
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
@@ -33,7 +33,7 @@ const MobileImageView = ({
   const [shareIcon, setShareIcon] = useState('share');
   const [isAnimating, setIsAnimating] = useState(false);
   const navigate = useNavigate();
-  const { handleRemix } = useImageRemix(session, onRemix, onClose, isPro);
+  const { handleRemix } = useImageRemix(session, onRemix, onClose);
   const queryClient = useQueryClient();
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
 
@@ -128,7 +128,7 @@ const MobileImageView = ({
 
       <ScrollArea className="h-screen">
         <div className="p-4 space-y-6 pt-16">
-          {isOpen && (
+          {showFullImage && (
             <div className="relative rounded-lg overflow-hidden mb-6">
               <img
                 src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}

@@ -12,7 +12,6 @@ import BottomNavbar from '@/components/BottomNavbar';
 import MobileNotificationsMenu from '@/components/MobileNotificationsMenu';
 import MobileProfileMenu from '@/components/MobileProfileMenu';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useProUser } from '@/hooks/useProUser';
 
 const Inspiration = () => {
   const { session } = useSupabaseAuth();
@@ -30,7 +29,6 @@ const Inspiration = () => {
   const { following } = useFollows(session?.user?.id);
   const isHeaderVisible = useScrollDirection();
   const [activeTab, setActiveTab] = useState('images');
-  const { isPro } = useProUser();
 
   // Sync activeTab with URL hash
   useEffect(() => {
