@@ -2,8 +2,6 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight, Sparkles, Loader } from "lucide-react";
 import { toast } from "sonner";
-import { usePromptImprovement } from '@/hooks/usePromptImprovement';
-import { useUserCredits } from '@/hooks/useUserCredits';
 
 const PromptInput = ({ 
   value = '', 
@@ -12,18 +10,21 @@ const PromptInput = ({
   onGenerate, 
   hasEnoughCredits = true,
   onClear,
+  onImprove,
+  isImproving,
   userId
 }) => {
-  const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
-  const { credits, bonusCredits } = useUserCredits(userId);
-  const totalCredits = (credits || 0) + (bonusCredits || 0);
-
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     if (!value?.trim()) {
       toast.error('Please enter a prompt');
       return;
     }
-    onGenerate();
+    try {
+      await onGenerate();
+    } catch (error) {
+      console.error('Error generating:', error);
+      toast.error('Failed to generate image');
+    }
   };
 
   const handleImprove = async () => {
@@ -32,9 +33,12 @@ const PromptInput = ({
       return;
     }
 
-    await improveCurrentPrompt(value, (improvedPrompt) => {
-      onChange({ target: { value: improvedPrompt } });
-    });
+    try {
+      await onImprove();
+    } catch (error) {
+      console.error('Error improving:', error);
+      toast.error('Failed to improve prompt');
+    }
   };
 
   return (
@@ -84,7 +88,7 @@ const PromptInput = ({
           size="sm"
           className="rounded-full"
           onClick={handleGenerate}
-          disabled={!value?.length}
+          disabled={!value?.length || !hasEnoughCredits}
         >
           Create
           <ArrowRight className="ml-2 h-4 w-4" />

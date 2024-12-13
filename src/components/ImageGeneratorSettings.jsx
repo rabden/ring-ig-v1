@@ -116,10 +116,12 @@ const ImageGeneratorSettings = ({
           value={prompt}
           onChange={handlePromptChange}
           onKeyDown={handlePromptKeyDown}
-          onGenerate={handleGenerate}
+          onGenerate={generateImage}
           hasEnoughCredits={hasEnoughCredits}
           onClear={handleClearPrompt}
+          onImprove={handleImprovePrompt}
           userId={userId}
+          isImproving={isImproving}
         />
       </div>
 

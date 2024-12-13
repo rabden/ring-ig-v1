@@ -171,6 +171,18 @@ const ImageGenerator = () => {
     setActiveView,
   });
 
+  // Sync activeTab with URL hash
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash === '#imagegenerate') {
+      setActiveTab('input');
+    } else if (hash === '#notifications') {
+      setActiveTab('notifications');
+    } else {
+      setActiveTab('images');
+    }
+  }, [window.location.hash]);
+
   if (isRemixLoading) {
     return <div>Loading remix...</div>;
   }
