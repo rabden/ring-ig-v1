@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { Typewriter } from 'react-simple-typewriter';
 import { AuthUI } from '@/integrations/supabase/components/AuthUI';
-import { LoadingScreen } from '@/components/LoadingScreen';
+import LoadingScreen from '@/components/LoadingScreen';
 
 const messages = [
   { 
