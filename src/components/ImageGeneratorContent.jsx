@@ -209,6 +209,7 @@ const ImageGeneratorContent = ({
                 credits={credits}
                 bonusCredits={bonusCredits}
                 session={session}
+                updateCredits={imageGeneratorProps.updateCredits}
               />
             </div>
           </div>

@@ -122,6 +122,7 @@ const ImageGeneratorSettings = ({
           credits={credits}
           bonusCredits={bonusCredits}
           userId={session?.user?.id}
+          updateCredits={updateCredits}
         />
       </div>
 
