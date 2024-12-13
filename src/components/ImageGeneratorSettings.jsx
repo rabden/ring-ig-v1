@@ -25,8 +25,8 @@ const ImageGeneratorSettings = ({
   width, setWidth,
   height, setHeight,
   session,
-  credits,
-  bonusCredits,
+  credits = 0,
+  bonusCredits = 0,
   nsfwEnabled, setNsfwEnabled,
   steps, setSteps,
   proMode,
@@ -42,6 +42,7 @@ const ImageGeneratorSettings = ({
   const creditCost = { "HD": 1, "HD+": 2, "4K": 3 }[quality] * imageCount;
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
+  const hasEnoughCreditsForImprovement = totalCredits >= 1;
 
   const handleModelChange = (newModel) => {
     if (newModel === 'turbo' && (quality === 'HD+' || quality === '4K')) {
@@ -81,6 +82,11 @@ const ImageGeneratorSettings = ({
   const handleImprovePrompt = async () => {
     if (!prompt?.trim()) {
       toast.error('Please enter a prompt');
+      return;
+    }
+
+    if (!hasEnoughCreditsForImprovement) {
+      toast.error('Not enough credits for prompt improvement');
       return;
     }
 
