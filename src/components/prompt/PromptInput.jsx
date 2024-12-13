@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight, Sparkles, Loader } from "lucide-react";
 import { toast } from "sonner";
+import { useUserCredits } from '@/hooks/useUserCredits';
 
 const PromptInput = ({ 
   value = '', 
@@ -14,11 +15,25 @@ const PromptInput = ({
   isImproving,
   userId
 }) => {
+  const { credits, bonusCredits } = useUserCredits(userId);
+  const totalCredits = (credits || 0) + (bonusCredits || 0);
+
   const handleGenerate = async () => {
     if (!value?.trim()) {
       toast.error('Please enter a prompt');
       return;
     }
+
+    if (!userId) {
+      toast.error('Please sign in to generate images');
+      return;
+    }
+
+    if (!hasEnoughCredits) {
+      toast.error('Not enough credits');
+      return;
+    }
+
     try {
       await onGenerate();
     } catch (error) {
@@ -30,6 +45,16 @@ const PromptInput = ({
   const handleImprove = async () => {
     if (!value?.trim()) {
       toast.error('Please enter a prompt');
+      return;
+    }
+
+    if (!userId) {
+      toast.error('Please sign in to improve prompt');
+      return;
+    }
+
+    if (totalCredits < 1) {
+      toast.error('Not enough credits for prompt improvement');
       return;
     }
 
@@ -75,7 +100,7 @@ const PromptInput = ({
           variant="outline"
           className="rounded-full"
           onClick={handleImprove}
-          disabled={!value?.length || isImproving}
+          disabled={!value?.length || isImproving || !userId || totalCredits < 1}
         >
           {isImproving ? (
             <Loader className="h-4 w-4 mr-2 animate-spin" />
@@ -88,7 +113,7 @@ const PromptInput = ({
           size="sm"
           className="rounded-full"
           onClick={handleGenerate}
-          disabled={!value?.length || !hasEnoughCredits}
+          disabled={!value?.length || !hasEnoughCredits || !userId}
         >
           Create
           <ArrowRight className="ml-2 h-4 w-4" />
