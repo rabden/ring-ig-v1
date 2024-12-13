@@ -85,8 +85,25 @@ export const AuthProvider = ({ children }) => {
         .catch(error => {
           console.error('Error in code exchange:', error);
         });
-    } else {
-      handleAuthSession();
+    }
+
+    // Initialize auth state
+    const initializeAuth = async () => {
+      try {
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        if (initialSession) {
+          setSession(initialSession);
+          queryClient.invalidateQueries('user');
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (!authCode) {
+      initializeAuth();
     }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -96,25 +113,28 @@ export const AuthProvider = ({ children }) => {
         case 'SIGNED_IN':
           setSession(session);
           queryClient.invalidateQueries('user');
+          setLoading(false);
           break;
         case 'SIGNED_OUT':
-          clearAuthData();
+          if (!loading) { // Only process sign out if not in initial loading
+            clearAuthData();
+            setLoading(false);
+          }
           break;
         case 'TOKEN_REFRESHED':
           setSession(session);
           queryClient.invalidateQueries('user');
+          setLoading(false);
           break;
         case 'USER_UPDATED':
           setSession(session);
           queryClient.invalidateQueries('user');
+          setLoading(false);
           break;
         case 'USER_DELETED':
           clearAuthData();
+          setLoading(false);
           break;
-        default:
-          if (!session) {
-            clearAuthData();
-          }
       }
     });
 
