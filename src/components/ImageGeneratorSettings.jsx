@@ -10,6 +10,7 @@ import ImageCountChooser from './settings/ImageCountChooser';
 import PromptInput from './prompt/PromptInput';
 import { qualityOptions } from '@/utils/imageConfigs';
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
+import { toast } from 'sonner';
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -78,9 +79,28 @@ const ImageGeneratorSettings = ({
   };
 
   const handleImprovePrompt = async () => {
+    if (!prompt?.trim()) {
+      toast.error('Please enter a prompt');
+      return;
+    }
+
     await improveCurrentPrompt(prompt, (improvedPrompt) => {
       setPrompt(improvedPrompt);
     });
+  };
+
+  const handleGenerate = async () => {
+    if (!prompt?.trim()) {
+      toast.error('Please enter a prompt');
+      return;
+    }
+
+    if (!hasEnoughCredits) {
+      toast.error('Not enough credits');
+      return;
+    }
+
+    await generateImage();
   };
 
   return (
@@ -90,7 +110,7 @@ const ImageGeneratorSettings = ({
           value={prompt}
           onChange={handlePromptChange}
           onKeyDown={handlePromptKeyDown}
-          onGenerate={generateImage}
+          onGenerate={handleGenerate}
           hasEnoughCredits={hasEnoughCredits}
           onClear={handleClearPrompt}
           onImprove={handleImprovePrompt}

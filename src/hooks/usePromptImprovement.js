@@ -13,11 +13,6 @@ export const usePromptImprovement = (userId) => {
       return;
     }
 
-    if (!userId) {
-      toast.error('Please sign in to improve prompts');
-      return;
-    }
-
     setIsImproving(true);
     const toastId = toast.loading('Improving prompt...', {
       position: 'top-center'
