@@ -113,15 +113,15 @@ const ImageGeneratorSettings = ({
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className={hidePromptOnDesktop ? 'md:hidden' : ''}>
         <PromptInput
-          value={prompt}
+          prompt={prompt}
           onChange={handlePromptChange}
           onKeyDown={handlePromptKeyDown}
-          onGenerate={generateImage}
+          onSubmit={handleGenerate}
           hasEnoughCredits={hasEnoughCredits}
           onClear={handleClearPrompt}
-          onImprove={handleImprovePrompt}
+          credits={credits}
+          bonusCredits={bonusCredits}
           userId={userId}
-          isImproving={isImproving}
         />
       </div>
 
