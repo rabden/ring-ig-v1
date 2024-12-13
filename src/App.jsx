@@ -15,7 +15,7 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import Inspiration from '@/pages/Inspiration';
 import Documentation from '@/pages/Documentation';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/supabase';
 
 const queryClient = new QueryClient({
   defaultOptions: {
