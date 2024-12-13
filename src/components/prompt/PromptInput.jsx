@@ -11,7 +11,11 @@ const PromptInput = ({
   hasEnoughCredits = true,
   onClear,
   onImprove,
-  isImproving
+  isImproving,
+  credits,
+  bonusCredits,
+  userId,
+  hasEnoughCreditsForImprovement
 }) => {
   const handleGenerate = () => {
     if (!value?.trim()) {
@@ -26,6 +30,12 @@ const PromptInput = ({
       toast.error('Please enter a prompt');
       return;
     }
+
+    if (!hasEnoughCreditsForImprovement) {
+      toast.error('Not enough credits for prompt improvement');
+      return;
+    }
+
     onImprove();
   };
 
@@ -63,7 +73,7 @@ const PromptInput = ({
           variant="outline"
           className="rounded-full"
           onClick={handleImprove}
-          disabled={!value?.length || isImproving}
+          disabled={!value?.length || isImproving || !hasEnoughCreditsForImprovement}
         >
           {isImproving ? (
             <Loader className="h-4 w-4 mr-2 animate-spin" />
