@@ -75,7 +75,8 @@ const ModelChooser = ({ model, setModel, nsfwEnabled, proMode }) => {
         <PopoverContent 
           side="left" 
           align="start" 
-          className="w-[250px] p-2"
+          sideOffset={20}
+          className="w-[250px] p-2 md:left-0 left-1/2 -translate-x-1/2 md:translate-x-0"
         >
           <div className="space-y-1">
             {filteredModels.map(([key, config]) => (
