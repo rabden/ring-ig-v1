@@ -119,12 +119,9 @@ const ImageGeneratorSettings = ({
           onGenerate={handleGenerate}
           hasEnoughCredits={hasEnoughCredits}
           onClear={handleClearPrompt}
-          onImprove={handleImprovePrompt}
-          isImproving={isImproving}
+          userId={userId}
           credits={credits}
           bonusCredits={bonusCredits}
-          userId={userId}
-          hasEnoughCreditsForImprovement={hasEnoughCreditsForImprovement}
         />
       </div>
 

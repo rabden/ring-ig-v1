@@ -2,6 +2,8 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight, Sparkles, Loader } from "lucide-react";
 import { toast } from "sonner";
+import { usePromptImprovement } from '@/hooks/usePromptImprovement';
+import CreditCounter from '@/components/ui/credit-counter';
 
 const PromptInput = ({ 
   value = '', 
@@ -10,13 +12,14 @@ const PromptInput = ({
   onGenerate, 
   hasEnoughCredits = true,
   onClear,
-  onImprove,
-  isImproving,
-  credits,
-  bonusCredits,
   userId,
-  hasEnoughCreditsForImprovement
+  credits,
+  bonusCredits
 }) => {
+  const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
+  const totalCredits = (credits || 0) + (bonusCredits || 0);
+  const hasEnoughCreditsForImprovement = totalCredits >= 1;
+
   const handleGenerate = () => {
     if (!value?.trim()) {
       toast.error('Please enter a prompt');
@@ -25,18 +28,15 @@ const PromptInput = ({
     onGenerate();
   };
 
-  const handleImprove = () => {
+  const handleImprove = async () => {
     if (!value?.trim()) {
       toast.error('Please enter a prompt');
       return;
     }
 
-    if (!hasEnoughCreditsForImprovement) {
-      toast.error('Not enough credits for prompt improvement');
-      return;
-    }
-
-    onImprove();
+    await improveCurrentPrompt(value, (improvedPrompt) => {
+      onChange({ target: { value: improvedPrompt } });
+    });
   };
 
   return (
@@ -57,40 +57,43 @@ const PromptInput = ({
         />
       </div>
       
-      <div className="flex justify-end items-center mt-4 gap-2">
-        {value?.length > 0 && (
+      <div className="flex justify-between items-center mt-4">
+        <CreditCounter credits={credits} bonusCredits={bonusCredits} />
+        <div className="flex items-center gap-2">
+          {value?.length > 0 && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="rounded-full"
+              onClick={onClear}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
           <Button
             size="sm"
             variant="outline"
             className="rounded-full"
-            onClick={onClear}
+            onClick={handleImprove}
+            disabled={!value?.length || isImproving || !hasEnoughCreditsForImprovement}
           >
-            <X className="h-4 w-4" />
+            {isImproving ? (
+              <Loader className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Sparkles className="h-4 w-4 mr-2" />
+            )}
+            Improve
           </Button>
-        )}
-        <Button
-          size="sm"
-          variant="outline"
-          className="rounded-full"
-          onClick={handleImprove}
-          disabled={!value?.length || isImproving || !hasEnoughCreditsForImprovement}
-        >
-          {isImproving ? (
-            <Loader className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
-            <Sparkles className="h-4 w-4 mr-2" />
-          )}
-          Improve
-        </Button>
-        <Button
-          size="sm"
-          className="rounded-full"
-          onClick={handleGenerate}
-          disabled={!value?.length || !hasEnoughCredits}
-        >
-          Create
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
+          <Button
+            size="sm"
+            className="rounded-full"
+            onClick={handleGenerate}
+            disabled={!value?.length || !hasEnoughCredits}
+          >
+            Create
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );
