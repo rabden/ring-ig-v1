@@ -26,16 +26,35 @@ export const AuthUI = () => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
+    
+    if (!email || !password) {
+      setError('Please enter both email and password');
+      setIsLoading(false);
+      return;
+    }
+
     try {
+      console.log('Attempting sign in with:', { email });
       const { data, error } = await supabase.auth.signInWithPassword({ 
-        email, 
+        email: email.trim(), 
         password 
       });
+      
       if (error) throw error;
+      
+      if (!data?.session) {
+        throw new Error('No session after sign in');
+      }
+      
       console.log('Sign in successful:', data);
+      // Reset form
+      setEmail('');
+      setPassword('');
+      setShowEmailForm(false);
     } catch (error) {
       console.error('Error signing in:', error.message);
-      setError(error.message);
+      setError(error.message || 'Failed to sign in');
+      toast.error(error.message || 'Failed to sign in');
     } finally {
       setIsLoading(false);
     }
@@ -45,24 +64,48 @@ export const AuthUI = () => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
+
+    if (!email || !password) {
+      setError('Please enter both email and password');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const finalDisplayName = displayName || generateRandomDisplayName();
+      console.log('Attempting sign up with:', { email, displayName: finalDisplayName });
+      
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password,
         options: {
           data: {
             display_name: finalDisplayName,
           },
-          emailRedirectTo: window.location.origin
+          emailRedirectTo: window.location.href
         },
       });
+      
       if (error) throw error;
-      console.log('Sign up successful:', data);
-      setShowConfirmation(true);
+
+      console.log('Sign up response:', data);
+      
+      // If email confirmation is required
+      if (!data.session && data.user) {
+        setShowConfirmation(true);
+        // Reset form
+        setEmail('');
+        setPassword('');
+        setDisplayName('');
+      } else if (data.session) {
+        // Auto sign-in case (if email confirmation is not required)
+        console.log('Auto sign-in successful');
+        setShowEmailForm(false);
+      }
     } catch (error) {
       console.error('Error signing up:', error.message);
-      setError(error.message);
+      setError(error.message || 'Failed to sign up');
+      toast.error(error.message || 'Failed to sign up');
     } finally {
       setIsLoading(false);
     }
@@ -75,7 +118,7 @@ export const AuthUI = () => {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: window.location.href,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -83,10 +126,13 @@ export const AuthUI = () => {
         },
       });
       if (error) throw error;
+      
       console.log('Google sign in initiated:', data);
+      // No need to reset form as we're being redirected
     } catch (error) {
       console.error('Error signing in with Google:', error.message);
-      toast.error(error.message);
+      setError(error.message || 'Failed to sign in with Google');
+      toast.error(error.message || 'Failed to sign in with Google');
     } finally {
       setIsLoading(false);
     }
@@ -172,7 +218,17 @@ export const AuthUI = () => {
             </Alert>
           )}
 
-          <form onSubmit={isSignIn ? handleEmailSignIn : handleEmailSignUp} className="space-y-4">
+          <form 
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (isSignIn) {
+                handleEmailSignIn(e);
+              } else {
+                handleEmailSignUp(e);
+              }
+            }} 
+            className="space-y-4"
+          >
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -192,6 +248,8 @@ export const AuthUI = () => {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
                 disabled={isLoading}
                 placeholder={isSignIn ? "Enter your password" : "Create a secure password"}
                 autoComplete={isSignIn ? "current-password" : "new-password"}

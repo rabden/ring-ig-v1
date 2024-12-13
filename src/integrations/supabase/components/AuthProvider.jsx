@@ -68,8 +68,6 @@ export const AuthProvider = ({ children }) => {
 
     // Initialize auth state
     const initializeAuth = async () => {
-      if (!mounted) return;
-      
       try {
         // Get initial session
         const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
@@ -83,58 +81,44 @@ export const AuthProvider = ({ children }) => {
           return;
         }
 
-        if (!initialSession) {
-          if (mounted) {
-            clearAuthData(false);
-            setLoading(false);
-          }
-          return;
-        }
-
-        // Verify the session is valid
-        const { data: user, error: userError } = await supabase.auth.getUser();
-        
-        if (userError) {
-          console.error('User verification error:', userError);
-          if (mounted) {
-            if (userError.status === 403 || userError.message?.includes('session_not_found')) {
-              await supabase.auth.signOut();
-              clearAuthData(true);
-            } else {
-              clearAuthData(false);
-            }
-            setLoading(false);
-          }
-          return;
-        }
-
         if (mounted) {
-          setSession(initialSession);
-          queryClient.invalidateQueries('user');
+          if (initialSession) {
+            console.log('Initial session found:', initialSession);
+            setSession(initialSession);
+            queryClient.invalidateQueries('user');
+          } else {
+            console.log('No initial session found');
+            clearAuthData(false);
+          }
           
-          // Only set up auth listener after confirming valid session
-          const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-            console.log('Auth event:', event);
+          // Set up auth listener after initial check
+          const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
+            console.log('Auth state change:', event, currentSession);
             
             if (!mounted) return;
 
             switch (event) {
               case 'SIGNED_IN':
-                setSession(session);
+                console.log('User signed in:', currentSession);
+                setSession(currentSession);
                 queryClient.invalidateQueries('user');
                 break;
               case 'SIGNED_OUT':
+                console.log('User signed out');
                 clearAuthData(false);
                 break;
               case 'TOKEN_REFRESHED':
-                setSession(session);
+                console.log('Token refreshed:', currentSession);
+                setSession(currentSession);
                 queryClient.invalidateQueries('user');
                 break;
               case 'USER_UPDATED':
-                setSession(session);
+                console.log('User updated:', currentSession);
+                setSession(currentSession);
                 queryClient.invalidateQueries('user');
                 break;
               case 'USER_DELETED':
+                console.log('User deleted');
                 clearAuthData(true);
                 break;
             }
@@ -152,36 +136,7 @@ export const AuthProvider = ({ children }) => {
       }
     };
 
-    // Handle auth code in URL
-    const params = new URLSearchParams(location.search);
-    const authCode = params.get('code');
-    
-    if (authCode) {
-      // Remove the code from URL without reloading the page
-      const newUrl = window.location.pathname;
-      navigate(newUrl, { replace: true });
-      
-      // Exchange the code for a session
-      supabase.auth.exchangeCodeForSession(authCode)
-        .then(({ data: { session: newSession }, error }) => {
-          if (error) {
-            console.error('Error exchanging code for session:', error);
-            if (mounted) setLoading(false);
-            return;
-          }
-          if (newSession && mounted) {
-            setSession(newSession);
-            queryClient.invalidateQueries('user');
-            setLoading(false);
-          }
-        })
-        .catch(error => {
-          console.error('Error in code exchange:', error);
-          if (mounted) setLoading(false);
-        });
-    } else {
-      initializeAuth();
-    }
+    initializeAuth();
 
     return () => {
       mounted = false;
@@ -189,7 +144,7 @@ export const AuthProvider = ({ children }) => {
         authSubscription.unsubscribe();
       }
     };
-  }, [queryClient, location, navigate]);
+  }, [queryClient]);
 
   const logout = async () => {
     try {

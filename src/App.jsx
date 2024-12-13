@@ -53,11 +53,24 @@ const ProtectedRoute = ({ children }) => {
 // Auth Route Component (for login page)
 const AuthRoute = ({ children }) => {
   const { session, loading } = useSupabaseAuth();
+  const location = useLocation();
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   
-  if (loading) return <LoadingScreen />;
+  useEffect(() => {
+    if (!loading) {
+      setIsInitialLoad(false);
+    }
+  }, [loading]);
+
+  // Show loading screen during initial load or auth check
+  if (loading || isInitialLoad) {
+    return <LoadingScreen />;
+  }
   
-  if (session) {
-    return <Navigate to="/" replace />;
+  // Only redirect if we have a session and initial load is complete
+  if (session && !isInitialLoad) {
+    const to = location.state?.from?.pathname || '/';
+    return <Navigate to={to} replace />;
   }
   
   return children;
@@ -82,61 +95,58 @@ function App() {
         <AuthProvider>
           <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
             <NotificationProvider>
-              {isLoading && <LoadingScreen />}
-              <div className={`transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
-                <Routes>
-                  {/* Public Routes */}
-                  <Route path="/image/:imageId" element={<SingleImageView />} />
-                  <Route path="/docs" element={<Documentation />} />
-                  
-                  {/* Auth Routes */}
-                  <Route 
-                    path="/login" 
-                    element={
-                      <AuthRoute>
-                        <Login />
-                      </AuthRoute>
-                    } 
-                  />
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/image/:imageId" element={<SingleImageView />} />
+                <Route path="/docs" element={<Documentation />} />
+                
+                {/* Auth Routes */}
+                <Route 
+                  path="/login" 
+                  element={
+                    <AuthRoute>
+                      <Login />
+                    </AuthRoute>
+                  } 
+                />
 
-                  {/* Protected Routes */}
-                  <Route 
-                    path="/" 
-                    element={
-                      <ProtectedRoute>
-                        <ImageGenerator />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/profile/:userId" 
-                    element={
-                      <ProtectedRoute>
-                        <PublicProfile />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/userprofile" 
-                    element={
-                      <ProtectedRoute>
-                        <UserProfile />
-                      </ProtectedRoute>
-                    } 
-                  />
-                  <Route 
-                    path="/inspiration" 
-                    element={
-                      <ProtectedRoute>
-                        <Inspiration />
-                      </ProtectedRoute>
-                    } 
-                  />
+                {/* Protected Routes */}
+                <Route 
+                  path="/" 
+                  element={
+                    <ProtectedRoute>
+                      <ImageGenerator />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/profile/:userId" 
+                  element={
+                    <ProtectedRoute>
+                      <PublicProfile />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/userprofile" 
+                  element={
+                    <ProtectedRoute>
+                      <UserProfile />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/inspiration" 
+                  element={
+                    <ProtectedRoute>
+                      <Inspiration />
+                    </ProtectedRoute>
+                  } 
+                />
 
-                  {/* Fallback Route */}
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </div>
+                {/* Fallback Route */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
               <Toaster />
             </NotificationProvider>
           </ThemeProvider>
