@@ -79,8 +79,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-          <AuthProvider>
+        <AuthProvider>
+          <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
             <NotificationProvider>
               {isLoading && <LoadingScreen />}
               <div className={`transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
@@ -139,8 +139,8 @@ function App() {
               </div>
               <Toaster />
             </NotificationProvider>
-          </AuthProvider>
-        </ThemeProvider>
+          </ThemeProvider>
+        </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
   );
