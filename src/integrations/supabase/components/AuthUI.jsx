@@ -27,12 +27,8 @@ export const AuthUI = () => {
     setError('');
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({ 
-        email, 
-        password 
-      });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      console.log('Sign in successful:', data);
     } catch (error) {
       console.error('Error signing in:', error.message);
       setError(error.message);
@@ -47,18 +43,16 @@ export const AuthUI = () => {
     setIsLoading(true);
     try {
       const finalDisplayName = displayName || generateRandomDisplayName();
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             display_name: finalDisplayName,
           },
-          emailRedirectTo: window.location.origin
         },
       });
       if (error) throw error;
-      console.log('Sign up successful:', data);
       setShowConfirmation(true);
     } catch (error) {
       console.error('Error signing up:', error.message);
@@ -72,7 +66,7 @@ export const AuthUI = () => {
     setError('');
     setIsLoading(true);
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: window.location.origin,
@@ -83,7 +77,6 @@ export const AuthUI = () => {
         },
       });
       if (error) throw error;
-      console.log('Google sign in initiated:', data);
     } catch (error) {
       console.error('Error signing in with Google:', error.message);
       toast.error(error.message);

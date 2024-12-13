@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { Typewriter } from 'react-simple-typewriter';
-import { AuthUI } from '@/integrations/supabase/components/AuthUI';
-import { LoadingScreen } from '@/components/LoadingScreen';
+import { SupabaseAuthUI } from '@/integrations/supabase/auth';
 
 const messages = [
   { 
@@ -29,31 +28,23 @@ const messages = [
 ];
 
 const Login = () => {
-  const { session, loading } = useSupabaseAuth();
+  const { session } = useSupabaseAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
 
   useEffect(() => {
-    console.log('Auth state changed:', { session, loading });
     if (session) {
-      const from = location.state?.from?.pathname || '/';
-      console.log('Redirecting to:', from);
-      navigate(from, { replace: true });
+      navigate('/');
     }
-  }, [session, loading, navigate, location]);
+  }, [session, navigate]);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentMessageIndex((prev) => (prev + 1) % messages.length);
-    }, 5000);
+    }, 5000); // Change message every 5 seconds
 
     return () => clearInterval(interval);
   }, []);
-
-  if (loading) {
-    return <LoadingScreen />;
-  }
 
   return (
     <div className="min-h-screen flex">
@@ -95,7 +86,7 @@ const Login = () => {
       {/* Right side - Auth UI */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-md">
-          <AuthUI />
+          <SupabaseAuthUI />
         </div>
       </div>
     </div>
