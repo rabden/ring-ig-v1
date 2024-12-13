@@ -2,24 +2,47 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight, Sparkles, Loader } from "lucide-react";
 import { toast } from "sonner";
-import { useUserCredits } from '@/hooks/useUserCredits';
+import { usePromptImprovement } from '@/hooks/usePromptImprovement';
+import CreditCounter from '@/components/ui/credit-counter';
 
 const PromptInput = ({ 
-  value = '', 
-  onChange, 
-  onKeyDown, 
-  onGenerate, 
+  prompt = '',
+  onChange,
+  onKeyDown,
+  onSubmit,
   hasEnoughCredits = true,
   onClear,
-  onImprove,
-  isImproving,
+  credits,
+  bonusCredits,
   userId
 }) => {
-  const { credits, bonusCredits } = useUserCredits(userId);
   const totalCredits = (credits || 0) + (bonusCredits || 0);
+  const hasEnoughCreditsForImprovement = totalCredits >= 1;
+  const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
 
-  const handleGenerate = async () => {
-    if (!value?.trim()) {
+  const handleImprovePrompt = async () => {
+    if (!userId) {
+      toast.error('Please sign in to improve prompts');
+      return;
+    }
+
+    if (!hasEnoughCreditsForImprovement) {
+      toast.error('Not enough credits for prompt improvement');
+      return;
+    }
+
+    try {
+      await improveCurrentPrompt(prompt, (improvedPrompt) => {
+        onChange({ target: { value: improvedPrompt } });
+      });
+    } catch (error) {
+      console.error('Error improving prompt:', error);
+      toast.error('Failed to improve prompt');
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!prompt?.trim()) {
       toast.error('Please enter a prompt');
       return;
     }
@@ -35,34 +58,10 @@ const PromptInput = ({
     }
 
     try {
-      await onGenerate();
+      await onSubmit();
     } catch (error) {
       console.error('Error generating:', error);
       toast.error('Failed to generate image');
-    }
-  };
-
-  const handleImprove = async () => {
-    if (!value?.trim()) {
-      toast.error('Please enter a prompt');
-      return;
-    }
-
-    if (!userId) {
-      toast.error('Please sign in to improve prompt');
-      return;
-    }
-
-    if (totalCredits < 1) {
-      toast.error('Not enough credits for prompt improvement');
-      return;
-    }
-
-    try {
-      await onImprove();
-    } catch (error) {
-      console.error('Error improving:', error);
-      toast.error('Failed to improve prompt');
     }
   };
 
@@ -73,7 +72,7 @@ const PromptInput = ({
         <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-background to-transparent pointer-events-none z-10" />
         
         <textarea
-          value={value}
+          value={prompt}
           onChange={onChange}
           onKeyDown={onKeyDown}
           placeholder="A 4D HDR immersive 3D image..."
@@ -84,40 +83,43 @@ const PromptInput = ({
         />
       </div>
       
-      <div className="flex justify-end items-center mt-4 gap-2">
-        {value?.length > 0 && (
+      <div className="flex justify-between items-center mt-4">
+        <CreditCounter credits={credits} bonusCredits={bonusCredits} />
+        <div className="flex items-center gap-2">
+          {prompt?.length > 0 && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="rounded-full"
+              onClick={onClear}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
           <Button
             size="sm"
             variant="outline"
             className="rounded-full"
-            onClick={onClear}
+            onClick={handleImprovePrompt}
+            disabled={!prompt?.length || isImproving || !hasEnoughCreditsForImprovement}
           >
-            <X className="h-4 w-4" />
+            {isImproving ? (
+              <Loader className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <Sparkles className="h-4 w-4 mr-2" />
+            )}
+            Improve
           </Button>
-        )}
-        <Button
-          size="sm"
-          variant="outline"
-          className="rounded-full"
-          onClick={handleImprove}
-          disabled={!value?.length || isImproving || !userId || totalCredits < 1}
-        >
-          {isImproving ? (
-            <Loader className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
-            <Sparkles className="h-4 w-4 mr-2" />
-          )}
-          Improve
-        </Button>
-        <Button
-          size="sm"
-          className="rounded-full"
-          onClick={handleGenerate}
-          disabled={!value?.length || !hasEnoughCredits || !userId}
-        >
-          Create
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
+          <Button
+            size="sm"
+            className="rounded-full"
+            onClick={handleSubmit}
+            disabled={!prompt?.length || !hasEnoughCredits || !userId}
+          >
+            Create
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );
