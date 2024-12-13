@@ -27,11 +27,16 @@ const queryClient = new QueryClient({
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { session, loading } = useSupabaseAuth();
+  const location = useLocation();
   
-  if (loading) return <LoadingScreen />;
+  // Only show loading screen when actually checking auth status
+  if (loading) {
+    return <LoadingScreen />;
+  }
   
+  // Only redirect when we're sure there's no session
   if (!session) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
   return children;
