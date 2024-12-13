@@ -15,16 +15,35 @@ export const AuthProvider = ({ children }) => {
   const clearAuthData = () => {
     setSession(null);
     queryClient.invalidateQueries('user');
-    // Clear all supabase auth related data from localStorage
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith('supabase.auth.')) {
-        localStorage.removeItem(key);
-      }
-    });
+    try {
+      // Clear all supabase auth related data from localStorage
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('supabase.auth.')) {
+          localStorage.removeItem(key);
+        }
+      });
+    } catch (error) {
+      console.error('Error clearing auth data:', error);
+    }
   };
 
   const handleAuthSession = async () => {
     try {
+      // First try to get session from localStorage
+      const storedSession = localStorage.getItem('supabase.auth.token');
+      if (storedSession) {
+        try {
+          const { session: parsedSession, timestamp } = JSON.parse(storedSession);
+          // Check if stored session is less than 7 days old
+          if (parsedSession && timestamp && (new Date().getTime() - timestamp) < 7 * 24 * 60 * 60 * 1000) {
+            setSession(parsedSession);
+          }
+        } catch (error) {
+          console.error('Error parsing stored session:', error);
+        }
+      }
+
+      // Then verify with Supabase
       const { data: { session: currentSession }, error } = await supabase.auth.getSession();
       
       if (error) {
@@ -43,7 +62,6 @@ export const AuthProvider = ({ children }) => {
       
       if (userError) {
         console.error('User verification error:', userError);
-        // If we get a 403 or session_not_found error, clear the session
         if (userError.status === 403 || userError.message?.includes('session_not_found')) {
           await supabase.auth.signOut();
           clearAuthData();
@@ -52,6 +70,17 @@ export const AuthProvider = ({ children }) => {
       }
 
       setSession(currentSession);
+      
+      // Update stored session timestamp
+      try {
+        const sessionData = {
+          session: currentSession,
+          timestamp: new Date().getTime()
+        };
+        localStorage.setItem('supabase.auth.token', JSON.stringify(sessionData));
+      } catch (error) {
+        console.error('Error updating session timestamp:', error);
+      }
     } catch (error) {
       console.error('Auth error:', error);
       clearAuthData();
@@ -80,6 +109,16 @@ export const AuthProvider = ({ children }) => {
           if (newSession) {
             setSession(newSession);
             queryClient.invalidateQueries('user');
+            // Store the new session
+            try {
+              const sessionData = {
+                session: newSession,
+                timestamp: new Date().getTime()
+              };
+              localStorage.setItem('supabase.auth.token', JSON.stringify(sessionData));
+            } catch (error) {
+              console.error('Error storing new session:', error);
+            }
           }
         })
         .catch(error => {
@@ -89,25 +128,27 @@ export const AuthProvider = ({ children }) => {
       handleAuthSession();
     }
 
+    // Set up auth state change listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth event:', event);
       
       switch (event) {
         case 'SIGNED_IN':
-          setSession(session);
-          queryClient.invalidateQueries('user');
-          break;
-        case 'SIGNED_OUT':
-          clearAuthData();
-          break;
         case 'TOKEN_REFRESHED':
-          setSession(session);
-          queryClient.invalidateQueries('user');
-          break;
         case 'USER_UPDATED':
           setSession(session);
           queryClient.invalidateQueries('user');
+          try {
+            const sessionData = {
+              session,
+              timestamp: new Date().getTime()
+            };
+            localStorage.setItem('supabase.auth.token', JSON.stringify(sessionData));
+          } catch (error) {
+            console.error('Error updating session on state change:', error);
+          }
           break;
+        case 'SIGNED_OUT':
         case 'USER_DELETED':
           clearAuthData();
           break;
@@ -118,8 +159,25 @@ export const AuthProvider = ({ children }) => {
       }
     });
 
+    // Auto refresh session
+    const refreshInterval = setInterval(async () => {
+      try {
+        const { data: { session: refreshedSession }, error } = await supabase.auth.refreshSession();
+        if (error) {
+          console.error('Session refresh error:', error);
+          return;
+        }
+        if (refreshedSession) {
+          setSession(refreshedSession);
+        }
+      } catch (error) {
+        console.error('Error in session refresh:', error);
+      }
+    }, 4 * 60 * 60 * 1000); // Refresh every 4 hours
+
     return () => {
       subscription?.unsubscribe();
+      clearInterval(refreshInterval);
     };
   }, [queryClient, location, navigate]);
 
