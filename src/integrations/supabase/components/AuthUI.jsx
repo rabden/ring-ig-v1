@@ -20,7 +20,7 @@ export const AuthUI = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showEmailForm, setShowEmailForm] = useState(false);
-  const [isSignIn, setIsSignIn] = useState(false);
+  const [isSignIn, setIsSignIn] = useState(true);
 
   const handleEmailSignIn = async (e) => {
     e.preventDefault();
@@ -71,6 +71,12 @@ export const AuthUI = () => {
       return;
     }
 
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const finalDisplayName = displayName || generateRandomDisplayName();
       console.log('Attempting sign up with:', { email, displayName: finalDisplayName });
@@ -82,7 +88,6 @@ export const AuthUI = () => {
           data: {
             display_name: finalDisplayName,
           },
-          emailRedirectTo: window.location.href
         },
       });
       
@@ -90,8 +95,13 @@ export const AuthUI = () => {
 
       console.log('Sign up response:', data);
       
+      if (data?.user?.identities?.length === 0) {
+        throw new Error('This email is already registered. Please sign in instead.');
+      }
+      
       // If email confirmation is required
       if (!data.session && data.user) {
+        console.log('Email confirmation required');
         setShowConfirmation(true);
         // Reset form
         setEmail('');
@@ -103,8 +113,13 @@ export const AuthUI = () => {
         setShowEmailForm(false);
       }
     } catch (error) {
-      console.error('Error signing up:', error.message);
-      setError(error.message || 'Failed to sign up');
+      console.error('Error signing up:', error);
+      if (error.message.includes('already registered')) {
+        setError('This email is already registered. Please sign in instead.');
+        setIsSignIn(true); // Switch to sign in mode
+      } else {
+        setError(error.message || 'Failed to sign up');
+      }
       toast.error(error.message || 'Failed to sign up');
     } finally {
       setIsLoading(false);
