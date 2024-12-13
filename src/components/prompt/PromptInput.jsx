@@ -13,15 +13,23 @@ const PromptInput = ({
   onImprove,
   isImproving,
   userId,
-  credits,
-  bonusCredits
+  credits = 0,
+  bonusCredits = 0
 }) => {
   const hasText = value && value.trim().length > 0;
   const totalCredits = (credits || 0) + (bonusCredits || 0);
 
   const handleGenerate = async () => {
+    if (!userId) {
+      toast.error('Please sign in to generate images');
+      return;
+    }
     if (!hasText) {
       toast.error('Please enter a prompt');
+      return;
+    }
+    if (!hasEnoughCredits) {
+      toast.error('Not enough credits');
       return;
     }
     await onGenerate();
@@ -30,6 +38,10 @@ const PromptInput = ({
   const handleImprove = async () => {
     if (!userId) {
       toast.error('Please sign in to improve prompts');
+      return;
+    }
+    if (!hasText) {
+      toast.error('Please enter a prompt');
       return;
     }
     if (totalCredits < 1) {
