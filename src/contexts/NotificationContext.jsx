@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/supabase';
-import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { useSupabaseAuth } from '@/integrations/supabase/hooks/useAuth';
 import { toast } from 'sonner';
 
 const NotificationContext = createContext();
