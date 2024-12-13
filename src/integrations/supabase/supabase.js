@@ -16,19 +16,32 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
 
 // Initialize auth state from localStorage
 const initializeAuth = async () => {
-  const existingToken = window.localStorage.getItem('supabase.auth.token');
-  if (existingToken) {
-    try {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error('Error initializing auth:', error);
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error) {
+      console.error('Error initializing auth:', error);
+      // Only remove token if there's an actual error
+      if (error.status !== 404) {
         window.localStorage.removeItem('supabase.auth.token');
       }
-    } catch (err) {
-      console.error('Failed to initialize auth:', err);
-      window.localStorage.removeItem('supabase.auth.token');
     }
+    return session;
+  } catch (err) {
+    console.error('Failed to initialize auth:', err);
+    return null;
   }
 };
 
+// Set up auth state listener
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_IN') {
+    // Update localStorage with the new session
+    window.localStorage.setItem('supabase.auth.token', JSON.stringify(session));
+  } else if (event === 'SIGNED_OUT') {
+    // Clear auth data on sign out
+    window.localStorage.removeItem('supabase.auth.token');
+  }
+});
+
+// Initialize auth on load
 initializeAuth();

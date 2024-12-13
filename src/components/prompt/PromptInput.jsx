@@ -12,9 +12,12 @@ const PromptInput = ({
   onClear,
   onImprove,
   isImproving,
-  userId
+  userId,
+  credits,
+  bonusCredits
 }) => {
   const hasText = value && value.trim().length > 0;
+  const totalCredits = (credits || 0) + (bonusCredits || 0);
 
   const handleGenerate = async () => {
     if (!hasText) {
@@ -22,6 +25,18 @@ const PromptInput = ({
       return;
     }
     await onGenerate();
+  };
+
+  const handleImprove = async () => {
+    if (!userId) {
+      toast.error('Please sign in to improve prompts');
+      return;
+    }
+    if (totalCredits < 1) {
+      toast.error('Not enough credits for prompt improvement');
+      return;
+    }
+    await onImprove();
   };
 
   return (
@@ -57,8 +72,8 @@ const PromptInput = ({
           size="sm"
           variant="outline"
           className="rounded-full"
-          onClick={onImprove}
-          disabled={!hasText || isImproving}
+          onClick={handleImprove}
+          disabled={!hasText || isImproving || !userId || totalCredits < 1}
         >
           {isImproving ? (
             <Loader className="h-4 w-4 mr-2 animate-spin" />
@@ -71,7 +86,7 @@ const PromptInput = ({
           size="sm"
           className="rounded-full"
           onClick={handleGenerate}
-          disabled={!hasText || !hasEnoughCredits}
+          disabled={!hasText || !hasEnoughCredits || !userId}
         >
           Create
           <ArrowRight className="ml-2 h-4 w-4" />
