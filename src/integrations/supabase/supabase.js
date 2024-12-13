@@ -8,7 +8,31 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    storage: window.localStorage,
+    storage: {
+      getItem: (key) => {
+        try {
+          const item = window.localStorage.getItem(key);
+          return item;
+        } catch (error) {
+          console.error('Error reading from localStorage:', error);
+          return null;
+        }
+      },
+      setItem: (key, value) => {
+        try {
+          window.localStorage.setItem(key, value);
+        } catch (error) {
+          console.error('Error writing to localStorage:', error);
+        }
+      },
+      removeItem: (key) => {
+        try {
+          window.localStorage.removeItem(key);
+        } catch (error) {
+          console.error('Error removing from localStorage:', error);
+        }
+      }
+    },
     storageKey: 'supabase.auth.token',
     flowType: 'pkce'
   }
@@ -20,7 +44,6 @@ const initializeAuth = async () => {
     const { data: { session }, error } = await supabase.auth.getSession();
     if (error) {
       console.error('Error initializing auth:', error);
-      // Only remove token if there's an actual error
       if (error.status !== 404) {
         window.localStorage.removeItem('supabase.auth.token');
       }
@@ -34,12 +57,28 @@ const initializeAuth = async () => {
 
 // Set up auth state listener
 supabase.auth.onAuthStateChange((event, session) => {
-  if (event === 'SIGNED_IN') {
-    // Update localStorage with the new session
-    window.localStorage.setItem('supabase.auth.token', JSON.stringify(session));
+  if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+    try {
+      // Store both the session and a timestamp
+      const sessionData = {
+        session,
+        timestamp: new Date().getTime()
+      };
+      window.localStorage.setItem('supabase.auth.token', JSON.stringify(sessionData));
+    } catch (error) {
+      console.error('Error storing session:', error);
+    }
   } else if (event === 'SIGNED_OUT') {
-    // Clear auth data on sign out
-    window.localStorage.removeItem('supabase.auth.token');
+    try {
+      // Clear all auth related data
+      Object.keys(window.localStorage).forEach(key => {
+        if (key.startsWith('supabase.auth.')) {
+          window.localStorage.removeItem(key);
+        }
+      });
+    } catch (error) {
+      console.error('Error clearing session:', error);
+    }
   }
 });
 
