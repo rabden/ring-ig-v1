@@ -120,8 +120,6 @@ const ImageGeneratorSettings = ({
           hasEnoughCredits={hasEnoughCredits}
           onClear={handleClearPrompt}
           userId={userId}
-          credits={credits}
-          bonusCredits={bonusCredits}
         />
       </div>
 

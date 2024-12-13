@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { X, ArrowRight, Sparkles, Loader } from "lucide-react";
 import { toast } from "sonner";
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
-import CreditCounter from '@/components/ui/credit-counter';
+import { useUserCredits } from '@/hooks/useUserCredits';
 
 const PromptInput = ({ 
   value = '', 
@@ -12,12 +12,10 @@ const PromptInput = ({
   onGenerate, 
   hasEnoughCredits = true,
   onClear,
-  userId,
-  credits,
-  bonusCredits
+  userId
 }) => {
   const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
-  const totalCredits = (credits || 0) + (bonusCredits || 0);
+  const { totalCredits } = useUserCredits(userId);
   const hasEnoughCreditsForImprovement = totalCredits >= 1;
 
   const handleGenerate = () => {
@@ -57,43 +55,40 @@ const PromptInput = ({
         />
       </div>
       
-      <div className="flex justify-between items-center mt-4">
-        <CreditCounter credits={credits} bonusCredits={bonusCredits} />
-        <div className="flex items-center gap-2">
-          {value?.length > 0 && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="rounded-full"
-              onClick={onClear}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
+      <div className="flex justify-end items-center mt-4 gap-2">
+        {value?.length > 0 && (
           <Button
             size="sm"
             variant="outline"
             className="rounded-full"
-            onClick={handleImprove}
-            disabled={!value?.length || isImproving || !hasEnoughCreditsForImprovement}
+            onClick={onClear}
           >
-            {isImproving ? (
-              <Loader className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <Sparkles className="h-4 w-4 mr-2" />
-            )}
-            Improve
+            <X className="h-4 w-4" />
           </Button>
-          <Button
-            size="sm"
-            className="rounded-full"
-            onClick={handleGenerate}
-            disabled={!value?.length || !hasEnoughCredits}
-          >
-            Create
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
+        )}
+        <Button
+          size="sm"
+          variant="outline"
+          className="rounded-full"
+          onClick={handleImprove}
+          disabled={!value?.length || isImproving || !hasEnoughCreditsForImprovement}
+        >
+          {isImproving ? (
+            <Loader className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <Sparkles className="h-4 w-4 mr-2" />
+          )}
+          Improve
+        </Button>
+        <Button
+          size="sm"
+          className="rounded-full"
+          onClick={handleGenerate}
+          disabled={!value?.length || !hasEnoughCredits}
+        >
+          Create
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
       </div>
     </div>
   );
