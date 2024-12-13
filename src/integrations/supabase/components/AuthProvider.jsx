@@ -12,15 +12,17 @@ export const AuthProvider = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const clearAuthData = () => {
+  const clearAuthData = (shouldClearStorage = false) => {
     setSession(null);
     queryClient.invalidateQueries('user');
-    // Clear all supabase auth related data from localStorage
-    Object.keys(localStorage).forEach(key => {
-      if (key.startsWith('supabase.auth.')) {
-        localStorage.removeItem(key);
-      }
-    });
+    // Only clear localStorage when explicitly requested (like during logout)
+    if (shouldClearStorage) {
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('supabase.auth.')) {
+          localStorage.removeItem(key);
+        }
+      });
+    }
   };
 
   const handleAuthSession = async () => {
@@ -29,12 +31,12 @@ export const AuthProvider = ({ children }) => {
       
       if (error) {
         console.error('Auth session error:', error);
-        clearAuthData();
+        clearAuthData(false);
         return;
       }
 
       if (!currentSession) {
-        clearAuthData();
+        clearAuthData(false);
         return;
       }
 
@@ -46,7 +48,7 @@ export const AuthProvider = ({ children }) => {
         // If we get a 403 or session_not_found error, clear the session
         if (userError.status === 403 || userError.message?.includes('session_not_found')) {
           await supabase.auth.signOut();
-          clearAuthData();
+          clearAuthData(true);
         }
         return;
       }
@@ -54,13 +56,65 @@ export const AuthProvider = ({ children }) => {
       setSession(currentSession);
     } catch (error) {
       console.error('Auth error:', error);
-      clearAuthData();
+      clearAuthData(false);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    let mounted = true;
+    let authListener = null;
+
+    // Initialize auth state
+    const initializeAuth = async () => {
+      try {
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        if (mounted) {
+          if (initialSession) {
+            setSession(initialSession);
+            queryClient.invalidateQueries('user');
+          }
+          setLoading(false);
+          
+          // Only set up auth listener after initial session check
+          authListener = supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log('Auth event:', event);
+            
+            if (!mounted) return;
+
+            switch (event) {
+              case 'SIGNED_IN':
+                setSession(session);
+                queryClient.invalidateQueries('user');
+                break;
+              case 'SIGNED_OUT':
+                // Don't clear storage for automatic sign out events
+                clearAuthData(false);
+                break;
+              case 'TOKEN_REFRESHED':
+                setSession(session);
+                queryClient.invalidateQueries('user');
+                break;
+              case 'USER_UPDATED':
+                setSession(session);
+                queryClient.invalidateQueries('user');
+                break;
+              case 'USER_DELETED':
+                // Clear storage for user deletion
+                clearAuthData(true);
+                break;
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
     // Handle auth code in URL
     const params = new URLSearchParams(location.search);
     const authCode = params.get('code');
@@ -77,7 +131,7 @@ export const AuthProvider = ({ children }) => {
             console.error('Error exchanging code for session:', error);
             return;
           }
-          if (newSession) {
+          if (newSession && mounted) {
             setSession(newSession);
             queryClient.invalidateQueries('user');
           }
@@ -85,68 +139,22 @@ export const AuthProvider = ({ children }) => {
         .catch(error => {
           console.error('Error in code exchange:', error);
         });
-    }
-
-    // Initialize auth state
-    const initializeAuth = async () => {
-      try {
-        const { data: { session: initialSession } } = await supabase.auth.getSession();
-        if (initialSession) {
-          setSession(initialSession);
-          queryClient.invalidateQueries('user');
-        }
-      } catch (error) {
-        console.error('Error initializing auth:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (!authCode) {
+    } else {
       initializeAuth();
     }
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth event:', event);
-      
-      switch (event) {
-        case 'SIGNED_IN':
-          setSession(session);
-          queryClient.invalidateQueries('user');
-          setLoading(false);
-          break;
-        case 'SIGNED_OUT':
-          if (!loading) { // Only process sign out if not in initial loading
-            clearAuthData();
-            setLoading(false);
-          }
-          break;
-        case 'TOKEN_REFRESHED':
-          setSession(session);
-          queryClient.invalidateQueries('user');
-          setLoading(false);
-          break;
-        case 'USER_UPDATED':
-          setSession(session);
-          queryClient.invalidateQueries('user');
-          setLoading(false);
-          break;
-        case 'USER_DELETED':
-          clearAuthData();
-          setLoading(false);
-          break;
-      }
-    });
-
     return () => {
-      subscription?.unsubscribe();
+      mounted = false;
+      if (authListener) {
+        authListener.subscription.unsubscribe();
+      }
     };
   }, [queryClient, location, navigate]);
 
   const logout = async () => {
     try {
       await supabase.auth.signOut();
-      clearAuthData();
+      clearAuthData(true); // Clear storage during explicit logout
     } catch (error) {
       console.error('Error signing out:', error);
     }
