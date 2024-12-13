@@ -19,7 +19,8 @@ const PromptInput = ({
 }) => {
   const hasText = value && value.trim().length > 0;
   const totalCredits = (credits || 0) + (bonusCredits || 0);
-  const hasEnoughCreditsForImprovement = totalCredits >= 1;
+  const creditCostForImprovement = 1;
+  const hasEnoughCreditsForImprovement = totalCredits >= creditCostForImprovement;
 
   const handleGenerate = async () => {
     if (!userId) {
