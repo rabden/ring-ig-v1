@@ -32,16 +32,11 @@ const PromptInput = ({
     }
 
     try {
-      // Deduct 1 credit for improvement
-      const remainingCredits = await updateCredits(1);
-      if (remainingCredits === -1) {
-        toast.error('Not enough credits for prompt improvement');
-        return;
-      }
-
       await improveCurrentPrompt(prompt, (improvedPrompt) => {
         onChange({ target: { value: improvedPrompt } });
       });
+      // Deduct credit after successful improvement
+      await updateCredits(1);
     } catch (error) {
       console.error('Error improving prompt:', error);
       toast.error('Failed to improve prompt');
