@@ -13,22 +13,6 @@ const PromptInput = ({
   onImprove,
   isImproving
 }) => {
-  const handleGenerate = async () => {
-    if (!value?.trim()) {
-      toast.error('Please enter a prompt');
-      return;
-    }
-    await onGenerate();
-  };
-
-  const handleImprove = async () => {
-    if (!value?.trim()) {
-      toast.error('Please enter a prompt');
-      return;
-    }
-    await onImprove();
-  };
-
   return (
     <div className="relative mb-8">
       <div className="relative">
@@ -62,7 +46,7 @@ const PromptInput = ({
           size="sm"
           variant="outline"
           className="rounded-full"
-          onClick={handleImprove}
+          onClick={onImprove}
           disabled={!value?.length || isImproving}
         >
           {isImproving ? (
@@ -75,7 +59,7 @@ const PromptInput = ({
         <Button
           size="sm"
           className="rounded-full"
-          onClick={handleGenerate}
+          onClick={onGenerate}
           disabled={!value?.length || !hasEnoughCredits}
         >
           Create
