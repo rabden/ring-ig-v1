@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState, useCallback } from 'react';
 import { supabase } from '../supabase';
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -12,43 +12,47 @@ export const AuthProvider = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const clearAuthData = () => {
+  const clearAuthData = useCallback(() => {
     setSession(null);
     queryClient.invalidateQueries('user');
     try {
-      // Clear all supabase auth related data from localStorage
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('supabase.auth.')) {
-          localStorage.removeItem(key);
-        }
-      });
+      Object.keys(localStorage)
+        .filter(key => key.startsWith('supabase.auth.') || key.startsWith('sb-'))
+        .forEach(key => localStorage.removeItem(key));
     } catch (error) {
       console.error('Error clearing auth data:', error);
     }
-  };
+  }, [queryClient]);
 
-  const handleAuthSession = async () => {
+  const handleAuthSession = useCallback(async () => {
     try {
-      // First try to get session from localStorage
-      const storedSession = localStorage.getItem('supabase.auth.token');
-      if (storedSession) {
+      // Try to get session from localStorage first
+      const accessToken = localStorage.getItem('sb-access-token');
+      const refreshToken = localStorage.getItem('sb-refresh-token');
+
+      if (accessToken && refreshToken) {
         try {
-          const { session: parsedSession, timestamp } = JSON.parse(storedSession);
-          // Check if stored session is less than 7 days old
-          if (parsedSession && timestamp && (new Date().getTime() - timestamp) < 7 * 24 * 60 * 60 * 1000) {
-            setSession(parsedSession);
+          const { data: { session: refreshedSession }, error: refreshError } = 
+            await supabase.auth.refreshSession({ refresh_token: refreshToken });
+
+          if (!refreshError && refreshedSession) {
+            setSession(refreshedSession);
+            setLoading(false);
+            return;
           }
         } catch (error) {
-          console.error('Error parsing stored session:', error);
+          console.error('Error refreshing session:', error);
         }
       }
 
-      // Then verify with Supabase
+      // If no stored tokens or refresh failed, get current session
       const { data: { session: currentSession }, error } = await supabase.auth.getSession();
       
       if (error) {
         console.error('Auth session error:', error);
-        clearAuthData();
+        if (!error.message?.includes('fetch')) {
+          clearAuthData();
+        }
         return;
       }
 
@@ -57,37 +61,16 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      // Verify the session is still valid
-      const { data: user, error: userError } = await supabase.auth.getUser();
-      
-      if (userError) {
-        console.error('User verification error:', userError);
-        if (userError.status === 403 || userError.message?.includes('session_not_found')) {
-          await supabase.auth.signOut();
-          clearAuthData();
-        }
-        return;
-      }
-
       setSession(currentSession);
-      
-      // Update stored session timestamp
-      try {
-        const sessionData = {
-          session: currentSession,
-          timestamp: new Date().getTime()
-        };
-        localStorage.setItem('supabase.auth.token', JSON.stringify(sessionData));
-      } catch (error) {
-        console.error('Error updating session timestamp:', error);
-      }
     } catch (error) {
       console.error('Auth error:', error);
-      clearAuthData();
+      if (!error.message?.includes('fetch')) {
+        clearAuthData();
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, [clearAuthData]);
 
   useEffect(() => {
     // Handle auth code in URL
@@ -95,11 +78,9 @@ export const AuthProvider = ({ children }) => {
     const authCode = params.get('code');
     
     if (authCode) {
-      // Remove the code from URL without reloading the page
       const newUrl = window.location.pathname;
       navigate(newUrl, { replace: true });
       
-      // Exchange the code for a session
       supabase.auth.exchangeCodeForSession(authCode)
         .then(({ data: { session: newSession }, error }) => {
           if (error) {
@@ -109,16 +90,6 @@ export const AuthProvider = ({ children }) => {
           if (newSession) {
             setSession(newSession);
             queryClient.invalidateQueries('user');
-            // Store the new session
-            try {
-              const sessionData = {
-                session: newSession,
-                timestamp: new Date().getTime()
-              };
-              localStorage.setItem('supabase.auth.token', JSON.stringify(sessionData));
-            } catch (error) {
-              console.error('Error storing new session:', error);
-            }
           }
         })
         .catch(error => {
@@ -128,58 +99,68 @@ export const AuthProvider = ({ children }) => {
       handleAuthSession();
     }
 
-    // Set up auth state change listener
+    let authChangeTimeout;
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth event:', event);
+      console.log('Auth state change:', event);
       
-      switch (event) {
-        case 'SIGNED_IN':
-        case 'TOKEN_REFRESHED':
-        case 'USER_UPDATED':
-          setSession(session);
-          queryClient.invalidateQueries('user');
-          try {
-            const sessionData = {
-              session,
-              timestamp: new Date().getTime()
-            };
-            localStorage.setItem('supabase.auth.token', JSON.stringify(sessionData));
-          } catch (error) {
-            console.error('Error updating session on state change:', error);
-          }
-          break;
-        case 'SIGNED_OUT':
-        case 'USER_DELETED':
-          clearAuthData();
-          break;
-        default:
-          if (!session) {
-            clearAuthData();
-          }
+      // Clear any pending timeout
+      if (authChangeTimeout) {
+        clearTimeout(authChangeTimeout);
       }
+
+      // Debounce the state change handling
+      authChangeTimeout = setTimeout(() => {
+        switch (event) {
+          case 'SIGNED_IN':
+          case 'TOKEN_REFRESHED':
+          case 'USER_UPDATED':
+            setSession(session);
+            queryClient.invalidateQueries('user');
+            break;
+          case 'SIGNED_OUT':
+          case 'USER_DELETED':
+            clearAuthData();
+            break;
+          default:
+            if (!session) {
+              clearAuthData();
+            }
+        }
+      }, 100);
     });
 
     // Auto refresh session
     const refreshInterval = setInterval(async () => {
-      try {
-        const { data: { session: refreshedSession }, error } = await supabase.auth.refreshSession();
-        if (error) {
-          console.error('Session refresh error:', error);
-          return;
+      if (session?.refresh_token) {
+        try {
+          const { data: { session: refreshedSession }, error } = 
+            await supabase.auth.refreshSession({ refresh_token: session.refresh_token });
+          
+          if (error) {
+            console.error('Session refresh error:', error);
+            if (!error.message?.includes('fetch')) {
+              clearAuthData();
+            }
+            return;
+          }
+          
+          if (refreshedSession) {
+            setSession(refreshedSession);
+          }
+        } catch (error) {
+          console.error('Error in session refresh:', error);
         }
-        if (refreshedSession) {
-          setSession(refreshedSession);
-        }
-      } catch (error) {
-        console.error('Error in session refresh:', error);
       }
     }, 4 * 60 * 60 * 1000); // Refresh every 4 hours
 
     return () => {
       subscription?.unsubscribe();
       clearInterval(refreshInterval);
+      if (authChangeTimeout) {
+        clearTimeout(authChangeTimeout);
+      }
     };
-  }, [queryClient, location, navigate]);
+  }, [queryClient, location, navigate, handleAuthSession, clearAuthData]);
 
   const logout = async () => {
     try {
