@@ -28,14 +28,22 @@ const queryClient = new QueryClient({
 const ProtectedRoute = ({ children }) => {
   const { session, loading } = useSupabaseAuth();
   const location = useLocation();
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  useEffect(() => {
+    // Wait for auth state to be determined
+    if (!loading) {
+      setIsInitialLoad(false);
+    }
+  }, [loading]);
   
-  // Only show loading screen when actually checking auth status
-  if (loading) {
+  // Show loading screen during initial load or auth check
+  if (loading || isInitialLoad) {
     return <LoadingScreen />;
   }
   
-  // Only redirect when we're sure there's no session
-  if (!session) {
+  // Only redirect when we're sure there's no session and initial load is complete
+  if (!session && !isInitialLoad) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
