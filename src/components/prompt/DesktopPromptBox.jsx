@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import PromptInput from './PromptInput';
-import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 import { Button } from '@/components/ui/button';
 import { X, ArrowRight, Sparkles, Loader } from 'lucide-react';
 import CreditCounter from '@/components/ui/credit-counter';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 
 const DesktopPromptBox = ({ 
   prompt,
@@ -88,6 +87,14 @@ const DesktopPromptBox = ({
     }
   };
 
+  const handleSubmit = async () => {
+    if (!prompt?.trim()) {
+      toast.error('Please enter a prompt');
+      return;
+    }
+    await onSubmit();
+  };
+
   return (
     <>
       {/* Normal position box */}
@@ -160,7 +167,7 @@ const DesktopPromptBox = ({
                     <Button
                       size="sm"
                       className="rounded-full"
-                      onClick={onSubmit}
+                      onClick={handleSubmit}
                       disabled={!prompt?.length || !hasEnoughCredits}
                     >
                       Create
@@ -183,7 +190,7 @@ const DesktopPromptBox = ({
                   className="rounded-full"
                   onClick={(e) => {
                     e.stopPropagation();
-                    onSubmit();
+                    handleSubmit();
                   }}
                   disabled={!prompt?.length || !hasEnoughCredits}
                 >
@@ -217,7 +224,7 @@ const DesktopPromptBox = ({
                 className="rounded-full"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onSubmit();
+                  handleSubmit();
                 }}
                 disabled={!prompt?.length || !hasEnoughCredits}
               >
