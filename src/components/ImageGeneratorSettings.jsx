@@ -121,7 +121,7 @@ const ImageGeneratorSettings = ({
           onClear={handleClearPrompt}
           credits={credits}
           bonusCredits={bonusCredits}
-          userId={userId}
+          userId={session?.user?.id}
         />
       </div>
 

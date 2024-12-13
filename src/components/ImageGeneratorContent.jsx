@@ -205,7 +205,10 @@ const ImageGeneratorContent = ({
               <CreditCounter credits={credits} bonusCredits={bonusCredits} className="block md:hidden mb-4" />
               <ImageGeneratorSettings 
                 {...imageGeneratorProps} 
-                hidePromptOnDesktop={!isMobile && !isGenerateTab} 
+                hidePromptOnDesktop={!isMobile && !isGenerateTab}
+                credits={credits}
+                bonusCredits={bonusCredits}
+                session={session}
               />
             </div>
           </div>
