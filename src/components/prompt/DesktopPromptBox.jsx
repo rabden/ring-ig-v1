@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import PromptInput from './PromptInput';
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 import { Button } from '@/components/ui/button';
 import { X, ArrowRight, Sparkles, Loader } from 'lucide-react';
@@ -94,7 +93,8 @@ const DesktopPromptBox = ({
       <div 
         ref={boxRef}
         className={cn(
-          "hidden md:block w-full max-w-[700px] mx-auto px-4 mt-16 mb-2",
+          "w-full max-w-[700px] mx-auto px-4 mt-16 mb-2",
+          "md:block",
           className
         )}
       >
@@ -116,6 +116,9 @@ const DesktopPromptBox = ({
           )}>
             {isExpanded ? (
               <>
+                <div className="block md:hidden mb-2">
+                  <CreditCounter credits={credits} bonusCredits={bonusCredits} />
+                </div>
                 <div className="relative">
                   <textarea
                     ref={textareaRef}
@@ -123,16 +126,19 @@ const DesktopPromptBox = ({
                     onChange={onChange}
                     onKeyDown={onKeyDown}
                     placeholder="A 4D HDR immersive 3D image..."
-                    className="w-full min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-4 px-2"
-                    style={{ caretColor: 'currentColor' }}
+                    className="w-full min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-4 px-2 leading-relaxed"
+                    style={{ 
+                      caretColor: 'currentColor',
+                      height: 'auto',
+                      overflow: 'hidden'
+                    }}
                   />
                   <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-[1]" />
                   <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-[1]" />
                 </div>
 
-                <div className="flex justify-between items-center mt-0">
-                  <CreditCounter credits={credits} bonusCredits={bonusCredits} />
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-col md:flex-row md:justify-between items-center mt-0 gap-2">
+                  <div className="flex items-center gap-2 order-1">
                     {prompt?.length > 0 && (
                       <Button
                         size="sm"
@@ -166,6 +172,9 @@ const DesktopPromptBox = ({
                       Create
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
+                  </div>
+                  <div className="hidden md:block">
+                    <CreditCounter credits={credits} bonusCredits={bonusCredits} />
                   </div>
                 </div>
               </>
