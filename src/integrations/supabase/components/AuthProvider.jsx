@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     let mounted = true;
-    let authListener = null;
+    let authSubscription = null;
 
     // Initialize auth state
     const initializeAuth = async () => {
@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }) => {
           setLoading(false);
           
           // Only set up auth listener after initial session check
-          authListener = supabase.auth.onAuthStateChange(async (event, session) => {
+          const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             console.log('Auth event:', event);
             
             if (!mounted) return;
@@ -106,6 +106,7 @@ export const AuthProvider = ({ children }) => {
                 break;
             }
           });
+          authSubscription = subscription;
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
@@ -145,8 +146,8 @@ export const AuthProvider = ({ children }) => {
 
     return () => {
       mounted = false;
-      if (authListener) {
-        authListener.subscription.unsubscribe();
+      if (authSubscription) {
+        authSubscription.unsubscribe();
       }
     };
   }, [queryClient, location, navigate]);
