@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight, Sparkles, Loader } from "lucide-react";
 import { toast } from "sonner";
+import CreditCounter from '@/components/ui/credit-counter';
 
 const PromptInput = ({ 
   value = '', 
@@ -18,6 +19,8 @@ const PromptInput = ({
 }) => {
   const hasText = value && value.trim().length > 0;
   const totalCredits = (credits || 0) + (bonusCredits || 0);
+  const canGenerate = hasText && hasEnoughCredits && userId;
+  const canImprove = hasText && totalCredits >= 1 && userId && !isImproving;
 
   const handleGenerate = async () => {
     if (!userId) {
@@ -85,7 +88,7 @@ const PromptInput = ({
           variant="outline"
           className="rounded-full"
           onClick={handleImprove}
-          disabled={!hasText || isImproving || !userId || totalCredits < 1}
+          disabled={!canImprove}
         >
           {isImproving ? (
             <Loader className="h-4 w-4 mr-2 animate-spin" />
@@ -98,7 +101,7 @@ const PromptInput = ({
           size="sm"
           className="rounded-full"
           onClick={handleGenerate}
-          disabled={!hasText || !hasEnoughCredits || !userId}
+          disabled={!canGenerate}
         >
           Create
           <ArrowRight className="ml-2 h-4 w-4" />
