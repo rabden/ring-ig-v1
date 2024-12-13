@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useSearchParams, useLocation } from 'react-router-dom';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/integrations/supabase/components/AuthProvider';
@@ -12,6 +12,8 @@ import UserProfile from '@/pages/UserProfile';
 import LoadingScreen from '@/components/LoadingScreen';
 import Login from '@/pages/Login';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import Inspiration from '@/pages/Inspiration';
+import Documentation from '@/pages/Documentation';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,6 +50,7 @@ const AuthRoute = ({ children }) => {
   return children;
 };
 
+// Main App Component
 function App() {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -71,6 +74,7 @@ function App() {
                 <Routes>
                   {/* Public Routes */}
                   <Route path="/image/:imageId" element={<SingleImageView />} />
+                  <Route path="/docs" element={<Documentation />} />
                   
                   {/* Auth Routes */}
                   <Route 
@@ -104,6 +108,14 @@ function App() {
                     element={
                       <ProtectedRoute>
                         <UserProfile />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/inspiration" 
+                    element={
+                      <ProtectedRoute>
+                        <Inspiration />
                       </ProtectedRoute>
                     } 
                   />

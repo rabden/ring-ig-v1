@@ -5,7 +5,6 @@ import { supabase } from '@/integrations/supabase/supabase';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { downloadImage } from '@/utils/downloadUtils';
-import { useImageRemix } from '@/hooks/useImageRemix';
 import MobileImageView from '@/components/MobileImageView';
 import FullScreenImageView from '@/components/FullScreenImageView';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
@@ -15,7 +14,6 @@ const SingleImageView = () => {
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const { handleRemix } = useImageRemix(session);
 
   const { data: image, isLoading } = useQuery({
     queryKey: ['singleImage', imageId],
@@ -58,7 +56,6 @@ const SingleImageView = () => {
       image={image}
       onClose={() => navigate(-1)}
       onDownload={handleDownload}
-      onRemix={handleRemix}
       isOwner={image.user_id === session?.user?.id}
       setActiveTab={() => {}}
       setStyle={() => {}}
@@ -71,7 +68,6 @@ const SingleImageView = () => {
       onClose={() => navigate(-1)}
       onDownload={handleDownload}
       onDiscard={() => {}}
-      onRemix={handleRemix}
       isOwner={image.user_id === session?.user?.id}
       setStyle={() => {}}
       setActiveTab={() => {}}

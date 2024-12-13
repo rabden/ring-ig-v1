@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { useUserCredits } from '@/hooks/useUserCredits';
+import { useFollows } from '@/hooks/useFollows';
+import { useScrollDirection } from '@/hooks/useScrollDirection';
 import ImageGallery from '@/components/ImageGallery';
 import DesktopHeader from '@/components/header/DesktopHeader';
 import MobileHeader from '@/components/header/MobileHeader';
@@ -8,21 +11,38 @@ import FullScreenImageView from '@/components/FullScreenImageView';
 import BottomNavbar from '@/components/BottomNavbar';
 import MobileNotificationsMenu from '@/components/MobileNotificationsMenu';
 import MobileProfileMenu from '@/components/MobileProfileMenu';
-import { useNavigate } from 'react-router-dom';
-import { useUserCredits } from '@/hooks/useUserCredits';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useProUser } from '@/hooks/useProUser';
 
 const Inspiration = () => {
   const { session } = useSupabaseAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedImage, setSelectedImage] = useState(null);
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState({});
   const [nsfwEnabled, setNsfwEnabled] = useState(false);
-  const [activeTab, setActiveTab] = useState('images');
-  const [activeView, setActiveView] = useState('inspiration');
+  const [showFollowing, setShowFollowing] = useState(false);
+  const [showTop, setShowTop] = useState(false);
   const { credits, bonusCredits } = useUserCredits(session?.user?.id);
+  const { following } = useFollows(session?.user?.id);
+  const isHeaderVisible = useScrollDirection();
+  const [activeTab, setActiveTab] = useState('images');
+  const { isPro } = useProUser();
+
+  // Sync activeTab with URL hash
+  useEffect(() => {
+    const hash = location.hash.replace('#', '');
+    switch (hash) {
+      case 'notifications':
+        setActiveTab('notifications');
+        break;
+      default:
+        setActiveTab('images');
+    }
+  }, [location.hash]);
 
   const handleImageClick = (image) => {
     setSelectedImage(image);
@@ -58,9 +78,20 @@ const Inspiration = () => {
         user={session?.user}
         credits={credits}
         bonusCredits={bonusCredits}
-        activeView="inspiration"
         onSearch={setSearchQuery}
         nsfwEnabled={nsfwEnabled}
+        setNsfwEnabled={setNsfwEnabled}
+        activeFilters={activeFilters}
+        onFilterChange={(type, value) => setActiveFilters(prev => ({ ...prev, [type]: value }))}
+        onRemoveFilter={(type) => {
+          const newFilters = { ...activeFilters };
+          delete newFilters[type];
+          setActiveFilters(newFilters);
+        }}
+        showFollowing={showFollowing}
+        showTop={showTop}
+        onFollowingChange={setShowFollowing}
+        onTopChange={setShowTop}
       />
 
       {/* Mobile Header */}
@@ -73,24 +104,30 @@ const Inspiration = () => {
           setActiveFilters(newFilters);
         }}
         onSearch={setSearchQuery}
-        isVisible={true}
+        isVisible={isHeaderVisible}
         nsfwEnabled={nsfwEnabled}
         onToggleNsfw={() => setNsfwEnabled(!nsfwEnabled)}
-        activeView="inspiration"
+        showFollowing={showFollowing}
+        showTop={showTop}
+        onFollowingChange={setShowFollowing}
+        onTopChange={setShowTop}
       />
 
       {/* Main Content */}
-      <main className="pt-12 px-2 md:px-6 pb-20 md:pb-6">
+      <main className="pt-16 md:pt-20 px-2 md:px-6 pb-20 md:pb-6">
         <ImageGallery
           userId={session?.user?.id}
           onImageClick={handleImageClick}
           onDownload={handleDownload}
           onRemix={handleRemix}
           onViewDetails={handleViewDetails}
-          activeView="inspiration"
           nsfwEnabled={nsfwEnabled}
           activeFilters={activeFilters}
           searchQuery={searchQuery}
+          showPrivate={false}
+          showFollowing={showFollowing}
+          showTop={showTop}
+          following={following}
         />
       </main>
 
@@ -101,9 +138,9 @@ const Inspiration = () => {
         session={session}
         credits={credits}
         bonusCredits={bonusCredits}
-        activeView={activeView}
-        setActiveView={setActiveView}
         generatingImages={[]}
+        nsfwEnabled={nsfwEnabled}
+        setNsfwEnabled={setNsfwEnabled}
       />
       <MobileNotificationsMenu activeTab={activeTab} />
       <MobileProfileMenu 
@@ -111,6 +148,8 @@ const Inspiration = () => {
         credits={credits}
         bonusCredits={bonusCredits}
         activeTab={activeTab}
+        nsfwEnabled={nsfwEnabled}
+        setNsfwEnabled={setNsfwEnabled}
       />
 
       {/* Dialogs */}

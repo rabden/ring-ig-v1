@@ -2,6 +2,7 @@ import React, { memo, useState, useEffect } from 'react';
 import { Image, Plus, Sparkles, User } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useProUser } from '@/hooks/useProUser';
+import { useNavigate, useLocation } from 'react-router-dom';
 import GeneratingImagesDrawer from './GeneratingImagesDrawer';
 import MobileNavButton from './navbar/MobileNavButton';
 import NotificationBell from './notifications/NotificationBell';
@@ -13,8 +14,6 @@ const BottomNavbar = ({
   session, 
   credits, 
   bonusCredits, 
-  activeView, 
-  setActiveView, 
   generatingImages = [],
   nsfwEnabled,
   setNsfwEnabled
@@ -24,11 +23,12 @@ const BottomNavbar = ({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showCheckmark, setShowCheckmark] = useState(false);
   const [prevLength, setPrevLength] = useState(generatingImages.length);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Handle showing checkmark when an image completes
   useEffect(() => {
     if (generatingImages.length < prevLength && prevLength > 0) {
-      // Show checkmark for 1.5s when an image completes
       setShowCheckmark(true);
       const timer = setTimeout(() => {
         setShowCheckmark(false);
@@ -38,38 +38,37 @@ const BottomNavbar = ({
     setPrevLength(generatingImages.length);
   }, [generatingImages.length, prevLength]);
 
+  const handleNavigation = (route, tab) => {
+    setActiveTab(tab);
+    navigate(route);
+  };
+
   return (
     <>
       <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/30 md:hidden z-50">
         <div className="flex items-center justify-around px-2 max-w-md mx-auto">
           <MobileNavButton
             icon={Image}
-            isActive={activeTab === 'images' && activeView === 'myImages'}
-            onClick={() => {
-              setActiveTab('images');
-              setActiveView('myImages');
-            }}
+            isActive={location.pathname === '/' && (!location.hash || location.hash === '#myimages')}
+            onClick={() => handleNavigation('/#myimages', 'images')}
           />
           <MobileNavButton
             icon={Sparkles}
-            isActive={activeTab === 'images' && activeView === 'inspiration'}
-            onClick={() => {
-              setActiveTab('images');
-              setActiveView('inspiration');
-            }}
+            isActive={location.pathname === '/inspiration'}
+            onClick={() => handleNavigation('/inspiration', 'images')}
           />
           <MobileNavButton
             icon={Plus}
-            isActive={activeTab === 'input'}
-            onClick={() => setActiveTab('input')}
+            isActive={location.hash === '#imagegenerate'}
+            onClick={() => handleNavigation('/#imagegenerate', 'input')}
             onLongPress={() => setDrawerOpen(true)}
             badge={generatingImages.length}
             showCheckmark={showCheckmark}
           />
           <MobileNavButton
             icon={NotificationBell}
-            isActive={activeTab === 'notifications'}
-            onClick={() => setActiveTab('notifications')}
+            isActive={location.hash === '#notifications'}
+            onClick={() => handleNavigation('/#notifications', 'notifications')}
           />
           <div className="flex items-center justify-center">
             {session ? (

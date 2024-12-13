@@ -12,7 +12,7 @@ const CreditCounter = ({ credits, bonusCredits, className }) => {
           {credits}
           <span className="text-muted-foreground font-normal"> / {MAX_CREDITS}</span>
           {bonusCredits > 0 && (
-            <span className="text-green-500 ml-1">+{bonusCredits}</span>
+            <span className="text-green-500 ml-1">|+B{bonusCredits}</span>
           )}
         </span>
       </div>
