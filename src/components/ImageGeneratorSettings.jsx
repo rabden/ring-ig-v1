@@ -35,7 +35,8 @@ const ImageGeneratorSettings = ({
   setImageCount,
   isPrivate,
   setIsPrivate,
-  hidePromptOnDesktop = false
+  hidePromptOnDesktop = false,
+  updateCredits
 }) => {
   const userId = session?.user?.id;
   const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);

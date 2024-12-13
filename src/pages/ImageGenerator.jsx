@@ -248,12 +248,8 @@ const ImageGenerator = () => {
         isPrivate,
         setIsPrivate,
         isGenerating,
-        isImproving,
-        setIsImproving,
-        proMode: isPro,
-        modelConfigs,
-        nsfwEnabled,
-        setNsfwEnabled
+        updateCredits,
+        modelConfigs
       }}
     />
   );
