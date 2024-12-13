@@ -19,8 +19,7 @@ const PromptInput = ({
 }) => {
   const hasText = value && value.trim().length > 0;
   const totalCredits = (credits || 0) + (bonusCredits || 0);
-  const canGenerate = hasText && hasEnoughCredits && userId;
-  const canImprove = hasText && totalCredits >= 1 && userId && !isImproving;
+  const hasEnoughCreditsForImprovement = totalCredits >= 1;
 
   const handleGenerate = async () => {
     if (!userId) {
@@ -47,7 +46,7 @@ const PromptInput = ({
       toast.error('Please enter a prompt');
       return;
     }
-    if (totalCredits < 1) {
+    if (!hasEnoughCreditsForImprovement) {
       toast.error('Not enough credits for prompt improvement');
       return;
     }
@@ -88,7 +87,7 @@ const PromptInput = ({
           variant="outline"
           className="rounded-full"
           onClick={handleImprove}
-          disabled={!canImprove}
+          disabled={!hasText || isImproving || !userId || !hasEnoughCreditsForImprovement}
         >
           {isImproving ? (
             <Loader className="h-4 w-4 mr-2 animate-spin" />
@@ -101,7 +100,7 @@ const PromptInput = ({
           size="sm"
           className="rounded-full"
           onClick={handleGenerate}
-          disabled={!canGenerate}
+          disabled={!hasText || !hasEnoughCredits || !userId}
         >
           Create
           <ArrowRight className="ml-2 h-4 w-4" />
