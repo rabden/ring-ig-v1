@@ -8,7 +8,7 @@ const PromptInput = ({
   onChange, 
   onKeyDown, 
   onGenerate, 
-  hasEnoughCredits,
+  hasEnoughCredits = true,
   onClear,
   onImprove,
   isImproving
@@ -19,6 +19,14 @@ const PromptInput = ({
       return;
     }
     await onGenerate();
+  };
+
+  const handleImprove = async () => {
+    if (!value?.trim()) {
+      toast.error('Please enter a prompt');
+      return;
+    }
+    await onImprove();
   };
 
   return (
@@ -54,7 +62,7 @@ const PromptInput = ({
           size="sm"
           variant="outline"
           className="rounded-full"
-          onClick={onImprove}
+          onClick={handleImprove}
           disabled={!value?.length || isImproving}
         >
           {isImproving ? (

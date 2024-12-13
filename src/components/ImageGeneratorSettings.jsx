@@ -41,8 +41,6 @@ const ImageGeneratorSettings = ({
   const creditCost = { "HD": 1, "HD+": 2, "4K": 3 }[quality] * imageCount;
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCredits = totalCredits >= creditCost;
-  const showGuidanceScale = model === 'fluxDev';
-  const isNsfwModel = modelConfigs?.[model]?.category === "NSFW";
 
   const handleModelChange = (newModel) => {
     if (newModel === 'turbo' && (quality === 'HD+' || quality === '4K')) {

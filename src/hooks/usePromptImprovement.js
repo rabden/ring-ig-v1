@@ -24,34 +24,30 @@ export const usePromptImprovement = (userId) => {
     });
     
     try {
-      // First try to improve the prompt
+      // Deduct credits first
+      const deductResult = await deductCredits();
+      if (deductResult === -1) {
+        toast.error('Not enough credits for prompt improvement', { 
+          id: toastId,
+          position: 'top-center'
+        });
+        return;
+      }
+
+      // Then try to improve the prompt
       const result = await improvePrompt(prompt);
       if (result) {
-        // Only deduct credits if improvement was successful
-        try {
-          const deductResult = await deductCredits();
-          if (deductResult === -1) {
-            toast.error('Not enough credits for prompt improvement', { 
-              id: toastId,
-              position: 'top-center'
-            });
-            return;
-          }
-
-          // If both improvement and credit deduction succeeded
-          onSuccess(result);
-          toast.success('Prompt improved!', { 
-            id: toastId,
-            position: 'top-center'
-          });
-          return result;
-        } catch (error) {
-          console.error('Error deducting credits:', error);
-          toast.error('Failed to deduct credits', { 
-            id: toastId,
-            position: 'top-center'
-          });
-        }
+        onSuccess(result);
+        toast.success('Prompt improved!', { 
+          id: toastId,
+          position: 'top-center'
+        });
+        return result;
+      } else {
+        toast.error('Failed to improve prompt', { 
+          id: toastId,
+          position: 'top-center'
+        });
       }
     } catch (error) {
       console.error('Error improving prompt:', error);
