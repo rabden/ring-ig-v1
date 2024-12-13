@@ -68,51 +68,16 @@ export const AuthProvider = ({ children }) => {
 
     // Initialize auth state
     const initializeAuth = async () => {
-      if (!mounted) return;
-      
       try {
-        // Get initial session
-        const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError) {
-          console.error('Session error:', sessionError);
-          if (mounted) {
-            clearAuthData(false);
-            setLoading(false);
-          }
-          return;
-        }
-
-        if (!initialSession) {
-          if (mounted) {
-            clearAuthData(false);
-            setLoading(false);
-          }
-          return;
-        }
-
-        // Verify the session is valid
-        const { data: user, error: userError } = await supabase.auth.getUser();
-        
-        if (userError) {
-          console.error('User verification error:', userError);
-          if (mounted) {
-            if (userError.status === 403 || userError.message?.includes('session_not_found')) {
-              await supabase.auth.signOut();
-              clearAuthData(true);
-            } else {
-              clearAuthData(false);
-            }
-            setLoading(false);
-          }
-          return;
-        }
-
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
         if (mounted) {
-          setSession(initialSession);
-          queryClient.invalidateQueries('user');
+          if (initialSession) {
+            setSession(initialSession);
+            queryClient.invalidateQueries('user');
+          }
+          setLoading(false);
           
-          // Only set up auth listener after confirming valid session
+          // Only set up auth listener after initial session check
           const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             console.log('Auth event:', event);
             
@@ -124,6 +89,7 @@ export const AuthProvider = ({ children }) => {
                 queryClient.invalidateQueries('user');
                 break;
               case 'SIGNED_OUT':
+                // Don't clear storage for automatic sign out events
                 clearAuthData(false);
                 break;
               case 'TOKEN_REFRESHED':
@@ -135,18 +101,16 @@ export const AuthProvider = ({ children }) => {
                 queryClient.invalidateQueries('user');
                 break;
               case 'USER_DELETED':
+                // Clear storage for user deletion
                 clearAuthData(true);
                 break;
             }
           });
-          
           authSubscription = subscription;
-          setLoading(false);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
         if (mounted) {
-          clearAuthData(false);
           setLoading(false);
         }
       }
@@ -166,18 +130,15 @@ export const AuthProvider = ({ children }) => {
         .then(({ data: { session: newSession }, error }) => {
           if (error) {
             console.error('Error exchanging code for session:', error);
-            if (mounted) setLoading(false);
             return;
           }
           if (newSession && mounted) {
             setSession(newSession);
             queryClient.invalidateQueries('user');
-            setLoading(false);
           }
         })
         .catch(error => {
           console.error('Error in code exchange:', error);
-          if (mounted) setLoading(false);
         });
     } else {
       initializeAuth();
