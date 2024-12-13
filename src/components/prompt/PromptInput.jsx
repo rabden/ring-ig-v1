@@ -15,8 +15,8 @@ const PromptInput = ({
   userId
 }) => {
   const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
-  const { totalCredits } = useUserCredits(userId);
-  const hasEnoughCreditsForImprovement = totalCredits >= 1;
+  const { credits, bonusCredits } = useUserCredits(userId);
+  const totalCredits = (credits || 0) + (bonusCredits || 0);
 
   const handleGenerate = () => {
     if (!value?.trim()) {
@@ -71,7 +71,7 @@ const PromptInput = ({
           variant="outline"
           className="rounded-full"
           onClick={handleImprove}
-          disabled={!value?.length || isImproving || !hasEnoughCreditsForImprovement}
+          disabled={!value?.length || isImproving}
         >
           {isImproving ? (
             <Loader className="h-4 w-4 mr-2 animate-spin" />
@@ -84,7 +84,7 @@ const PromptInput = ({
           size="sm"
           className="rounded-full"
           onClick={handleGenerate}
-          disabled={!value?.length || !hasEnoughCredits}
+          disabled={!value?.length}
         >
           Create
           <ArrowRight className="ml-2 h-4 w-4" />
