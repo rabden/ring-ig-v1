@@ -1,24 +1,23 @@
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
-import { Skeleton } from "@/components/ui/skeleton";
-import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { downloadImage } from '@/utils/downloadUtils';
-import { useImageRemix } from '@/hooks/useImageRemix';
-import MobileImageView from '@/components/MobileImageView';
-import FullScreenImageView from '@/components/FullScreenImageView';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { Skeleton } from "@/components/ui/skeleton";
+import FullScreenImageView from '@/components/FullScreenImageView';
+import SharedMobileImageView from '@/components/shared-image/SharedMobileImageView';
+import { downloadImage } from '@/utils/downloadUtils';
+import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { useImageRemix } from '@/hooks/useImageRemix';
 
-const SingleImageView = () => {
+const SharedImageView = () => {
   const { imageId } = useParams();
-  const navigate = useNavigate();
   const { session } = useSupabaseAuth();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { handleRemix } = useImageRemix(session);
 
   const { data: image, isLoading } = useQuery({
-    queryKey: ['singleImage', imageId],
+    queryKey: ['sharedImage', imageId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('user_images')
@@ -54,23 +53,18 @@ const SingleImageView = () => {
   }
 
   return isMobile ? (
-    <MobileImageView
+    <SharedMobileImageView
       image={image}
-      onClose={() => navigate(-1)}
       onDownload={handleDownload}
       onRemix={handleRemix}
-      isOwner={image.user_id === session?.user?.id}
-      setActiveTab={() => {}}
-      setStyle={() => {}}
-      showFullImage={true}
+      session={session}
     />
   ) : (
     <FullScreenImageView
       image={image}
       isOpen={true}
-      onClose={() => navigate(-1)}
+      onClose={() => {}}
       onDownload={handleDownload}
-      onDiscard={() => {}}
       onRemix={handleRemix}
       isOwner={image.user_id === session?.user?.id}
       setStyle={() => {}}
@@ -79,4 +73,4 @@ const SingleImageView = () => {
   );
 };
 
-export default SingleImageView;
+export default SharedImageView;

@@ -17,15 +17,17 @@ const NotificationBell = () => {
   };
 
   return isMobile ? (
-    <div 
+    <Button 
+      variant="ghost" 
+      size="icon" 
       className={cn(
-        "h-8 w-8 p-0 relative md:flex flex items-center justify-center",
+        "h-7 w-7 p-0 relative md:flex",
         unreadCount > 0 && "after:content-[''] after:absolute after:top-1 after:right-1 after:w-2 after:h-2 after:bg-red-500 after:rounded-full after:ring-2 after:ring-background"
       )}
       onClick={handleClick}
     >
-      <Bell className="h-6 w-6" />
-    </div>
+      <Bell className="h-4 w-4" />
+    </Button>
   ) : (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
@@ -33,11 +35,11 @@ const NotificationBell = () => {
           variant="ghost" 
           size="icon" 
           className={cn(
-            "h-8 w-8 p-0 relative md:flex",
+            "h-7 w-7 p-0 relative md:flex",
             unreadCount > 0 && "after:content-[''] after:absolute after:top-1 after:right-1 after:w-2 after:h-2 after:bg-red-500 after:rounded-full after:ring-2 after:ring-background"
           )}
         >
-          <Bell className="h-6 w-6" />
+          <Bell className="h-4 w-4" />
         </Button>
       </SheetTrigger>
       <SheetContent 

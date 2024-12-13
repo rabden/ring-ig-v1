@@ -8,9 +8,7 @@ export const modelConfig = {
     qualityLimits: ["SD", "HD"],
     noStyleSuffix: false,
     isPremium: false,
-    promptSuffix: null,
-    tagline: "Fast generation with good quality",
-    image: "/models/turbo.png"
+    promptSuffix: null
   },
   flux: {
     name: "Ring.1",
@@ -21,9 +19,7 @@ export const modelConfig = {
     qualityLimits: null,
     noStyleSuffix: false,
     isPremium: false,
-    promptSuffix: null,
-    tagline: "Balanced speed and quality",
-    image: "/models/flux.png"
+    promptSuffix: null
   },
   fluxDev: {
     name: "Ring.1 hyper",
@@ -34,9 +30,7 @@ export const modelConfig = {
     qualityLimits: null,
     noStyleSuffix: false,
     isPremium: true,
-    promptSuffix: null,
-    tagline: "High-quality artistic creations",
-    image: "/models/fluxdev.png"
+    promptSuffix: null
   },
   ultra: {
     name: "Ultra",
@@ -47,9 +41,7 @@ export const modelConfig = {
     qualityLimits: null,
     noStyleSuffix: false,
     isPremium: true,
-    promptSuffix: null,
-    tagline: "Ultimate quality and detail",
-    image: "/models/ultra.png"
+    promptSuffix: null
   },
   animeNsfw: {
     name: "Ring.1 Anime",
@@ -60,9 +52,7 @@ export const modelConfig = {
     qualityLimits: null,
     noStyleSuffix: true,
     isPremium: true,
-    promptSuffix: null,
-    tagline: "Anime-style NSFW generation",
-    image: "/models/anime.png"
+    promptSuffix: null
   },
   nsfwMaster: {
     name: "Ring.1N",
@@ -73,8 +63,6 @@ export const modelConfig = {
     qualityLimits: null,
     noStyleSuffix: true,
     isPremium: false,
-    promptSuffix: null,
-    tagline: "Advanced NSFW generation",
-    image: "/models/nsfw.png"
+    promptSuffix: null
   }
 };

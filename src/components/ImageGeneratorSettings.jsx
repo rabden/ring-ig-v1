@@ -8,9 +8,9 @@ import SettingSection from './settings/SettingSection';
 import ModelChooser from './settings/ModelChooser';
 import ImageCountChooser from './settings/ImageCountChooser';
 import PromptInput from './prompt/PromptInput';
+import StyledScrollArea from './style/StyledScrollArea';
 import { qualityOptions } from '@/utils/imageConfigs';
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
-import { toast } from 'sonner';
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -81,25 +81,9 @@ const ImageGeneratorSettings = ({
   };
 
   const handleImprovePrompt = async () => {
-    if (!userId) {
-      toast.error('Please sign in to improve prompts');
-      return;
-    }
-
-    const hasEnoughCreditsForImprovement = totalCredits >= 1;
-    if (!hasEnoughCreditsForImprovement) {
-      toast.error('Not enough credits for prompt improvement');
-      return;
-    }
-
-    try {
-      await improveCurrentPrompt(prompt, (improvedPrompt) => {
-        setPrompt(improvedPrompt);
-      });
-    } catch (error) {
-      console.error('Error improving prompt:', error);
-      toast.error('Failed to improve prompt');
-    }
+    await improveCurrentPrompt(prompt, (improvedPrompt) => {
+      setPrompt(improvedPrompt);
+    });
   };
 
   return (
@@ -114,9 +98,6 @@ const ImageGeneratorSettings = ({
           onClear={handleClearPrompt}
           onImprove={handleImprovePrompt}
           isImproving={isImproving}
-          userId={userId}
-          credits={credits}
-          bonusCredits={bonusCredits}
         />
       </div>
 

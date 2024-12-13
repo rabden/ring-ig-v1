@@ -1,28 +1,31 @@
 import React, { useState } from 'react';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
 import { toast } from "sonner";
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, LogOut, Pencil, Camera } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import LoadingScreen from '@/components/LoadingScreen';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import { handleAvatarUpload } from '@/utils/profileUtils';
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
-import CreditCounter from "@/components/ui/credit-counter";
-import ProfileStats from "@/components/profile/ProfileStats";
+import ProfileAvatar from '@/components/profile/ProfileAvatar';
+import { ArrowLeft, Camera, LogOut, Upload, X } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Progress } from '@/components/ui/progress';
+import LoadingScreen from '@/components/LoadingScreen';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 const UserProfile = () => {
   const { session, loading, logout } = useSupabaseAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [tempDisplayName, setTempDisplayName] = useState('');
   const { data: isPro } = useProUser(session?.user?.id);
+  const [showFullImage, setShowFullImage] = useState(false);
 
   React.useEffect(() => {
     if (session?.user) {
@@ -100,18 +103,25 @@ const UserProfile = () => {
       setDisplayName(tempDisplayName);
       toast.success("Display name updated successfully");
       setIsEditing(false);
+      queryClient.invalidateQueries(['user']);
     } catch (error) {
       toast.error("Failed to update display name");
       console.error('Error updating display name:', error);
     }
   };
 
-  const onAvatarUpload = async (event) => {
+  const handleImageUpload = async (event) => {
     const file = event.target.files?.[0];
     if (file) {
-      const newAvatarUrl = await handleAvatarUpload(file, session.user.id);
-      if (newAvatarUrl) {
-        toast.success("Profile picture updated successfully");
+      try {
+        const newAvatarUrl = await handleAvatarUpload(file, session.user.id);
+        if (newAvatarUrl) {
+          queryClient.invalidateQueries(['user']);
+          toast.success("Profile picture updated successfully");
+        }
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        toast.error("Failed to update profile picture");
       }
     }
   };
@@ -125,168 +135,184 @@ const UserProfile = () => {
     return null;
   }
 
-  return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="container max-w-6xl mx-auto py-8 px-4 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <Link to="/" className="hover:opacity-80">
-            <ArrowLeft className="h-6 w-6" />
-          </Link>
-        </div>
-        
-        <div className="space-y-1 mb-8">
-          <h1 className="text-4xl font-medium tracking-tight">Settings</h1>
-          <p className="text-muted-foreground">
-            You can manage your account, billing, and team settings here.
-          </p>
-        </div>
+  const MAX_CREDITS = 50;
+  const creditsProgress = ((userStats?.credits || 0) / MAX_CREDITS) * 100;
 
-        {isStatsLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Left Column */}
-            <div className="space-y-6">
-              {/* Basic Information Card */}
-              <div className="rounded-xl border border-border/40 bg-card text-card-foreground">
-                <div className="flex items-center justify-between p-6">
-                  <h2 className="text-xl font-semibold">Basic Information</h2>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setIsEditing(true)}
+  return (
+    <div className="container max-w-2xl py-8 space-y-8">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <Link to="/">
+          <Button variant="ghost" size="icon">
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+        </Link>
+        <h1 className="text-2xl font-bold">Profile Settings</h1>
+      </div>
+
+      {/* Profile Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Profile Information</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {isStatsLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <>
+              {/* Avatar Section */}
+              <div className="flex flex-col items-center gap-6">
+                <div className="relative">
+                  <div 
+                    onClick={() => setShowFullImage(true)}
+                    className="cursor-pointer hover:opacity-90 transition-opacity relative group"
                   >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div className="p-6 pt-0 space-y-4">
-                  <div className="flex items-center gap-4">
-                    <Avatar className="h-16 w-16">
-                      <AvatarImage
-                        src={session.user.user_metadata?.avatar_url}
-                        alt={displayName}
-                      />
-                      <AvatarFallback>{displayName[0]?.toUpperCase()}</AvatarFallback>
-                    </Avatar>
-                    <div className="space-y-1">
-                      <div className="font-medium">Name</div>
-                      <div className="text-muted-foreground">{displayName}</div>
+                    <ProfileAvatar 
+                      user={session.user} 
+                      isPro={isPro} 
+                      size="xl" 
+                      className="w-40 h-40"
+                    />
+                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Camera className="w-8 h-8 text-white" />
                     </div>
                   </div>
-                  <div>
-                    <div className="font-medium">Email</div>
-                    <div className="text-muted-foreground">{session.user.email}</div>
-                  </div>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="absolute bottom-2 right-2 rounded-full h-8 w-8"
+                    onClick={() => document.getElementById('avatar-input').click()}
+                  >
+                    <Upload className="h-4 w-4" />
+                  </Button>
+                  <input
+                    id="avatar-input"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                  />
                 </div>
-              </div>
-
-              {/* Credits Card */}
-              <div className="rounded-xl border border-border/40 bg-card text-card-foreground">
-                <div className="p-6">
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-semibold">Account</h2>
-                    {isPro && (
-                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                        Pro
-                      </span>
+                <div className="text-center w-full max-w-sm">
+                  <div className="flex items-center justify-center gap-2">
+                    {isEditing ? (
+                      <div className="flex gap-2">
+                        <Input
+                          value={tempDisplayName}
+                          onChange={(e) => setTempDisplayName(e.target.value)}
+                          className="text-xl font-medium text-center max-w-[200px]"
+                          placeholder="Enter display name"
+                        />
+                        <Button onClick={handleDisplayNameUpdate}>Save</Button>
+                        <Button 
+                          variant="ghost" 
+                          onClick={() => {
+                            setTempDisplayName(displayName);
+                            setIsEditing(false);
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl font-medium">{displayName}</span>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => setIsEditing(true)}
+                        >
+                          Edit
+                        </Button>
+                      </div>
                     )}
                   </div>
-                </div>
-                <div className="p-6 pt-0 space-y-6">
-                  <CreditCounter 
-                    credits={userStats?.credits || 0} 
-                    bonusCredits={userStats?.bonusCredits || 0}
-                  />
-                  {!isPro && (
-                    <Button className="w-full" variant="default">
-                      Upgrade to Pro
-                    </Button>
-                  )}
-                  <Button 
-                    variant="ghost" 
-                    onClick={() => {
-                      logout();
-                      navigate('/');
-                    }}
-                    className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign out
-                  </Button>
+                  <p className="text-muted-foreground mt-1">{session.user.email}</p>
                 </div>
               </div>
-            </div>
 
-            {/* Right Column */}
-            <div className="space-y-6">
-              {/* Stats Card */}
-              <div className="rounded-xl border border-border/40 bg-card text-card-foreground">
-                <div className="p-6">
-                  <h2 className="text-xl font-semibold">Stats</h2>
+              <Separator />
+
+              {/* Credits Section */}
+              <div className="space-y-2">
+                <Label>Credits</Label>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Available Credits</span>
+                  <span>
+                    {userStats?.credits || 0} 
+                    <span className="text-muted-foreground"> / {MAX_CREDITS}</span>
+                    {userStats?.bonusCredits > 0 && (
+                      <span className="text-green-500 ml-1">+{userStats.bonusCredits}</span>
+                    )}
+                  </span>
                 </div>
-                <div className="p-6 pt-0">
-                  <ProfileStats 
-                    followersCount={userStats?.followers || 0}
-                    followingCount={userStats?.following || 0}
-                    totalLikes={userStats?.likes || 0}
-                  />
+                <Progress value={creditsProgress} className="h-2" />
+              </div>
+
+              <Separator />
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-3 gap-4 py-2">
+                <div className="text-center">
+                  <span className="text-2xl font-semibold block">{userStats?.followers || 0}</span>
+                  <span className="text-muted-foreground text-sm">Followers</span>
+                </div>
+                <div className="text-center">
+                  <span className="text-2xl font-semibold block">{userStats?.following || 0}</span>
+                  <span className="text-muted-foreground text-sm">Following</span>
+                </div>
+                <div className="text-center">
+                  <span className="text-2xl font-semibold block">{userStats?.likes || 0}</span>
+                  <span className="text-muted-foreground text-sm">Likes</span>
                 </div>
               </div>
-            </div>
+
+              <Separator />
+
+              {/* Sign Out Button */}
+              <div className="flex justify-end">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => {
+                    logout();
+                    navigate('/');
+                  }}
+                  className="text-destructive hover:bg-destructive/10"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign out
+                </Button>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Full Image Dialog */}
+      <Dialog open={showFullImage} onOpenChange={setShowFullImage}>
+        <DialogContent className="max-w-screen-lg p-0">
+          <div className="relative aspect-square">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-2 z-10"
+              onClick={() => setShowFullImage(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+            <ProfileAvatar 
+              user={session.user} 
+              isPro={isPro} 
+              size="xl" 
+              className="w-full h-full"
+            />
           </div>
-        )}
-
-        {/* Edit Dialog */}
-        <Dialog open={isEditing} onOpenChange={setIsEditing}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Edit Profile</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="flex items-center gap-4">
-                <div className="relative group">
-                  <Avatar className="h-16 w-16">
-                    <AvatarImage
-                      src={session.user.user_metadata?.avatar_url}
-                      alt={displayName}
-                    />
-                    <AvatarFallback>{displayName[0]?.toUpperCase()}</AvatarFallback>
-                  </Avatar>
-                  <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-full cursor-pointer">
-                    <Camera className="w-6 h-6 text-white" />
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={onAvatarUpload}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-                <div className="flex-1">
-                  <Input
-                    value={tempDisplayName}
-                    onChange={(e) => setTempDisplayName(e.target.value)}
-                    placeholder="Display Name"
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="ghost" onClick={() => setIsEditing(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleDisplayNameUpdate}>
-                  Save Changes
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
 
-export default UserProfile;
+export default UserProfile; 

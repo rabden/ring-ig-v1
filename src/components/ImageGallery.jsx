@@ -1,5 +1,4 @@
 import React, { useRef, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
 import Masonry from 'react-masonry-css';
 import SkeletonImageCard from './SkeletonImageCard';
 import ImageCard from './ImageCard';
@@ -69,10 +68,12 @@ const ImageGallery = ({
   onDiscard, 
   onRemix, 
   onViewDetails, 
+  activeView, 
   generatingImages = [], 
   nsfwEnabled,
   activeFilters = {},
   searchQuery = '',
+  setActiveTab,
   showPrivate,
   profileUserId,
   className,
@@ -85,8 +86,6 @@ const ImageGallery = ({
   const { userLikes, toggleLike } = useLikes(userId);
   const isMobile = window.innerWidth <= 768;
   const breakpointColumnsObj = getBreakpointColumns();
-  const location = useLocation();
-  const activeView = location.pathname === '/inspiration' ? 'inspiration' : 'myImages';
   
   const { 
     images, 
@@ -162,7 +161,7 @@ const ImageGallery = ({
       .filter(([_, images]) => images.length > 0);
 
     return (
-      <div className={cn("w-full h-full md:px-0 pt-12 space-y-12", className)}>
+      <div className={cn("w-full h-full md:px-0 md:pt-0 pt-12 space-y-12", className)}>
         {nonEmptyGroups.map(([groupName, groupImages], groupIndex) => (
           <div key={groupName}>
             <DateHeader>
@@ -197,6 +196,7 @@ const ImageGallery = ({
                     isMobile={isMobile}
                     isLiked={userLikes.includes(image.id)}
                     onToggleLike={toggleLike}
+                    setActiveTab={setActiveTab}
                     setStyle={setStyle}
                     style={style}
                   />
@@ -216,7 +216,7 @@ const ImageGallery = ({
 
   // Regular masonry grid for other views
   return (
-    <div className={cn("w-full h-full md:px-0 md:pt-0 pt-0", className)}>
+    <div className={cn("w-full h-full md:px-0 md:pt-0 pt-12", className)}>
       <Masonry
         breakpointCols={breakpointColumnsObj}
         className="flex w-auto md:px-2 -mx-1 md:mx-0"
@@ -239,6 +239,7 @@ const ImageGallery = ({
               isMobile={isMobile}
               isLiked={userLikes.includes(image.id)}
               onToggleLike={toggleLike}
+              setActiveTab={setActiveTab}
               setStyle={setStyle}
               style={style}
             />

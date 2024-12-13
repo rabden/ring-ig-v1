@@ -1,58 +1,41 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { supabase } from '@/integrations/supabase/supabase';
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Download, Trash2, RefreshCw, ArrowLeft, Copy, Share2, Check, Wand2 } from "lucide-react";
+import { Download, Trash2, Wand2, Copy, Share2, Check, ArrowLeft } from "lucide-react";
+import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { useLikes } from '@/hooks/useLikes';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import ImagePromptSection from './image-view/ImagePromptSection';
-import ImageDetailsSection from './image-view/ImageDetailsSection';
+import TruncatablePrompt from './TruncatablePrompt';
 import { handleImageDiscard } from '@/utils/discardUtils';
 import { useImageRemix } from '@/hooks/useImageRemix';
+import ImageDetailsSection from './image-view/ImageDetailsSection';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import HeartAnimation from './animations/HeartAnimation';
+import { useLikes } from '@/hooks/useLikes';
 import ImageOwnerHeader from './image-view/ImageOwnerHeader';
 import { format } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const MobileImageView = ({ 
   image, 
-  isOpen, 
-  onClose,
-  onDownload,
-  onDiscard,
-  onRemix,
+  onClose, 
+  onDownload, 
+  onDiscard, 
+  onRemix, 
   isOwner,
-  isPro = false
+  setActiveTab,
+  setStyle,
+  showFullImage = false
 }) => {
   const { session } = useSupabaseAuth();
   const { data: modelConfigs } = useModelConfigs();
+  const { data: styleConfigs } = useStyleConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
   const [isAnimating, setIsAnimating] = useState(false);
-  const [imageError, setImageError] = useState(false);
-  const navigate = useNavigate();
-  const { handleRemix } = useImageRemix(session, onRemix, onClose, isPro);
+  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, onClose);
   const queryClient = useQueryClient();
   const { userLikes, toggleLike } = useLikes(session?.user?.id);
-  const isMobile = useMediaQuery('(max-width: 768px)');
-
-  const getImageUrl = () => {
-    if (!image?.storage_path) return null;
-    try {
-      const { data } = supabase.storage.from('user-images').getPublicUrl(image.storage_path);
-      return data?.publicUrl;
-    } catch (error) {
-      console.error('Error getting image URL:', error);
-      return null;
-    }
-  };
-
-  const imageUrl = getImageUrl();
 
   const { data: owner } = useQuery({
     queryKey: ['user', image?.user_id],
@@ -115,14 +98,6 @@ const MobileImageView = ({
     }
   };
 
-  const handleRemixClick = () => {
-    if (!session) {
-      toast.error('Please sign in to remix images');
-      return;
-    }
-    navigate(`/?remix=${image.id}#imagegenerate`, { replace: true });
-  };
-
   const detailItems = [
     { label: 'Model', value: modelConfigs?.[image.model]?.name || image.model },
     { label: 'Size', value: `${image.width}x${image.height}` },
@@ -143,63 +118,67 @@ const MobileImageView = ({
         <ArrowLeft className="h-5 w-5" />
       </Button>
 
-      <ScrollArea className={isMobile ? "h-[100dvh]" : "h-screen"}>
-        <div className="space-y-6 pb-6">
-          {image && (
-            <div className="relative flex items-center justify-center bg-black/10 dark:bg-black/30">
+      <ScrollArea className="h-screen">
+        <div className="p-4 space-y-6 pt-16">
+          {showFullImage && (
+            <div className="relative rounded-lg overflow-hidden mb-6">
               <img
                 src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
-                alt={image.prompt || 'Generated image'}
+                alt={image.prompt}
                 className="w-full h-auto"
                 onDoubleClick={handleDoubleClick}
-                loading="eager"
               />
               <HeartAnimation isAnimating={isAnimating} />
             </div>
           )}
 
-          <div className="px-4">
-            {session && (
-              <>
-                <ImageOwnerHeader 
-                  owner={owner}
-                  image={image}
-                  isOwner={isOwner}
-                  userLikes={userLikes}
-                  toggleLike={toggleLike}
-                  likeCount={likeCount}
-                />
-                
-                <div className="flex gap-1 justify-between mb-6 mt-6">
-                  <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={onDownload}>
-                    <Download className="mr-1 h-3 w-3" />
-                    Download
+          {session && (
+            <>
+              <ImageOwnerHeader 
+                owner={owner}
+                image={image}
+                isOwner={isOwner}
+                userLikes={userLikes}
+                toggleLike={toggleLike}
+                likeCount={likeCount}
+              />
+              
+              <div className="flex gap-1 justify-between mb-6">
+                <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={onDownload}>
+                  <Download className="mr-1 h-3 w-3" />
+                  Download
+                </Button>
+                {isOwner && (
+                  <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs text-destructive hover:text-destructive" onClick={handleDiscardImage}>
+                    <Trash2 className="mr-1 h-3 w-3" />
+                    Discard
                   </Button>
-                  {isOwner && (
-                    <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs text-destructive hover:text-destructive" onClick={handleDiscardImage}>
-                      <Trash2 className="mr-1 h-3 w-3" />
-                      Discard
-                    </Button>
-                  )}
-                  <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={handleRemixClick}>
-                    <RefreshCw className="mr-1 h-3 w-3" />
-                    Remix
-                  </Button>
-                </div>
-              </>
-            )}
+                )}
+                <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={() => handleRemix(image)}>
+                  <Wand2 className="mr-1 h-3 w-3" />
+                  Remix
+                </Button>
+              </div>
+            </>
+          )}
 
-            <ImagePromptSection 
-              prompt={image.user_prompt || image.prompt}
-              copyIcon={copyIcon}
-              shareIcon={shareIcon}
-              onCopyPrompt={handleCopyPrompt}
-              onShare={handleShare}
-            />
-
-            <div className="mt-4">
-              <ImageDetailsSection detailItems={detailItems} />
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Prompt</h3>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="icon" onClick={handleCopyPrompt}>
+                  {copyIcon === 'copy' ? <Copy className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+                </Button>
+                <Button variant="ghost" size="icon" onClick={handleShare}>
+                  {shareIcon === 'share' ? <Share2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+                </Button>
+              </div>
             </div>
+            <TruncatablePrompt prompt={image.user_prompt || image.prompt} />
+          </div>
+
+          <div className="mt-4">
+            <ImageDetailsSection detailItems={detailItems} />
           </div>
         </div>
       </ScrollArea>

@@ -3,14 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { Skeleton } from "@/components/ui/skeleton";
-import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { downloadImage } from '@/utils/downloadUtils';
-import { useImageRemix } from '@/hooks/useImageRemix';
-import MobileImageView from '@/components/MobileImageView';
-import FullScreenImageView from '@/components/FullScreenImageView';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { downloadImage } from '@/utils/downloadUtils';
+import MobileImageDrawer from '@/components/MobileImageDrawer';
+import FullScreenImageView from '@/components/FullScreenImageView';
+import { useSupabaseAuth } from '@/integrations/supabase/auth';
+import { useImageRemix } from '@/hooks/useImageRemix';
 
-const SingleImageView = () => {
+const PublicImageView = () => {
   const { imageId } = useParams();
   const navigate = useNavigate();
   const { session } = useSupabaseAuth();
@@ -18,7 +18,7 @@ const SingleImageView = () => {
   const { handleRemix } = useImageRemix(session);
 
   const { data: image, isLoading } = useQuery({
-    queryKey: ['singleImage', imageId],
+    queryKey: ['publicImage', imageId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('user_images')
@@ -54,15 +54,16 @@ const SingleImageView = () => {
   }
 
   return isMobile ? (
-    <MobileImageView
+    <MobileImageDrawer
+      open={true}
+      onOpenChange={() => navigate(-1)}
       image={image}
-      onClose={() => navigate(-1)}
+      showFullImage={true}
       onDownload={handleDownload}
       onRemix={handleRemix}
       isOwner={image.user_id === session?.user?.id}
       setActiveTab={() => {}}
       setStyle={() => {}}
-      showFullImage={true}
     />
   ) : (
     <FullScreenImageView
@@ -79,4 +80,4 @@ const SingleImageView = () => {
   );
 };
 
-export default SingleImageView;
+export default PublicImageView;

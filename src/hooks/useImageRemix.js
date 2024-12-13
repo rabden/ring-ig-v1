@@ -1,11 +1,12 @@
+import { useStyleConfigs } from '@/hooks/useStyleConfigs';
 import { useModelConfigs } from '@/hooks/useModelConfigs';
+import { useProUser } from '@/hooks/useProUser';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
 
-export const useImageRemix = (session, onRemix, onClose) => {
-  const navigate = useNavigate();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+export const useImageRemix = (session, onRemix, setStyle, setActiveTab, onClose) => {
+  const { data: styleConfigs } = useStyleConfigs();
+  const { data: modelConfigs } = useModelConfigs();
+  const { data: isPro = false } = useProUser(session?.user?.id);
 
   const handleRemix = (image) => {
     if (!session) {
@@ -13,17 +14,26 @@ export const useImageRemix = (session, onRemix, onClose) => {
       return;
     }
 
-    if (onRemix && typeof onRemix === 'function') {
-      onRemix(image);
-    }
-    
-    if (onClose && typeof onClose === 'function') {
-      onClose();
+    onRemix(image);
+
+    // Check if the original image was made with a pro style
+    const isProStyle = styleConfigs?.[image.style]?.isPremium;
+    const isNsfwModel = modelConfigs?.[image.model]?.category === "NSFW";
+
+    // Set style based on NSFW status and pro status
+    if (isNsfwModel) {
+      // For NSFW models, don't use any style
+      setStyle(null);
+    } else if (isProStyle && !isPro) {
+      // If it's a pro style and user is not pro, reset to no style
+      setStyle(null);
+    } else {
+      // Otherwise keep the original style
+      setStyle(image.style);
     }
 
-    // Navigate with remix parameter before the hash
-    const hash = isMobile ? '#imagegenerate' : '#myimages';
-    navigate(`/?remix=${image.id}${hash}`, { replace: true });
+    setActiveTab('input');
+    onClose();
   };
 
   return { handleRemix };

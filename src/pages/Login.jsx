@@ -49,38 +49,37 @@ const Login = () => {
   return (
     <div className="min-h-screen flex">
       {/* Left side - Showcase */}
-      <div className="hidden md:flex flex-col w-1/2 bg-[#0A2A36] text-white relative">
-        <div className="flex flex-col h-full p-12">
-          {/* Image Section */}
-          <div className="flex-grow flex items-center justify-center mb-8">
-            <div className="w-full max-w-md aspect-square relative overflow-hidden rounded-lg">
-              <img
-                src={messages[currentMessageIndex].image}
-                alt="Feature showcase"
-                className="w-full h-full object-cover transition-opacity duration-500"
-              />
-              {/* Gradient overlay for image */}
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0A2A36]/30" />
-            </div>
-          </div>
-          
-          {/* Text Section */}
-          <div className="text-center space-y-4">
-            <div className="min-h-[4rem] flex items-center justify-center">
-              <h4 className="text-xl font-semibold">
-                <Typewriter
-                  words={messages.map(msg => msg.text)}
-                  cursor
-                  cursorStyle="_"
-                  typeSpeed={50}
-                  deleteSpeed={30}
-                  delaySpeed={3000}
-                  loop={true}
-                />
-              </h4>
+      <div className="hidden md:flex flex-col w-1/2 bg-[#0A2A36] text-white relative overflow-hidden">
+        <div className="relative z-10 flex flex-col h-full p-12">
+          <div className="flex-grow flex items-center">
+            <div className="space-y-6">
+              <div className="h-16">
+                <h4 className="text-xl font-semibold">
+                  <Typewriter
+                    words={messages.map(msg => msg.text)}
+                    cursor
+                    cursorStyle="_"
+                    typeSpeed={50}
+                    deleteSpeed={30}
+                    delaySpeed={3000}
+                    loop={true}
+                  />
+                </h4>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* Background image with overlay */}
+        <div 
+          className="absolute inset-0 transition-opacity duration-1000 bg-cover bg-center"
+          style={{ 
+            backgroundImage: `url(${messages[currentMessageIndex].image})`,
+            opacity: 0.1
+          }}
+        />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0A2A36] via-[#0A2A36]/95 to-[#0A2A36]/90" />
       </div>
 
       {/* Right side - Auth UI */}

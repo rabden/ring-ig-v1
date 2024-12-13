@@ -7,27 +7,19 @@ export const useProUser = (userId) => {
     queryFn: async () => {
       if (!userId) return false;
       
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('is_pro')
-          .eq('id', userId)
-          .single();
-          
-        if (error) {
-          console.error('Error fetching pro status:', error);
-          return false;
-        }
-        
-        return data?.is_pro || false;
-      } catch (err) {
-        console.error('Error in useProUser:', err);
-        return false;
-      }
+      const { data } = await supabase
+        .from('profiles')
+        .select('is_pro, updated_at')
+        .eq('id', userId)
+        .single();
+      
+      return data?.is_pro || false;
     },
     enabled: Boolean(userId),
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    cacheTime: 1000 * 60 * 30, // 30 minutes
-    retry: 2
+    staleTime: 1000 * 60,
+    cacheTime: 1000 * 60 * 5,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    retry: false
   });
 };

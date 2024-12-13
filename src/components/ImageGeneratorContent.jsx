@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 import ImageGeneratorSettings from './ImageGeneratorSettings';
 import ImageGallery from './ImageGallery';
 import BottomNavbar from './BottomNavbar';
@@ -20,11 +19,12 @@ const ImageGeneratorContent = ({
   session,
   credits,
   bonusCredits,
+  activeView,
+  setActiveView,
   activeTab,
   setActiveTab,
   generatingImages,
   nsfwEnabled,
-  setNsfwEnabled,
   showPrivate,
   setShowPrivate,
   activeFilters,
@@ -44,12 +44,9 @@ const ImageGeneratorContent = ({
   setFullScreenViewOpen,
   imageGeneratorProps
 }) => {
-  const location = useLocation();
+  const isInspiration = activeView === 'inspiration';
   const isMobile = window.innerWidth < 768;
-  const isInspiration = location.pathname === '/inspiration';
-  const isGenerateTab = location.hash === '#imagegenerate';
-  const isNotificationsTab = location.hash === '#notifications';
-  const shouldShowSettings = isMobile ? isGenerateTab : !isInspiration;
+  const shouldShowSettings = isMobile ? activeTab === 'input' : !isInspiration;
   const [isPromptExpanded, setIsPromptExpanded] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [isSidebarMounted, setIsSidebarMounted] = useState(false);
@@ -60,7 +57,7 @@ const ImageGeneratorContent = ({
   // Handle sidebar visibility with transitions
   useEffect(() => {
     const shouldMount = isMobile 
-      ? isGenerateTab
+      ? activeTab === 'input'
       : shouldShowSettings && isPromptExpanded && !isInspiration;
 
     if (shouldMount) {
@@ -75,7 +72,7 @@ const ImageGeneratorContent = ({
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [shouldShowSettings, isPromptExpanded, isInspiration, isGenerateTab, isMobile]);
+  }, [shouldShowSettings, isPromptExpanded, isInspiration, activeTab, isMobile]);
 
   // Track window resize for mobile state
   useEffect(() => {
@@ -90,23 +87,12 @@ const ImageGeneratorContent = ({
     return () => window.removeEventListener('resize', handleResize);
   }, [isMobile]);
 
-  // Sync activeTab with URL hash
-  useEffect(() => {
-    if (isGenerateTab) {
-      setActiveTab('input');
-    } else if (isNotificationsTab) {
-      setActiveTab('notifications');
-    } else {
-      setActiveTab('images');
-    }
-  }, [location.hash, setActiveTab]);
-
   return (
     <>
       <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground image-generator-content">
         <div className={cn(
           "flex-grow p-2 md:p-6 overflow-y-auto transition-[padding] duration-300 ease-in-out",
-          !isGenerateTab ? 'block' : 'hidden md:block',
+          activeTab === 'images' ? 'block' : 'hidden md:block',
           isSidebarVisible ? 'md:pr-[350px]' : 'md:pr-6',
           "pb-20 md:pb-6"
         )}>
@@ -116,13 +102,15 @@ const ImageGeneratorContent = ({
                 user={session.user}
                 credits={credits}
                 bonusCredits={bonusCredits}
+                activeView={activeView}
+                setActiveView={setActiveView}
                 generatingImages={generatingImages}
                 activeFilters={activeFilters}
                 onFilterChange={onFilterChange}
                 onRemoveFilter={onRemoveFilter}
                 onSearch={onSearch}
                 nsfwEnabled={nsfwEnabled}
-                setNsfwEnabled={setNsfwEnabled}
+                setNsfwEnabled={imageGeneratorProps.setNsfwEnabled}
                 showPrivate={showPrivate}
                 onTogglePrivate={() => setShowPrivate(!showPrivate)}
                 showFollowing={showFollowing}
@@ -139,6 +127,7 @@ const ImageGeneratorContent = ({
                 nsfwEnabled={nsfwEnabled}
                 showPrivate={showPrivate}
                 onTogglePrivate={() => setShowPrivate(!showPrivate)}
+                activeView={activeView}
                 showFollowing={showFollowing}
                 showTop={showTop}
                 onFollowingChange={setShowFollowing}
@@ -170,11 +159,13 @@ const ImageGeneratorContent = ({
                   onDiscard={handleDiscard}
                   onRemix={handleRemix}
                   onViewDetails={handleViewDetails}
+                  activeView={activeView}
                   generatingImages={generatingImages}
                   nsfwEnabled={nsfwEnabled}
                   modelConfigs={imageGeneratorProps.modelConfigs}
                   activeFilters={activeFilters}
                   searchQuery={imageGeneratorProps.searchQuery}
+                  setActiveTab={setActiveTab}
                   showPrivate={showPrivate}
                   showFollowing={showFollowing}
                   showTop={showTop}
@@ -190,7 +181,7 @@ const ImageGeneratorContent = ({
             className={cn(
               "w-full md:w-[350px] bg-card text-card-foreground",
               "md:fixed md:right-0 md:top-12 md:bottom-0",
-              isGenerateTab ? 'block' : 'hidden md:block',
+              activeTab === 'input' ? 'block' : 'hidden md:block',
               "md:h-[calc(100vh-3rem)] relative",
               "transition-transform duration-300 ease-in-out",
               isSidebarVisible 
@@ -205,7 +196,7 @@ const ImageGeneratorContent = ({
               <CreditCounter credits={credits} bonusCredits={bonusCredits} className="block md:hidden mb-4" />
               <ImageGeneratorSettings 
                 {...imageGeneratorProps} 
-                hidePromptOnDesktop={!isMobile && !isGenerateTab} 
+                hidePromptOnDesktop={!isMobile && activeTab !== 'input'} 
               />
             </div>
           </div>
@@ -219,7 +210,7 @@ const ImageGeneratorContent = ({
         bonusCredits={bonusCredits}
         activeTab={activeTab}
         nsfwEnabled={nsfwEnabled}
-        setNsfwEnabled={setNsfwEnabled}
+        setNsfwEnabled={imageGeneratorProps.setNsfwEnabled}
       />
 
       <BottomNavbar 
@@ -228,9 +219,11 @@ const ImageGeneratorContent = ({
         session={session} 
         credits={credits}
         bonusCredits={bonusCredits}
+        activeView={activeView}
+        setActiveView={setActiveView}
         generatingImages={generatingImages}
         nsfwEnabled={nsfwEnabled}
-        setNsfwEnabled={setNsfwEnabled}
+        setNsfwEnabled={imageGeneratorProps.setNsfwEnabled}
       />
       
       <ImageDetailsDialog
@@ -246,6 +239,7 @@ const ImageGeneratorContent = ({
         onDiscard={handleDiscard}
         onRemix={handleRemix}
         isOwner={selectedImage?.user_id === session?.user?.id}
+        setActiveTab={setActiveTab}
       />
     </>
   );

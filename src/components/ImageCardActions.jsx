@@ -3,10 +3,8 @@ import { Button } from "@/components/ui/button";
 import { MoreVertical, Download, Trash2, Wand2, Info } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import LikeButton from './LikeButton';
+import { useImageRemix } from '@/hooks/useImageRemix';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { useNavigate } from 'react-router-dom';
-import { toast } from 'sonner';
-import { useMediaQuery } from '@/hooks/useMediaQuery';
 
 const ImageCardActions = ({ 
   image, 
@@ -17,11 +15,13 @@ const ImageCardActions = ({
   onViewDetails = () => {},
   onDownload = () => {},
   onDiscard = () => {},
-  userId
+  onRemix = () => {},
+  userId,
+  setStyle,
+  setActiveTab
 }) => {
   const { session } = useSupabaseAuth();
-  const navigate = useNavigate();
-  const isMobileDevice = useMediaQuery('(max-width: 768px)');
+  const { handleRemix } = useImageRemix(session, onRemix, setStyle, setActiveTab, () => {});
 
   const handleViewDetails = (e) => {
     e.preventDefault();
@@ -45,12 +45,7 @@ const ImageCardActions = ({
   const handleRemixClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!session) {
-      toast.error('Please sign in to remix images');
-      return;
-    }
-    const hash = isMobileDevice ? '#imagegenerate' : '#myimages';
-    navigate(`/?remix=${image.id}${hash}`, { replace: true });
+    handleRemix(image);
   };
 
   return (
