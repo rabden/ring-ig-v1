@@ -31,21 +31,56 @@ const ProtectedRoute = ({ children }) => {
   const { session, loading } = useSupabaseAuth();
   const location = useLocation();
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [sessionChecked, setSessionChecked] = useState(false);
 
   useEffect(() => {
-    // Wait for auth state to be determined
-    if (!loading) {
-      setIsInitialLoad(false);
-    }
-  }, [loading]);
+    let mounted = true;
+
+    const checkSession = async () => {
+      try {
+        // Wait for auth state to be determined
+        if (!loading) {
+          // Verify session is valid
+          if (session) {
+            const { data: { user }, error } = await supabase.auth.getUser();
+            if (error || !user) {
+              console.error('Session verification failed:', error);
+              if (mounted) {
+                setSessionChecked(true);
+                setIsInitialLoad(false);
+              }
+              return;
+            }
+          }
+          
+          if (mounted) {
+            setSessionChecked(true);
+            setIsInitialLoad(false);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+        if (mounted) {
+          setSessionChecked(true);
+          setIsInitialLoad(false);
+        }
+      }
+    };
+
+    checkSession();
+
+    return () => {
+      mounted = false;
+    };
+  }, [loading, session]);
   
   // Show loading screen during initial load or auth check
-  if (loading || isInitialLoad) {
+  if (loading || isInitialLoad || !sessionChecked) {
     return <LoadingScreen />;
   }
   
-  // Only redirect when we're sure there's no session and initial load is complete
-  if (!session && !isInitialLoad) {
+  // Only redirect when we're sure there's no valid session
+  if (!session && sessionChecked) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
   
