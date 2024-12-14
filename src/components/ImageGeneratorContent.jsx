@@ -42,8 +42,7 @@ const ImageGeneratorContent = ({
   setDetailsDialogOpen,
   fullScreenViewOpen,
   setFullScreenViewOpen,
-  imageGeneratorProps,
-  proMode
+  imageGeneratorProps
 }) => {
   const location = useLocation();
   const isMobile = window.innerWidth < 768;
@@ -211,7 +210,6 @@ const ImageGeneratorContent = ({
                 bonusCredits={bonusCredits}
                 session={session}
                 updateCredits={imageGeneratorProps.updateCredits}
-                proMode={proMode}
               />
             </div>
           </div>

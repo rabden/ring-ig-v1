@@ -92,7 +92,6 @@ const DesktopPromptBox = ({
       toast.error('Please enter a prompt');
       return;
     }
-    onClear(); // Clear prompt immediately when generation starts
     await onSubmit();
   };
 
