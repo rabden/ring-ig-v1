@@ -15,6 +15,7 @@ const generateRandomDisplayName = () => {
 export const AuthUI = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -77,13 +78,8 @@ export const AuthUI = () => {
     }
 
     try {
-      const finalDisplayName = generateRandomDisplayName();
-      console.log('Attempting sign up with:', { email });
-      
-      const baseUrl = window.location.origin;
-      const redirectTo = `${baseUrl}/auth/callback`;
-      
-      console.log('Using redirect URL:', redirectTo);
+      const finalDisplayName = displayName || generateRandomDisplayName();
+      console.log('Attempting sign up with:', { email, displayName: finalDisplayName });
       
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
@@ -92,7 +88,6 @@ export const AuthUI = () => {
           data: {
             display_name: finalDisplayName,
           },
-          emailRedirectTo: redirectTo,
         },
       });
       
@@ -106,11 +101,12 @@ export const AuthUI = () => {
       
       // If email confirmation is required
       if (!data.session && data.user) {
-        console.log('Email confirmation required, confirmation email sent to:', email);
+        console.log('Email confirmation required');
         setShowConfirmation(true);
         // Reset form
         setEmail('');
         setPassword('');
+        setDisplayName('');
       } else if (data.session) {
         // Auto sign-in case (if email confirmation is not required)
         console.log('Auto sign-in successful');
@@ -160,6 +156,7 @@ export const AuthUI = () => {
   const resetForm = () => {
     setEmail('');
     setPassword('');
+    setDisplayName('');
     setError('');
     setShowEmailForm(false);
     setIsSignIn(false);
@@ -175,6 +172,13 @@ export const AuthUI = () => {
         <p className="text-sm text-muted-foreground">
           Click the link in your email to complete your registration
         </p>
+        <Button 
+          variant="outline" 
+          className="mt-4"
+          onClick={resetForm}
+        >
+          Back to Sign In
+        </Button>
       </div>
     );
   }
@@ -266,6 +270,20 @@ export const AuthUI = () => {
                 autoComplete={isSignIn ? "current-password" : "new-password"}
               />
             </div>
+            {!isSignIn && (
+              <div className="space-y-2">
+                <Label htmlFor="display-name">Display Name (Optional)</Label>
+                <Input
+                  id="display-name"
+                  type="text"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="Enter display name or leave blank for random"
+                  disabled={isLoading}
+                  autoComplete="username"
+                />
+              </div>
+            )}
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading && <Loader className="w-4 h-4 mr-2 animate-spin" />}
               {isSignIn ? 'Sign In' : 'Create Account'}
