@@ -15,18 +15,44 @@ export const AuthProvider = ({ children }) => {
   const clearAuthData = (shouldClearStorage = false) => {
     setSession(null);
     queryClient.invalidateQueries('user');
+    
     // Only clear localStorage when explicitly requested (like during logout)
     if (shouldClearStorage) {
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('supabase.auth.')) {
-          localStorage.removeItem(key);
-        }
-      });
+      try {
+        // Remove session from Supabase storage
+        supabase.auth.storage.removeItem('sb-auth-token');
+        
+        // Clear any other auth-related items
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('supabase.auth.')) {
+            localStorage.removeItem(key);
+          }
+        });
+      } catch (error) {
+        console.error('Error clearing auth data:', error);
+      }
     }
   };
 
   const handleAuthSession = async () => {
     try {
+      // First try to get session from storage
+      const storedSession = supabase.auth.storage.getItem('sb-auth-token');
+      
+      if (storedSession) {
+        console.log('Found stored session, validating...');
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        
+        if (!userError && user) {
+          console.log('Stored session is valid');
+          setSession(storedSession);
+          return;
+        } else {
+          console.log('Stored session is invalid, fetching new session');
+        }
+      }
+
+      // If no stored session or it's invalid, get a fresh session
       const { data: { session: currentSession }, error } = await supabase.auth.getSession();
       
       if (error) {
@@ -54,6 +80,10 @@ export const AuthProvider = ({ children }) => {
       }
 
       setSession(currentSession);
+      
+      // Store the valid session
+      supabase.auth.storage.setItem('sb-auth-token', currentSession);
+      
     } catch (error) {
       console.error('Auth error:', error);
       clearAuthData(false);
