@@ -1,38 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
-import { Typewriter } from 'react-simple-typewriter';
 import { AuthUI } from '@/integrations/supabase/components/AuthUI';
 import LoadingScreen from '@/components/LoadingScreen';
-
-const messages = [
-  { 
-    text: "Create stunning AI art with a single prompt", 
-    image: "/placeholder.svg"
-  },
-  { 
-    text: "Transform your imagination into reality", 
-    image: "/placeholder.svg"
-  },
-  { 
-    text: "Generate multiple styles with one click", 
-    image: "/placeholder.svg"
-  },
-  { 
-    text: "Share and remix creations with the community", 
-    image: "/placeholder.svg"
-  },
-  { 
-    text: "Fine-tune your art with advanced controls", 
-    image: "/placeholder.svg"
-  }
-];
 
 const Login = () => {
   const { session, loading } = useSupabaseAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
 
   useEffect(() => {
     console.log('Auth state changed:', { session, loading });
@@ -42,14 +17,6 @@ const Login = () => {
       navigate(from, { replace: true });
     }
   }, [session, loading, navigate, location]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentMessageIndex((prev) => (prev + 1) % messages.length);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   if (loading) {
     return <LoadingScreen />;
@@ -64,7 +31,7 @@ const Login = () => {
           <div className="flex-grow flex items-center justify-center mb-8">
             <div className="w-full max-w-md aspect-square relative overflow-hidden rounded-lg">
               <img
-                src={messages[currentMessageIndex].image}
+                src="/login-showcase.png"
                 alt="Feature showcase"
                 className="w-full h-full object-cover transition-opacity duration-500"
               />
@@ -75,26 +42,25 @@ const Login = () => {
           
           {/* Text Section */}
           <div className="text-center space-y-4">
-            <div className="min-h-[4rem] flex items-center justify-center">
-              <h4 className="text-xl font-semibold">
-                <Typewriter
-                  words={messages.map(msg => msg.text)}
-                  cursor
-                  cursorStyle="_"
-                  typeSpeed={50}
-                  deleteSpeed={30}
-                  delaySpeed={3000}
-                  loop={true}
-                />
-              </h4>
-            </div>
+            <h4 className="text-xl font-semibold">
+              Create amazing images with AI
+            </h4>
+            <p className="text-sm text-gray-300">
+              Sign in with Google to start creating
+            </p>
           </div>
         </div>
       </div>
 
       {/* Right side - Auth UI */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-background">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md space-y-6">
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl font-bold tracking-tight">Welcome to Ring</h2>
+            <p className="text-sm text-muted-foreground">
+              Sign in with your Google account to continue
+            </p>
+          </div>
           <AuthUI />
         </div>
       </div>
