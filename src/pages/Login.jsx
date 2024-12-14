@@ -23,12 +23,12 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col md:flex-row bg-background">
       {/* Left side - Showcase */}
-      <div className="hidden md:flex flex-col w-1/2 bg-[#0A2A36] text-white relative">
-        <div className="flex flex-col h-full p-12">
+      <div className="flex flex-col w-full md:w-1/2 bg-background text-white relative">
+        <div className="flex flex-col h-full p-8 md:p-12">
           {/* Image Section */}
-          <div className="flex-grow flex items-center justify-center mb-8">
+          <div className="flex-grow flex items-center justify-center mb-4 md:mb-8">
             <div className="w-full max-w-md aspect-square relative overflow-hidden rounded-lg">
               <img
                 src="/login-showcase.png"
@@ -36,13 +36,13 @@ const Login = () => {
                 className="w-full h-full object-cover transition-opacity duration-500"
               />
               {/* Gradient overlay for image */}
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0A2A36]/30" />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/30" />
             </div>
           </div>
           
           {/* Text Section */}
-          <div className="text-center space-y-4">
-            <h4 className="text-xl font-semibold">
+          <div className="text-center space-y-2 md:space-y-4">
+            <h4 className="text-lg md:text-xl font-semibold">
               Create amazing images with AI
             </h4>
             <p className="text-sm text-gray-300">
