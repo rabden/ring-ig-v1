@@ -17,9 +17,11 @@ const DesktopPromptBox = ({
   bonusCredits,
   className,
   userId,
-  onExpandedChange
+  onExpandedChange,
+  onVisibilityChange
 }) => {
   const [isFixed, setIsFixed] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const boxRef = useRef(null);
   const textareaRef = useRef(null);
   const totalCredits = (credits || 0) + (bonusCredits || 0);
@@ -33,6 +35,8 @@ const DesktopPromptBox = ({
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsFixed(!entry.isIntersecting);
+        setIsVisible(entry.isIntersecting);
+        onVisibilityChange?.(entry.isIntersecting);
       },
       {
         threshold: 0,
@@ -42,7 +46,7 @@ const DesktopPromptBox = ({
 
     observer.observe(boxRef.current);
     return () => observer.disconnect();
-  }, []);
+  }, [onVisibilityChange]);
 
   // Focus textarea on mount
   useEffect(() => {
