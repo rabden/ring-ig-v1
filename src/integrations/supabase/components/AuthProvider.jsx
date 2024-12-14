@@ -48,7 +48,8 @@ export const AuthProvider = ({ children }) => {
           setSession(storedSession);
           return;
         } else {
-          console.log('Stored session is invalid, fetching new session');
+          console.log('Stored session is invalid, clearing...', userError);
+          clearAuthData(true);
         }
       }
 
@@ -57,28 +58,27 @@ export const AuthProvider = ({ children }) => {
       
       if (error) {
         console.error('Auth session error:', error);
-        clearAuthData(false);
+        clearAuthData(true);
         return;
       }
 
       if (!currentSession) {
-        clearAuthData(false);
+        console.log('No current session found');
+        clearAuthData(true);
         return;
       }
 
       // Verify the session is still valid
-      const { data: user, error: userError } = await supabase.auth.getUser();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
       
-      if (userError) {
+      if (userError || !user) {
         console.error('User verification error:', userError);
-        // If we get a 403 or session_not_found error, clear the session
-        if (userError.status === 403 || userError.message?.includes('session_not_found')) {
-          await supabase.auth.signOut();
-          clearAuthData(true);
-        }
+        await supabase.auth.signOut();
+        clearAuthData(true);
         return;
       }
 
+      console.log('Session validated successfully');
       setSession(currentSession);
       
       // Store the valid session
@@ -86,8 +86,10 @@ export const AuthProvider = ({ children }) => {
       
     } catch (error) {
       console.error('Auth error:', error);
-      clearAuthData(false);
+      clearAuthData(true);
     } finally {
+      // Ensure minimum loading time of 500ms for smoother UX
+      await new Promise(resolve => setTimeout(resolve, 500));
       setLoading(false);
     }
   };
@@ -99,28 +101,36 @@ export const AuthProvider = ({ children }) => {
     // Initialize auth state
     const initializeAuth = async () => {
       try {
+        setLoading(true);
         // Get initial session
         const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.error('Session error:', sessionError);
           if (mounted) {
-            clearAuthData(false);
-            setLoading(false);
+            clearAuthData(true);
           }
           return;
         }
 
         if (mounted) {
           if (initialSession) {
-            console.log('Initial session found:', initialSession);
-            setSession(initialSession);
-            queryClient.invalidateQueries('user');
+            // Verify the session is valid
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+            
+            if (userError || !user) {
+              console.error('Initial session validation failed:', userError);
+              clearAuthData(true);
+            } else {
+              console.log('Initial session validated:', initialSession);
+              setSession(initialSession);
+              queryClient.invalidateQueries('user');
+            }
           } else {
             console.log('No initial session found');
-            clearAuthData(false);
+            clearAuthData(true);
           }
-          
+
           // Set up auth listener after initial check
           const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
             console.log('Auth state change:', event, currentSession);
@@ -135,7 +145,7 @@ export const AuthProvider = ({ children }) => {
                 break;
               case 'SIGNED_OUT':
                 console.log('User signed out');
-                clearAuthData(false);
+                clearAuthData(true);
                 break;
               case 'TOKEN_REFRESHED':
                 console.log('Token refreshed:', currentSession);
@@ -155,13 +165,11 @@ export const AuthProvider = ({ children }) => {
           });
           
           authSubscription = subscription;
-          setLoading(false);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
         if (mounted) {
-          clearAuthData(false);
-          setLoading(false);
+          clearAuthData(true);
         }
       }
     };
