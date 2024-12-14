@@ -94,14 +94,8 @@ const Login = () => {
 
       {/* Right side - Auth UI */}
       <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-background">
-        <div className="w-full max-w-[300px] space-y-6">
-          <div className="text-center space-y-2">
-            <h2 className="text-2xl font-bold tracking-tight">Welcome to Ring</h2>
-            <p className="text-sm text-muted-foreground">
-              Sign in with your Google account to continue
-            </p>
-          </div>
-          <AuthUI />
+        <div className="w-full max-w-[300px]">
+          <AuthUI buttonText="Continue with Google" />
         </div>
       </div>
     </div>
