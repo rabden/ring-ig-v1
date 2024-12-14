@@ -58,6 +58,7 @@ const ImageGeneratorSettings = ({
     if (!modelConfig?.qualityLimits) {
       return Object.keys(qualityOptions);
     }
+    
     // If specified, only allow those qualities
     return modelConfig.qualityLimits;
   };
