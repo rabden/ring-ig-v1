@@ -13,9 +13,7 @@ import { useModelConfigs } from '@/hooks/useModelConfigs';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
 import ImageGeneratorContent from '@/components/ImageGeneratorContent';
-import ImageGeneratorSettings from '@/components/ImageGeneratorSettings';
 
 const ImageGenerator = () => {
   const [searchParams] = useSearchParams();
@@ -23,7 +21,6 @@ const ImageGenerator = () => {
   const { session } = useSupabaseAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState('images');
-  const [isPromptBoxVisible, setIsPromptBoxVisible] = useState(true);
 
   const {
     isImproving,
@@ -191,117 +188,71 @@ const ImageGenerator = () => {
   }
 
   return (
-    <div className="relative min-h-screen">
-      <div className="flex flex-col md:flex-row">
-        {/* Main content */}
-        <div className="flex-1">
-          <ImageGeneratorContent
-            session={session}
-            credits={credits}
-            bonusCredits={bonusCredits}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            generatingImages={generatingImages}
-            nsfwEnabled={nsfwEnabled}
-            setNsfwEnabled={setNsfwEnabled}
-            showPrivate={false}
-            setShowPrivate={() => {}}
-            activeFilters={activeFilters}
-            onFilterChange={(type, value) => setActiveFilters(prev => ({ ...prev, [type]: value }))}
-            onRemoveFilter={(type) => {
-              const newFilters = { ...activeFilters };
-              delete newFilters[type];
-              setActiveFilters(newFilters);
-            }}
-            onSearch={setSearchQuery}
-            isHeaderVisible={isHeaderVisible}
-            handleImageClick={handleImageClick}
-            handleDownload={handleDownload}
-            handleDiscard={handleDiscard}
-            handleRemix={handleRemix}
-            handleViewDetails={handleViewDetails}
-            selectedImage={selectedImage}
-            detailsDialogOpen={detailsDialogOpen}
-            setDetailsDialogOpen={setDetailsDialogOpen}
-            fullScreenViewOpen={fullScreenViewOpen}
-            setFullScreenViewOpen={setFullScreenViewOpen}
-            proMode={isPro}
-            imageGeneratorProps={{
-              prompt,
-              setPrompt,
-              handlePromptKeyDown,
-              generateImage: handleGenerateImage,
-              model,
-              setModel: handleModelChange,
-              seed,
-              setSeed,
-              randomizeSeed,
-              setRandomizeSeed,
-              quality,
-              setQuality,
-              useAspectRatio,
-              setUseAspectRatio,
-              aspectRatio,
-              setAspectRatio,
-              width,
-              setWidth,
-              height,
-              setHeight,
-              steps,
-              setSteps,
-              imageCount,
-              setImageCount,
-              isPrivate,
-              setIsPrivate,
-              isGenerating,
-              updateCredits,
-              modelConfigs,
-              proMode: isPro,
-              session
-            }}
-            onPromptBoxVisibilityChange={setIsPromptBoxVisible}
-          />
-        </div>
-
-        {/* Settings sidebar - hide when prompt box is not visible */}
-        <div className={cn(
-          "hidden lg:block w-[300px] border-l border-border/50 bg-card",
-          !isPromptBoxVisible && "hidden lg:hidden"
-        )}>
-          <ImageGeneratorSettings
-            prompt={prompt}
-            setPrompt={setPrompt}
-            model={model}
-            setModel={handleModelChange}
-            seed={seed}
-            setSeed={setSeed}
-            randomizeSeed={randomizeSeed}
-            setRandomizeSeed={setRandomizeSeed}
-            quality={quality}
-            setQuality={setQuality}
-            useAspectRatio={useAspectRatio}
-            setUseAspectRatio={setUseAspectRatio}
-            aspectRatio={aspectRatio}
-            setAspectRatio={setAspectRatio}
-            width={width}
-            setWidth={setWidth}
-            height={height}
-            setHeight={setHeight}
-            steps={steps}
-            setSteps={setSteps}
-            imageCount={imageCount}
-            setImageCount={setImageCount}
-            isPrivate={isPrivate}
-            setIsPrivate={setIsPrivate}
-            isGenerating={isGenerating}
-            updateCredits={updateCredits}
-            modelConfigs={modelConfigs}
-            proMode={isPro}
-            session={session}
-          />
-        </div>
-      </div>
-    </div>
+    <ImageGeneratorContent
+      session={session}
+      credits={credits}
+      bonusCredits={bonusCredits}
+      activeTab={activeTab}
+      setActiveTab={setActiveTab}
+      generatingImages={generatingImages}
+      nsfwEnabled={nsfwEnabled}
+      setNsfwEnabled={setNsfwEnabled}
+      showPrivate={false}
+      setShowPrivate={() => {}}
+      activeFilters={activeFilters}
+      onFilterChange={(type, value) => setActiveFilters(prev => ({ ...prev, [type]: value }))}
+      onRemoveFilter={(type) => {
+        const newFilters = { ...activeFilters };
+        delete newFilters[type];
+        setActiveFilters(newFilters);
+      }}
+      onSearch={setSearchQuery}
+      isHeaderVisible={isHeaderVisible}
+      handleImageClick={handleImageClick}
+      handleDownload={handleDownload}
+      handleDiscard={handleDiscard}
+      handleRemix={handleRemix}
+      handleViewDetails={handleViewDetails}
+      selectedImage={selectedImage}
+      detailsDialogOpen={detailsDialogOpen}
+      setDetailsDialogOpen={setDetailsDialogOpen}
+      fullScreenViewOpen={fullScreenViewOpen}
+      setFullScreenViewOpen={setFullScreenViewOpen}
+      proMode={isPro}
+      imageGeneratorProps={{
+        prompt,
+        setPrompt,
+        handlePromptKeyDown,
+        generateImage: handleGenerateImage,
+        model,
+        setModel: handleModelChange,
+        seed,
+        setSeed,
+        randomizeSeed,
+        setRandomizeSeed,
+        quality,
+        setQuality,
+        useAspectRatio,
+        setUseAspectRatio,
+        aspectRatio,
+        setAspectRatio,
+        width,
+        setWidth,
+        height,
+        setHeight,
+        steps,
+        setSteps,
+        imageCount,
+        setImageCount,
+        isPrivate,
+        setIsPrivate,
+        isGenerating,
+        updateCredits,
+        modelConfigs,
+        proMode: isPro,
+        session
+      }}
+    />
   );
 };
 

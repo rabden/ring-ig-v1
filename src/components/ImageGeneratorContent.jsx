@@ -43,8 +43,7 @@ const ImageGeneratorContent = ({
   fullScreenViewOpen,
   setFullScreenViewOpen,
   imageGeneratorProps,
-  proMode,
-  onPromptBoxVisibilityChange
+  proMode
 }) => {
   const location = useLocation();
   const isMobile = window.innerWidth < 768;
@@ -161,7 +160,6 @@ const ImageGeneratorContent = ({
                   bonusCredits={bonusCredits}
                   userId={session?.user?.id}
                   onExpandedChange={setIsPromptExpanded}
-                  onVisibilityChange={onPromptBoxVisibilityChange}
                 />
               )}
 
