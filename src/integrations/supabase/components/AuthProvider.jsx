@@ -105,7 +105,7 @@ export const AuthProvider = ({ children }) => {
         if (sessionError) {
           console.error('Session error:', sessionError);
           if (mounted) {
-            clearAuthData(true); // Clear storage on session error
+            clearAuthData(false);
             setLoading(false);
           }
           return;
@@ -113,22 +113,12 @@ export const AuthProvider = ({ children }) => {
 
         if (mounted) {
           if (initialSession) {
-            // Verify the session is still valid
-            const { data: { user }, error: userError } = await supabase.auth.getUser();
-            
-            if (userError || !user) {
-              console.error('User verification failed:', userError);
-              clearAuthData(true);
-              setLoading(false);
-              return;
-            }
-            
-            console.log('Initial session found and verified:', initialSession);
+            console.log('Initial session found:', initialSession);
             setSession(initialSession);
             queryClient.invalidateQueries('user');
           } else {
             console.log('No initial session found');
-            clearAuthData(true);
+            clearAuthData(false);
           }
           
           // Set up auth listener after initial check
