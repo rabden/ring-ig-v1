@@ -101,28 +101,36 @@ export const AuthProvider = ({ children }) => {
     // Initialize auth state
     const initializeAuth = async () => {
       try {
+        setLoading(true);
         // Get initial session
         const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
           console.error('Session error:', sessionError);
           if (mounted) {
-            clearAuthData(false);
-            setLoading(false);
+            clearAuthData(true);
           }
           return;
         }
 
         if (mounted) {
           if (initialSession) {
-            console.log('Initial session found:', initialSession);
-            setSession(initialSession);
-            queryClient.invalidateQueries('user');
+            // Verify the session is valid
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+            
+            if (userError || !user) {
+              console.error('Initial session validation failed:', userError);
+              clearAuthData(true);
+            } else {
+              console.log('Initial session validated:', initialSession);
+              setSession(initialSession);
+              queryClient.invalidateQueries('user');
+            }
           } else {
             console.log('No initial session found');
-            clearAuthData(false);
+            clearAuthData(true);
           }
-          
+
           // Set up auth listener after initial check
           const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
             console.log('Auth state change:', event, currentSession);
@@ -134,45 +142,34 @@ export const AuthProvider = ({ children }) => {
                 console.log('User signed in:', currentSession);
                 setSession(currentSession);
                 queryClient.invalidateQueries('user');
-                setLoading(false);
                 break;
               case 'SIGNED_OUT':
                 console.log('User signed out');
-                clearAuthData(false);
-                setLoading(false);
+                clearAuthData(true);
                 break;
               case 'TOKEN_REFRESHED':
                 console.log('Token refreshed:', currentSession);
                 setSession(currentSession);
                 queryClient.invalidateQueries('user');
-                setLoading(false);
                 break;
               case 'USER_UPDATED':
                 console.log('User updated:', currentSession);
                 setSession(currentSession);
                 queryClient.invalidateQueries('user');
-                setLoading(false);
                 break;
               case 'USER_DELETED':
                 console.log('User deleted');
                 clearAuthData(true);
-                setLoading(false);
-                break;
-              case 'INITIAL_SESSION':
-                console.log('Initial session loaded');
-                setLoading(false);
                 break;
             }
           });
           
           authSubscription = subscription;
-          setLoading(false); // Set loading to false after setup
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
         if (mounted) {
-          clearAuthData(false);
-          setLoading(false);
+          clearAuthData(true);
         }
       }
     };
