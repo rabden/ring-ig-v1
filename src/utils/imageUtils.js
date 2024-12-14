@@ -35,9 +35,5 @@ export const getModifiedPrompt = async (prompt, model, modelConfigs) => {
   if (!modelConfigs) return prompt;
   
   const modelConfig = modelConfigs[model];
-  if (modelConfig?.noStyleSuffix || modelConfig?.category === "NSFW") {
-    return prompt;
-  }
-  
   return prompt + (modelConfig?.promptSuffix || '');
 };

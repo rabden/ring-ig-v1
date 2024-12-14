@@ -53,10 +53,13 @@ const ImageGeneratorSettings = ({
   };
 
   const getAvailableQualities = () => {
-    if (model === 'turbo' || model === 'preLar') {
-      return ["HD"];
+    const modelConfig = modelConfigs[model];
+    // If qualityLimits not specified, allow all qualities
+    if (!modelConfig?.qualityLimits) {
+      return Object.keys(qualityOptions);
     }
-    return Object.keys(qualityOptions);
+    // If specified, only allow those qualities
+    return modelConfig.qualityLimits;
   };
 
   const handlePromptChange = (e) => {

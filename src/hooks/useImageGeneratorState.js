@@ -10,7 +10,6 @@ export const useImageGeneratorState = () => {
     randomizeSeed: true,
     width: 1024,
     height: 1024,
-    steps: 4,
     model: 'turbo',
     activeTab: 'images',
     aspectRatio: '1:1',
@@ -43,7 +42,6 @@ export const useImageGeneratorState = () => {
     setRandomizeSeed: (value) => setState(prev => ({ ...prev, randomizeSeed: value })),
     setWidth: (value) => setState(prev => ({ ...prev, width: value })),
     setHeight: (value) => setState(prev => ({ ...prev, height: value })),
-    setSteps: (value) => setState(prev => ({ ...prev, steps: value })),
     setModel: (value) => setState(prev => ({ ...prev, model: value })),
     setActiveTab: (value) => setState(prev => ({ ...prev, activeTab: value })),
     setAspectRatio: (value) => setState(prev => ({ ...prev, aspectRatio: value })),
@@ -66,10 +64,8 @@ export const useImageGeneratorState = () => {
     if (modelConfigs) {
       if (state.nsfwEnabled) {
         setters.setModel('nsfwMaster');
-        setters.setSteps(modelConfigs['nsfwMaster']?.defaultStep || 35);
       } else {
         setters.setModel('turbo');
-        setters.setSteps(modelConfigs['turbo']?.defaultStep || 4);
       }
     }
   }, [state.nsfwEnabled, modelConfigs]);
