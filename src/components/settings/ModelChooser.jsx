@@ -51,7 +51,7 @@ const ModelChooser = ({ model, setModel, nsfwEnabled, proMode }) => {
   useEffect(() => {
     if (currentModel.isPremium && !proMode) {
       // Revert to default non-premium model
-      setModel('flux');
+      setModel('turbo');
     }
   }, [currentModel, proMode, setModel]);
 
@@ -88,7 +88,7 @@ const ModelChooser = ({ model, setModel, nsfwEnabled, proMode }) => {
                 showRadio={true}
                 proMode={proMode}
                 onClick={() => setModel(key)}
-                disabled={!proMode && config.isPremium}
+                disabled={config.isPremium && !proMode}
               />
             ))}
           </div>

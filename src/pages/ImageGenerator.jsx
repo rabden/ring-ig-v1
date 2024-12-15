@@ -192,8 +192,6 @@ const ImageGenerator = () => {
       session={session}
       credits={credits}
       bonusCredits={bonusCredits}
-      activeView={activeView}
-      setActiveView={setActiveView}
       activeTab={activeTab}
       setActiveTab={setActiveTab}
       generatingImages={generatingImages}
@@ -220,6 +218,7 @@ const ImageGenerator = () => {
       setDetailsDialogOpen={setDetailsDialogOpen}
       fullScreenViewOpen={fullScreenViewOpen}
       setFullScreenViewOpen={setFullScreenViewOpen}
+      proMode={isPro}
       imageGeneratorProps={{
         prompt,
         setPrompt,
@@ -249,7 +248,9 @@ const ImageGenerator = () => {
         setIsPrivate,
         isGenerating,
         updateCredits,
-        modelConfigs
+        modelConfigs,
+        proMode: isPro,
+        session
       }}
     />
   );

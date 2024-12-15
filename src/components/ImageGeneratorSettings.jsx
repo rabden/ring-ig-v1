@@ -58,25 +58,9 @@ const ImageGeneratorSettings = ({
     if (!modelConfig?.qualityLimits) {
       return Object.keys(qualityOptions);
     }
+    
     // If specified, only allow those qualities
     return modelConfig.qualityLimits;
-  };
-
-  const handlePromptChange = (e) => {
-    setPrompt(e.target.value);
-    
-    if (model === 'turbo') {
-      const promptLength = e.target.value.length;
-      if (promptLength <= 100) {
-        setSteps(4);
-      } else if (promptLength <= 150) {
-        setSteps(8);
-      } else if (promptLength <= 200) {
-        setSteps(10);
-      } else {
-        setSteps(12);
-      }
-    }
   };
 
   const handleClearPrompt = () => {
@@ -118,7 +102,7 @@ const ImageGeneratorSettings = ({
       <div className={hidePromptOnDesktop ? 'md:hidden' : ''}>
         <PromptInput
           prompt={prompt}
-          onChange={handlePromptChange}
+          onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={handlePromptKeyDown}
           onSubmit={handleGenerate}
           hasEnoughCredits={hasEnoughCredits}
