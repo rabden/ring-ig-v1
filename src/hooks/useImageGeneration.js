@@ -61,22 +61,8 @@ export const useImageGeneration = ({
         maxDimension
       );
 
-      // Start tracking the generation in Supabase
-      const generation = await startGeneration({
-        prompt: modifiedPrompt,
-        model,
-        seed: actualSeed,
-        width: finalWidth,
-        height: finalHeight,
-        quality,
-        aspect_ratio: finalAspectRatio,
-        is_private: isPrivate
-      });
-
-      if (!generation) continue;
-
       setGeneratingImages(prev => [...prev, { 
-        id: generation.id,
+        id: generationId, 
         width: finalWidth, 
         height: finalHeight,
         prompt: modifiedPrompt,
@@ -95,14 +81,12 @@ export const useImageGeneration = ({
             .single();
           
           if (apiKeyError) {
-            await failGeneration(generation.id, 'Failed to get API key');
-            setGeneratingImages(prev => prev.filter(img => img.id !== generation.id));
+            setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
             toast.error('Failed to get API key');
             throw new Error(`Failed to get API key: ${apiKeyError.message}`);
           }
           if (!apiKeyData) {
-            await failGeneration(generation.id, 'No active API key available');
-            setGeneratingImages(prev => prev.filter(img => img.id !== generation.id));
+            setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
             toast.error('No active API key available');
             throw new Error('No active API key available');
           }
@@ -133,10 +117,15 @@ export const useImageGeneration = ({
 
           const imageBlob = await handleApiResponse(response, 0, () => makeRequest(response.status === 429));
           if (!imageBlob) {
-            await failGeneration(generation.id, 'Failed to generate image');
-            setGeneratingImages(prev => prev.filter(img => img.id !== generation.id));
+            setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
             toast.error('Failed to generate image');
             return;
+          }
+
+          if (!imageBlob || imageBlob.size === 0) {
+            setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
+            toast.error('Generated image is invalid');
+            throw new Error('Generated image is empty or invalid');
           }
 
           const timestamp = Date.now();
@@ -165,17 +154,18 @@ export const useImageGeneration = ({
             .select()
             .single();
 
-          if (insertError) throw insertError;
+          if (insertError) {
+            console.error('Error inserting image record:', insertError);
+            throw insertError;
+          }
 
-          await completeGeneration(generation.id, filePath);
-          setGeneratingImages(prev => prev.filter(img => img.id !== generation.id));
+          setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
           toast.success(`Image generated successfully! (${isPrivate ? 'Private' : 'Public'})`);
 
         } catch (error) {
           console.error('Error generating image:', error);
-          await failGeneration(generation.id, error.message);
           toast.error('Failed to generate image');
-          setGeneratingImages(prev => prev.filter(img => img.id !== generation.id));
+          setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
         }
       };
 
