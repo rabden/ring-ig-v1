@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AuthUI } from '@/integrations/auth';
+import { AuthUI } from '@/integrations/supabase/components/AuthUI';
 
 const SignInDialog = () => {
   return (
