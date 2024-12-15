@@ -90,7 +90,10 @@ const ImageGenerator = () => {
     }
   }, [remixImage]);
 
-  const { generateImage } = useImageGeneration({
+  const {
+    generateImage,
+    generatingImages
+  } = useImageGeneration({
     session,
     prompt,
     seed,
@@ -102,9 +105,7 @@ const ImageGenerator = () => {
     useAspectRatio,
     aspectRatio,
     updateCredits,
-    setGeneratingImages,
     modelConfigs,
-    steps,
     imageCount
   });
 
