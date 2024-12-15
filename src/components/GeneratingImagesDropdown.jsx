@@ -5,8 +5,10 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Badge } from "@/components/ui/badge"
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { cn } from "@/lib/utils"
+import { useGenerationStatus } from '@/hooks/useGenerationStatus'
 
-const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
+const GeneratingImagesDropdown = () => {
+  const { generatingImages } = useGenerationStatus();
   const { data: modelConfigs } = useModelConfigs();
   const [showDropdown, setShowDropdown] = useState(false);
   const [completedImages, setCompletedImages] = useState(new Set());

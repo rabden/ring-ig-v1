@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
+import SignInDialog from '@/components/SignInDialog';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
@@ -14,7 +15,6 @@ import ProfileStats from './profile/ProfileStats';
 import { useRealtimeProfile } from '@/hooks/useRealtimeProfile';
 import { handleAvatarUpload } from '@/utils/profileUtils';
 import { useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
 
 const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const { logout } = useSupabaseAuth();
@@ -24,7 +24,6 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
   const [displayName, setDisplayName] = React.useState('');
   const [showImageDialog, setShowImageDialog] = React.useState(false);
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
   useRealtimeProfile(user?.id);
 
@@ -170,12 +169,7 @@ const MobileProfileMenu = ({ user, credits, bonusCredits, activeTab }) => {
             </div>
           ) : (
             <div className="flex flex-col items-center p-8 space-y-4">
-              <Button 
-                className="w-full" 
-                onClick={() => navigate('/login')}
-              >
-                Sign In
-              </Button>
+              <SignInDialog />
             </div>
           )}
         </ScrollArea>
