@@ -5,8 +5,10 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { Loader, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useGenerationStatus } from '@/hooks/useGenerationStatus';
 
-const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) => {
+const GeneratingImagesDrawer = ({ open, onOpenChange }) => {
+  const { generatingImages } = useGenerationStatus();
   const { data: modelConfigs } = useModelConfigs();
   const [showDrawer, setShowDrawer] = useState(false);
   const [showCheckmark, setShowCheckmark] = useState(false);
