@@ -20,12 +20,20 @@ export const useImageGeneratorState = () => {
     detailsDialogOpen: false,
     fullScreenViewOpen: false,
     fullScreenImageIndex: 0,
+    generatingImages: [],
     activeView: 'myImages',
     nsfwEnabled: false,
     style: null,
     imageCount: 1,
     isPrivate: false
   });
+
+  const setGeneratingImages = (value) => {
+    setState(prev => ({
+      ...prev,
+      generatingImages: Array.isArray(value) ? value : typeof value === 'function' ? value(prev.generatingImages) : []
+    }));
+  };
 
   // Create setters for each state property
   const setters = {
@@ -44,6 +52,7 @@ export const useImageGeneratorState = () => {
     setDetailsDialogOpen: (value) => setState(prev => ({ ...prev, detailsDialogOpen: value })),
     setFullScreenViewOpen: (value) => setState(prev => ({ ...prev, fullScreenViewOpen: value })),
     setFullScreenImageIndex: (value) => setState(prev => ({ ...prev, fullScreenImageIndex: value })),
+    setGeneratingImages,
     setActiveView: (value) => setState(prev => ({ ...prev, activeView: value })),
     setNsfwEnabled: (value) => setState(prev => ({ ...prev, nsfwEnabled: value })),
     setStyle: (value) => setState(prev => ({ ...prev, style: value })),

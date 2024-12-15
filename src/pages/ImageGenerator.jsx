@@ -46,7 +46,7 @@ const ImageGenerator = () => {
     useAspectRatio, setUseAspectRatio, quality, setQuality,
     selectedImage, setSelectedImage,
     detailsDialogOpen, setDetailsDialogOpen, fullScreenViewOpen, setFullScreenViewOpen,
-    fullScreenImageIndex, setFullScreenImageIndex, setGeneratingImages,
+    fullScreenImageIndex, setFullScreenImageIndex, generatingImages, setGeneratingImages,
     activeView, setActiveView, nsfwEnabled, setNsfwEnabled,
     imageCount, setImageCount
   } = useImageGeneratorState();
@@ -90,10 +90,7 @@ const ImageGenerator = () => {
     }
   }, [remixImage]);
 
-  const {
-    generateImage,
-    generatingImages // This is now the only declaration of generatingImages
-  } = useImageGeneration({
+  const { generateImage } = useImageGeneration({
     session,
     prompt,
     seed,
@@ -105,7 +102,9 @@ const ImageGenerator = () => {
     useAspectRatio,
     aspectRatio,
     updateCredits,
+    setGeneratingImages,
     modelConfigs,
+    steps,
     imageCount
   });
 
@@ -172,6 +171,7 @@ const ImageGenerator = () => {
     setActiveView,
   });
 
+  // Sync activeTab with URL hash
   useEffect(() => {
     const hash = window.location.hash;
     if (hash === '#imagegenerate') {
