@@ -33,18 +33,15 @@ const ProtectedRoute = ({ children }) => {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   useEffect(() => {
-    // Wait for auth state to be determined
     if (!loading) {
       setIsInitialLoad(false);
     }
   }, [loading]);
   
-  // Show loading screen during initial load or auth check
   if (loading || isInitialLoad) {
     return <LoadingScreen />;
   }
   
-  // Only redirect when we're sure there's no session and initial load is complete
   if (!session && !isInitialLoad) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
@@ -64,12 +61,10 @@ const AuthRoute = ({ children }) => {
     }
   }, [loading]);
 
-  // Show loading screen during initial load or auth check
   if (loading || isInitialLoad) {
     return <LoadingScreen />;
   }
   
-  // Only redirect if we have a session and initial load is complete
   if (session && !isInitialLoad) {
     const to = location.state?.from?.pathname || '/';
     return <Navigate to={to} replace />;
@@ -83,7 +78,6 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate minimum loading time of 2.5 seconds
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 2500);
@@ -169,8 +163,6 @@ const AuthCallback = () => {
       try {
         const { error } = await supabase.auth.getSession();
         if (error) throw error;
-        
-        // Redirect to home page after successful confirmation
         navigate('/', { replace: true });
       } catch (error) {
         console.error('Error handling auth callback:', error);
