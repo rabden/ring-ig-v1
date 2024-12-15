@@ -3,7 +3,6 @@ import { toast } from 'sonner';
 import { qualityOptions } from '@/utils/imageConfigs';
 import { calculateDimensions, getModifiedPrompt } from '@/utils/imageUtils';
 import { handleApiResponse } from '@/utils/retryUtils';
-import { useGenerationStatus } from './useGenerationStatus';
 
 export const useImageGeneration = ({
   session,
@@ -17,11 +16,10 @@ export const useImageGeneration = ({
   useAspectRatio,
   aspectRatio,
   updateCredits,
+  setGeneratingImages,
   modelConfigs,
   imageCount = 1
 }) => {
-  const { setGeneratingImages } = useGenerationStatus();
-
   const generateImage = async (isPrivate = false, finalPrompt = null) => {
     if (!session || !prompt || !modelConfigs) {
       !session && toast.error('Please sign in to generate images');

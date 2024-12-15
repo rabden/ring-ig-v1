@@ -15,7 +15,6 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFollows } from '@/hooks/useFollows';
-import { useGenerationStatus } from '@/hooks/useGenerationStatus';
 
 const ImageGeneratorContent = ({
   session,
@@ -58,7 +57,6 @@ const ImageGeneratorContent = ({
   const [showFollowing, setShowFollowing] = useState(false);
   const [showTop, setShowTop] = useState(false);
   const { following } = useFollows(session?.user?.id);
-  const { generatingImages: globalGeneratingImages } = useGenerationStatus();
 
   // Handle sidebar visibility with transitions
   useEffect(() => {
@@ -119,7 +117,7 @@ const ImageGeneratorContent = ({
                 user={session.user}
                 credits={credits}
                 bonusCredits={bonusCredits}
-                generatingImages={globalGeneratingImages}
+                generatingImages={generatingImages}
                 activeFilters={activeFilters}
                 onFilterChange={onFilterChange}
                 onRemoveFilter={onRemoveFilter}
@@ -173,7 +171,7 @@ const ImageGeneratorContent = ({
                   onDiscard={handleDiscard}
                   onRemix={handleRemix}
                   onViewDetails={handleViewDetails}
-                  generatingImages={globalGeneratingImages}
+                  generatingImages={generatingImages}
                   nsfwEnabled={nsfwEnabled}
                   modelConfigs={imageGeneratorProps.modelConfigs}
                   activeFilters={activeFilters}
@@ -236,7 +234,7 @@ const ImageGeneratorContent = ({
         session={session} 
         credits={credits}
         bonusCredits={bonusCredits}
-        generatingImages={globalGeneratingImages}
+        generatingImages={generatingImages}
         nsfwEnabled={nsfwEnabled}
         setNsfwEnabled={setNsfwEnabled}
       />
