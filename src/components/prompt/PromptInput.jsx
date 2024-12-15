@@ -57,6 +57,7 @@ const PromptInput = ({
     }
 
     try {
+      onClear(); // Clear prompt immediately when generation starts
       await onSubmit();
     } catch (error) {
       console.error('Error generating:', error);
