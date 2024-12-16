@@ -102,7 +102,7 @@ const DesktopPromptBox = ({
             </div>
 
             <div className="flex justify-between items-center mt-0">
-              <div className="max-w-[300px]">
+              <div className="w-[300px]">
                 <CreditCounter credits={credits} bonusCredits={bonusCredits} />
               </div>
               <div className="flex items-center gap-2">
