@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
-import { useEffect } from 'react';
 
 export const useLikes = (userId) => {
   const queryClient = useQueryClient();
@@ -19,41 +18,6 @@ export const useLikes = (userId) => {
     },
     enabled: !!userId
   });
-
-  // Set up realtime subscription
-  useEffect(() => {
-    if (!userId) return;
-
-    // Create a channel for likes changes
-    const channel = supabase
-      .channel('likes_changes')
-      .on('postgres_changes', {
-        event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
-        schema: 'public',
-        table: 'user_image_likes',
-        filter: `user_id=eq.${userId}` // Only listen to changes for this user
-      }, (payload) => {
-        // Handle different types of changes
-        if (payload.eventType === 'INSERT') {
-          queryClient.setQueryData(['likes', userId], (old = []) => {
-            if (!old.includes(payload.new.image_id)) {
-              return [...old, payload.new.image_id];
-            }
-            return old;
-          });
-        } else if (payload.eventType === 'DELETE') {
-          queryClient.setQueryData(['likes', userId], (old = []) => {
-            return old.filter(id => id !== payload.old.image_id);
-          });
-        }
-      })
-      .subscribe();
-
-    // Cleanup subscription on unmount
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [userId, queryClient]);
 
   const toggleLike = useMutation({
     mutationFn: async (imageId) => {
@@ -120,10 +84,9 @@ export const useLikes = (userId) => {
         }
       }
     },
-    // We can remove this since we're handling updates via realtime subscription
-    // onSuccess: () => {
-    //   queryClient.invalidateQueries(['likes', userId]);
-    // }
+    onSuccess: () => {
+      queryClient.invalidateQueries(['likes', userId]);
+    }
   });
 
   return {
