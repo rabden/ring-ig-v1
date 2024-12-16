@@ -39,16 +39,22 @@ const NavigationMenuItem = NavigationMenuPrimitive.Item
 const navigationMenuTriggerStyle = cva([
   "group inline-flex h-10 w-max",
   "items-center justify-center",
-  "rounded-xl px-4 py-2",
+  "rounded-lg",
+  "px-4 py-2",
   "text-sm font-medium",
-  "text-muted-foreground/90",
+  "text-muted-foreground/60",
   "transition-colors duration-200",
-  "hover:bg-accent/5 hover:text-accent-foreground",
-  "focus:bg-accent/5 focus:text-accent-foreground",
+  "hover:bg-accent/5",
+  "hover:text-muted-foreground/80",
+  "focus:bg-accent/5",
+  "focus:text-muted-foreground/80",
   "focus:outline-none",
-  "disabled:pointer-events-none disabled:opacity-50",
-  "data-[active]:bg-accent/5 data-[active]:text-accent-foreground",
-  "data-[state=open]:bg-accent/5 data-[state=open]:text-accent-foreground"
+  "disabled:opacity-30",
+  "disabled:pointer-events-none",
+  "data-[active]:bg-white/5",
+  "data-[active]:text-foreground",
+  "data-[state=open]:bg-white/5",
+  "data-[state=open]:text-foreground"
 ])
 
 const NavigationMenuTrigger = React.forwardRef(({ className, children, ...props }, ref) => (
@@ -61,7 +67,7 @@ const NavigationMenuTrigger = React.forwardRef(({ className, children, ...props 
       className={cn(
         "relative top-[1px] ml-1",
         "h-3 w-3",
-        "text-muted-foreground/50",
+        "text-muted-foreground/40",
         "transition-transform duration-200",
         "group-data-[state=open]:rotate-180"
       )}
@@ -75,10 +81,8 @@ const NavigationMenuContent = React.forwardRef(({ className, ...props }, ref) =>
     ref={ref}
     className={cn(
       "left-0 top-0 w-full",
-      "border border-border/30",
       "bg-popover/95 backdrop-blur-sm",
-      "shadow-sm shadow-primary/5",
-      "transition-colors duration-200",
+      "transition-all duration-200",
       // Animations
       "data-[motion^=from-]:animate-in",
       "data-[motion^=to-]:animate-out",
@@ -108,11 +112,10 @@ const NavigationMenuViewport = React.forwardRef(({ className, ...props }, ref) =
         "mt-1.5",
         "h-[var(--radix-navigation-menu-viewport-height)]",
         "w-full overflow-hidden",
-        "rounded-xl border border-border/30",
+        "rounded-lg",
         "bg-popover/95 backdrop-blur-sm",
         "text-popover-foreground/90",
-        "shadow-sm shadow-primary/5",
-        "transition-colors duration-200",
+        "transition-all duration-200",
         // Animations
         "data-[state=open]:animate-in",
         "data-[state=closed]:animate-out",
@@ -148,8 +151,7 @@ const NavigationMenuIndicator = React.forwardRef(({ className, ...props }, ref) 
         "relative top-[60%]",
         "h-2 w-2",
         "rotate-45 rounded-tl-sm",
-        "bg-border/30",
-        "shadow-sm shadow-primary/5",
+        "bg-accent/5",
         "transition-colors duration-200"
       )} />
   </NavigationMenuPrimitive.Indicator>
