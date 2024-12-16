@@ -11,7 +11,6 @@ import PromptInput from './prompt/PromptInput';
 import { qualityOptions } from '@/utils/imageConfigs';
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 import { toast } from 'sonner';
-import CreditCounter from '@/components/ui/credit-counter';
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -101,26 +100,18 @@ const ImageGeneratorSettings = ({
   return (
     <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
       <div className={hidePromptOnDesktop ? 'md:hidden' : ''}>
-        <div className="space-y-4">
-          <PromptInput
-            prompt={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            onKeyDown={handlePromptKeyDown}
-            onSubmit={handleGenerate}
-            hasEnoughCredits={hasEnoughCredits}
-            onClear={handleClearPrompt}
-            onImprove={handleImprovePrompt}
-            isImproving={isImproving}
-            userId={session?.user?.id}
-          />
-          <div className="flex justify-center">
-            <CreditCounter 
-              credits={credits} 
-              bonusCredits={bonusCredits} 
-              className="text-sm" 
-            />
-          </div>
-        </div>
+        <PromptInput
+          prompt={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          onKeyDown={handlePromptKeyDown}
+          onSubmit={handleGenerate}
+          hasEnoughCredits={hasEnoughCredits}
+          onClear={handleClearPrompt}
+          credits={credits}
+          bonusCredits={bonusCredits}
+          userId={session?.user?.id}
+          updateCredits={updateCredits}
+        />
       </div>
 
       <ModelChooser
