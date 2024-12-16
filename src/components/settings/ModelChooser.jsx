@@ -4,9 +4,7 @@ import { Lock, ChevronRight, Check } from "lucide-react";
 import SettingSection from './SettingSection';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { modelConfig } from "@/config/modelConfig";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useImageGeneratorState } from '@/hooks/useImageGeneratorState';
 import {
   Drawer,
   DrawerContent,
@@ -97,50 +95,54 @@ const ModelGrid = ({ filteredModels, model, setModel, proMode, className }) => (
   </ScrollArea>
 );
 
-const ModelChooser = ({ model, setModel, proMode }) => {
-  const { nsfwEnabled } = useImageGeneratorState();
+const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   
   // Filter models based on NSFW state
   const filteredModels = useMemo(() => {
-    if (nsfwEnabled) {
-      // Only show NSFW models when NSFW is enabled
-      return Object.entries(modelConfig).filter(([_, config]) => config.category === "NSFW");
-    } else {
-      // Show general models when NSFW is disabled
-      return Object.entries(modelConfig).filter(([_, config]) => config.category === "General");
-    }
-  }, [nsfwEnabled]);
+    if (!modelConfigs) return [];
+    
+    // Get all models as entries
+    const allModels = Object.entries(modelConfigs);
+    
+    // Filter based on NSFW state
+    return allModels.filter(([_, config]) => {
+      if (nsfwEnabled) {
+        return config.category === "NSFW";
+      }
+      return config.category === "General";
+    });
+  }, [nsfwEnabled, modelConfigs]);
 
   // Default model for each mode
-  const defaultModel = useMemo(() => 
-    nsfwEnabled ? 'nsfwMaster' : 'turbo',
-    [nsfwEnabled]
-  );
+  const defaultModel = useMemo(() => {
+    return nsfwEnabled ? 'nsfwMaster' : 'turbo';
+  }, [nsfwEnabled]);
 
   // Handle model selection
   const handleModelSelection = useCallback((newModel) => {
-    const modelData = modelConfig[newModel];
+    const modelData = modelConfigs?.[newModel];
     if (!modelData) return;
 
-    // Only allow selecting models that match current NSFW state
-    if (modelData.category === (nsfwEnabled ? "NSFW" : "General")) {
+    const isCorrectCategory = nsfwEnabled 
+      ? modelData.category === "NSFW"
+      : modelData.category === "General";
+
+    if (isCorrectCategory) {
       setModel(newModel);
-      if (isDrawerOpen) {
-        setIsDrawerOpen(false);
-      }
+      setIsDrawerOpen(false);
     }
-  }, [nsfwEnabled, setModel, isDrawerOpen]);
+  }, [nsfwEnabled, setModel, modelConfigs]);
 
   // Ensure current model is valid for NSFW state
   useEffect(() => {
-    const currentModel = modelConfig[model];
+    const currentModel = modelConfigs?.[model];
     if (!currentModel || currentModel.category !== (nsfwEnabled ? "NSFW" : "General")) {
       setModel(defaultModel);
     }
-  }, [nsfwEnabled, model, defaultModel, setModel]);
+  }, [nsfwEnabled, model, defaultModel, setModel, modelConfigs]);
 
-  const currentModel = modelConfig[model];
+  const currentModel = modelConfigs?.[model];
   if (!currentModel) return null;
 
   return (

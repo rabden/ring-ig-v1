@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useModelConfigs } from './useModelConfigs';
 
 export const useImageGeneratorState = () => {
@@ -42,17 +42,7 @@ export const useImageGeneratorState = () => {
     setRandomizeSeed: (value) => setState(prev => ({ ...prev, randomizeSeed: value })),
     setWidth: (value) => setState(prev => ({ ...prev, width: value })),
     setHeight: (value) => setState(prev => ({ ...prev, height: value })),
-    setModel: (value) => setState(prev => {
-      const modelData = modelConfigs?.[value];
-      if (!modelData) return prev;
-
-      // Only allow setting model if it matches current NSFW state
-      const isModelAllowed = modelData.category === (prev.nsfwEnabled ? "NSFW" : "General");
-      return {
-        ...prev,
-        model: isModelAllowed ? value : prev.model
-      };
-    }),
+    setModel: (value) => setState(prev => ({ ...prev, model: value })),
     setActiveTab: (value) => setState(prev => ({ ...prev, activeTab: value })),
     setAspectRatio: (value) => setState(prev => ({ ...prev, aspectRatio: value })),
     setUseAspectRatio: (value) => setState(prev => ({ ...prev, useAspectRatio: value })),
@@ -64,21 +54,7 @@ export const useImageGeneratorState = () => {
     setFullScreenImageIndex: (value) => setState(prev => ({ ...prev, fullScreenImageIndex: value })),
     setGeneratingImages,
     setActiveView: (value) => setState(prev => ({ ...prev, activeView: value })),
-    setNsfwEnabled: (value) => setState(prev => {
-      const newState = { ...prev, nsfwEnabled: value };
-      
-      // When toggling NSFW, ensure model is appropriate
-      if (modelConfigs) {
-        const currentModel = modelConfigs[prev.model];
-        if (value && (!currentModel || currentModel.category !== 'NSFW')) {
-          newState.model = 'nsfwMaster';
-        } else if (!value && (!currentModel || currentModel.category === 'NSFW')) {
-          newState.model = 'turbo';
-        }
-      }
-      
-      return newState;
-    }),
+    setNsfwEnabled: (value) => setState(prev => ({ ...prev, nsfwEnabled: value })),
     setStyle: (value) => setState(prev => ({ ...prev, style: value })),
     setImageCount: (value) => setState(prev => ({ ...prev, imageCount: value })),
     setIsPrivate: (value) => setState(prev => ({ ...prev, isPrivate: value }))
