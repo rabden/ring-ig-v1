@@ -118,8 +118,8 @@ const ImageGeneratorSettings = ({
       </div>
 
       {isGenerateTab && (
-        <div className="flex justify-center">
-          <CreditCounter credits={credits} bonusCredits={bonusCredits} className="block" />
+        <div className="flex justify-center w-full">
+          <CreditCounter credits={credits} bonusCredits={bonusCredits} />
         </div>
       )}
 

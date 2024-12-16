@@ -1,11 +1,12 @@
 import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
 
 const CreditCounter = ({ credits, bonusCredits, className }) => {
   const MAX_CREDITS = 50;
   const creditsProgress = (credits / MAX_CREDITS) * 100;
 
   return (
-    <div className={`space-y-2 min-w-[200px] ${className}`}>
+    <div className={cn("space-y-2 w-full", className)}>
       <div className="flex justify-between text-sm">
         <span className="text-muted-foreground">Credits</span>
         <span className="font-medium">
