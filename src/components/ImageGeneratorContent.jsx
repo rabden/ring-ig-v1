@@ -62,7 +62,7 @@ const ImageGeneratorContent = ({
   useEffect(() => {
     const shouldMount = isMobile 
       ? isGenerateTab
-      : shouldShowSettings && isPromptExpanded && !isInspiration;
+      : shouldShowSettings && isPromptExpanded && !isInspiration && !searchQuery;
 
     if (shouldMount) {
       setIsSidebarMounted(true);
@@ -76,7 +76,7 @@ const ImageGeneratorContent = ({
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [shouldShowSettings, isPromptExpanded, isInspiration, isGenerateTab, isMobile]);
+  }, [shouldShowSettings, isPromptExpanded, isInspiration, isGenerateTab, isMobile, searchQuery]);
 
   // Track window resize for mobile state
   useEffect(() => {
@@ -167,7 +167,7 @@ const ImageGeneratorContent = ({
                 searchQuery={searchQuery}
               />
               
-              {!isInspiration && (
+              {!isInspiration && !searchQuery && (
                 <DesktopPromptBox
                   prompt={imageGeneratorProps.prompt}
                   onChange={(e) => imageGeneratorProps.setPrompt(e.target.value)}
@@ -207,7 +207,7 @@ const ImageGeneratorContent = ({
           )}
         </div>
 
-        {isSidebarMounted && (
+        {isSidebarMounted && !searchQuery && (
           <div 
             className={cn(
               "w-full md:w-[350px] bg-card text-card-foreground",
