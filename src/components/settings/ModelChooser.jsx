@@ -14,6 +14,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 
+// Current card style for selected model
 const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, disabled, proMode }) => (
   <div
     className={cn(
@@ -27,7 +28,7 @@ const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, dis
       <img
         src={config.image}
         alt={config.name}
-        className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-110"
+        className="w-full h-full object-cover"
       />
     </div>
     <div className="flex-1 min-w-0">
@@ -39,30 +40,57 @@ const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, dis
         {config.tagline || (config.category === "NSFW" ? "NSFW Generation" : "Image Generation")}
       </p>
     </div>
-    {showRadio ? (
-      isActive ? (
-        <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
-          <Check className="h-3.5 w-3.5 text-primary flex-shrink-0" />
-        </div>
-      ) : (
-        <div className="h-5 w-5 rounded-full border border-border/50" />
-      )
-    ) : (
-      <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+    <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+  </div>
+);
+
+// New grid card style for dropdown/drawer
+const ModelGridCard = ({ modelKey, config, isActive, onClick, disabled, proMode }) => (
+  <div
+    className={cn(
+      "group relative aspect-square rounded-xl overflow-hidden transition-all duration-200 border-2",
+      isActive ? "border-primary ring-2 ring-primary/20" : "border-transparent hover:border-primary/50",
+      disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
+    )}
+    onClick={disabled ? undefined : onClick}
+  >
+    <img
+      src={config.image}
+      alt={config.name}
+      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+    />
+    {/* Gradient overlay */}
+    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+    
+    {/* Content */}
+    <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
+      <div className="flex items-center gap-2 mb-1">
+        <span className="font-medium truncate">{config.name}</span>
+        {config.isPremium && !proMode && <Lock className="h-3.5 w-3.5 flex-shrink-0" />}
+      </div>
+      <p className="text-xs text-white/80 truncate">
+        {config.tagline || (config.category === "NSFW" ? "NSFW Generation" : "Image Generation")}
+      </p>
+    </div>
+
+    {/* Active indicator */}
+    {isActive && (
+      <div className="absolute top-2 right-2 h-6 w-6 rounded-full bg-primary text-white flex items-center justify-center">
+        <Check className="h-4 w-4" />
+      </div>
     )}
   </div>
 );
 
-const ModelList = ({ filteredModels, model, setModel, proMode, className }) => (
+const ModelGrid = ({ filteredModels, model, setModel, proMode, className }) => (
   <ScrollArea className={cn("h-full overflow-y-auto px-1", className)}>
-    <div className="space-y-2">
+    <div className="grid grid-cols-2 gap-3 pb-2">
       {filteredModels.map(([key, config]) => (
-        <ModelCard
+        <ModelGridCard
           key={key}
           modelKey={key}
           config={config}
           isActive={model === key}
-          showRadio={true}
           proMode={proMode}
           onClick={() => setModel(key)}
           disabled={config.isPremium && !proMode}
@@ -138,9 +166,9 @@ const ModelChooser = ({ model, setModel, proMode }) => {
             side="left"
             align="start"
             sideOffset={20}
-            className="w-[280px] p-3"
+            className="w-[500px] p-3"
           >
-            <ModelList 
+            <ModelGrid 
               filteredModels={filteredModels}
               model={model}
               setModel={handleModelSelection}
@@ -173,7 +201,7 @@ const ModelChooser = ({ model, setModel, proMode }) => {
               </p>
             </DrawerHeader>
             <div className="px-4 py-6">
-              <ModelList 
+              <ModelGrid 
                 filteredModels={filteredModels}
                 model={model}
                 setModel={(key) => {
