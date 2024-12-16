@@ -238,12 +238,6 @@ const ImageGeneratorContent = ({
         )}
       </div>
 
-      {isGenerateTab && (
-        <div className="fixed bottom-20 left-0 right-0 flex justify-center p-4 bg-gradient-to-t from-background to-transparent pointer-events-none">
-          {/* Remove credit counter from here */}
-        </div>
-      )}
-
       <MobileNotificationsMenu activeTab={activeTab} />
       <MobileProfileMenu 
         user={session?.user}
