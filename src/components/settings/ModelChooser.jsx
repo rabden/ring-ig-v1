@@ -47,10 +47,8 @@ const ModelChooser = ({ model, setModel, nsfwEnabled, proMode }) => {
   const currentModel = modelConfig[model];
   if (!currentModel) return null;
 
-  // Check if current model is premium and user is not pro
   useEffect(() => {
     if (currentModel.isPremium && !proMode) {
-      // Revert to default non-premium model
       setModel('turbo');
     }
   }, [currentModel, proMode, setModel]);
@@ -76,7 +74,7 @@ const ModelChooser = ({ model, setModel, nsfwEnabled, proMode }) => {
           side="left" 
           align="start" 
           sideOffset={20}
-          className="w-[250px] p-2 md:left-0 left-1/2 -translate-x-1/2 md:translate-x-0"
+          className="w-[250px] p-2 md:left-0 left-1/2 -translate-x-1/2 md:translate-x-0 max-h-[60vh] overflow-y-auto"
         >
           <div className="space-y-1">
             {filteredModels.map(([key, config]) => (
