@@ -72,10 +72,10 @@ const ModelChooser = ({ model, setModel, nsfwEnabled, proMode }) => {
       </div>
     </PopoverTrigger>
     <PopoverContent 
-      side="left" 
-      align="start" 
+      side={{ base: "bottom", md: "left" }}
+      align={{ base: "center", md: "start" }}
       sideOffset={20}
-      className="w-[250px] p-2 md:left-100px max-h-[80vh]"
+      className="w-[250px] p-2 max-h-[80vh] md:left-[100px] fixed md:relative left-1/2 -translate-x-1/2 md:translate-x-0"
     >
       <ScrollArea className="h-full overflow-y-auto">
         <div className="space-y-1">
