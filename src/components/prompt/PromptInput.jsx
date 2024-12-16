@@ -2,7 +2,6 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight, Sparkles, Loader } from "lucide-react";
 import { toast } from "sonner";
-import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 
 const PromptInput = ({ 
   prompt = '',
@@ -11,35 +10,10 @@ const PromptInput = ({
   onSubmit,
   hasEnoughCredits = true,
   onClear,
-  credits,
-  bonusCredits,
+  onImprove,
+  isImproving,
   userId
 }) => {
-  const totalCredits = (credits || 0) + (bonusCredits || 0);
-  const hasEnoughCreditsForImprovement = totalCredits >= 1;
-  const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
-
-  const handleImprovePrompt = async () => {
-    if (!userId) {
-      toast.error('Please sign in to improve prompts');
-      return;
-    }
-
-    if (!hasEnoughCreditsForImprovement) {
-      toast.error('Not enough credits for prompt improvement');
-      return;
-    }
-
-    try {
-      await improveCurrentPrompt(prompt, (improvedPrompt) => {
-        onChange({ target: { value: improvedPrompt } });
-      });
-    } catch (error) {
-      console.error('Error improving prompt:', error);
-      toast.error('Failed to improve prompt');
-    }
-  };
-
   const handleSubmit = async () => {
     if (!prompt?.trim()) {
       toast.error('Please enter a prompt');
@@ -66,7 +40,7 @@ const PromptInput = ({
   };
 
   return (
-    <div className="relative mb-8">
+    <div className="relative">
       <div className="relative">
         <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-background to-transparent pointer-events-none z-10" />
         <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-background to-transparent pointer-events-none z-10" />
@@ -98,8 +72,8 @@ const PromptInput = ({
           size="sm"
           variant="outline"
           className="rounded-full"
-          onClick={handleImprovePrompt}
-          disabled={!prompt?.length || isImproving || !hasEnoughCreditsForImprovement}
+          onClick={onImprove}
+          disabled={!prompt?.length || isImproving || !hasEnoughCredits}
         >
           {isImproving ? (
             <Loader className="h-4 w-4 mr-2 animate-spin" />
