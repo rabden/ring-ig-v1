@@ -166,13 +166,14 @@ const ModelChooser = ({ model, setModel, proMode }) => {
             side="left"
             align="start"
             sideOffset={20}
-            className="w-[500px] p-3"
+            className="w-[500px] p-3 max-h-[65vh]"
           >
             <ModelGrid 
               filteredModels={filteredModels}
               model={model}
               setModel={handleModelSelection}
               proMode={proMode}
+              className="max-h-[calc(65vh-2rem)]"
             />
           </PopoverContent>
         </Popover>
