@@ -79,6 +79,16 @@ export const modelConfig = {
     tagline: "Latest version of Midjourney for free",
     image: "/models/ultra.png"
   },
+  vertorArt: {
+    name: "Vector Art",
+    category: "General",
+    apiUrl: "https://api-inference.huggingface.co/models/lichorosario/flux-lora-simple-vector",
+    qualityLimits: null,
+    isPremium: false,
+    promptSuffix: null,
+    tagline: "Create Vector arts",
+    image: "/models/ultra.png"
+  },
   Isometric: {
     name: "Isometric",
     category: "General",
