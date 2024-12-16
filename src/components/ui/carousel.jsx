@@ -104,7 +104,8 @@ const Carousel = React.forwardRef((
         className={cn(
           "relative",
           "rounded-xl",
-          "bg-popover/95 backdrop-blur-sm",
+          "bg-background/95 backdrop-blur-sm",
+          "shadow-sm shadow-primary/5",
           "transition-colors duration-200",
           className
         )}
@@ -171,12 +172,12 @@ const CarouselPrevious = React.forwardRef(({ className, variant = "ghost", size 
         "absolute",
         "h-8 w-8",
         "rounded-lg",
-        "text-muted-foreground/40",
+        "text-muted-foreground/50",
         "transition-all duration-200",
         "hover:bg-accent/5",
-        "hover:text-muted-foreground/60",
+        "hover:text-muted-foreground/70",
         "focus:bg-accent/5",
-        "focus:text-muted-foreground/60",
+        "focus:text-muted-foreground/70",
         "disabled:opacity-30",
         "disabled:pointer-events-none",
         orientation === "horizontal"
@@ -206,12 +207,12 @@ const CarouselNext = React.forwardRef(({ className, variant = "ghost", size = "i
         "absolute",
         "h-8 w-8",
         "rounded-lg",
-        "text-muted-foreground/40",
+        "text-muted-foreground/50",
         "transition-all duration-200",
         "hover:bg-accent/5",
-        "hover:text-muted-foreground/60",
+        "hover:text-muted-foreground/70",
         "focus:bg-accent/5",
-        "focus:text-muted-foreground/60",
+        "focus:text-muted-foreground/70",
         "disabled:opacity-30",
         "disabled:pointer-events-none",
         orientation === "horizontal"

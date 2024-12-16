@@ -16,8 +16,9 @@ function Calendar({
       showOutsideDays={showOutsideDays}
       className={cn(
         "p-4",
-        "rounded-xl",
-        "bg-popover/95 backdrop-blur-sm",
+        "rounded-xl border border-border/30",
+        "bg-background/95 backdrop-blur-sm",
+        "shadow-sm shadow-primary/5",
         "transition-colors duration-200",
         className
       )}
@@ -25,14 +26,14 @@ function Calendar({
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
         caption: "flex justify-center pt-1 relative items-center",
-        caption_label: "text-sm font-medium text-foreground/80",
+        caption_label: "text-sm font-medium text-foreground/90",
         nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "ghost" }),
           "h-8 w-8",
           "p-0",
-          "text-muted-foreground/40",
-          "hover:text-muted-foreground/60",
+          "text-muted-foreground/50",
+          "hover:text-muted-foreground/70",
           "transition-colors duration-200",
           "rounded-lg",
           "hover:bg-accent/5",
@@ -44,7 +45,7 @@ function Calendar({
         table: "w-full border-collapse space-y-1",
         head_row: "flex",
         head_cell: cn(
-          "text-muted-foreground/60",
+          "text-muted-foreground/70",
           "rounded-md",
           "w-10",
           "font-normal text-[0.8rem]",
@@ -69,28 +70,28 @@ function Calendar({
           "h-10 w-10",
           "p-0",
           "font-normal",
-          "text-sm text-muted-foreground/70",
+          "text-sm text-muted-foreground/90",
           "rounded-lg",
           "transition-colors duration-200",
           "hover:bg-accent/5",
-          "hover:text-foreground/90",
+          "hover:text-accent-foreground",
           "focus:bg-accent/5",
-          "focus:text-foreground/90",
+          "focus:text-accent-foreground",
           "focus:outline-none",
           "aria-selected:opacity-100"
         ),
         day_range_end: "day-range-end",
         day_selected: cn(
-          "bg-accent/10",
-          "text-foreground",
-          "hover:bg-accent/20",
-          "hover:text-foreground",
-          "focus:bg-accent/20",
-          "focus:text-foreground"
+          "bg-primary/10",
+          "text-primary",
+          "hover:bg-primary/20",
+          "hover:text-primary",
+          "focus:bg-primary/20",
+          "focus:text-primary"
         ),
         day_today: cn(
           "bg-accent/5",
-          "text-foreground/90",
+          "text-accent-foreground",
           "font-medium"
         ),
         day_outside: cn(
@@ -103,7 +104,7 @@ function Calendar({
         day_disabled: "text-muted-foreground/30",
         day_range_middle: cn(
           "aria-selected:bg-accent/5",
-          "aria-selected:text-foreground/90"
+          "aria-selected:text-accent-foreground"
         ),
         day_hidden: "invisible",
         ...classNames,
