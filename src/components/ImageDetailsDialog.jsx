@@ -122,4 +122,3 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
 };
 
 export default ImageDetailsDialog;
-export default ImageDetailsDialog;

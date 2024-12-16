@@ -1,25 +1,25 @@
 ## Styling Theme Guidelines
 
 ### General Principles
-- Modern minimalist design
-- Subtle transitions and animations
+- Modern minimalist design without shadows or rings
+- Clean transitions and animations
 - Consistent spacing and rounded corners
-- Higher contrast for better visibility
-- Subtle borders where needed for definition
+- Higher contrast and opacity for visibility
+- Subtle borders for definition where needed
 
 ### Colors & Opacity
-- Primary colors: Higher opacity for better visibility
-- Background colors: Subtle gradients and transparency
-- Borders: Very subtle, using border-border/10 or border-border/20
-- Text: Higher contrast for better readability
+- Primary colors: Higher opacity (90%) for better visibility
+- Background colors: Clean solid colors with transparency
+- Borders: Very subtle, using border-border/20 for definition
+- Text: Higher contrast ratios for readability
 
 ### Components Status
 
 #### Recently Updated
-- Button: Updated with higher opacity and better hover states
-- Tabs: Simplified and more visible
-- Switch: Refined transitions and better visibility
-- Dropdown Menu: Added subtle border
+- Button: Removed shadows/rings, increased opacity to 90%, clean transitions
+- Tabs: Simplified with clean backgrounds and active states
+- Switch: Larger size, better contrast, clean transitions
+- Dropdown Menu: Removed shadows, using borders and opacity for definition
 
 #### To Be Updated
 1. ModelChooser
@@ -58,34 +58,40 @@
 
 ### Component-specific Notes
 
-#### Dropdown Menu
-- Added border-border/10 for better definition
-- Improved backdrop blur
-- Enhanced hover states
-- Better text contrast
-
 #### Buttons
-- Higher opacity values (60% base, 80% hover)
-- Distinct hover states
-- No white borders/shadows
-- Consistent rounded corners
+- No shadows or rings
+- Higher opacity values (90% base, 100% hover)
+- Clean transitions
+- Subtle borders for definition
+- Consistent rounded corners (xl)
+
+#### Dropdown Menu
+- Border-border/20 for definition
+- Clean backgrounds with 95% opacity
+- Simplified transitions
+- Consistent rounded corners (xl)
 
 #### Tabs
-- Simplified styling
-- Better active state visibility
-- Improved text contrast
-- Smooth transitions
+- Clean background states
+- Higher contrast for active/inactive states
+- Simplified transitions
+- Consistent spacing
 
 #### Switch
-- Enhanced visibility
-- Smooth transitions
-- Better contrast in both states
-- Hover feedback
+- Larger size (h-6 w-11)
+- Clean transitions
+- High contrast states
+- Subtle border for definition
 
 ### Next Steps
-1. Update ModelChooser component
-2. Revise login page styling
-3. Enhance UserProfile component
-4. Improve ImageCard styling
-5. Update ImageDetails dialog
-6. Refine Profile page layout and components 
+1. Continue updating remaining components to remove shadows/rings
+2. Maintain consistency across all components
+3. Ensure sufficient visibility through opacity and contrast
+4. Review and update any components using shadows/rings
+5. Test all states (hover, active, disabled) for consistency
+6. Update ModelChooser component
+7. Revise login page styling
+8. Enhance UserProfile component
+9. Improve ImageCard styling
+10. Update ImageDetails dialog
+11. Refine Profile page layout and components 

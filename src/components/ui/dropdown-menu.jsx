@@ -49,14 +49,8 @@ const DropdownMenuSubContent = React.forwardRef(({ className, ...props }, ref) =
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     className={cn(
-      "z-50 min-w-[8rem]",
-      "overflow-hidden",
-      "rounded-lg",
-      "p-1",
-      "bg-popover/95 backdrop-blur-sm",
-      "border border-border/10",
-      "text-popover-foreground",
-      "transition-all duration-200",
+      "z-50 min-w-[8rem] overflow-hidden rounded-xl border border-border/20",
+      "bg-popover/95 p-1",
       "data-[state=open]:animate-in data-[state=closed]:animate-out",
       "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -76,14 +70,8 @@ const DropdownMenuContent = React.forwardRef(({ className, sideOffset = 4, ...pr
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 min-w-[8rem]",
-        "overflow-hidden",
-        "rounded-lg",
-        "p-1",
-        "bg-popover/95 backdrop-blur-sm",
-        "border border-border/10",
-        "text-popover-foreground",
-        "transition-all duration-200",
+        "z-50 min-w-[8rem] overflow-hidden rounded-xl border border-border/20",
+        "bg-popover/95 p-1",
         "data-[state=open]:animate-in data-[state=closed]:animate-out",
         "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -102,19 +90,9 @@ const DropdownMenuItem = React.forwardRef(({ className, inset, ...props }, ref) 
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center",
-      "rounded-lg",
-      "px-2.5 py-1.5",
-      "text-sm",
-      "text-muted-foreground/60",
-      "transition-colors duration-200",
-      "hover:bg-accent/5",
-      "hover:text-muted-foreground/80",
-      "focus:bg-accent/5",
-      "focus:text-muted-foreground/80",
-      "focus:outline-none",
-      "disabled:opacity-30",
-      "disabled:pointer-events-none",
+      "relative flex cursor-default select-none items-center rounded-lg px-2 py-1.5 text-sm outline-none transition-colors",
+      "focus:bg-accent/30",
+      "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       inset && "pl-8",
       className
     )}

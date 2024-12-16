@@ -10,58 +10,66 @@ const buttonVariants = cva(
     "whitespace-nowrap",
     "rounded-xl",
     "text-sm font-medium",
-    "transition-colors duration-200",
-    "focus:outline-none",
+    "transition-all duration-200",
+    "focus-visible:outline-none",
     "disabled:pointer-events-none",
-    "disabled:opacity-30"
+    "disabled:opacity-40",
+    "active:scale-[0.98]"
   ],
   {
     variants: {
       variant: {
         default: [
-          "bg-primary/60",
+          "bg-primary/90",
           "text-primary-foreground",
-          "hover:bg-primary/80"
+          "hover:bg-primary",
+          "border border-primary/20"
         ],
         destructive: [
-          "bg-destructive/60",
+          "bg-destructive/90",
           "text-destructive-foreground",
-          "hover:bg-destructive/80"
+          "hover:bg-destructive",
+          "border border-destructive/20"
         ],
         outline: [
-          "bg-background",
-          "text-muted-foreground",
-          "hover:bg-accent/20",
-          "hover:text-foreground"
+          "bg-background/90",
+          "text-foreground/90",
+          "border border-border/30",
+          "hover:bg-accent/30",
+          "hover:text-foreground",
+          "hover:border-border/40"
         ],
         secondary: [
-          "bg-secondary/60",
+          "bg-secondary/90",
           "text-secondary-foreground",
-          "hover:bg-secondary/80"
+          "hover:bg-secondary",
+          "border border-secondary/20"
         ],
         ghost: [
-          "text-muted-foreground",
-          "hover:bg-accent/20",
+          "text-foreground/80",
+          "hover:bg-accent/30",
           "hover:text-foreground"
         ],
         subtle: [
-          "bg-accent/10",
-          "text-muted-foreground",
-          "hover:bg-accent/20",
-          "hover:text-foreground"
+          "bg-accent/30",
+          "text-foreground/80",
+          "border border-border/20",
+          "hover:bg-accent/40",
+          "hover:text-foreground",
+          "hover:border-border/30"
         ],
         link: [
-          "text-primary",
+          "text-primary/90",
           "underline-offset-4",
-          "hover:text-primary/80",
+          "hover:text-primary",
           "hover:underline"
         ],
       },
       size: {
-        default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-lg px-3 text-xs",
-        lg: "h-10 rounded-xl px-8",
-        icon: "h-9 w-9",
+        default: "h-10 px-4 py-2",
+        sm: "h-9 rounded-lg px-3 text-xs",
+        lg: "h-11 rounded-xl px-8",
+        icon: "h-10 w-10",
       },
     },
     defaultVariants: {
