@@ -1,104 +1,99 @@
 import React, { useState, useEffect } from 'react';
-import { Badge } from "@/components/ui/badge"
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useModelConfigs } from '@/hooks/useModelConfigs'
-import { Loader, Check } from "lucide-react"
+import { Check, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { format } from 'date-fns';
 
 const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) => {
-  const { data: modelConfigs } = useModelConfigs();
   const [showDrawer, setShowDrawer] = useState(false);
-  const [showCheckmark, setShowCheckmark] = useState(false);
-  const [prevLength, setPrevLength] = useState(generatingImages.length);
+  const [completedImages, setCompletedImages] = useState(new Set());
 
   // Handle showing checkmark when an image completes and drawer visibility
   useEffect(() => {
     if (generatingImages.length > 0) {
       setShowDrawer(true);
     }
-    
-    if (generatingImages.length < prevLength && prevLength > 0) {
-      // Show checkmark for 1.5s when an image completes
-      setShowCheckmark(true);
-      const checkmarkTimer = setTimeout(() => {
-        setShowCheckmark(false);
-      }, 1500);
 
-      // If no more images, keep showing checkmark and start 4s countdown to hide
-      if (generatingImages.length === 0) {
-        setShowCheckmark(true);
-        const hideTimer = setTimeout(() => {
-          setShowDrawer(false);
-        }, 4000);
-        return () => {
-          clearTimeout(checkmarkTimer);
-          clearTimeout(hideTimer);
-        };
+    generatingImages.forEach(image => {
+      if (image.status === 'completed' && !completedImages.has(image.id)) {
+        setCompletedImages(prev => new Set([...prev, image.id]));
       }
-      return () => clearTimeout(checkmarkTimer);
+    });
+
+    // Hide drawer after all images are completed and a delay
+    const allCompleted = generatingImages.every(img => img.status === 'completed');
+    if (allCompleted && generatingImages.length > 0) {
+      const timer = setTimeout(() => {
+        setShowDrawer(false);
+        onOpenChange(false);
+        setCompletedImages(new Set());
+      }, 2000);
+      return () => clearTimeout(timer);
     }
-    setPrevLength(generatingImages.length);
-  }, [generatingImages.length, prevLength]);
+  }, [generatingImages, completedImages, onOpenChange]);
 
   if (!showDrawer) return null;
 
+  const pendingCount = generatingImages.filter(img => img.status === 'pending').length;
+  const completedCount = generatingImages.filter(img => img.status === 'completed').length;
+  const totalCount = generatingImages.length;
+
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="h-[90vh] bg-background">
-        <div className="mx-auto w-12 h-1 flex-shrink-0 rounded-full bg-muted mt-4 mb-2" />
-        <DrawerHeader className="border-b border-border/30 pb-4 pt-0">
-          <div className="flex items-center gap-2">
-            <DrawerTitle>
-              Generating Images
-            </DrawerTitle>
-            {(generatingImages.length > 0 || showCheckmark) && (
-              <span className={cn(
-                "h-5 w-5 rounded-full bg-primary text-[10px] font-medium text-primary-foreground flex items-center justify-center",
-                showCheckmark && "animate-in zoom-in duration-300"
-              )}>
-                {showCheckmark ? (
-                  <Check className="h-3 w-3" />
-                ) : (
-                  generatingImages.length > 9 ? '9+' : generatingImages.length
-                )}
-              </span>
+      <DrawerContent className="focus:outline-none">
+        <DrawerHeader className="border-b border-border/30 px-4 pb-4">
+          <DrawerTitle className="text-lg font-semibold flex items-center gap-3">
+            Generating Images
+            {pendingCount > 0 && (
+              <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
+                <Loader2 className="h-3.5 w-3.5 text-primary animate-spin" />
+              </div>
             )}
-          </div>
+          </DrawerTitle>
+          <p className="text-sm text-muted-foreground mt-1">
+            {pendingCount > 0 
+              ? `Generating ${pendingCount} image${pendingCount > 1 ? 's' : ''}...`
+              : `Generated ${totalCount} image${totalCount > 1 ? 's' : ''}`
+            }
+          </p>
         </DrawerHeader>
-        <ScrollArea className="h-[calc(90vh-100px)] px-4 py-4 space-y-4">
-          {generatingImages.map((img) => (
-            <div 
-              key={img.id} 
-              className="flex flex-col gap-2 p-4 border border-border/30 rounded-lg bg-muted/30"
-            >
-              <div className="flex items-center gap-2">
-                <Loader className="w-4 h-4 animate-spin" />
-                <span className="font-medium">Generating...</span>
-                <Badge variant="secondary" className="ml-auto">
-                  {img.width}x{img.height}
-                </Badge>
+
+        <ScrollArea className="flex-1 h-[65vh]">
+          <div className="px-4 py-6 space-y-3">
+            {generatingImages.map((image, index) => (
+              <div
+                key={image.id}
+                className={cn(
+                  "flex items-start gap-4 p-4 rounded-lg border border-border/50 transition-all duration-200",
+                  image.status === 'completed' ? "bg-muted/50" : "bg-card"
+                )}
+              >
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-medium">Image {index + 1}</span>
+                    {image.status === 'completed' ? (
+                      <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Check className="h-3.5 w-3.5 text-primary" />
+                      </div>
+                    ) : (
+                      <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Loader2 className="h-3.5 w-3.5 text-primary animate-spin" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-sm text-muted-foreground truncate">
+                    {image.prompt}
+                  </div>
+                  <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                    <span>{image.model}</span>
+                    <span>•</span>
+                    <span>{format(new Date(image.startTime), 'HH:mm:ss')}</span>
+                  </div>
+                </div>
               </div>
-              {img.prompt && (
-                <p className="text-sm text-muted-foreground">
-                  {img.prompt.length > 100 
-                    ? `${img.prompt.substring(0, 100)}...` 
-                    : img.prompt}
-                </p>
-              )}
-              <div className="flex gap-2 text-xs text-muted-foreground">
-                <span>{modelConfigs?.[img.model]?.name || img.model}</span>
-              </div>
-            </div>
-          ))}
-          {generatingImages.length === 0 && (
-            <div className="flex items-center justify-center gap-2 p-4">
-              <Check className="w-5 h-5 text-primary" />
-              <span className="text-primary font-medium">
-                Generation Complete
-              </span>
-            </div>
-          )}
+            ))}
+          </div>
         </ScrollArea>
       </DrawerContent>
     </Drawer>

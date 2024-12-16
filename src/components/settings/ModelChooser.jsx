@@ -17,39 +17,45 @@ import {
 const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, disabled, proMode }) => (
   <div
     className={cn(
-      "flex items-center gap-2 p-2 rounded-lg transition-colors border border-border/50",
-      isActive ? "bg-muted" : "hover:bg-muted/50",
-      disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
+      "flex items-center gap-3 p-3 rounded-lg transition-all duration-200 border border-border/50",
+      isActive ? "bg-muted/80 border-primary/50" : "hover:bg-muted/50 hover:border-primary/30",
+      disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer active:scale-[0.98]"
     )}
     onClick={disabled ? undefined : onClick}
   >
-    <div className="relative h-9 w-9 rounded-md overflow-hidden bg-background flex-shrink-0">
+    <div className="relative h-10 w-10 rounded-md overflow-hidden bg-background flex-shrink-0 ring-1 ring-border/50">
       <img
         src={config.image}
         alt={config.name}
-        className="w-full h-full object-cover"
+        className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-110"
       />
     </div>
     <div className="flex-1 min-w-0">
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1.5">
         <span className="font-medium text-sm truncate">{config.name}</span>
-        {config.isPremium && !proMode && <Lock className="h-3 w-3 flex-shrink-0" />}
+        {config.isPremium && !proMode && <Lock className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />}
       </div>
-      <p className="text-xs text-muted-foreground truncate">
+      <p className="text-xs text-muted-foreground truncate mt-0.5">
         {config.tagline || (config.category === "NSFW" ? "NSFW Generation" : "Image Generation")}
       </p>
     </div>
     {showRadio ? (
-      isActive ? <Check className="h-4 w-4 flex-shrink-0" /> : <div className="w-4" />
+      isActive ? (
+        <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
+          <Check className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+        </div>
+      ) : (
+        <div className="h-5 w-5 rounded-full border border-border/50" />
+      )
     ) : (
-      <ChevronRight className="h-4 w-4 flex-shrink-0" />
+      <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
     )}
   </div>
 );
 
 const ModelList = ({ filteredModels, model, setModel, proMode, className }) => (
-  <ScrollArea className={cn("h-full overflow-y-auto", className)}>
-    <div className="space-y-1">
+  <ScrollArea className={cn("h-full overflow-y-auto px-1", className)}>
+    <div className="space-y-2">
       {filteredModels.map(([key, config]) => (
         <ModelCard
           key={key}
@@ -118,7 +124,7 @@ const ModelChooser = ({ model, setModel, proMode }) => {
       <div className="hidden md:block">
         <Popover>
           <PopoverTrigger asChild>
-            <div className="w-full">
+            <div className="w-full group">
               <ModelCard
                 modelKey={model}
                 config={currentModel}
@@ -132,7 +138,7 @@ const ModelChooser = ({ model, setModel, proMode }) => {
             side="left"
             align="start"
             sideOffset={20}
-            className="w-[250px] p-2"
+            className="w-[280px] p-3"
           >
             <ModelList 
               filteredModels={filteredModels}
@@ -146,7 +152,7 @@ const ModelChooser = ({ model, setModel, proMode }) => {
 
       {/* Mobile: Drawer */}
       <div className="md:hidden">
-        <div className="w-full" onClick={() => setIsDrawerOpen(true)}>
+        <div className="w-full group" onClick={() => setIsDrawerOpen(true)}>
           <ModelCard
             modelKey={model}
             config={currentModel}
@@ -155,12 +161,18 @@ const ModelChooser = ({ model, setModel, proMode }) => {
             onClick={() => {}}
           />
         </div>
-        <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-          <DrawerContent>
-            <DrawerHeader>
-              <DrawerTitle>Select Model</DrawerTitle>
+        <Drawer 
+          open={isDrawerOpen} 
+          onOpenChange={setIsDrawerOpen}
+        >
+          <DrawerContent className="focus:outline-none">
+            <DrawerHeader className="border-b border-border/30 px-4 pb-4">
+              <DrawerTitle className="text-lg font-semibold">Select Model</DrawerTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Choose between fast generation or higher quality output
+              </p>
             </DrawerHeader>
-            <div className="p-4 pt-0">
+            <div className="px-4 py-6">
               <ModelList 
                 filteredModels={filteredModels}
                 model={model}
@@ -169,7 +181,7 @@ const ModelChooser = ({ model, setModel, proMode }) => {
                   setIsDrawerOpen(false);
                 }}
                 proMode={proMode}
-                className="max-h-[60vh]"
+                className="max-h-[65vh]"
               />
             </div>
           </DrawerContent>
