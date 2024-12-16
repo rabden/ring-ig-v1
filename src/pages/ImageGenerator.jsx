@@ -51,6 +51,8 @@ const ImageGenerator = () => {
     imageCount, setImageCount
   } = useImageGeneratorState();
 
+  const [showPrivate, setShowPrivate] = useState(false);
+
   // Query for remix image if remixId is present
   const { data: remixImage, isLoading: isRemixLoading } = useQuery({
     queryKey: ['remixImage', remixId],
@@ -197,8 +199,8 @@ const ImageGenerator = () => {
       generatingImages={generatingImages}
       nsfwEnabled={nsfwEnabled}
       setNsfwEnabled={setNsfwEnabled}
-      showPrivate={false}
-      setShowPrivate={() => {}}
+      showPrivate={showPrivate}
+      setShowPrivate={setShowPrivate}
       activeFilters={activeFilters}
       onFilterChange={(type, value) => setActiveFilters(prev => ({ ...prev, [type]: value }))}
       onRemoveFilter={(type) => {
