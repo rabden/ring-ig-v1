@@ -42,7 +42,17 @@ export const useImageGeneratorState = () => {
     setRandomizeSeed: (value) => setState(prev => ({ ...prev, randomizeSeed: value })),
     setWidth: (value) => setState(prev => ({ ...prev, width: value })),
     setHeight: (value) => setState(prev => ({ ...prev, height: value })),
-    setModel: (value) => setState(prev => ({ ...prev, model: value })),
+    setModel: (value) => setState(prev => {
+      const modelData = modelConfigs?.[value];
+      if (!modelData) return prev;
+
+      // Only allow setting model if it matches current NSFW state
+      const isModelAllowed = modelData.category === (prev.nsfwEnabled ? "NSFW" : "General");
+      return {
+        ...prev,
+        model: isModelAllowed ? value : prev.model
+      };
+    }),
     setActiveTab: (value) => setState(prev => ({ ...prev, activeTab: value })),
     setAspectRatio: (value) => setState(prev => ({ ...prev, aspectRatio: value })),
     setUseAspectRatio: (value) => setState(prev => ({ ...prev, useAspectRatio: value })),
@@ -56,14 +66,17 @@ export const useImageGeneratorState = () => {
     setActiveView: (value) => setState(prev => ({ ...prev, activeView: value })),
     setNsfwEnabled: (value) => setState(prev => {
       const newState = { ...prev, nsfwEnabled: value };
+      
+      // When toggling NSFW, ensure model is appropriate
       if (modelConfigs) {
-        const currentModelConfig = modelConfigs[prev.model];
-        if (value && currentModelConfig?.category !== 'NSFW') {
+        const currentModel = modelConfigs[prev.model];
+        if (value && (!currentModel || currentModel.category !== 'NSFW')) {
           newState.model = 'nsfwMaster';
-        } else if (!value && currentModelConfig?.category === 'NSFW') {
+        } else if (!value && (!currentModel || currentModel.category === 'NSFW')) {
           newState.model = 'turbo';
         }
       }
+      
       return newState;
     }),
     setStyle: (value) => setState(prev => ({ ...prev, style: value })),

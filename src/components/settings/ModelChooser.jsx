@@ -101,44 +101,38 @@ const ModelChooser = ({ model, setModel, proMode }) => {
   const { nsfwEnabled } = useImageGeneratorState();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   
+  // Filter models based on NSFW state
   const filteredModels = useMemo(() => 
     Object.entries(modelConfig).filter(([_, config]) => 
-      nsfwEnabled ? config.category === "NSFW" : config.category === "General"
+      config.category === (nsfwEnabled ? "NSFW" : "General")
     ),
     [nsfwEnabled]
   );
 
+  // Default model for each mode
   const defaultModel = useMemo(() => 
     nsfwEnabled ? 'nsfwMaster' : 'turbo',
     [nsfwEnabled]
   );
 
+  // Handle model selection
   const handleModelSelection = useCallback((newModel) => {
     const modelData = modelConfig[newModel];
     if (!modelData) return;
 
-    const isModelAllowed = nsfwEnabled 
-      ? modelData.category === "NSFW"
-      : modelData.category === "General";
-
-    if (isModelAllowed) {
+    // Only allow selecting models that match current NSFW state
+    if (modelData.category === (nsfwEnabled ? "NSFW" : "General")) {
       setModel(newModel);
     }
   }, [nsfwEnabled, setModel]);
 
-  // Single effect to handle NSFW mode changes
+  // Ensure current model is valid for NSFW state
   useEffect(() => {
     const currentModel = modelConfig[model];
-    if (!currentModel) {
-      setModel(defaultModel);
-      return;
-    }
-
-    const isCurrentModelAllowed = currentModel.category === (nsfwEnabled ? "NSFW" : "General");
-    if (!isCurrentModelAllowed) {
+    if (!currentModel || currentModel.category !== (nsfwEnabled ? "NSFW" : "General")) {
       setModel(defaultModel);
     }
-  }, [nsfwEnabled, defaultModel, model, setModel]);
+  }, [nsfwEnabled, model, defaultModel, setModel]);
 
   const currentModel = modelConfig[model];
   if (!currentModel) return null;
