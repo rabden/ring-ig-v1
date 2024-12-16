@@ -7,7 +7,16 @@ import { cn } from "@/lib/utils"
 const Accordion = AccordionPrimitive.Root
 
 const AccordionItem = React.forwardRef(({ className, ...props }, ref) => (
-  <AccordionPrimitive.Item ref={ref} className={cn("border-b", className)} {...props} />
+  <AccordionPrimitive.Item 
+    ref={ref} 
+    className={cn(
+      "border-b border-border/20",
+      "transition-colors duration-200",
+      "hover:border-border/30",
+      className
+    )} 
+    {...props} 
+  />
 ))
 AccordionItem.displayName = "AccordionItem"
 
@@ -16,12 +25,29 @@ const AccordionTrigger = React.forwardRef(({ className, children, ...props }, re
     <AccordionPrimitive.Trigger
       ref={ref}
       className={cn(
-        "flex flex-1 items-center justify-between py-4 font-medium transition-all hover:underline [&[data-state=open]>svg]:rotate-180",
+        "flex flex-1 items-center justify-between",
+        "py-4 px-1",
+        "text-sm font-medium",
+        "text-foreground/90",
+        "transition-all duration-200",
+        "rounded-lg",
+        "outline-none",
+        "hover:bg-accent/5",
+        "focus-visible:bg-accent/5",
+        "data-[state=open]:text-accent-foreground",
+        "[&[data-state=open]>svg]:rotate-180",
         className
       )}
       {...props}>
       {children}
-      <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
+      <ChevronDown 
+        className={cn(
+          "h-4 w-4 shrink-0",
+          "text-muted-foreground/50",
+          "transition-transform duration-200",
+          "group-hover:text-muted-foreground/70"
+        )} 
+      />
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ))
@@ -30,9 +56,21 @@ AccordionTrigger.displayName = AccordionPrimitive.Trigger.displayName
 const AccordionContent = React.forwardRef(({ className, children, ...props }, ref) => (
   <AccordionPrimitive.Content
     ref={ref}
-    className="overflow-hidden text-sm transition-all data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
+    className={cn(
+      "overflow-hidden",
+      "text-sm text-muted-foreground/90",
+      "transition-all duration-200",
+      "data-[state=closed]:animate-accordion-up",
+      "data-[state=open]:animate-accordion-down"
+    )}
     {...props}>
-    <div className={cn("pb-4 pt-0", className)}>{children}</div>
+    <div className={cn(
+      "pb-4 pt-0 px-1",
+      "leading-relaxed",
+      className
+    )}>
+      {children}
+    </div>
   </AccordionPrimitive.Content>
 ))
 

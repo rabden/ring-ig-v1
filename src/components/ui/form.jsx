@@ -51,7 +51,15 @@ const FormItem = React.forwardRef(({ className, ...props }, ref) => {
 
   return (
     (<FormItemContext.Provider value={{ id }}>
-      <div ref={ref} className={cn("space-y-2", className)} {...props} />
+      <div 
+        ref={ref} 
+        className={cn(
+          "space-y-2",
+          "transition-colors duration-200",
+          className
+        )} 
+        {...props} 
+      />
     </FormItemContext.Provider>)
   );
 })
@@ -63,14 +71,20 @@ const FormLabel = React.forwardRef(({ className, ...props }, ref) => {
   return (
     (<Label
       ref={ref}
-      className={cn(error && "text-destructive", className)}
+      className={cn(
+        "text-sm font-medium",
+        "text-muted-foreground/90",
+        "transition-colors duration-200",
+        error && "text-destructive/90",
+        className
+      )}
       htmlFor={formItemId}
       {...props} />)
   );
 })
 FormLabel.displayName = "FormLabel"
 
-const FormControl = React.forwardRef(({ ...props }, ref) => {
+const FormControl = React.forwardRef(({ className, ...props }, ref) => {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
 
   return (
@@ -83,6 +97,11 @@ const FormControl = React.forwardRef(({ ...props }, ref) => {
           : `${formDescriptionId} ${formMessageId}`
       }
       aria-invalid={!!error}
+      className={cn(
+        "transition-colors duration-200",
+        error && "ring-destructive/30",
+        className
+      )}
       {...props} />)
   );
 })
@@ -95,7 +114,13 @@ const FormDescription = React.forwardRef(({ className, ...props }, ref) => {
     (<p
       ref={ref}
       id={formDescriptionId}
-      className={cn("text-sm text-muted-foreground", className)}
+      className={cn(
+        "text-sm",
+        "text-muted-foreground/50",
+        "leading-relaxed",
+        "transition-colors duration-200",
+        className
+      )}
       {...props} />)
   );
 })
@@ -113,7 +138,13 @@ const FormMessage = React.forwardRef(({ className, children, ...props }, ref) =>
     (<p
       ref={ref}
       id={formMessageId}
-      className={cn("text-sm font-medium text-destructive", className)}
+      className={cn(
+        "text-sm font-medium",
+        "text-destructive/90",
+        "leading-relaxed",
+        "transition-colors duration-200",
+        className
+      )}
       {...props}>
       {body}
     </p>)
