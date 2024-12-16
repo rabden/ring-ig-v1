@@ -73,9 +73,9 @@ const FormLabel = React.forwardRef(({ className, ...props }, ref) => {
       ref={ref}
       className={cn(
         "text-sm font-medium",
-        "text-muted-foreground/90",
+        "text-muted-foreground/70",
         "transition-colors duration-200",
-        error && "text-destructive/90",
+        error && "text-destructive/80",
         className
       )}
       htmlFor={formItemId}
@@ -99,7 +99,7 @@ const FormControl = React.forwardRef(({ className, ...props }, ref) => {
       aria-invalid={!!error}
       className={cn(
         "transition-colors duration-200",
-        error && "ring-destructive/30",
+        error && "ring-destructive/20",
         className
       )}
       {...props} />)
@@ -116,7 +116,7 @@ const FormDescription = React.forwardRef(({ className, ...props }, ref) => {
       id={formDescriptionId}
       className={cn(
         "text-sm",
-        "text-muted-foreground/50",
+        "text-muted-foreground/40",
         "leading-relaxed",
         "transition-colors duration-200",
         className
@@ -140,7 +140,7 @@ const FormMessage = React.forwardRef(({ className, children, ...props }, ref) =>
       id={formMessageId}
       className={cn(
         "text-sm font-medium",
-        "text-destructive/90",
+        "text-destructive/80",
         "leading-relaxed",
         "transition-colors duration-200",
         className

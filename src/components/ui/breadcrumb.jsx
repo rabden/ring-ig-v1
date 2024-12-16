@@ -30,7 +30,7 @@ const BreadcrumbList = React.forwardRef(({ className, ...props }, ref) => (
       "gap-1.5 sm:gap-2",
       "break-words",
       "text-sm",
-      "text-muted-foreground/70",
+      "text-muted-foreground/60",
       className
     )}
     {...props} />
@@ -59,12 +59,12 @@ const BreadcrumbLink = React.forwardRef(({ asChild, className, ...props }, ref) 
       className={cn(
         "rounded-md",
         "px-2 py-1",
-        "text-muted-foreground/90",
+        "text-muted-foreground/70",
         "transition-colors duration-200",
         "hover:bg-accent/5",
-        "hover:text-accent-foreground",
+        "hover:text-foreground/90",
         "focus:bg-accent/5",
-        "focus:text-accent-foreground",
+        "focus:text-foreground/90",
         "focus:outline-none",
         className
       )}
@@ -83,8 +83,8 @@ const BreadcrumbPage = React.forwardRef(({ className, ...props }, ref) => (
       "rounded-md",
       "px-2 py-1",
       "font-medium",
-      "text-foreground/90",
-      "bg-accent/5",
+      "text-foreground",
+      "bg-accent/10",
       className
     )}
     {...props} />
@@ -121,10 +121,10 @@ const BreadcrumbEllipsis = ({
       "flex items-center justify-center",
       "h-9 w-9",
       "rounded-md",
-      "text-muted-foreground/50",
+      "text-muted-foreground/40",
       "transition-colors duration-200",
       "hover:bg-accent/5",
-      "hover:text-muted-foreground/70",
+      "hover:text-muted-foreground/60",
       className
     )}
     {...props}>
