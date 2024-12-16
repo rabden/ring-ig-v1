@@ -11,6 +11,8 @@ import PromptInput from './prompt/PromptInput';
 import { qualityOptions } from '@/utils/imageConfigs';
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 import { toast } from 'sonner';
+import CreditCounter from '@/components/ui/credit-counter';
+import { useLocation } from 'react-router-dom';
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -38,6 +40,8 @@ const ImageGeneratorSettings = ({
   hidePromptOnDesktop = false,
   updateCredits
 }) => {
+  const location = useLocation();
+  const isGenerateTab = location.hash === '#imagegenerate';
   const userId = session?.user?.id;
   const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
   const creditCost = { "HD": 1, "HD+": 2, "4K": 3 }[quality] * imageCount;
@@ -107,12 +111,17 @@ const ImageGeneratorSettings = ({
           onSubmit={handleGenerate}
           hasEnoughCredits={hasEnoughCredits}
           onClear={handleClearPrompt}
-          credits={credits}
-          bonusCredits={bonusCredits}
+          onImprove={handleImprovePrompt}
+          isImproving={isImproving}
           userId={session?.user?.id}
-          updateCredits={updateCredits}
         />
       </div>
+
+      {isGenerateTab && (
+        <div className="flex justify-center">
+          <CreditCounter credits={credits} bonusCredits={bonusCredits} className="block" />
+        </div>
+      )}
 
       <ModelChooser
         model={model}

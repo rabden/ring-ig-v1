@@ -10,7 +10,6 @@ import FullScreenImageView from './FullScreenImageView';
 import DesktopHeader from './header/DesktopHeader';
 import MobileHeader from './header/MobileHeader';
 import DesktopPromptBox from './prompt/DesktopPromptBox';
-import CreditCounter from '@/components/ui/credit-counter';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -241,7 +240,7 @@ const ImageGeneratorContent = ({
 
       {isGenerateTab && (
         <div className="fixed bottom-20 left-0 right-0 flex justify-center p-4 bg-gradient-to-t from-background to-transparent pointer-events-none">
-          <CreditCounter credits={credits} bonusCredits={bonusCredits} className="pointer-events-auto" />
+          {/* Remove credit counter from here */}
         </div>
       )}
 
