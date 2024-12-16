@@ -8,26 +8,18 @@ const Switch = React.forwardRef(({ className, ...props }, ref) => (
     className={cn(
       "peer inline-flex h-5 w-9",
       "shrink-0 cursor-pointer items-center",
-      "rounded-full border border-border/40",
-      "bg-background/50",
-      "transition-all duration-200",
+      "rounded-full",
+      "bg-accent/10",
+      "transition-colors duration-200",
       // Focus state
-      "focus-visible:outline-none",
-      "focus-visible:ring-2",
-      "focus-visible:ring-ring/30",
-      "focus-visible:ring-offset-2",
-      "focus-visible:ring-offset-background",
+      "focus:outline-none",
       // Hover state
-      "hover:bg-accent/5",
-      "hover:border-border/80",
+      "hover:bg-accent/20",
       // Checked state
-      "data-[state=checked]:bg-primary/90",
-      "data-[state=checked]:border-primary/90",
-      // Unchecked state
-      "data-[state=unchecked]:bg-background/50",
+      "data-[state=checked]:bg-primary/20",
       // Disabled state
       "disabled:cursor-not-allowed",
-      "disabled:opacity-50",
+      "disabled:opacity-30",
       className
     )}
     {...props}
@@ -35,21 +27,21 @@ const Switch = React.forwardRef(({ className, ...props }, ref) => (
     <SwitchPrimitives.Thumb
       className={cn(
         "pointer-events-none block",
-        "h-3.5 w-3.5",
+        "h-4 w-4",
         "rounded-full",
-        "bg-background",
-        "shadow-sm shadow-primary/10",
-        "ring-0",
+        "bg-foreground/50",
         "transition-all duration-200",
         // Position transitions
-        "data-[state=checked]:translate-x-4",
-        "data-[state=unchecked]:translate-x-1",
+        "data-[state=checked]:translate-x-[18px]",
+        "data-[state=unchecked]:translate-x-0.5",
         // Background transitions
-        "data-[state=checked]:bg-primary-foreground",
-        "data-[state=unchecked]:bg-foreground/50",
-        // Scale effect
+        "data-[state=checked]:bg-primary",
+        "data-[state=unchecked]:bg-foreground/40",
+        // Scale and opacity effects
         "data-[state=checked]:scale-100",
-        "data-[state=unchecked]:scale-90"
+        "data-[state=unchecked]:scale-90",
+        "data-[state=checked]:opacity-100",
+        "data-[state=unchecked]:opacity-80"
       )} />
   </SwitchPrimitives.Root>
 ))
