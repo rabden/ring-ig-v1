@@ -62,20 +62,13 @@ export const useImageGeneratorState = () => {
 
   useEffect(() => {
     if (modelConfigs) {
-      const currentModelConfig = modelConfigs[state.model];
       if (state.nsfwEnabled) {
-        // When enabling NSFW, switch to NSFW model only if current model is not NSFW
-        if (currentModelConfig?.category !== 'NSFW') {
-          setters.setModel('nsfwMaster');
-        }
+        setters.setModel('nsfwMaster');
       } else {
-        // When disabling NSFW, switch to general model only if current model is NSFW
-        if (currentModelConfig?.category === 'NSFW') {
-          setters.setModel('turbo');
-        }
+        setters.setModel('turbo');
       }
     }
-  }, [state.nsfwEnabled, modelConfigs, state.model]);
+  }, [state.nsfwEnabled, modelConfigs]);
 
   return {
     ...state,
