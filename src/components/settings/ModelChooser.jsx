@@ -63,19 +63,16 @@ const ModelGridCard = ({ modelKey, config, isActive, onClick, disabled, proMode 
     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
     
     {/* Content */}
-    <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="font-medium truncate">{config.name}</span>
-        {config.isPremium && !proMode && <Lock className="h-3.5 w-3.5 flex-shrink-0" />}
+    <div className="absolute bottom-0 left-0 right-0 p-3">
+      <div className="flex items-center gap-2">
+        <span className="font-medium text-white truncate">{config.name}</span>
+        {config.isPremium && !proMode && <Lock className="h-3.5 w-3.5 flex-shrink-0 text-white/80" />}
       </div>
-      <p className="text-xs text-white/80 truncate">
-        {config.tagline || (config.category === "NSFW" ? "NSFW Generation" : "Image Generation")}
-      </p>
     </div>
 
     {/* Active indicator */}
     {isActive && (
-      <div className="absolute top-2 right-2 h-6 w-6 rounded-full bg-primary text-white flex items-center justify-center">
+      <div className="absolute top-2 right-2 h-6 w-6 rounded-full bg-primary/90 text-primary-foreground flex items-center justify-center">
         <Check className="h-4 w-4" />
       </div>
     )}
@@ -84,7 +81,7 @@ const ModelGridCard = ({ modelKey, config, isActive, onClick, disabled, proMode 
 
 const ModelGrid = ({ filteredModels, model, setModel, proMode, className }) => (
   <ScrollArea className={cn("h-full overflow-y-auto px-1", className)}>
-    <div className="grid grid-cols-2 gap-3 pb-2">
+    <div className="grid grid-cols-2 gap-3">
       {filteredModels.map(([key, config]) => (
         <ModelGridCard
           key={key}
@@ -173,7 +170,7 @@ const ModelChooser = ({ model, setModel, proMode }) => {
               model={model}
               setModel={handleModelSelection}
               proMode={proMode}
-              className="max-h-[calc(65vh-2rem)]"
+              className="max-h-[calc(65vh-1rem)]"
             />
           </PopoverContent>
         </Popover>
@@ -196,10 +193,7 @@ const ModelChooser = ({ model, setModel, proMode }) => {
         >
           <DrawerContent className="focus:outline-none">
             <DrawerHeader className="border-b border-border/30 px-4 pb-4">
-              <DrawerTitle className="text-lg font-semibold">Select Model</DrawerTitle>
-              <p className="text-sm text-muted-foreground mt-1">
-                Choose between fast generation or higher quality output
-              </p>
+              <DrawerTitle>Select Model</DrawerTitle>
             </DrawerHeader>
             <div className="px-4 py-6">
               <ModelGrid 
