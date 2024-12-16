@@ -37,7 +37,9 @@ export const useGalleryImages = ({
         baseQuery = baseQuery.eq('user_id', userId);
         
         // Filter by privacy setting
-        baseQuery = baseQuery.eq('is_private', showPrivate);
+        if (showPrivate !== undefined) {
+          baseQuery = baseQuery.eq('is_private', showPrivate);
+        }
 
         // Apply NSFW filter
         if (nsfwEnabled) {
@@ -55,8 +57,8 @@ export const useGalleryImages = ({
         }
 
         // Apply search filter
-        if (searchQuery) {
-          baseQuery = baseQuery.ilike('prompt', `%${searchQuery}%`);
+        if (searchQuery && searchQuery.trim()) {
+          baseQuery = baseQuery.ilike('prompt', `%${searchQuery.trim()}%`);
         }
 
         // Apply pagination

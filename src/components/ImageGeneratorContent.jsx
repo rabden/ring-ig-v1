@@ -57,6 +57,7 @@ const ImageGeneratorContent = ({
   const [showFollowing, setShowFollowing] = useState(false);
   const [showTop, setShowTop] = useState(false);
   const { following } = useFollows(session?.user?.id);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Handle sidebar visibility with transitions
   useEffect(() => {
@@ -102,6 +103,25 @@ const ImageGeneratorContent = ({
     }
   }, [location.hash, setActiveTab]);
 
+  // Handle search
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    onSearch(query);
+  };
+
+  // Handle private toggle
+  const handlePrivateToggle = (newValue) => {
+    setShowPrivate(newValue);
+  };
+
+  // Reset search when changing views
+  useEffect(() => {
+    if (!isInspiration && !location.hash.includes('myimages')) {
+      setSearchQuery('');
+      onSearch('');
+    }
+  }, [location.pathname, location.hash]);
+
   return (
     <>
       <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground image-generator-content">
@@ -121,29 +141,31 @@ const ImageGeneratorContent = ({
                 activeFilters={activeFilters}
                 onFilterChange={onFilterChange}
                 onRemoveFilter={onRemoveFilter}
-                onSearch={onSearch}
+                onSearch={handleSearch}
                 nsfwEnabled={nsfwEnabled}
                 setNsfwEnabled={setNsfwEnabled}
                 showPrivate={showPrivate}
-                onTogglePrivate={() => setShowPrivate(!showPrivate)}
+                onTogglePrivate={handlePrivateToggle}
                 showFollowing={showFollowing}
                 showTop={showTop}
                 onFollowingChange={setShowFollowing}
                 onTopChange={setShowTop}
+                searchQuery={searchQuery}
               />
               <MobileHeader
                 activeFilters={activeFilters}
                 onFilterChange={onFilterChange}
                 onRemoveFilter={onRemoveFilter}
-                onSearch={onSearch}
+                onSearch={handleSearch}
                 isVisible={isHeaderVisible}
                 nsfwEnabled={nsfwEnabled}
                 showPrivate={showPrivate}
-                onTogglePrivate={() => setShowPrivate(!showPrivate)}
+                onTogglePrivate={handlePrivateToggle}
                 showFollowing={showFollowing}
                 showTop={showTop}
                 onFollowingChange={setShowFollowing}
                 onTopChange={setShowTop}
+                searchQuery={searchQuery}
               />
               
               {!isInspiration && (
@@ -175,7 +197,7 @@ const ImageGeneratorContent = ({
                   nsfwEnabled={nsfwEnabled}
                   modelConfigs={imageGeneratorProps.modelConfigs}
                   activeFilters={activeFilters}
-                  searchQuery={imageGeneratorProps.searchQuery}
+                  searchQuery={searchQuery}
                   showPrivate={showPrivate}
                   showFollowing={showFollowing}
                   showTop={showTop}

@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
 
-const SearchBar = ({ onSearch }) => {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [query, setQuery] = useState('');
+const SearchBar = ({ onSearch, initialQuery = '' }) => {
+  const [isSearchOpen, setIsSearchOpen] = useState(!!initialQuery);
+  const [query, setQuery] = useState(initialQuery);
+
+  // Sync with external changes
+  useEffect(() => {
+    if (initialQuery !== query) {
+      setQuery(initialQuery);
+      setIsSearchOpen(!!initialQuery);
+    }
+  }, [initialQuery]);
 
   const handleSearch = (value) => {
     setQuery(value);
@@ -19,6 +27,13 @@ const SearchBar = ({ onSearch }) => {
     setIsSearchOpen(!isSearchOpen);
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      handleSearch('');
+      setIsSearchOpen(false);
+    }
+  };
+
   return (
     <div className="flex items-center gap-1 max-w-[160px] md:max-w-none">
       {isSearchOpen ? (
@@ -27,6 +42,7 @@ const SearchBar = ({ onSearch }) => {
             placeholder="Search..."
             value={query}
             onChange={(e) => handleSearch(e.target.value)}
+            onKeyDown={handleKeyDown}
             className="h-7 md:h-8 w-full min-w-[100px] bg-transparent text-xs md:text-sm"
             autoFocus
           />

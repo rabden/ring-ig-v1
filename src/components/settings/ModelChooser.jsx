@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
 import { Lock, ChevronRight, Check } from "lucide-react";
 import SettingSection from './SettingSection';
@@ -7,6 +7,12 @@ import { cn } from "@/lib/utils";
 import { modelConfig } from "@/config/modelConfig";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useImageGeneratorState } from '@/hooks/useImageGeneratorState';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 
 const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, disabled, proMode }) => (
   <div
@@ -41,63 +47,134 @@ const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, dis
   </div>
 );
 
+const ModelList = ({ filteredModels, model, setModel, proMode, className }) => (
+  <ScrollArea className={cn("h-full overflow-y-auto", className)}>
+    <div className="space-y-1">
+      {filteredModels.map(([key, config]) => (
+        <ModelCard
+          key={key}
+          modelKey={key}
+          config={config}
+          isActive={model === key}
+          showRadio={true}
+          proMode={proMode}
+          onClick={() => setModel(key)}
+          disabled={config.isPremium && !proMode}
+        />
+      ))}
+    </div>
+  </ScrollArea>
+);
+
 const ModelChooser = ({ model, setModel, proMode }) => {
   const { nsfwEnabled } = useImageGeneratorState();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   
-  const filteredModels = Object.entries(modelConfig).filter(([_, config]) => 
-    nsfwEnabled ? config.category === "NSFW" : config.category === "General"
+  const filteredModels = useMemo(() => 
+    Object.entries(modelConfig).filter(([_, config]) => 
+      nsfwEnabled ? config.category === "NSFW" : config.category === "General"
+    ),
+    [nsfwEnabled]
   );
+
+  const defaultModel = useMemo(() => 
+    nsfwEnabled ? 'nsfwMaster' : 'turbo',
+    [nsfwEnabled]
+  );
+
+  const handleModelSelection = useCallback((newModel) => {
+    const modelData = modelConfig[newModel];
+    if (!modelData) return;
+
+    const isModelAllowed = nsfwEnabled 
+      ? modelData.category === "NSFW"
+      : modelData.category === "General";
+
+    setModel(isModelAllowed ? newModel : defaultModel);
+  }, [nsfwEnabled, defaultModel, setModel]);
+
+  useEffect(() => {
+    const currentModel = modelConfig[model];
+    if (!currentModel) {
+      handleModelSelection(defaultModel);
+      return;
+    }
+
+    const isCurrentModelAllowed = filteredModels.some(([key]) => key === model);
+    if (!isCurrentModelAllowed) {
+      handleModelSelection(defaultModel);
+    }
+  }, [nsfwEnabled, model, handleModelSelection, defaultModel, filteredModels]);
 
   const currentModel = modelConfig[model];
   if (!currentModel) return null;
-
-  useEffect(() => {
-    if (currentModel.isPremium && !proMode) {
-      setModel('turbo');
-    }
-  }, [currentModel, proMode, setModel]);
 
   return (
     <SettingSection 
       label="Model" 
       tooltip="Choose between fast generation or higher quality output."
     >
-      <Popover>
-        <PopoverTrigger asChild>
-          <div className="w-full">
-            <ModelCard
-              modelKey={model}
-              config={currentModel}
-              isActive={true}
-              proMode={proMode}
-              onClick={() => {}}
-            />
-          </div>
-        </PopoverTrigger>
-        <PopoverContent 
-          side={{ base: "bottom", md: "left" }}
-          align={{ base: "center", md: "start" }}
-          sideOffset={20}
-          className="w-[250px] p-2 max-h-[80vh] md:left-[100px] fixed md:relative left-1/2 -translate-x-1/2 md:translate-x-0"
-        >
-          <ScrollArea className="h-full overflow-y-auto">
-            <div className="space-y-1">
-              {filteredModels.map(([key, config]) => (
-                <ModelCard
-                  key={key}
-                  modelKey={key}
-                  config={config}
-                  isActive={model === key}
-                  showRadio={true}
-                  proMode={proMode}
-                  onClick={() => setModel(key)}
-                  disabled={config.isPremium && !proMode}
-                />
-              ))}
+      {/* Desktop: Popover */}
+      <div className="hidden md:block">
+        <Popover>
+          <PopoverTrigger asChild>
+            <div className="w-full">
+              <ModelCard
+                modelKey={model}
+                config={currentModel}
+                isActive={true}
+                proMode={proMode}
+                onClick={() => {}}
+              />
             </div>
-          </ScrollArea>
-        </PopoverContent>
-      </Popover>
+          </PopoverTrigger>
+          <PopoverContent 
+            side="left"
+            align="start"
+            sideOffset={20}
+            className="w-[250px] p-2"
+          >
+            <ModelList 
+              filteredModels={filteredModels}
+              model={model}
+              setModel={handleModelSelection}
+              proMode={proMode}
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      {/* Mobile: Drawer */}
+      <div className="md:hidden">
+        <div className="w-full" onClick={() => setIsDrawerOpen(true)}>
+          <ModelCard
+            modelKey={model}
+            config={currentModel}
+            isActive={true}
+            proMode={proMode}
+            onClick={() => {}}
+          />
+        </div>
+        <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+          <DrawerContent>
+            <DrawerHeader>
+              <DrawerTitle>Select Model</DrawerTitle>
+            </DrawerHeader>
+            <div className="p-4 pt-0">
+              <ModelList 
+                filteredModels={filteredModels}
+                model={model}
+                setModel={(key) => {
+                  handleModelSelection(key);
+                  setIsDrawerOpen(false);
+                }}
+                proMode={proMode}
+                className="max-h-[60vh]"
+              />
+            </div>
+          </DrawerContent>
+        </Drawer>
+      </div>
     </SettingSection>
   );
 };

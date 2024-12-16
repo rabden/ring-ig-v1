@@ -147,17 +147,9 @@ const ImageGallery = ({
     return <NoResults />;
   }
 
-  // Filter images based on privacy setting
-  const filteredImages = images.filter(img => {
-    if (activeView === 'myImages') {
-      return showPrivate ? img.is_private : !img.is_private;
-    }
-    return !img.is_private;
-  });
-
   // Use date grouping for My Images view
   if (activeView === 'myImages' && !profileUserId) {
-    const groupedImages = groupImagesByDate(filteredImages);
+    const groupedImages = groupImagesByDate(images);
     const nonEmptyGroups = Object.entries(groupedImages)
       .filter(([_, images]) => images.length > 0);
 
@@ -222,10 +214,10 @@ const ImageGallery = ({
         className="flex w-auto md:px-2 -mx-1 md:mx-0"
         columnClassName="bg-clip-padding px-1 md:px-2"
       >
-        {filteredImages.map((image, index) => (
+        {images.map((image, index) => (
           <div
             key={image.id}
-            ref={index === filteredImages.length - 1 ? lastImageRef : null}
+            ref={index === images.length - 1 ? lastImageRef : null}
           >
             <ImageCard
               image={image}
