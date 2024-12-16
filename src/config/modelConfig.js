@@ -32,10 +32,10 @@ export const modelConfig = {
   fastReal: {
     name: "Realism turbo",
     category: "General",
-    apiUrl: "https://api-inference.huggingface.co/models/prithivMLmods/Simple-Doodle-SD3.5-Turbo",
+    apiUrl: "https://api-inference.huggingface.co/models/prithivMLmods/SD3.5-Large-Turbo-HyperRealistic-LoRA",
     qualityLimits: ["HD"],
     isPremium: false,
-    promptSuffix: null,
+    promptSuffix: ", hyper realistic",
     tagline: "make realistic images fast",
     image: "/models/ultra.png"
   },
@@ -45,7 +45,7 @@ export const modelConfig = {
     apiUrl: "https://api-inference.huggingface.co/models/prithivMLmods/Simple-Doodle-SD3.5-Turbo",
     qualityLimits: ["HD"],
     isPremium: false,
-    promptSuffix: null,
+    promptSuffix: ", Simple Doodle",
     tagline: "make simple illustrations fast",
     image: "/models/ultra.png"
   },
@@ -55,7 +55,7 @@ export const modelConfig = {
     apiUrl: "https://api-inference.huggingface.co/models/goofyai/3d_render_style_xl",
     qualityLimits: ["HD"],
     isPremium: false,
-    promptSuffix: null,
+    promptSuffix: ", 3d render",
     tagline: "render 3D images",
     image: "/models/ultra.png"
   },
@@ -65,7 +65,7 @@ export const modelConfig = {
     apiUrl: "https://api-inference.huggingface.co/models/Nishitbaria/Anime-style-flux-lora-Large",
     qualityLimits: null,
     isPremium: false,
-    promptSuffix: null,
+    promptSuffix: ", anm",
     tagline: "Flwaless Anime style images",
     image: "/models/ultra.png"
   },
@@ -75,7 +75,7 @@ export const modelConfig = {
     apiUrl: "https://api-inference.huggingface.co/models/strangerzonehf/Flux-Midjourney-Mix2-LoRA",
     qualityLimits: null,
     isPremium: false,
-    promptSuffix: null,
+    promptSuffix: ", MJ v6",
     tagline: "Latest version of Midjourney for free",
     image: "/models/ultra.png"
   },
@@ -85,7 +85,7 @@ export const modelConfig = {
     apiUrl: "https://api-inference.huggingface.co/models/lichorosario/flux-lora-simple-vector",
     qualityLimits: null,
     isPremium: false,
-    promptSuffix: null,
+    promptSuffix: ", v3ct0r, vector",
     tagline: "Create Vector arts",
     image: "/models/ultra.png"
   },
@@ -95,7 +95,7 @@ export const modelConfig = {
     apiUrl: "https://api-inference.huggingface.co/models/strangerzonehf/Flux-Isometric-Site-LoRA",
     qualityLimits: null,
     isPremium: false,
-    promptSuffix: null,
+    promptSuffix: ", Isometric Building",
     tagline: "Isometric style, build your world",
     image: "/models/ultra.png"
   },
@@ -105,7 +105,7 @@ export const modelConfig = {
     apiUrl: "https://api-inference.huggingface.co/models/prithivMLmods/Teen-Outfit",
     qualityLimits: null,
     isPremium: false,
-    promptSuffix: null,
+    promptSuffix: ", Teen Outfit",
     tagline: "Make cool outfits and cloths",
     image: "/models/ultra.png"
   },
@@ -115,17 +115,17 @@ export const modelConfig = {
     apiUrl: "https://api-inference.huggingface.co/models/prithivMLmods/Digital-Chaos-Flux-LoRA",
     qualityLimits: null,
     isPremium: false,
-    promptSuffix: null,
+    promptSuffix: ", Digital Chaos",
     tagline: "Chaos of Colors to make modern art",
     image: "/models/ultra.png"
   },
   aura: {
-    name: "Aura 999+",
+    name: "Aura 9999+",
     category: "General",
     apiUrl: "https://api-inference.huggingface.co/models/prithivMLmods/Aura-9999",
     qualityLimits: null,
     isPremium: false,
-    promptSuffix: null,
+    promptSuffix: ", Aura 9999",
     tagline: "gives your creations some aura",
     image: "/models/ultra.png"
   },
@@ -139,24 +139,24 @@ export const modelConfig = {
     tagline: "A merge of multiple models",
     image: "/models/ultra.png"
   },
-  animeNsfw: {
-    name: "Ring.1 Anime",
-    category: "NSFW",
-    apiUrl: "https://api-inference.huggingface.co/models/John6666/mala-anime-mix-nsfw-pony-xl-v5-sdxl",
-    qualityLimits: null,
-    isPremium: true,
-    promptSuffix: null,
-    tagline: "Anime-style NSFW generation",
-    image: "/models/anime.png"
-  },
   nsfwMaster: {
-    name: "Ring.1N",
+    name: "Real",
     category: "NSFW",
     apiUrl: "https://api-inference.huggingface.co/models/pimpilikipilapi1/NSFW_master",
     qualityLimits: null,
     isPremium: false,
-    promptSuffix: null,
-    tagline: "Advanced NSFW generation",
+    promptSuffix: ", Nsfw, naked,",
+    tagline: "NSFW generation",
     image: "/models/nsfw.png"
+  },
+  animeNsfw: {
+    name: "Anime",
+    category: "NSFW",
+    apiUrl: "https://api-inference.huggingface.co/models/John6666/mala-anime-mix-nsfw-pony-xl-v5-sdxl",
+    qualityLimits: null,
+    isPremium: false,
+    promptSuffix: null,
+    tagline: "Anime-style NSFW generation",
+    image: "/models/anime.png"
   }
 };
