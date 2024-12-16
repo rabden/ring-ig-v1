@@ -234,13 +234,16 @@ const ImageGeneratorContent = ({
                 updateCredits={imageGeneratorProps.updateCredits}
                 proMode={proMode}
               />
-              <div className="mt-4">
-                <CreditCounter credits={credits} bonusCredits={bonusCredits} className="block" />
-              </div>
             </div>
           </div>
         )}
       </div>
+
+      {isGenerateTab && (
+        <div className="fixed bottom-20 left-0 right-0 flex justify-center p-4 bg-gradient-to-t from-background to-transparent pointer-events-none">
+          <CreditCounter credits={credits} bonusCredits={bonusCredits} className="pointer-events-auto" />
+        </div>
+      )}
 
       <MobileNotificationsMenu activeTab={activeTab} />
       <MobileProfileMenu 
