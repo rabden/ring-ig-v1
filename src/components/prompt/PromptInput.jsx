@@ -11,13 +11,14 @@ const PromptInput = ({
   onSubmit,
   hasEnoughCredits = true,
   onClear,
+  onImprove,
+  isImproving,
   credits,
   bonusCredits,
   userId
 }) => {
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCreditsForImprovement = totalCredits >= 1;
-  const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
 
   const handleImprovePrompt = async () => {
     if (!userId) {
@@ -31,9 +32,7 @@ const PromptInput = ({
     }
 
     try {
-      await improveCurrentPrompt(prompt, (improvedPrompt) => {
-        onChange({ target: { value: improvedPrompt } });
-      });
+      await onImprove();
     } catch (error) {
       console.error('Error improving prompt:', error);
       toast.error('Failed to improve prompt');

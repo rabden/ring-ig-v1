@@ -114,6 +114,8 @@ const ImageGeneratorSettings = ({
           onImprove={handleImprovePrompt}
           isImproving={isImproving}
           userId={session?.user?.id}
+          credits={credits}
+          bonusCredits={bonusCredits}
         />
       </div>
 
