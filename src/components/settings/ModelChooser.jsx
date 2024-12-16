@@ -121,21 +121,24 @@ const ModelChooser = ({ model, setModel, proMode }) => {
       ? modelData.category === "NSFW"
       : modelData.category === "General";
 
-    setModel(isModelAllowed ? newModel : defaultModel);
-  }, [nsfwEnabled, defaultModel, setModel]);
+    if (isModelAllowed) {
+      setModel(newModel);
+    }
+  }, [nsfwEnabled, setModel]);
 
+  // Single effect to handle NSFW mode changes
   useEffect(() => {
     const currentModel = modelConfig[model];
     if (!currentModel) {
-      handleModelSelection(defaultModel);
+      setModel(defaultModel);
       return;
     }
 
-    const isCurrentModelAllowed = filteredModels.some(([key]) => key === model);
+    const isCurrentModelAllowed = currentModel.category === (nsfwEnabled ? "NSFW" : "General");
     if (!isCurrentModelAllowed) {
-      handleModelSelection(defaultModel);
+      setModel(defaultModel);
     }
-  }, [nsfwEnabled, model, handleModelSelection, defaultModel, filteredModels]);
+  }, [nsfwEnabled, defaultModel, model, setModel]);
 
   const currentModel = modelConfig[model];
   if (!currentModel) return null;

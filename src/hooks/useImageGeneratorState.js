@@ -54,28 +54,22 @@ export const useImageGeneratorState = () => {
     setFullScreenImageIndex: (value) => setState(prev => ({ ...prev, fullScreenImageIndex: value })),
     setGeneratingImages,
     setActiveView: (value) => setState(prev => ({ ...prev, activeView: value })),
-    setNsfwEnabled: (value) => setState(prev => ({ ...prev, nsfwEnabled: value })),
+    setNsfwEnabled: (value) => setState(prev => {
+      const newState = { ...prev, nsfwEnabled: value };
+      if (modelConfigs) {
+        const currentModelConfig = modelConfigs[prev.model];
+        if (value && currentModelConfig?.category !== 'NSFW') {
+          newState.model = 'nsfwMaster';
+        } else if (!value && currentModelConfig?.category === 'NSFW') {
+          newState.model = 'turbo';
+        }
+      }
+      return newState;
+    }),
     setStyle: (value) => setState(prev => ({ ...prev, style: value })),
     setImageCount: (value) => setState(prev => ({ ...prev, imageCount: value })),
     setIsPrivate: (value) => setState(prev => ({ ...prev, isPrivate: value }))
   };
-
-  useEffect(() => {
-    if (modelConfigs) {
-      const currentModelConfig = modelConfigs[state.model];
-      if (state.nsfwEnabled) {
-        // When enabling NSFW, switch to NSFW model only if current model is not NSFW
-        if (currentModelConfig?.category !== 'NSFW') {
-          setters.setModel('nsfwMaster');
-        }
-      } else {
-        // When disabling NSFW, switch to general model only if current model is NSFW
-        if (currentModelConfig?.category === 'NSFW') {
-          setters.setModel('turbo');
-        }
-      }
-    }
-  }, [state.nsfwEnabled, modelConfigs, state.model]);
 
   return {
     ...state,
