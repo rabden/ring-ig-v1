@@ -12,6 +12,7 @@ import { handleImageDiscard } from '@/utils/discardUtils';
 import ImageCardMedia from './image-card/ImageCardMedia';
 import ImageCardBadges from './image-card/ImageCardBadges';
 import { useNavigate } from 'react-router-dom';
+import { cn } from "@/lib/utils";
 
 const ImageCard = ({ 
   image, 
@@ -24,6 +25,7 @@ const ImageCard = ({
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const { data: modelConfigs } = useModelConfigs();
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
   const navigate = useNavigate();
@@ -81,8 +83,18 @@ const ImageCard = ({
 
   return (
     <>
-      <div className="mb-4">
-        <Card className="overflow-hidden">
+      <div 
+        className="mb-4 group"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <Card className={cn(
+          "overflow-hidden rounded-xl transition-all duration-200",
+          "border border-border/20 bg-card/40",
+          "backdrop-blur-sm shadow-[0_0_0_1px] shadow-border/10",
+          "hover:shadow-[0_0_0_1px] hover:shadow-border/20",
+          "hover:border-border/30"
+        )}>
           <CardContent className="p-0 relative">
             <ImageStatusIndicators 
               isTrending={image.is_trending} 
@@ -93,6 +105,7 @@ const ImageCard = ({
               onImageClick={handleImageClick}
               onDoubleClick={handleDoubleClick}
               isAnimating={isAnimating}
+              isHovered={isHovered}
             />
             <ImageCardBadges
               modelName={modelName}
@@ -100,8 +113,12 @@ const ImageCard = ({
             />
           </CardContent>
         </Card>
-        <div className="mt-1 flex items-center justify-between">
-          <p className="text-sm truncate w-[70%]">{image.prompt}</p>
+        <div className={cn(
+          "mt-2 flex items-center justify-between",
+          "transition-opacity duration-200",
+          isHovered ? "opacity-100" : "opacity-80"
+        )}>
+          <p className="text-sm truncate w-[70%] text-foreground/80">{image.prompt}</p>
           <ImageCardActions
             image={image}
             isMobile={isMobile}
