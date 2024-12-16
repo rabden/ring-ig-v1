@@ -232,6 +232,8 @@ const ImageGeneratorContent = ({
                 session={session}
                 updateCredits={imageGeneratorProps.updateCredits}
                 proMode={proMode}
+                nsfwEnabled={nsfwEnabled}
+                setNsfwEnabled={setNsfwEnabled}
               />
             </div>
           </div>
