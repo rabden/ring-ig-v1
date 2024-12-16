@@ -4,49 +4,17 @@ import { cva } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  [
-    "inline-flex items-center",
-    "rounded-full",
-    "px-2.5 py-0.5",
-    "text-xs font-medium",
-    "transition-colors duration-200",
-    "focus:outline-none"
-  ],
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
   {
     variants: {
       variant: {
-        default: [
-          "bg-primary/20",
-          "text-primary-foreground/90",
-          "hover:bg-primary/30"
-        ],
-        secondary: [
-          "bg-secondary/20",
-          "text-secondary-foreground/90",
-          "hover:bg-secondary/30"
-        ],
-        destructive: [
-          "bg-destructive/20",
-          "text-destructive-foreground/90",
-          "hover:bg-destructive/30"
-        ],
-        outline: [
-          "bg-background/50",
-          "text-muted-foreground/60",
-          "hover:bg-accent/5",
-          "hover:text-muted-foreground/80"
-        ],
-        ghost: [
-          "text-muted-foreground/60",
-          "hover:bg-accent/5",
-          "hover:text-muted-foreground/80"
-        ],
-        subtle: [
-          "bg-accent/5",
-          "text-muted-foreground/60",
-          "hover:bg-accent/10",
-          "hover:text-muted-foreground/80"
-        ],
+        default:
+          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+        secondary:
+          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
+        destructive:
+          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
+        outline: "text-foreground",
       },
     },
     defaultVariants: {

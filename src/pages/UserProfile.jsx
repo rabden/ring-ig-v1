@@ -15,7 +15,6 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import CreditCounter from "@/components/ui/credit-counter";
 import ProfileStats from "@/components/profile/ProfileStats";
-import { cn } from "@/lib/utils";
 
 const UserProfile = () => {
   const { session, loading, logout } = useSupabaseAuth();
@@ -128,89 +127,69 @@ const UserProfile = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="container max-w-6xl mx-auto py-8 px-4 space-y-8">
+      <div className="container max-w-6xl mx-auto py-8 px-4 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <Link 
-            to="/" 
-            className={cn(
-              "p-2 rounded-lg transition-colors duration-200",
-              "hover:bg-accent/10 text-muted-foreground hover:text-foreground"
-            )}
-          >
-            <ArrowLeft className="h-5 w-5" />
+        <div className="flex items-center justify-between mb-6">
+          <Link to="/" className="hover:opacity-80">
+            <ArrowLeft className="h-6 w-6" />
           </Link>
         </div>
         
-        <div className="space-y-2">
-          <h1 className="text-4xl font-medium tracking-tight text-foreground/90">Settings</h1>
-          <p className="text-base text-muted-foreground/70">
-            Manage your account, billing, and team settings.
+        <div className="space-y-1 mb-8">
+          <h1 className="text-4xl font-medium tracking-tight">Settings</h1>
+          <p className="text-muted-foreground">
+            You can manage your account, billing, and team settings here.
           </p>
         </div>
 
         {isStatsLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary/60"></div>
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Left Column */}
             <div className="space-y-6">
               {/* Basic Information Card */}
-              <div className={cn(
-                "rounded-xl border border-border/20 bg-card/40",
-                "backdrop-blur-sm shadow-[0_0_0_1px] shadow-border/10"
-              )}>
+              <div className="rounded-xl border border-border/40 bg-card text-card-foreground">
                 <div className="flex items-center justify-between p-6">
-                  <h2 className="text-xl font-semibold text-foreground/90">Basic Information</h2>
+                  <h2 className="text-xl font-semibold">Basic Information</h2>
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsEditing(true)}
-                    className="text-muted-foreground/60 hover:text-foreground/80"
                   >
                     <Pencil className="h-4 w-4" />
                   </Button>
                 </div>
-                <div className="p-6 pt-0 space-y-5">
+                <div className="p-6 pt-0 space-y-4">
                   <div className="flex items-center gap-4">
-                    <Avatar className="h-16 w-16 ring-2 ring-border/20">
+                    <Avatar className="h-16 w-16">
                       <AvatarImage
                         src={session.user.user_metadata?.avatar_url}
                         alt={displayName}
-                        className="object-cover"
                       />
-                      <AvatarFallback className="bg-accent/10 text-foreground/80">
-                        {displayName[0]?.toUpperCase()}
-                      </AvatarFallback>
+                      <AvatarFallback>{displayName[0]?.toUpperCase()}</AvatarFallback>
                     </Avatar>
-                    <div className="space-y-1.5">
-                      <div className="font-medium text-sm text-muted-foreground/70">Name</div>
-                      <div className="text-foreground/90">{displayName}</div>
+                    <div className="space-y-1">
+                      <div className="font-medium">Name</div>
+                      <div className="text-muted-foreground">{displayName}</div>
                     </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <div className="font-medium text-sm text-muted-foreground/70">Email</div>
-                    <div className="text-foreground/90">{session.user.email}</div>
+                  <div>
+                    <div className="font-medium">Email</div>
+                    <div className="text-muted-foreground">{session.user.email}</div>
                   </div>
                 </div>
               </div>
 
               {/* Credits Card */}
-              <div className={cn(
-                "rounded-xl border border-border/20 bg-card/40",
-                "backdrop-blur-sm shadow-[0_0_0_1px] shadow-border/10"
-              )}>
+              <div className="rounded-xl border border-border/40 bg-card text-card-foreground">
                 <div className="p-6">
-                  <div className="flex items-center gap-2.5">
-                    <h2 className="text-xl font-semibold text-foreground/90">Account</h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-semibold">Account</h2>
                     {isPro && (
-                      <span className={cn(
-                        "text-xs px-2.5 py-1 rounded-full",
-                        "bg-primary/15 text-primary/90",
-                        "ring-1 ring-primary/20"
-                      )}>
+                      <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
                         Pro
                       </span>
                     )}
@@ -232,10 +211,7 @@ const UserProfile = () => {
                       logout();
                       navigate('/');
                     }}
-                    className={cn(
-                      "w-full text-destructive/70",
-                      "hover:text-destructive/90 hover:bg-destructive/10"
-                    )}
+                    className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign out
@@ -247,12 +223,9 @@ const UserProfile = () => {
             {/* Right Column */}
             <div className="space-y-6">
               {/* Stats Card */}
-              <div className={cn(
-                "rounded-xl border border-border/20 bg-card/40",
-                "backdrop-blur-sm shadow-[0_0_0_1px] shadow-border/10"
-              )}>
+              <div className="rounded-xl border border-border/40 bg-card text-card-foreground">
                 <div className="p-6">
-                  <h2 className="text-xl font-semibold text-foreground/90">Stats</h2>
+                  <h2 className="text-xl font-semibold">Stats</h2>
                 </div>
                 <div className="p-6 pt-0">
                   <ProfileStats 
@@ -268,31 +241,22 @@ const UserProfile = () => {
 
         {/* Edit Dialog */}
         <Dialog open={isEditing} onOpenChange={setIsEditing}>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent>
             <DialogHeader>
-              <DialogTitle className="text-lg font-semibold text-foreground/90">
-                Edit Profile
-              </DialogTitle>
+              <DialogTitle>Edit Profile</DialogTitle>
             </DialogHeader>
-            <div className="space-y-5 py-4">
+            <div className="space-y-4 py-4">
               <div className="flex items-center gap-4">
                 <div className="relative group">
-                  <Avatar className="h-16 w-16 ring-2 ring-border/20">
+                  <Avatar className="h-16 w-16">
                     <AvatarImage
                       src={session.user.user_metadata?.avatar_url}
                       alt={displayName}
-                      className="object-cover"
                     />
-                    <AvatarFallback className="bg-accent/10 text-foreground/80">
-                      {displayName[0]?.toUpperCase()}
-                    </AvatarFallback>
+                    <AvatarFallback>{displayName[0]?.toUpperCase()}</AvatarFallback>
                   </Avatar>
-                  <label className={cn(
-                    "absolute inset-0 flex items-center justify-center",
-                    "bg-black/50 opacity-0 group-hover:opacity-100",
-                    "transition-opacity rounded-full cursor-pointer"
-                  )}>
-                    <Camera className="w-6 h-6 text-white/90" />
+                  <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-full cursor-pointer">
+                    <Camera className="w-6 h-6 text-white" />
                     <input
                       type="file"
                       accept="image/*"
@@ -306,16 +270,11 @@ const UserProfile = () => {
                     value={tempDisplayName}
                     onChange={(e) => setTempDisplayName(e.target.value)}
                     placeholder="Display Name"
-                    className="bg-accent/5 border-border/20"
                   />
                 </div>
               </div>
               <div className="flex justify-end gap-2">
-                <Button 
-                  variant="ghost" 
-                  onClick={() => setIsEditing(false)}
-                  className="text-muted-foreground/70 hover:text-foreground/80"
-                >
+                <Button variant="ghost" onClick={() => setIsEditing(false)}>
                   Cancel
                 </Button>
                 <Button onClick={handleDisplayNameUpdate}>

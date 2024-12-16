@@ -1,6 +1,6 @@
 import * as React from "react"
 import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ArrowLeft, ArrowRight } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -101,13 +101,7 @@ const Carousel = React.forwardRef((
       <div
         ref={ref}
         onKeyDownCapture={handleKeyDown}
-        className={cn(
-          "relative",
-          "rounded-xl",
-          "bg-popover/95 backdrop-blur-sm",
-          "transition-colors duration-200",
-          className
-        )}
+        className={cn("relative", className)}
         role="region"
         aria-roledescription="carousel"
         {...props}>
@@ -122,16 +116,12 @@ const CarouselContent = React.forwardRef(({ className, ...props }, ref) => {
   const { carouselRef, orientation } = useCarousel()
 
   return (
-    (<div ref={carouselRef} className={cn(
-      "overflow-hidden",
-      "rounded-xl"
-    )}>
+    (<div ref={carouselRef} className="overflow-hidden">
       <div
         ref={ref}
         className={cn(
           "flex",
           orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
-          "transition-transform duration-200",
           className
         )}
         {...props} />
@@ -151,7 +141,6 @@ const CarouselItem = React.forwardRef(({ className, ...props }, ref) => {
       className={cn(
         "min-w-0 shrink-0 grow-0 basis-full",
         orientation === "horizontal" ? "pl-4" : "pt-4",
-        "transition-opacity duration-200",
         className
       )}
       {...props} />)
@@ -159,7 +148,7 @@ const CarouselItem = React.forwardRef(({ className, ...props }, ref) => {
 })
 CarouselItem.displayName = "CarouselItem"
 
-const CarouselPrevious = React.forwardRef(({ className, variant = "ghost", size = "icon", ...props }, ref) => {
+const CarouselPrevious = React.forwardRef(({ className, variant = "outline", size = "icon", ...props }, ref) => {
   const { orientation, scrollPrev, canScrollPrev } = useCarousel()
 
   return (
@@ -167,34 +156,20 @@ const CarouselPrevious = React.forwardRef(({ className, variant = "ghost", size 
       ref={ref}
       variant={variant}
       size={size}
-      className={cn(
-        "absolute",
-        "h-8 w-8",
-        "rounded-lg",
-        "text-muted-foreground/40",
-        "transition-all duration-200",
-        "hover:bg-accent/5",
-        "hover:text-muted-foreground/60",
-        "focus:bg-accent/5",
-        "focus:text-muted-foreground/60",
-        "disabled:opacity-30",
-        "disabled:pointer-events-none",
-        orientation === "horizontal"
-          ? "-left-12 top-1/2 -translate-y-1/2"
-          : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
-        className
-      )}
+      className={cn("absolute  h-8 w-8 rounded-full", orientation === "horizontal"
+        ? "-left-12 top-1/2 -translate-y-1/2"
+        : "-top-12 left-1/2 -translate-x-1/2 rotate-90", className)}
       disabled={!canScrollPrev}
       onClick={scrollPrev}
       {...props}>
-      <ChevronLeft className="h-4 w-4" />
+      <ArrowLeft className="h-4 w-4" />
       <span className="sr-only">Previous slide</span>
     </Button>)
   );
 })
 CarouselPrevious.displayName = "CarouselPrevious"
 
-const CarouselNext = React.forwardRef(({ className, variant = "ghost", size = "icon", ...props }, ref) => {
+const CarouselNext = React.forwardRef(({ className, variant = "outline", size = "icon", ...props }, ref) => {
   const { orientation, scrollNext, canScrollNext } = useCarousel()
 
   return (
@@ -202,27 +177,13 @@ const CarouselNext = React.forwardRef(({ className, variant = "ghost", size = "i
       ref={ref}
       variant={variant}
       size={size}
-      className={cn(
-        "absolute",
-        "h-8 w-8",
-        "rounded-lg",
-        "text-muted-foreground/40",
-        "transition-all duration-200",
-        "hover:bg-accent/5",
-        "hover:text-muted-foreground/60",
-        "focus:bg-accent/5",
-        "focus:text-muted-foreground/60",
-        "disabled:opacity-30",
-        "disabled:pointer-events-none",
-        orientation === "horizontal"
-          ? "-right-12 top-1/2 -translate-y-1/2"
-          : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
-        className
-      )}
+      className={cn("absolute h-8 w-8 rounded-full", orientation === "horizontal"
+        ? "-right-12 top-1/2 -translate-y-1/2"
+        : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90", className)}
       disabled={!canScrollNext}
       onClick={scrollNext}
       {...props}>
-      <ChevronRight className="h-4 w-4" />
+      <ArrowRight className="h-4 w-4" />
       <span className="sr-only">Next slide</span>
     </Button>)
   );

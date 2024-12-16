@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button"
 import { Copy, Share2, Check } from "lucide-react"
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { format } from 'date-fns'
-import { cn } from "@/lib/utils"
 
 const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
   const { data: modelConfigs } = useModelConfigs();
@@ -42,75 +41,32 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn(
-        "sm:max-w-[425px] max-h-[80vh] overflow-hidden",
-        "border border-border/20 bg-background/95",
-        "backdrop-blur-sm shadow-[0_0_0_1px] shadow-border/10"
-      )}>
+      <DialogContent className="sm:max-w-[425px] max-h-[80vh] overflow-hidden">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-foreground/90">
-            Image Details
-          </DialogTitle>
+          <DialogTitle className="text-2xl font-bold">Image Details</DialogTitle>
         </DialogHeader>
-        <ScrollArea className="mt-6 max-h-[calc(80vh-100px)]">
+        <ScrollArea className="mt-4 max-h-[calc(80vh-100px)]">
           <div className="space-y-8 px-1">
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-sm font-medium text-muted-foreground/70 uppercase tracking-wider">
-                  Prompt
-                </h3>
-                <div className="flex gap-1.5">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className={cn(
-                      "h-8 w-8 rounded-lg",
-                      "text-muted-foreground/60 hover:text-foreground/80",
-                      "hover:bg-accent/10"
-                    )} 
-                    onClick={handleCopyPrompt}
-                  >
-                    {copyIcon === 'copy' ? (
-                      <Copy className="h-4 w-4" />
-                    ) : (
-                      <Check className="h-4 w-4 text-primary" />
-                    )}
+            <div>
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Prompt</h3>
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleCopyPrompt}>
+                    {copyIcon === 'copy' ? <Copy className="h-4 w-4" /> : <Check className="h-4 w-4" />}
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    className={cn(
-                      "h-8 w-8 rounded-lg",
-                      "text-muted-foreground/60 hover:text-foreground/80",
-                      "hover:bg-accent/10"
-                    )} 
-                    onClick={handleShare}
-                  >
-                    {shareIcon === 'share' ? (
-                      <Share2 className="h-4 w-4" />
-                    ) : (
-                      <Check className="h-4 w-4 text-primary" />
-                    )}
+                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleShare}>
+                    {shareIcon === 'share' ? <Share2 className="h-4 w-4" /> : <Check className="h-4 w-4" />}
                   </Button>
                 </div>
               </div>
-              <div className={cn(
-                "p-3 rounded-lg text-sm text-foreground/80",
-                "bg-accent/5 border border-border/10"
-              )}>
-                {image.prompt}
-              </div>
+              <p className="text-sm">{image.prompt}</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-5">
+            <div className="grid grid-cols-2 gap-4">
               {detailItems.map((item, index) => (
-                <div key={index} className="space-y-1.5">
-                  <p className="text-xs text-muted-foreground/70 uppercase tracking-wider">
-                    {item.label}
-                  </p>
-                  <p className="text-sm font-medium text-foreground/80">
-                    {item.value}
-                  </p>
+                <div key={index} className="space-y-1">
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider">{item.label}</p>
+                  <p className="text-sm font-medium">{item.value}</p>
                 </div>
               ))}
             </div>

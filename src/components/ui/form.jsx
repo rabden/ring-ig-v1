@@ -51,15 +51,7 @@ const FormItem = React.forwardRef(({ className, ...props }, ref) => {
 
   return (
     (<FormItemContext.Provider value={{ id }}>
-      <div 
-        ref={ref} 
-        className={cn(
-          "space-y-2",
-          "transition-colors duration-200",
-          className
-        )} 
-        {...props} 
-      />
+      <div ref={ref} className={cn("space-y-2", className)} {...props} />
     </FormItemContext.Provider>)
   );
 })
@@ -71,20 +63,14 @@ const FormLabel = React.forwardRef(({ className, ...props }, ref) => {
   return (
     (<Label
       ref={ref}
-      className={cn(
-        "text-sm font-medium",
-        "text-muted-foreground/70",
-        "transition-colors duration-200",
-        error && "text-destructive/80",
-        className
-      )}
+      className={cn(error && "text-destructive", className)}
       htmlFor={formItemId}
       {...props} />)
   );
 })
 FormLabel.displayName = "FormLabel"
 
-const FormControl = React.forwardRef(({ className, ...props }, ref) => {
+const FormControl = React.forwardRef(({ ...props }, ref) => {
   const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
 
   return (
@@ -97,11 +83,6 @@ const FormControl = React.forwardRef(({ className, ...props }, ref) => {
           : `${formDescriptionId} ${formMessageId}`
       }
       aria-invalid={!!error}
-      className={cn(
-        "transition-colors duration-200",
-        error && "ring-destructive/20",
-        className
-      )}
       {...props} />)
   );
 })
@@ -114,13 +95,7 @@ const FormDescription = React.forwardRef(({ className, ...props }, ref) => {
     (<p
       ref={ref}
       id={formDescriptionId}
-      className={cn(
-        "text-sm",
-        "text-muted-foreground/40",
-        "leading-relaxed",
-        "transition-colors duration-200",
-        className
-      )}
+      className={cn("text-sm text-muted-foreground", className)}
       {...props} />)
   );
 })
@@ -138,13 +113,7 @@ const FormMessage = React.forwardRef(({ className, children, ...props }, ref) =>
     (<p
       ref={ref}
       id={formMessageId}
-      className={cn(
-        "text-sm font-medium",
-        "text-destructive/80",
-        "leading-relaxed",
-        "transition-colors duration-200",
-        className
-      )}
+      className={cn("text-sm font-medium text-destructive", className)}
       {...props}>
       {body}
     </p>)

@@ -5,20 +5,7 @@ import { ChevronRight, MoreHorizontal } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const Breadcrumb = React.forwardRef(
-  ({ className, ...props }, ref) => (
-    <nav 
-      ref={ref} 
-      aria-label="breadcrumb" 
-      className={cn(
-        "relative",
-        "flex items-center",
-        "min-h-[40px]",
-        "px-1",
-        className
-      )}
-      {...props} 
-    />
-  )
+  ({ ...props }, ref) => <nav ref={ref} aria-label="breadcrumb" {...props} />
 )
 Breadcrumb.displayName = "Breadcrumb"
 
@@ -26,11 +13,7 @@ const BreadcrumbList = React.forwardRef(({ className, ...props }, ref) => (
   <ol
     ref={ref}
     className={cn(
-      "flex flex-wrap items-center",
-      "gap-1.5 sm:gap-2",
-      "break-words",
-      "text-sm",
-      "text-muted-foreground/60",
+      "flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground sm:gap-2.5",
       className
     )}
     {...props} />
@@ -40,12 +23,7 @@ BreadcrumbList.displayName = "BreadcrumbList"
 const BreadcrumbItem = React.forwardRef(({ className, ...props }, ref) => (
   <li
     ref={ref}
-    className={cn(
-      "inline-flex items-center",
-      "gap-1.5",
-      "transition-colors duration-200",
-      className
-    )}
+    className={cn("inline-flex items-center gap-1.5", className)}
     {...props} />
 ))
 BreadcrumbItem.displayName = "BreadcrumbItem"
@@ -56,18 +34,7 @@ const BreadcrumbLink = React.forwardRef(({ asChild, className, ...props }, ref) 
   return (
     (<Comp
       ref={ref}
-      className={cn(
-        "rounded-md",
-        "px-2 py-1",
-        "text-muted-foreground/70",
-        "transition-colors duration-200",
-        "hover:bg-accent/5",
-        "hover:text-foreground/90",
-        "focus:bg-accent/5",
-        "focus:text-foreground/90",
-        "focus:outline-none",
-        className
-      )}
+      className={cn("transition-colors hover:text-foreground", className)}
       {...props} />)
   );
 })
@@ -79,14 +46,7 @@ const BreadcrumbPage = React.forwardRef(({ className, ...props }, ref) => (
     role="link"
     aria-disabled="true"
     aria-current="page"
-    className={cn(
-      "rounded-md",
-      "px-2 py-1",
-      "font-medium",
-      "text-foreground",
-      "bg-accent/10",
-      className
-    )}
+    className={cn("font-normal text-foreground", className)}
     {...props} />
 ))
 BreadcrumbPage.displayName = "BreadcrumbPage"
@@ -99,11 +59,7 @@ const BreadcrumbSeparator = ({
   <li
     role="presentation"
     aria-hidden="true"
-    className={cn(
-      "[&>svg]:h-4 [&>svg]:w-4",
-      "text-muted-foreground/30",
-      className
-    )}
+    className={cn("[&>svg]:size-3.5", className)}
     {...props}>
     {children ?? <ChevronRight />}
   </li>
@@ -117,22 +73,13 @@ const BreadcrumbEllipsis = ({
   <span
     role="presentation"
     aria-hidden="true"
-    className={cn(
-      "flex items-center justify-center",
-      "h-9 w-9",
-      "rounded-md",
-      "text-muted-foreground/40",
-      "transition-colors duration-200",
-      "hover:bg-accent/5",
-      "hover:text-muted-foreground/60",
-      className
-    )}
+    className={cn("flex h-9 w-9 items-center justify-center", className)}
     {...props}>
     <MoreHorizontal className="h-4 w-4" />
     <span className="sr-only">More</span>
   </span>
 )
-BreadcrumbEllipsis.displayName = "BreadcrumbEllipsis"
+BreadcrumbEllipsis.displayName = "BreadcrumbElipssis"
 
 export {
   Breadcrumb,

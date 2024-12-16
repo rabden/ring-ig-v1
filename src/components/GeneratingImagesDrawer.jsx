@@ -88,7 +88,7 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
                   <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
                     <span>{image.model}</span>
                     <span>•</span>
-                    <span>{image.startTime ? format(new Date(image.startTime), 'HH:mm:ss') : '--:--:--'}</span>
+                    <span>{format(new Date(image.startTime), 'HH:mm:ss')}</span>
                   </div>
                 </div>
               </div>
