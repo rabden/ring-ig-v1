@@ -102,7 +102,9 @@ const DesktopPromptBox = ({
             </div>
 
             <div className="flex justify-between items-center mt-0">
-              <CreditCounter credits={credits} bonusCredits={bonusCredits} />
+              <div className="max-w-[200px]">
+                <CreditCounter credits={credits} bonusCredits={bonusCredits} />
+              </div>
               <div className="flex items-center gap-2">
                 {prompt?.length > 0 && (
                   <Button
@@ -153,7 +155,17 @@ const DesktopPromptBox = ({
         <div className="max-w-[700px] mx-auto px-10 py-2">
           <div className="relative bg-card shadow-sm border border-border/50 rounded-full">
             <div className="flex items-center gap-4 p-1">
-              <div className="flex-1 px-4 text-muted-foreground/50 truncate">
+              <div 
+                className="flex-1 px-4 text-muted-foreground/50 truncate cursor-pointer"
+                onClick={() => {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  setTimeout(() => {
+                    textareaRef.current?.focus();
+                    const length = textareaRef.current?.value.length || 0;
+                    textareaRef.current?.setSelectionRange(length, length);
+                  }, 500);
+                }}
+              >
                 {prompt || "A 4D HDR immersive 3D image..."}
               </div>
               <Button
