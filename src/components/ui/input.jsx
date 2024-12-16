@@ -7,26 +7,27 @@ const Input = React.forwardRef(({ className, type, ...props }, ref) => {
     <input
       type={type}
       className={cn(
-        "flex h-9 w-full rounded-xl",
-        "border border-border/40 bg-background/50",
-        "px-3 py-2 text-sm text-foreground",
+        "flex h-9 w-full",
+        "rounded-lg",
+        "bg-popover/95",
+        "px-3 py-2",
+        "text-sm",
+        "text-foreground/90",
         "transition-colors duration-200",
-        "placeholder:text-muted-foreground/50",
+        "placeholder:text-muted-foreground/40",
         // File input styles
-        "file:border-0 file:bg-transparent",
-        "file:text-sm file:font-medium",
-        "file:text-muted-foreground/70",
-        "file:hover:text-muted-foreground",
+        "file:border-0",
+        "file:bg-transparent",
+        "file:text-sm",
+        "file:font-medium",
+        "file:text-muted-foreground/60",
+        "file:hover:text-muted-foreground/80",
         // States
-        "hover:border-border/80",
-        "focus-visible:outline-none",
-        "focus-visible:border-primary/20",
-        "focus-visible:bg-accent/5",
-        "focus-visible:ring-2",
-        "focus-visible:ring-ring/30",
-        "focus-visible:ring-offset-1",
-        "disabled:cursor-not-allowed",
-        "disabled:opacity-50",
+        "hover:bg-accent/5",
+        "focus:bg-accent/5",
+        "focus:outline-none",
+        "disabled:opacity-30",
+        "disabled:pointer-events-none",
         className
       )}
       ref={ref}
