@@ -13,6 +13,7 @@ import { format, isValid, parseISO } from 'date-fns';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { Separator } from '@/components/ui/separator';
 import FullScreenImageView from '@/components/FullScreenImageView';
+import { cn } from "@/lib/utils";
 
 const PublicProfile = () => {
   const { userId } = useParams();
@@ -65,11 +66,22 @@ const PublicProfile = () => {
   };
 
   if (isProfileLoading || isStatsLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-[50vh] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary/60"></div>
+      </div>
+    );
   }
 
   if (!profile) {
-    return <div>User not found</div>;
+    return (
+      <div className="min-h-[50vh] flex flex-col items-center justify-center gap-4">
+        <p className="text-lg text-muted-foreground/70">User not found</p>
+        <Button variant="ghost" onClick={() => navigate('/')}>
+          Return Home
+        </Button>
+      </div>
+    );
   }
 
   const handleImageClick = (image) => {
@@ -77,18 +89,25 @@ const PublicProfile = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-4 sm:py-8">
+    <div className="container mx-auto px-4 py-4 sm:py-8 space-y-6">
       <Button 
         variant="ghost" 
-        className="mb-4 hover:bg-accent"
+        className={cn(
+          "hover:bg-accent/10",
+          "text-muted-foreground/70 hover:text-foreground/80"
+        )}
         onClick={() => navigate(-1)}
       >
         <ChevronLeft className="h-4 w-4 mr-2" />
         Back
       </Button>
 
-      <Card className="p-4 sm:p-6 mb-6">
-        <div className="flex flex-col sm:flex-row items-center gap-4">
+      <Card className={cn(
+        "p-6 sm:p-8",
+        "border border-border/20 bg-card/40",
+        "backdrop-blur-sm shadow-[0_0_0_1px] shadow-border/10"
+      )}>
+        <div className="flex flex-col sm:flex-row items-center gap-6">
           <div className="flex-shrink-0">
             <ProfileAvatar 
               user={{ user_metadata: { avatar_url: profile.avatar_url } }} 
@@ -97,20 +116,32 @@ const PublicProfile = () => {
             />
           </div>
           
-          <div className="flex-1 text-center sm:text-left">
-            <h1 className="text-2xl font-bold mb-1">{profile.display_name}</h1>
-            <p className="text-sm text-muted-foreground mb-2">Joined {formatJoinDate(profile.created_at)}</p>
+          <div className="flex-1 text-center sm:text-left space-y-4">
+            <div>
+              <h1 className="text-2xl font-semibold text-foreground/90 mb-1">
+                {profile.display_name}
+              </h1>
+              <p className="text-sm text-muted-foreground/70">
+                Joined {formatJoinDate(profile.created_at)}
+              </p>
+            </div>
             
-            <div className="flex flex-wrap justify-center sm:justify-start gap-4 items-center">
-              <div className="flex items-center gap-1">
-                <Image className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm font-medium">{stats.totalImages}</span>
-                <span className="text-xs text-muted-foreground ml-1">Images</span>
+            <div className="flex flex-wrap justify-center sm:justify-start gap-5 items-center">
+              <div className={cn(
+                "flex items-center gap-2 px-3 py-1.5 rounded-lg",
+                "bg-accent/5 border border-border/10"
+              )}>
+                <Image className="w-4 h-4 text-muted-foreground/70" />
+                <span className="text-sm font-medium text-foreground/80">{stats.totalImages}</span>
+                <span className="text-xs text-muted-foreground/70">Images</span>
               </div>
-              <div className="flex items-center gap-1">
-                <Heart className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm font-medium">{stats.totalLikes}</span>
-                <span className="text-xs text-muted-foreground ml-1">Likes</span>
+              <div className={cn(
+                "flex items-center gap-2 px-3 py-1.5 rounded-lg",
+                "bg-accent/5 border border-border/10"
+              )}>
+                <Heart className="w-4 h-4 text-muted-foreground/70" />
+                <span className="text-sm font-medium text-foreground/80">{stats.totalLikes}</span>
+                <span className="text-xs text-muted-foreground/70">Likes</span>
               </div>
               <FollowStats userId={userId} />
               {currentUserId && currentUserId !== userId && (
@@ -121,14 +152,16 @@ const PublicProfile = () => {
         </div>
       </Card>
 
-      <ImageGallery 
-        userId={currentUserId}
-        profileUserId={userId}
-        activeView="myImages"
-        nsfwEnabled={false}
-        showPrivate={false}
-        onImageClick={handleImageClick}
-      />
+      <div className="pt-2">
+        <ImageGallery 
+          userId={currentUserId}
+          profileUserId={userId}
+          activeView="myImages"
+          nsfwEnabled={false}
+          showPrivate={false}
+          onImageClick={handleImageClick}
+        />
+      </div>
 
       {selectedImage && (
         <FullScreenImageView
