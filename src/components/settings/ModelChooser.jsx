@@ -102,12 +102,15 @@ const ModelChooser = ({ model, setModel, proMode }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   
   // Filter models based on NSFW state
-  const filteredModels = useMemo(() => 
-    Object.entries(modelConfig).filter(([_, config]) => 
-      config.category === (nsfwEnabled ? "NSFW" : "General")
-    ),
-    [nsfwEnabled]
-  );
+  const filteredModels = useMemo(() => {
+    if (nsfwEnabled) {
+      // Only show NSFW models when NSFW is enabled
+      return Object.entries(modelConfig).filter(([_, config]) => config.category === "NSFW");
+    } else {
+      // Show general models when NSFW is disabled
+      return Object.entries(modelConfig).filter(([_, config]) => config.category === "General");
+    }
+  }, [nsfwEnabled]);
 
   // Default model for each mode
   const defaultModel = useMemo(() => 
@@ -123,8 +126,11 @@ const ModelChooser = ({ model, setModel, proMode }) => {
     // Only allow selecting models that match current NSFW state
     if (modelData.category === (nsfwEnabled ? "NSFW" : "General")) {
       setModel(newModel);
+      if (isDrawerOpen) {
+        setIsDrawerOpen(false);
+      }
     }
-  }, [nsfwEnabled, setModel]);
+  }, [nsfwEnabled, setModel, isDrawerOpen]);
 
   // Ensure current model is valid for NSFW state
   useEffect(() => {
@@ -196,10 +202,7 @@ const ModelChooser = ({ model, setModel, proMode }) => {
               <ModelGrid 
                 filteredModels={filteredModels}
                 model={model}
-                setModel={(key) => {
-                  handleModelSelection(key);
-                  setIsDrawerOpen(false);
-                }}
+                setModel={handleModelSelection}
                 proMode={proMode}
                 className="max-h-[65vh]"
               />
