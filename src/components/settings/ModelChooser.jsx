@@ -5,6 +5,7 @@ import SettingSection from './SettingSection';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { modelConfig } from "@/config/modelConfig";
+import { ScrollArea } from "../../ui/scroll-area";
 
 const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, disabled, proMode }) => (
   <div
@@ -55,44 +56,46 @@ const ModelChooser = ({ model, setModel, nsfwEnabled, proMode }) => {
 
   return (
     <SettingSection 
-      label="Model" 
-      tooltip="Choose between fast generation or higher quality output."
+  label="Model" 
+  tooltip="Choose between fast generation or higher quality output."
+>
+  <Popover>
+    <PopoverTrigger asChild>
+      <div className="w-full">
+        <ModelCard
+          modelKey={model}
+          config={currentModel}
+          isActive={true}
+          proMode={proMode}
+          onClick={() => {}}
+        />
+      </div>
+    </PopoverTrigger>
+    <PopoverContent 
+      side="left" 
+      align="start" 
+      sideOffset={20}
+      className="w-[250px] p-2 md:left-100px max-h-[80vh]"
     >
-      <Popover>
-        <PopoverTrigger asChild>
-          <div className="w-full">
+      <ScrollArea className="h-full overflow-y-auto">
+        <div className="space-y-1">
+          {filteredModels.map(([key, config]) => (
             <ModelCard
-              modelKey={model}
-              config={currentModel}
-              isActive={true}
+              key={key}
+              modelKey={key}
+              config={config}
+              isActive={model === key}
+              showRadio={true}
               proMode={proMode}
-              onClick={() => {}}
+              onClick={() => setModel(key)}
+              disabled={config.isPremium && !proMode}
             />
-          </div>
-        </PopoverTrigger>
-        <PopoverContent 
-          side="left" 
-          align="start" 
-          sideOffset={20}
-          className="w-[250px] p-2 md:left-0 left-1/2 -translate-x-1/2 md:translate-x-0 max-h-[60vh] overflow-y-auto"
-        >
-          <div className="space-y-1">
-            {filteredModels.map(([key, config]) => (
-              <ModelCard
-                key={key}
-                modelKey={key}
-                config={config}
-                isActive={model === key}
-                showRadio={true}
-                proMode={proMode}
-                onClick={() => setModel(key)}
-                disabled={config.isPremium && !proMode}
-              />
-            ))}
-          </div>
-        </PopoverContent>
-      </Popover>
-    </SettingSection>
+          ))}
+        </div>
+      </ScrollArea>
+    </PopoverContent>
+  </Popover>
+</SettingSection>
   );
 };
 
