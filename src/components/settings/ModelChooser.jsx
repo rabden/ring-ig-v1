@@ -6,6 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "@/lib/utils";
 import { modelConfig } from "@/config/modelConfig";
 import { ScrollArea } from "../../ui/scroll-area";
+import { useImageGeneratorState } from '@/hooks/useImageGeneratorState';
 
 const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, disabled, proMode }) => (
   <div
@@ -40,7 +41,9 @@ const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, dis
   </div>
 );
 
-const ModelChooser = ({ model, setModel, nsfwEnabled, proMode }) => {
+const ModelChooser = ({ model, setModel, proMode }) => {
+  const { nsfwEnabled } = useImageGeneratorState();
+  
   const filteredModels = Object.entries(modelConfig).filter(([_, config]) => 
     nsfwEnabled ? config.category === "NSFW" : config.category === "General"
   );
