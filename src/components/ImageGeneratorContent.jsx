@@ -50,7 +50,7 @@ const ImageGeneratorContent = ({
   const isGenerateTab = location.hash === '#imagegenerate';
   const isNotificationsTab = location.hash === '#notifications';
   const shouldShowSettings = isMobile ? isGenerateTab : !isInspiration;
-  const [isPromptExpanded, setIsPromptExpanded] = useState(false);
+  const [isPromptVisible, setIsPromptVisible] = useState(true);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
   const [isSidebarMounted, setIsSidebarMounted] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
@@ -62,7 +62,7 @@ const ImageGeneratorContent = ({
   useEffect(() => {
     const shouldMount = isMobile 
       ? isGenerateTab
-      : shouldShowSettings && isPromptExpanded && !isInspiration && !searchQuery;
+      : shouldShowSettings && isPromptVisible && !isInspiration && !searchQuery;
 
     if (shouldMount) {
       setIsSidebarMounted(true);
@@ -76,7 +76,7 @@ const ImageGeneratorContent = ({
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [shouldShowSettings, isPromptExpanded, isInspiration, isGenerateTab, isMobile, searchQuery]);
+  }, [shouldShowSettings, isPromptVisible, isInspiration, isGenerateTab, isMobile, searchQuery]);
 
   // Track window resize for mobile state
   useEffect(() => {
@@ -180,7 +180,7 @@ const ImageGeneratorContent = ({
                   credits={credits}
                   bonusCredits={bonusCredits}
                   userId={session?.user?.id}
-                  onExpandedChange={setIsPromptExpanded}
+                  onVisibilityChange={setIsPromptVisible}
                 />
               )}
 

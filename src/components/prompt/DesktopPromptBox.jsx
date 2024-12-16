@@ -17,7 +17,7 @@ const DesktopPromptBox = ({
   bonusCredits,
   className,
   userId,
-  onExpandedChange
+  onVisibilityChange
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [isFixed, setIsFixed] = useState(false);
@@ -27,11 +27,6 @@ const DesktopPromptBox = ({
   const hasEnoughCreditsForImprovement = totalCredits >= 1;
   const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
 
-  // Notify parent of expanded state changes
-  useEffect(() => {
-    onExpandedChange?.(isExpanded);
-  }, [isExpanded, onExpandedChange]);
-
   // Handle scroll visibility
   useEffect(() => {
     if (!boxRef.current) return;
@@ -40,6 +35,7 @@ const DesktopPromptBox = ({
       ([entry]) => {
         setIsFixed(!entry.isIntersecting);
         setIsExpanded(entry.isIntersecting);
+        onVisibilityChange?.(entry.isIntersecting);
       },
       {
         threshold: 0,
@@ -49,7 +45,7 @@ const DesktopPromptBox = ({
 
     observer.observe(boxRef.current);
     return () => observer.disconnect();
-  }, []);
+  }, [onVisibilityChange]);
 
   // Focus textarea when expanded
   useEffect(() => {
