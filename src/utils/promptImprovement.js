@@ -36,6 +36,7 @@ export const improvePrompt = async (originalPrompt, activeModel, modelConfigs) =
           content: `You are an expert at crafting high-quality image generation prompts. Your task is to enhance the given prompt while maintaining its core concept and artistic intent. Follow these guidelines:
 1. Preserve the main subject and style of the original prompt
 2. stongly make the prompt relevent to this example prompt structure: ${modelExample}
+3. the part in the example that is inside ** is the main thing you should absolutely apply to the prompt.
 Respond only with the improved prompt, nothing else.`
         },
         {

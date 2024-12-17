@@ -52,7 +52,7 @@ export const modelConfig = {
     promptSuffix: ", photography, photorealistic",
     tagline: "make realistic images fast",
     image: "https://i.ibb.co.com/JrYsbmT/SD3.webp",
-    example: "A photorealistic portrait of a young woman with short dark brown hair, wearing a grey spaghetti-strap top, standing outdoors in soft daylight. The background includes a blurred pool and greenery, creating a serene and summery atmosphere. Warm lighting highlights her natural beauty and relaxed expression."
+    example: "*A photorealistic portrait* of a young woman with short dark brown hair, wearing a grey spaghetti-strap top, standing outdoors in soft daylight. The background includes a blurred pool and greenery, creating a serene and summery atmosphere. Warm lighting highlights her natural beauty and relaxed expression."
   },
   Illustturbo: {
     name: "Illustration turbo",
@@ -63,7 +63,7 @@ export const modelConfig = {
     promptSuffix: ", Simple Doodle",
     tagline: "make simple illustrations fast",
     image: "https://i.ibb.co.com/Mhk3M6v/SD1.webp",
-    example: "Simple Doodle, A cartoon drawing of a woman with long dark brown hair and a white face. The womans face has black eyes, a black nose, and a black smile. She is wearing a peach colored top with a white collar. The background is a light beige color."
+    example: "*Simple Doodle, A cartoon drawing of* a woman with long dark brown hair and a white face. The womans face has black eyes, a black nose, and a black smile. She is wearing a peach colored top with a white collar. The background is a light beige color."
   },
   render3d: {
     name: "3D Render XL",
@@ -74,7 +74,7 @@ export const modelConfig = {
     promptSuffix: ", 3d render",
     tagline: "render 3D images",
     image: "https://i.ibb.co.com/sbmM5mp/3d-style-2.jpg",
-    example: "a 3D rendered scene of a modern minimalist living room, soft ambient occlusion, ray tracing, blender style"
+    example: "*a 3D rendered scene of* a modern minimalist living room, soft ambient occlusion, ray tracing, blender style"
   },
   anime: {
     name: "Anime XL",
@@ -85,18 +85,18 @@ export const modelConfig = {
     promptSuffix: ", anm",
     tagline: "Flwaless Anime style images",
     image: "https://i.ibb.co.com/k2YdjZK/images-example-7y3r4uk1q.jpg",
-    example: "a beautiful anime girl in a school uniform, cherry blossoms falling, soft lighting, detailed eyes, anime style"
+    example: "a beautiful *anime* girl in a school uniform, cherry blossoms falling, soft lighting, detailed eyes, anime style"
   },
   anime2xl: {
     name: "Anime XL Fast",
     category: "General",
-    apiUrl: "https://api-inference.huggingface.co/models/cagliostrolab/animagine-xl-3.0",
+    apiUrl: "https://api-inference.huggingface.co/models/cagliostrolab/animagine-xl-3.1",
     qualityLimits: ["HD"],
     isPremium: false,
     promptSuffix: ", anime",
     tagline: "Anime style images make fast",
     image: "https://i.ibb.co.com/bgYbVQJ/Euv-INv-Bs-CKZQusp-ZHN-u-F.png",
-    example: "an epic anime battle scene, dynamic poses, special effects, dramatic lighting, detailed characters"
+    example: "an epic *anime* battle scene, dynamic poses, special effects, dramatic lighting, detailed characters"
   },
   midjourney: {
     name: "Midjourney-V6",
@@ -107,7 +107,7 @@ export const modelConfig = {
     promptSuffix: ", MJ v6",
     tagline: "Latest version of Midjourney for free",
     image: "https://i.ibb.co.com/8PnDLkf/1.png",
-    example: "MJ v6, Portrait photography of a woman in a red dress, in the style of unsplash photography, street photography, dark green background --ar 47:64 --v 6.0 --style raw"
+    example: "*MJ v6*, Portrait photography of a woman in a red dress, in the style of unsplash photography, street photography, dark green background --ar 47:64 --v 6.0 --style raw"
   },
   sketchart: {
     name: "Sketch Art",
@@ -118,7 +118,7 @@ export const modelConfig = {
     promptSuffix: ", shou_xin, pencil sketch",
     tagline: "sketch art pencil and colors",
     image: "https://i.ibb.co.com/P4xLs4W/img-00282.png",
-    example: "shou_xin, A color pencil sketch of a woman wearing red dress, realistic, close up, minimalist, impressionism, negative space"
+    example: "*shou_xin*, A color *pencil sketch of* a woman wearing red dress, realistic, close up, minimalist, impressionism, negative space"
   },
   vertorArt: {
     name: "Vector Art",
@@ -129,7 +129,7 @@ export const modelConfig = {
     promptSuffix: ", v3ct0r, vector",
     tagline: "Create Vector arts",
     image: "https://i.ibb.co.com/wKszPV2/images-example-ylmvpzdqk.jpg",
-    example: "v3ct0r style, simple flat vector art, isolated on white bg, rocket"
+    example: "*v3ct0r style, simple flat vector art, isolated on white bg,* rocket"
   },
   Isometric: {
     name: "Isometric",
@@ -140,7 +140,7 @@ export const modelConfig = {
     promptSuffix: ", Isometric Building",
     tagline: "Isometric style, build your world",
     image: "https://i.ibb.co.com/84bxty7/2.png",
-    example: "Isometric Building, a top-down view of a two-story white house with a blue roof is seen against a beige backdrop. The house is adorned with a variety of plants, including a tree, a table, and a bench, adding a touch of greenery to the scene. The staircase leads to the entrance of the house, which is flanked by a brown wooden gate. The ground is covered in grass, with a small patio in the middle of the stairs."
+    example: "*Isometric Building, a top-down view of* a two-story white house with a blue roof is seen against a beige backdrop. The house is adorned with a variety of plants, including a tree, a table, and a bench, adding a touch of greenery to the scene. The staircase leads to the entrance of the house, which is flanked by a brown wooden gate. The ground is covered in grass, with a small patio in the middle of the stairs."
   },
   handwriting: {
     name: "Handwriting",
@@ -151,7 +151,7 @@ export const modelConfig = {
     promptSuffix: ", HWRIT handwriting",
     tagline: "Real lookin handwriting images",
     image: "https://i.ibb.co.com/mFPgMkj/0041358a-ee46-4cab-85f5-108c4f09b729.jpg",
-    example: "HWRIT very neat handwriting saying Hello, 'this is a handwriting model', black thin ink on white paper"
+    example: "*HWRIT very neat handwriting saying *'this is a handwriting model', black thin ink on white paper"
   },
   outfitGenerator: {
     name: "Outfit Generator",
@@ -162,7 +162,7 @@ export const modelConfig = {
     promptSuffix: ", Teen Outfit",
     tagline: "Make cool outfits and cloths",
     image: "https://i.ibb.co.com/MCWQZBN/TO3.png",
-    example: "Teen Outfit, a light brown and white varsity jacket is hung on a black wall. The jacket is adorned with a white collar, white stripes and the words 'FORE CAST' in bold white letters. A keychain is hanging from the collar, adding a touch of charm to the jacket."
+    example: "*Teen Outfit*, a light brown and white varsity jacket is hung on a black wall. The jacket is adorned with a white collar, white stripes and the words 'FORE CAST' in bold white letters. A keychain is hanging from the collar, adding a touch of charm to the jacket."
   },
   colorChaos: {
     name: "Color Chaos",
@@ -173,7 +173,7 @@ export const modelConfig = {
     promptSuffix: ", Digital Chaos",
     tagline: "Chaos of Colors to make modern art",
     image: "https://i.ibb.co.com/TgcCsdf/HDRDC2.webp",
-    example: "Digital Chaos, An abstract painting of a womans face, the womans head is covered in black hair. The womans eyes are closed, and her lips are slightly parted. The background is a mix of blue, purple, orange, and yellow, and white. The painting has splashes of white, red, and blue, and black, creating a vibrant and colorful effect."
+    example: "*Digital Chaos,* An abstract painting of a womans face, the womans head is covered in black hair. The womans eyes are closed, and her lips are slightly parted. *The background is a mix of blue, purple, orange, and yellow, and white.* The painting has splashes of white, red, and blue, and black, creating a vibrant and colorful effect."
   },
   pixelArt: {
     name: "Pixel Art",
@@ -195,7 +195,7 @@ export const modelConfig = {
     promptSuffix: ", Icon kit",
     tagline: "3d Icons",
     image: "https://i.ibb.co.com/cxqCCnf/1-1.png",
-    example: "Icon Kit, An animated image of a yellow and purple jar. The jar has a white lightning bolt on it. The background is a bright blue."
+    example: "*Icon Kit, An animated image of* a yellow and purple jar. The jar has a white lightning bolt on it. *The background is* a bright blue."
   },
   aura: {
     name: "Aura 9999+",
@@ -206,7 +206,7 @@ export const modelConfig = {
     promptSuffix: ", Aura 9999",
     tagline: "gives your creations some aura",
     image: "https://i.ibb.co.com/NNWjs4d/A3.png",
-    example: "Aura 9999, a silhouette of a mans face can be seen in front of a dark background. The mans head is facing towards the right side of the frame, and his eyes are slightly open. His hair is a mix of brown and yellow, and he has a slight smile on his face. His mouth is slightly open, and there is a line of fire behind him, adding a touch of warmth to the scene."
+    example: "*Aura 9999*, a silhouette of a mans face can be seen *in front of a dark background*. The mans head is facing towards the right side of the frame, and his eyes are slightly open. His hair is a mix of brown and yellow, and he has a slight smile on his face. His mouth is slightly open, and there is a line of fire behind him, adding a touch of warmth to the scene."
   },
   blacked: {
     name: "Minimal blacked",
@@ -217,7 +217,7 @@ export const modelConfig = {
     promptSuffix: ", blacked",
     tagline: "minimal black background",
     image: "https://i.ibb.co.com/qskQPqT/q4.webp",
-    example: "A bright green leaf logo is depicted against a dark blacked background. The leaf has smooth, organic lines with subtle veins running through it, giving it a natural and lifelike appearance. A soft glow surrounds the leaf, adding a gentle illumination that contrasts beautifully with the dark background. This contrast between the vibrant green and deep black creates a fresh and eco-friendly feel, making the logo appear both vibrant and serene."
+    example: "A bright green leaf logo is *depicted against a dark blacked background*. The leaf has smooth, organic lines with subtle veins running through it, giving it a natural and lifelike appearance. A soft glow surrounds the leaf, adding a gentle illumination that contrasts beautifully with the dark background. This contrast between the vibrant green and deep black creates a fresh and eco-friendly feel, making the logo appear both vibrant and serene."
   },
   disney: {
     name: "Disney",
@@ -228,7 +228,7 @@ export const modelConfig = {
     promptSuffix: null,
     tagline: "Disney princes, use name",
     image: "https://i.ibb.co.com/54bxzMk/4058459.jpg",
-    example: "a Disney-style princess {princess_name_here} in a magical forest, expressive features, vibrant colors, animated movie style"
+    example: "a Disney-style princess *{princess_name_here}* in a magical forest, expressive features, vibrant colors, animated movie style"
   },
   ultra: {
     name: "Flux.1 Pro",
@@ -250,7 +250,7 @@ export const modelConfig = {
     promptSuffix: ", Nsfw, naked,",
     tagline: "NSFW generation",
     image: "https://i.ibb.co.com/qm9ZjV4/b36e71ed-c142-49c4-8ba5-4f3a57bd6ae9.jpg",
-    example: "a tasteful boudoir photo, artistic lighting, professional photography style, a nude woman standing in a sexy pose"
+    example: "a tasteful boudoir photo, artistic lighting, professional photography style, a *nude* woman standing in a sexy pose"
   },
   animeNsfw: {
     name: "Anime",
@@ -261,7 +261,7 @@ export const modelConfig = {
     promptSuffix: null,
     tagline: "Anime-style NSFW generation",
     image: "https://i.ibb.co.com/Tt1gwLG/1730283256633.jpg",
-    example: "an artistic anime character illustration, dynamic pose, detailed style, a naked teen girl having passionate sex, naked, Cum dripping everywhere"
+    example: "an artistic anime character illustration, dynamic pose, detailed style, a *naked* teen girl having passionate sex, naked, *Cum* dripping everywhere"
   },
   nudephotography: {
     name: "Nude Photography",
@@ -272,6 +272,6 @@ export const modelConfig = {
     promptSuffix: ", Nude photograpy, naked",
     tagline: "Nude models for Photoshoot",
     image: "https://i.ibb.co.com/GW2LDP1/example-20kld8mba.jpg",
-    example: "an artistic figure study photograph, professional studio lighting, fine art style, a nude pronactress spredding her legs wide, closeup on pussy"
+    example: "an artistic figure tudio photograph, professional studio lighting, fine art style, a *nude* *porn* actress spredding her legs wide, closeup on pussy"
   }
 };
