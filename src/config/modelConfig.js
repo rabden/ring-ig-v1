@@ -52,7 +52,7 @@ export const modelConfig = {
     promptSuffix: ", photography, photorealistic",
     tagline: "make realistic images fast",
     image: "https://i.ibb.co.com/JrYsbmT/SD3.webp",
-    example: "Start with 'A photorealistic portrait of' .Make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
+    example: "Start with 'A photorealistic portrait of' .Make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait. make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
   },
   Illustturbo: {
     name: "Illustration turbo",
@@ -63,7 +63,7 @@ export const modelConfig = {
     promptSuffix: ", Simple Doodle",
     tagline: "make simple illustrations fast",
     image: "https://i.ibb.co.com/Mhk3M6v/SD1.webp",
-    example: "Start with .Simple Doodle, A cartoon drawing of' then describe a simple illustration image"
+    example: "Start with 'Simple Doodle, A cartoon drawing of' then describe a simple illustration image"
   },
   render3d: {
     name: "3D Render XL",
@@ -139,7 +139,7 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: ", Isometric 3D",
     tagline: "Isometric style, build your world",
-    image: "https://i.ibb.co.com/84bxty7/2.png",
+    image: "https://i.ibb.co.com/88P57s7/ID2.png",
     example: "Start with 'Isometric 3D, a 3D model of' Then describe the things to appear in the image, heres an example: 'Isometric 3D, a 3D model of a tropical island is displayed on a light blue backdrop. The island features a small body of water, surrounded by gray rocks and green grass. There are palm trees and small bushes scattered throughout the island, adding a pop of color to the scene.'"
   },
   handwriting: {

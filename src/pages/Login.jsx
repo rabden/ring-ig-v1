@@ -13,7 +13,7 @@ const messages = [
   },
   { 
     text: "Transform your imagination into reality", 
-    image: "https://i.ibb.co.com/84bxty7/2.png"
+    image: "https://i.ibb.co.com/88P57s7/ID2.png"
   },
   { 
     text: "Generate multiple styles with one click", 
