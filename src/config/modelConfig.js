@@ -7,7 +7,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: null,
     tagline: "Fast generation with good quality",
-    image: "/models/turbo.png"
+    image: "/models/turbo.png",
+    example: "a stunning photograph of a majestic mountain landscape at sunset, golden hour lighting, dramatic clouds, ultra detailed, high quality"
   },
   flux: {
     name: "Flux.1 Schnell",
@@ -17,7 +18,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: null,
     tagline: "Balanced speed and quality",
-    image: "/models/flux.png"
+    image: "/models/flux.png",
+    example: "a beautiful portrait of a young woman in a garden, soft natural lighting, bokeh background, photorealistic, highly detailed"
   },
   sd35l: {
     name: "SD-3.5Large",
@@ -27,7 +29,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: null,
     tagline: "Latest Stable diffusion model",
-    image: "/models/turbo.png"
+    image: "/models/turbo.png",
+    example: "an ultra-detailed photograph of a futuristic cityscape at night, neon lights, rain-slicked streets, cyberpunk atmosphere"
   },
   fluxDev: {
     name: "FLx.1 Dev",
@@ -37,7 +40,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: null,
     tagline: "Flux dev by black forest labs",
-    image: "/models/fluxdev.png"
+    image: "/models/fluxdev.png",
+    example: "a professional product photo of a luxury watch on a marble surface, studio lighting, shallow depth of field, commercial quality"
   },
   fastReal: {
     name: "Realism turbo",
@@ -47,7 +51,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: ", photography, photorealistic",
     tagline: "make realistic images fast",
-    image: "https://i.ibb.co.com/JrYsbmT/SD3.webp"
+    image: "https://i.ibb.co.com/JrYsbmT/SD3.webp",
+    example: "a hyperrealistic close-up portrait of a person, natural skin texture, subsurface scattering, studio lighting, 8k quality"
   },
   Illustturbo: {
     name: "Illustration turbo",
@@ -57,7 +62,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: ", Simple Doodle",
     tagline: "make simple illustrations fast",
-    image: "https://i.ibb.co.com/Mhk3M6v/SD1.webp"
+    image: "https://i.ibb.co.com/Mhk3M6v/SD1.webp",
+    example: "a cute illustration of a happy cat playing with yarn, simple clean lines, vibrant colors, kawaii style"
   },
   render3d: {
     name: "3D Render XL",
@@ -67,7 +73,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: ", 3d render",
     tagline: "render 3D images",
-    image: "https://i.ibb.co.com/sbmM5mp/3d-style-2.jpg"
+    image: "https://i.ibb.co.com/sbmM5mp/3d-style-2.jpg",
+    example: "a 3D rendered scene of a modern minimalist living room, soft ambient occlusion, ray tracing, blender style"
   },
   anime: {
     name: "Anime XL",
@@ -77,7 +84,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: ", anm",
     tagline: "Flwaless Anime style images",
-    image: "https://i.ibb.co.com/k2YdjZK/images-example-7y3r4uk1q.jpg"
+    image: "https://i.ibb.co.com/k2YdjZK/images-example-7y3r4uk1q.jpg",
+    example: "a beautiful anime girl in a school uniform, cherry blossoms falling, soft lighting, detailed eyes, anime style"
   },
   anime2xl: {
     name: "Anime XL Fast",
@@ -87,7 +95,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: ", anime",
     tagline: "Anime style images make fast",
-    image: "https://i.ibb.co.com/bgYbVQJ/Euv-INv-Bs-CKZQusp-ZHN-u-F.png"
+    image: "https://i.ibb.co.com/bgYbVQJ/Euv-INv-Bs-CKZQusp-ZHN-u-F.png",
+    example: "an epic anime battle scene, dynamic poses, special effects, dramatic lighting, detailed characters"
   },
   midjourney: {
     name: "Midjourney-V6",
@@ -97,7 +106,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: ", MJ v6",
     tagline: "Latest version of Midjourney for free",
-    image: "https://i.ibb.co.com/8PnDLkf/1.png"
+    image: "https://i.ibb.co.com/8PnDLkf/1.png",
+    example: "an ethereal fantasy landscape with floating islands, mystical creatures, volumetric god rays, epic scale, highly detailed"
   },
   sketchart: {
     name: "Sketch Art",
@@ -107,7 +117,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: ", shou_xin, pencil sketch",
     tagline: "sketch art pencil and colors",
-    image: "https://i.ibb.co.com/P4xLs4W/img-00282.png"
+    image: "https://i.ibb.co.com/P4xLs4W/img-00282.png",
+    example: "a detailed pencil sketch of an old tree, intricate line work, shading, textural details, artistic style"
   },
   vertorArt: {
     name: "Vector Art",
@@ -117,7 +128,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: ", v3ct0r, vector",
     tagline: "Create Vector arts",
-    image: "https://i.ibb.co.com/wKszPV2/images-example-ylmvpzdqk.jpg"
+    image: "https://i.ibb.co.com/wKszPV2/images-example-ylmvpzdqk.jpg",
+    example: "a clean vector illustration of a geometric fox, flat colors, sharp edges, minimalist design"
   },
   Isometric: {
     name: "Isometric",
@@ -127,7 +139,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: ", Isometric Building",
     tagline: "Isometric style, build your world",
-    image: "https://i.ibb.co.com/84bxty7/2.png"
+    image: "https://i.ibb.co.com/84bxty7/2.png",
+    example: "an isometric view of a colorful city block, detailed buildings, tiny people, clean geometric style"
   },
   handwriting: {
     name: "Handwriting",
@@ -137,7 +150,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: ", HWRIT handwriting",
     tagline: "Real lookin handwriting images",
-    image: "https://i.ibb.co.com/mFPgMkj/0041358a-ee46-4cab-85f5-108c4f09b729.jpg"
+    image: "https://i.ibb.co.com/mFPgMkj/0041358a-ee46-4cab-85f5-108c4f09b729.jpg",
+    example: "a handwritten letter on vintage paper, flowing cursive script, ink texture, natural variations"
   },
   outfitGenerator: {
     name: "Outfit Generator",
@@ -147,7 +161,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: ", Teen Outfit",
     tagline: "Make cool outfits and cloths",
-    image: "https://i.ibb.co.com/MCWQZBN/TO3.png"
+    image: "https://i.ibb.co.com/MCWQZBN/TO3.png",
+    example: "a trendy street fashion outfit on a model, urban background, natural pose, fashion photography style"
   },
   colorChaos: {
     name: "Color Chaos",
@@ -157,7 +172,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: ", Digital Chaos",
     tagline: "Chaos of Colors to make modern art",
-    image: "https://i.ibb.co.com/TgcCsdf/HDRDC2.webp"
+    image: "https://i.ibb.co.com/TgcCsdf/HDRDC2.webp",
+    example: "an abstract digital artwork with explosive colors, fluid motion, dynamic composition, modern art style"
   },
   pixelArt: {
     name: "Pixel Art",
@@ -167,7 +183,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: ", pixel art",
     tagline: "CModern Pixel art",
-    image: "https://i.ibb.co.com/DkdtLrG/Comfy-UI-00047.png"
+    image: "https://i.ibb.co.com/DkdtLrG/Comfy-UI-00047.png",
+    example: "a pixel art scene of a medieval fantasy town, 16-bit style, limited color palette, retro gaming aesthetic"
   },
   iconkit: {
     name: "Icon Kit",
@@ -177,7 +194,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: ", Icon kit",
     tagline: "3d Icons",
-    image: "https://i.ibb.co.com/cxqCCnf/1-1.png"
+    image: "https://i.ibb.co.com/cxqCCnf/1-1.png",
+    example: "a modern 3D icon of a camera app, gradient colors, soft shadows, clean design"
   },
   aura: {
     name: "Aura 9999+",
@@ -187,7 +205,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: ", Aura 9999",
     tagline: "gives your creations some aura",
-    image: "https://i.ibb.co.com/NNWjs4d/A3.png"
+    image: "https://i.ibb.co.com/NNWjs4d/A3.png",
+    example: "a mystical portrait with glowing aura effects, ethereal lighting, energy streams, spiritual atmosphere"
   },
   disney: {
     name: "Disney",
@@ -197,7 +216,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: null,
     tagline: "Disney princes, use name",
-    image: "https://i.ibb.co.com/54bxzMk/4058459.jpg"
+    image: "https://i.ibb.co.com/54bxzMk/4058459.jpg",
+    example: "a Disney-style princess in a magical forest, expressive features, vibrant colors, animated movie style"
   },
   ultra: {
     name: "Flux.1 Pro",
@@ -207,7 +227,8 @@ export const modelConfig = {
     isPremium: true,
     promptSuffix: null,
     tagline: "A merge of multiple models",
-    image: "/models/ultra.png"
+    image: "/models/ultra.png",
+    example: "an ultra-detailed fantasy character portrait, cinematic lighting, photorealistic textures, professional photography"
   },
   nsfwMaster: {
     name: "Real",
@@ -217,7 +238,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: ", Nsfw, naked,",
     tagline: "NSFW generation",
-    image: "https://i.ibb.co.com/qm9ZjV4/b36e71ed-c142-49c4-8ba5-4f3a57bd6ae9.jpg"
+    image: "https://i.ibb.co.com/qm9ZjV4/b36e71ed-c142-49c4-8ba5-4f3a57bd6ae9.jpg",
+    example: "a tasteful boudoir photo, artistic lighting, professional photography style"
   },
   animeNsfw: {
     name: "Anime",
@@ -227,7 +249,8 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: null,
     tagline: "Anime-style NSFW generation",
-    image: "https://i.ibb.co.com/Tt1gwLG/1730283256633.jpg"
+    image: "https://i.ibb.co.com/Tt1gwLG/1730283256633.jpg",
+    example: "an artistic anime character illustration, dynamic pose, detailed style"
   },
   nudephotography: {
     name: "Nude Photography",
@@ -237,6 +260,7 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: ", Nude photograpy, naked",
     tagline: "Nude models for Photoshoot",
-    image: "https://i.ibb.co.com/GW2LDP1/example-20kld8mba.jpg"
+    image: "https://i.ibb.co.com/GW2LDP1/example-20kld8mba.jpg",
+    example: "an artistic figure study photograph, professional studio lighting, fine art style"
   }
 };

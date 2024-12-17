@@ -41,7 +41,7 @@ const ImageGenerator = () => {
 
   const {
     prompt, setPrompt, seed, setSeed, randomizeSeed, setRandomizeSeed,
-    width, setWidth, height, setHeight, steps, setSteps,
+    width, setWidth, height, setHeight,
     model, setModel, aspectRatio, setAspectRatio,
     useAspectRatio, setUseAspectRatio, quality, setQuality,
     selectedImage, setSelectedImage,
@@ -106,7 +106,6 @@ const ImageGenerator = () => {
     updateCredits,
     setGeneratingImages,
     modelConfigs,
-    steps,
     imageCount
   });
 
@@ -125,7 +124,7 @@ const ImageGenerator = () => {
       let finalPrompt = prompt;
       
       if (isImproving) {
-        const improved = await improveCurrentPrompt(prompt);
+        const improved = await improveCurrentPrompt(prompt, model);
         if (!improved) {
           setIsGenerating(false);
           return;
@@ -156,12 +155,11 @@ const ImageGenerator = () => {
     setSelectedImage,
     setFullScreenViewOpen,
     setModel,
-    setSteps,
+    setWidth,
+    setHeight,
     setPrompt,
     setSeed,
     setRandomizeSeed,
-    setWidth,
-    setHeight,
     setQuality,
     setAspectRatio,
     setUseAspectRatio,
@@ -242,8 +240,6 @@ const ImageGenerator = () => {
         setWidth,
         height,
         setHeight,
-        steps,
-        setSteps,
         imageCount,
         setImageCount,
         isPrivate,

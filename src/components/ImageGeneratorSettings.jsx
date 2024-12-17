@@ -30,7 +30,6 @@ const ImageGeneratorSettings = ({
   credits = 0,
   bonusCredits = 0,
   nsfwEnabled, setNsfwEnabled,
-  steps, setSteps,
   proMode,
   modelConfigs,
   imageCount = 1,
@@ -82,7 +81,7 @@ const ImageGeneratorSettings = ({
       return;
     }
 
-    await improveCurrentPrompt(prompt, (improvedPrompt) => {
+    await improveCurrentPrompt(prompt, model, (improvedPrompt) => {
       setPrompt(improvedPrompt);
     });
   };

@@ -3,13 +3,13 @@ import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { useProUser } from '@/hooks/useProUser'
 import { toast } from 'sonner'
 import { handleImageDiscard } from '@/utils/discardUtils'
+import { useNavigate } from 'react-router-dom'
 
 export const useImageHandlers = ({
   generateImage,
   setSelectedImage,
   setFullScreenViewOpen,
   setModel,
-  setSteps,
   setPrompt,
   setSeed,
   setRandomizeSeed,
@@ -18,12 +18,14 @@ export const useImageHandlers = ({
   setQuality,
   setAspectRatio,
   setUseAspectRatio,
+  aspectRatios = [],
   session,
   queryClient,
   activeView,
   setDetailsDialogOpen,
   setActiveView,
 }) => {
+  const navigate = useNavigate();
   const { data: modelConfigs } = useModelConfigs();
   const { data: isPro = false } = useProUser(session?.user?.id);
 
@@ -37,6 +39,9 @@ export const useImageHandlers = ({
   }
 
   const handleModelChange = (newModel) => {
+    if (newModel === 'turbo' && (setQuality('HD+') || setQuality('4K'))) {
+      setQuality('HD');
+    }
     setModel(newModel)
   }
 
@@ -57,35 +62,14 @@ export const useImageHandlers = ({
     setRandomizeSeed(false);
     setWidth(image.width);
     setHeight(image.height);
-
-    const isProModel = modelConfigs?.[image.model]?.isPremium;
-    const isNsfwModel = modelConfigs?.[image.model]?.category === "NSFW";
-
-    if (isNsfwModel) {
-      setModel('nsfwMaster');
-      setSteps(modelConfigs['nsfwMaster']?.defaultStep || 30);
-    } else if (isProModel && !isPro) {
-      setModel('turbo');
-      setSteps(modelConfigs['turbo']?.defaultStep || 4);
-    } else {
-      setModel(image.model);
-      setSteps(image.steps);
-    }
-
-    if (image.quality === 'HD+' && !isPro) {
-      setQuality('HD');
-    } else {
-      setQuality(image.quality);
-    }
-
-    const isPremiumRatio = ['9:21', '21:9', '3:2', '2:3', '4:5', '5:4', '10:16', '16:10'].includes(image.aspect_ratio);
-    if (isPremiumRatio && !isPro) {
-      setAspectRatio('1:1');
-      setUseAspectRatio(true);
-    } else {
+    setModel(image.model);
+    setQuality(image.quality);
+    if (image.aspect_ratio) {
       setAspectRatio(image.aspect_ratio);
       setUseAspectRatio(true);
     }
+    setActiveView('input');
+    navigate('/#imagegenerate');
   }
 
   const handleDownload = async (imageUrl, prompt) => {

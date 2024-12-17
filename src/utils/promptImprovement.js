@@ -1,7 +1,8 @@
 import { HfInference } from "@huggingface/inference";
 import { supabase } from '@/integrations/supabase/supabase';
+import { modelConfig } from '@/config/modelConfig';
 
-export const improvePrompt = async (originalPrompt) => {
+export const improvePrompt = async (originalPrompt, activeModel) => {
   try {
     const { data: apiKeyData, error: apiKeyError } = await supabase
       .from('huggingface_api_keys')
@@ -26,12 +27,24 @@ export const improvePrompt = async (originalPrompt) => {
 
     const client = new HfInference(apiKeyData.api_key);
     
+    const modelExample = modelConfig[activeModel]?.example || "a photo of a cat, high quality, detailed";
+    
     const response = await client.chatCompletion({
       model: "01-ai/Yi-1.5-34B-Chat",
       messages: [
         {
           role: "system",
-          content: "You are an AI that enhances image generation prompts. Your task is to add descriptive details to make the prompt more specific and vivid. Only respond with the improved prompt, nothing else. No explanations, no commentary, just the enhanced prompt text."
+          content: `You are an expert at crafting high-quality image generation prompts. Your task is to enhance the given prompt while maintaining its core concept and artistic intent. Follow these guidelines:
+
+1. Preserve the main subject and style of the original prompt
+2. Add relevant quality-enhancing terms like "highly detailed", "professional", or "masterful" where appropriate
+3. Include lighting, atmosphere, and composition details if missing
+4. Reference this example prompt structure: ${modelExample}
+5. Keep the prompt clear and well-structured
+6. Do not add unrelated concepts or change the core idea
+7. Maintain any specific artistic style mentioned in the original prompt
+
+Respond only with the improved prompt, no explanations.`
         },
         {
           role: "user",
