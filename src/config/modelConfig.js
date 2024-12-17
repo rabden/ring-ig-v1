@@ -195,7 +195,7 @@ export const modelConfig = {
     apiUrl: "https://api-inference.huggingface.co/models/Keltezaa/all-disney-princess-xl-lora-model-from-ralph-breaks-the-internet",
     qualityLimits: null,
     isPremium: false,
-    promptSuffix: nll,
+    promptSuffix: null,
     tagline: "Disney princes, use name",
     image: "https://i.ibb.co.com/54bxzMk/4058459.jpg"
   },
