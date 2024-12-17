@@ -37,6 +37,7 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
   if (!showDrawer) return null;
 
   const pendingCount = generatingImages.filter(img => img.status === 'pending').length;
+  const allCompleted = generatingImages.length > 0 && generatingImages.every(img => img.status === 'completed');
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
@@ -45,13 +46,18 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
           <DrawerTitle className="flex items-center gap-3 text-base font-medium">
             {pendingCount > 0 ? (
               <div className="flex items-center gap-3">
-                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                <Loader className="h-4 w-4 animate-spin text-primary" />
                 <span>Generating {pendingCount} image{pendingCount > 1 ? 's' : ''}...</span>
               </div>
-            ) : (
+            ) : allCompleted ? (
               <div className="flex items-center gap-3">
                 <Check className="h-4 w-4 text-primary" />
                 <span>Complete</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Loader className="h-4 w-4 animate-spin text-primary" />
+                <span>Processing...</span>
               </div>
             )}
           </DrawerTitle>
@@ -96,7 +102,7 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
                     <Check className="h-3.5 w-3.5 ml-auto text-primary" />
                   ) : (
                     <div className="ml-auto p-0.5 rounded-full bg-primary/10">
-                      <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                      <Loader className="h-3 w-3 animate-spin text-primary" />
                     </div>
                   )}
                 </div>
