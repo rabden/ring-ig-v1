@@ -43,6 +43,39 @@ export const modelConfig = {
     image: "https://i.ibb.co.com/gjrM8R5/out-0-1.webp",
     example: "make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
   },
+  ultra: {
+    name: "Flux.1 Pro",
+    category: "General",
+    apiUrl: "https://api-inference.huggingface.co/models/strangerzonehf/Flux-Ultimate-LoRA-Collection",
+    qualityLimits: null,
+    isPremium: true,
+    promptSuffix: null,
+    tagline: "A merge of multiple models",
+    image: "https://i.ibb.co.com/Tqb5Pgk/sample.jpg",
+    example: "Make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
+  },
+  dalle: {
+    name: "Dall-E 3",
+    category: "General",
+    apiUrl: "https://api-inference.huggingface.co/models/Nercy/flux-dalle",
+    qualityLimits: null,
+    isPremium: true,
+    promptSuffix: ", dalle",
+    tagline: "Open AI Dall-E 3",
+    image: "https://i.ibb.co.com/18gFNNS/images-example-kz79mj1mz.jpg",
+    example: "Make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
+  },
+  playground: {
+    name: "Playground v3",
+    category: "General",
+    apiUrl: "https://api-inference.huggingface.co/models/playgroundai/playground-v2.5-1024px-aesthetic",
+    qualityLimits: null,
+    isPremium: true,
+    promptSuffix: ", dalle",
+    tagline: "try Playground 3",
+    image: "https://i.ibb.co.com/18gFNNS/images-example-kz79mj1mz.jpg",
+    example: "Make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
+  },
   fastReal: {
     name: "Realism turbo",
     category: "General",
@@ -108,6 +141,17 @@ export const modelConfig = {
     tagline: "Latest version of Midjourney for free",
     image: "https://i.ibb.co.com/8PnDLkf/1.png",
     example: "Start with 'MJ v6,'. Make high quality flawless prompts that will go well wth Midjourney, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c. End with '--ar 47:64 --v 6.0 --style raw' this is an example: 'MJ v6, A photo of an attractive man in his thirties, wearing a black coat and yellow scarf with a brown pattern inside a building talking on a phone standing near a modern glass skyscraper in London, shot from below looking up at him in the style of street photography, cinematic.  --ar 85:128 --v 6.0 --style raw'"
+  },
+  dreamscape: {
+    name: "Dreamscape",
+    category: "General",
+    apiUrl: "https://api-inference.huggingface.co/models/bingbangboom/flux_dreamscape",
+    qualityLimits: null,
+    isPremium: false,
+    promptSuffix: ", in the style of BSstyle004",
+    tagline: "Dream up",
+    image: "https://i.ibb.co.com/nkxPsYG/images-2.jpg",
+    example: "Start with 'in the style of BSstyle004,'. follow this example: 'white-haired young man, extremely simple, large-scale blue, brightly colored board, dark white and light blue'"
   },
   sketchart: {
     name: "Sketch Art",
@@ -251,17 +295,6 @@ export const modelConfig = {
     tagline: "Disney princes, use name",
     image: "https://i.ibb.co.com/54bxzMk/4058459.jpg",
     example: "You have to make amazing disney style images prompt of disney princesses, if princess name not mentioned in original prompt then add suitable name like Elsa or Anna, heres an example: 'cinematic photo casual anna, ,   . 35mm photograph, film, bokeh, professional, 4k, highly detailed'"
-  },
-  ultra: {
-    name: "Flux.1 Pro",
-    category: "General",
-    apiUrl: "https://api-inference.huggingface.co/models/strangerzonehf/Flux-Ultimate-LoRA-Collection",
-    qualityLimits: null,
-    isPremium: true,
-    promptSuffix: null,
-    tagline: "A merge of multiple models",
-    image: "https://i.ibb.co.com/Tqb5Pgk/sample.jpg",
-    example: "Make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
   },
   nsfwMaster: {
     name: "Real",
