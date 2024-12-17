@@ -24,8 +24,6 @@ export const AuthUI = ({ buttonText }) => {
         },
       });
       if (error) throw error;
-      
-      console.log('Google sign in initiated:', data);
     } catch (error) {
       console.error('Error signing in with Google:', error.message);
       setError(error.message || 'Failed to sign in with Google');
@@ -36,36 +34,22 @@ export const AuthUI = ({ buttonText }) => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-6">
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">
-              Continue with
-            </span>
-          </div>
-        </div>
-
-        <Button
-          className="w-full"
-          variant="outline"
-          onClick={handleGoogleSignIn}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <Loader className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <FcGoogle className="mr-2 h-4 w-4" />
-          )}
-          {buttonText || "Continue with Google"}
-        </Button>
-      </div>
+    <div className="w-full space-y-4">
+      <Button
+        className="w-full bg-white hover:bg-zinc-50 text-black border border-border"
+        onClick={handleGoogleSignIn}
+        disabled={isLoading}
+      >
+        {isLoading ? (
+          <Loader className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <FcGoogle className="mr-2 h-5 w-5" />
+        )}
+        {buttonText || "Continue with Google"}
+      </Button>
 
       {error && (
-        <div className="text-sm text-red-500 text-center">
+        <div className="text-sm text-destructive text-center">
           {error}
         </div>
       )}

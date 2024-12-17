@@ -4,6 +4,7 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { AuthUI } from '@/integrations/supabase/components/AuthUI';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Typewriter } from 'react-simple-typewriter';
+import { cn } from '@/lib/utils';
 
 const messages = [
   { 
@@ -33,19 +34,22 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
-    console.log('Auth state changed:', { session, loading });
     if (session) {
       const from = location.state?.from?.pathname || '/';
-      console.log('Redirecting to:', from);
       navigate(from, { replace: true });
     }
   }, [session, loading, navigate, location]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentMessageIndex((prev) => (prev + 1) % messages.length);
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentMessageIndex((prev) => (prev + 1) % messages.length);
+        setIsTransitioning(false);
+      }, 300);
     }, 5000);
 
     return () => clearInterval(interval);
@@ -56,46 +60,48 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-background">
+    <div className="min-h-screen flex flex-col md:flex-row bg-background overflow-hidden">
       {/* Left side - Showcase */}
-      <div className="flex flex-col w-full md:w-1/2 bg-background text-white relative">
-        <div className="flex flex-col h-full p-8 md:p-12">
-          {/* Image Section */}
-          <div className="flex-grow flex items-center justify-center mb-4 md:mb-8">
-            <div className="w-full max-w-md aspect-square relative overflow-hidden rounded-lg">
-              <img
-                src={messages[currentMessageIndex].image}
-                alt="Feature showcase"
-                className="w-full h-full object-cover transition-all duration-500"
-              />
-              {/* Gradient overlay for image */}
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/30" />
-            </div>
-          </div>
-          
-          {/* Text Section */}
-          <div className="text-center space-y-2 md:space-y-4">
-            <div className="min-h-[4rem] flex items-center justify-center">
-              <h4 className="text-lg md:text-xl font-semibold">
-                <Typewriter
-                  words={messages.map(msg => msg.text)}
-                  cursor
-                  cursorStyle="_"
-                  typeSpeed={50}
-                  deleteSpeed={30}
-                  delaySpeed={3000}
-                  loop={true}
-                />
-              </h4>
-            </div>
+      <div className="w-full md:w-3/5 bg-background relative overflow-hidden">
+        <div className="absolute inset-0 flex items-center justify-center p-4 md:p-8">
+          <div className={cn(
+            "w-full h-full relative transition-opacity duration-300",
+            isTransitioning ? "opacity-0" : "opacity-100"
+          )}>
+            <img
+              src={messages[currentMessageIndex].image}
+              alt="Feature showcase"
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
       </div>
 
       {/* Right side - Auth UI */}
-      <div className="w-full md:w-1/2 flex items-center justify-center p-8 bg-background">
-        <div className="w-full max-w-[300px]">
+      <div className="w-full md:w-2/5 flex flex-col items-center justify-center p-8 bg-background border-l border-border">
+        <div className="w-full max-w-[320px] space-y-8">
+          <div className="space-y-2 text-center">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Welcome to Ring
+            </h1>
+            <p className="text-sm text-muted-foreground h-12">
+              <Typewriter
+                words={messages.map(msg => msg.text)}
+                cursor
+                cursorStyle="_"
+                typeSpeed={50}
+                deleteSpeed={30}
+                delaySpeed={3000}
+                loop={true}
+              />
+            </p>
+          </div>
+
           <AuthUI buttonText="Continue with Google" />
+          
+          <p className="text-center text-sm text-muted-foreground">
+            By continuing, you agree to our Terms of Service and Privacy Policy
+          </p>
         </div>
       </div>
     </div>
