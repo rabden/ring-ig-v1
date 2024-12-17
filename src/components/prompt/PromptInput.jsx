@@ -67,15 +67,15 @@ const PromptInput = ({
   return (
     <div className="relative mb-8">
       <div className="relative">
-        <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-background to-transparent pointer-events-none z-10" ></div>
-        <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-background to-transparent pointer-events-none z-10"></div>
+        <div className="absolute top-0 left-0 w-full h-6 bg-gradient-to-b from-background to-transparent pointer-events-none z-10" ></div>
+        <div className="absolute bottom-0 left-0 w-full h-6 bg-gradient-to-t from-background to-transparent pointer-events-none z-10"></div>
         
         <textarea
           value={prompt}
           onChange={onChange}
           onKeyDown={onKeyDown}
           placeholder="A 4D HDR immersive 3D image..."
-          className="w-full min-h-[430px] md:min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-4 px-2 md:px-2"
+          className="w-full min-h-[450px] md:min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-4 px-2 md:px-2"
           style={{ 
             caretColor: 'currentColor',
           }}
