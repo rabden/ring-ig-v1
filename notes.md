@@ -4,7 +4,7 @@
 - Split screen design with showcase on left and login on right
 - Left side features:
   - Full-screen background image with smooth transitions
-  - Synchronized image changes with typewriter completion
+  - Independent image transitions on fixed interval
 - Right side features:
   - Welcome message and typewriter text
   - Google OAuth login button
@@ -34,18 +34,17 @@
 1. Removed text overlay from image
 2. Enhanced text visibility in right panel
 3. Improved typography and spacing
-4. Synchronized image transitions with text completion
+4. Independent image and text transitions
 5. Cleaner visual hierarchy
 
 #### Animation Enhancements
-1. Fixed image transition timing
-   - Transitions only after typewriter completes
-   - Consistent 1-second fade duration
-   - Predictable sequence
-2. Improved typewriter effect
-   - Reduced delay between cycles
-   - Added completion callback
-   - Better synchronization
+1. Implemented fixed interval image transitions
+   - 5-second display duration
+   - 1-second fade transition
+   - Consistent timing
+2. Independent typewriter effect
+   - Continuous text cycling
+   - Smooth text transitions
 3. Smoother loading states
 
 ### Responsive Behavior

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { AuthUI } from '@/integrations/supabase/components/AuthUI';
@@ -29,6 +29,9 @@ const messages = [
   }
 ];
 
+const TRANSITION_DURATION = 1000; // 1 second for fade transition
+const DISPLAY_DURATION = 5000; // 5 seconds per image
+
 const Login = () => {
   const { session, loading } = useSupabaseAuth();
   const navigate = useNavigate();
@@ -43,15 +46,18 @@ const Login = () => {
     }
   }, [session, loading, navigate, location]);
 
-  const handleTypingComplete = useCallback(() => {
-    if (!isTransitioning) {
+  useEffect(() => {
+    const interval = setInterval(() => {
       setIsTransitioning(true);
+      
       setTimeout(() => {
         setCurrentMessageIndex((prev) => (prev + 1) % messages.length);
         setIsTransitioning(false);
-      }, 1000);
-    }
-  }, [isTransitioning]);
+      }, TRANSITION_DURATION);
+    }, DISPLAY_DURATION);
+
+    return () => clearInterval(interval);
+  }, []);
 
   if (loading) {
     return <LoadingScreen />;
@@ -101,9 +107,6 @@ const Login = () => {
                 typeSpeed={50}
                 deleteSpeed={30}
                 delaySpeed={2000}
-                onType={() => {}}
-                onDelete={() => {}}
-                onLoopDone={handleTypingComplete}
                 loop={true}
               />
             </p>
