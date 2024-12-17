@@ -33,7 +33,7 @@ export const improvePrompt = async (originalPrompt, activeModel, modelConfigs) =
       messages: [
         {
           role: "system",
-          content: `You are an expert AI image prompt engineer specializing in enhancing prompts for high-quality image generation. Your task is to improve the given prompt while maintaining its core concept and artistic intent. Key Guidelines: ${modelExample}`
+          content: `You are an expert AI image prompt engineer specializing in enhancing prompts for high-quality image generation. Your task is to improve the given prompt while maintaining its core concept and artistic intent, Just return the improved prompt saying nothing else. stongly follow these Guidelines: ${modelExample}`
         },
         {
           role: "user",
