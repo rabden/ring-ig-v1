@@ -7,7 +7,7 @@ export const usePromptImprovement = (userId) => {
   const [isImproving, setIsImproving] = useState(false);
   const { deductCredits, isDeducting } = usePromptCredits(userId);
 
-  const improveCurrentPrompt = async (prompt, activeModel, onSuccess) => {
+  const improveCurrentPrompt = async (prompt, activeModel, modelConfigs, onSuccess) => {
     if (!prompt?.trim()) {
       toast.error('Please enter a prompt');
       return;
@@ -20,7 +20,7 @@ export const usePromptImprovement = (userId) => {
     
     try {
       // Try to improve the prompt first
-      const result = await improvePrompt(prompt, activeModel);
+      const result = await improvePrompt(prompt, activeModel, modelConfigs);
       if (!result) {
         toast.error('Failed to improve prompt', { 
           id: toastId,

@@ -175,12 +175,12 @@ const ImageGeneratorContent = ({
                   onSubmit={imageGeneratorProps.generateImage}
                   hasEnoughCredits={true}
                   onClear={() => imageGeneratorProps.setPrompt('')}
-                  onImprove={imageGeneratorProps.improveCurrentPrompt}
-                  isImproving={imageGeneratorProps.isImproving}
                   credits={credits}
                   bonusCredits={bonusCredits}
                   userId={session?.user?.id}
                   onVisibilityChange={setIsPromptVisible}
+                  activeModel={imageGeneratorProps.model}
+                  modelConfigs={imageGeneratorProps.modelConfigs}
                 />
               )}
 

@@ -18,7 +18,8 @@ const DesktopPromptBox = ({
   className,
   userId,
   onVisibilityChange,
-  activeModel
+  activeModel,
+  modelConfigs
 }) => {
   const [isFixed, setIsFixed] = useState(false);
   const boxRef = useRef(null);
@@ -58,7 +59,7 @@ const DesktopPromptBox = ({
     }
 
     try {
-      await improveCurrentPrompt(prompt, activeModel, (improvedPrompt) => {
+      await improveCurrentPrompt(prompt, activeModel, modelConfigs, (improvedPrompt) => {
         onChange({ target: { value: improvedPrompt } });
       });
     } catch (error) {

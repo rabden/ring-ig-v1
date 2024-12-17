@@ -24,11 +24,8 @@ const ImageGenerator = () => {
 
   const {
     isImproving,
-    setIsImproving,
-    improvedPrompt,
-    setImprovedPrompt,
     improveCurrentPrompt
-  } = usePromptImprovement();
+  } = usePromptImprovement(session?.user?.id);
 
   const [activeFilters, setActiveFilters] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
@@ -124,7 +121,7 @@ const ImageGenerator = () => {
       let finalPrompt = prompt;
       
       if (isImproving) {
-        const improved = await improveCurrentPrompt(prompt, model);
+        const improved = await improveCurrentPrompt(prompt, model, modelConfigs);
         if (!improved) {
           setIsGenerating(false);
           return;

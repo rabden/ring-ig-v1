@@ -81,7 +81,7 @@ const ImageGeneratorSettings = ({
       return;
     }
 
-    await improveCurrentPrompt(prompt, model, (improvedPrompt) => {
+    await improveCurrentPrompt(prompt, model, modelConfigs, (improvedPrompt) => {
       setPrompt(improvedPrompt);
     });
   };

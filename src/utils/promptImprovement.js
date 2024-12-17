@@ -1,8 +1,7 @@
 import { HfInference } from "@huggingface/inference";
 import { supabase } from '@/integrations/supabase/supabase';
-import { modelConfig } from '@/config/modelConfig';
 
-export const improvePrompt = async (originalPrompt, activeModel) => {
+export const improvePrompt = async (originalPrompt, activeModel, modelConfigs) => {
   try {
     const { data: apiKeyData, error: apiKeyError } = await supabase
       .from('huggingface_api_keys')
@@ -27,7 +26,7 @@ export const improvePrompt = async (originalPrompt, activeModel) => {
 
     const client = new HfInference(apiKeyData.api_key);
     
-    const modelExample = modelConfig[activeModel]?.example || "a photo of a cat, high quality, detailed";
+    const modelExample = modelConfigs?.[activeModel]?.example || "a photo of a cat, high quality, detailed";
     
     const response = await client.chatCompletion({
       model: "01-ai/Yi-1.5-34B-Chat",
