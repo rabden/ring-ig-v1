@@ -1,88 +1,126 @@
-## Login Page Analysis
+# Ring Image Generator - UI/UX Design Documentation
 
-### Current Implementation
-- Split screen design with showcase on left and login on right
-- Left side features:
-  - Full-screen background image with smooth transitions
-  - Strict 1:1 aspect ratio maintained on mobile
-  - Simplified transition logic
-- Right side features:
-  - Welcome message and typewriter text
-  - Google OAuth login button
-  - Terms of service notice
+## Design Philosophy
+- Modern minimalist design with focus on functionality and clean aesthetics
+- High contrast, clear visual hierarchy
+- Emphasis on content and user interaction
+- Distraction-free interface with purposeful whitespace
 
-### Authentication Flow
-- Uses Supabase Auth with Google OAuth
-- Handles redirects and session management
-- Includes loading states and error handling
+## Color Scheme
+### Primary Colors
+- Background: Pure black (#000000)
+- Text: Pure white (#FFFFFF)
+- Primary Accent: white muted for interactive elements
+- Secondary: deep dark gray for subtle hierarchy
 
-### UI Components Used
-- Button from custom UI components
-- LoadingScreen component
-- Typewriter from react-simple-typewriter
-- Icons from react-icons
+### State Colors
+- Success: Subtle green
+- Error: Subtle red
+- Warning: Subtle yellow
+- Info: Subtle dark gey
 
-### Latest Changes
+## Typography
+- System font stack for optimal performance
+- Font Hierarchy:
+  - Headings: Bold, larger sizes
+  - Body: Regular weight, comfortable reading size
+  - UI Elements: Medium weight for better visibility
 
-#### Layout Updates
-1. Enforced strict 1:1 aspect ratio for image section
-2. Improved mobile responsiveness
-   - Smaller text sizes
-   - Reduced padding and spacing
-   - Adjusted component heights
-3. Better spacing hierarchy
-   - Consistent spacing scale
-   - Mobile-first spacing values
-4. Enhanced content alignment
-5. Optimized container structure
+## Component Design
 
-#### Visual Improvements
-1. Proper aspect ratio maintenance
-2. Better mobile typography
-   - Smaller font sizes on mobile
-   - Adjusted line heights
-   - Proper text scaling
-3. Improved component sizing
-   - Smaller button on mobile
-   - Adjusted icon sizes
-   - Better spacing ratios
-4. Enhanced mobile UX
-   - More compact layout
-   - Better touch targets
-   - Improved readability
+### Buttons
+- Clean shape
+- No shadows, borders or rings
+- States:
+  - Default: Semi-transparent background
+  - Hover: Increased opacity
+  - Active: Full opacity
+  - Disabled: Reduced opacity
 
-#### Animation Enhancements
-1. Single interval-based image rotation
-   - 5-second display duration
-   - 2-second smooth transition
-   - No multiple state changes
-2. Independent typewriter effect
-   - Continuous text cycling
-   - Clean text transitions
-3. Optimized loading states
+### Input Fields
+- Minimal borders
+- Clear focus states without rings
+- Consistent padding and height
+- Placeholder text in muted color
 
-### Responsive Behavior
-1. Mobile:
-   - Strict 1:1 aspect ratio for showcase
-   - Compact, stacked layout
-   - Smaller components and text
-   - Reduced spacing
-2. Desktop:
-   - 60/40 split layout
-   - Full-height showcase
-   - Larger components
-   - More generous spacing
+### Dropdowns & Menus
+- Clean rectangular containers
+- No shadows
+- Subtle borders for definition
+- Consistent spacing and padding
+- Clear hover states
 
-### Next Steps
-1. Performance optimization:
-   - Image preloading
-   - Transition smoothing
-   - Load time improvements
-2. Accessibility:
-   - Better alt text
-   - ARIA labels
-   - Touch targets
-3. User experience:
-   - Loading indicators
-   - Error handling
-   - Responsive image optimization
+### Cards & Containers
+- Simple rectangular shapes
+- Minimal borders when needed
+- No box shadows
+- Clear content hierarchy
+- Consistent padding and spacing
+
+### Modal & Dialogs
+- Center-aligned
+- Clean borders
+- No shadows
+- Simple entrance/exit animations
+- Clear action hierarchy
+
+### Navigation
+- Clean and minimal
+- Clear active states
+- Consistent spacing
+- Easy to scan and navigate
+
+### Scroll Areas
+- Clean scrollbars
+- No visible borders unless necessary
+- Smooth scrolling behavior
+
+### Tabs
+- Minimal design
+- Clear active state
+- No decorative elements
+- Consistent spacing
+
+### Switches & Toggle Elements
+- Simple design
+- Clear on/off states
+- No decorative elements
+- Smooth transitions
+
+## Layout Principles
+- Consistent grid system
+- Purposeful whitespace
+- Clear visual hierarchy
+- Responsive design considerations
+- Content-first approach
+
+## Spacing System
+- Consistent spacing scale
+- Proper breathing room between elements
+- Hierarchical spacing for related components
+
+## Interaction Design
+- Smooth transitions (200-300ms)
+- Clear feedback on user actions
+- Consistent hover and active states
+- Accessible focus states
+
+## Accessibility
+- High contrast ratios
+- Clear focus indicators
+- Proper ARIA labels
+- Keyboard navigation support
+
+## Responsive Design
+- Mobile-first approach
+- Fluid layouts
+- Breakpoint consistency
+- Touch-friendly interactions
+
+## Special Features
+- Image generation progress indicators
+- Real-time status updates
+- Clear loading states
+- Error handling with user feedback
+
+This design system emphasizes clarity, functionality, and user experience while maintaining a modern, minimalist aesthetic. All components follow these guidelines to create a cohesive and professional application interface.
