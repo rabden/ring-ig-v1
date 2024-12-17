@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { AuthUI } from '@/integrations/supabase/components/AuthUI';
@@ -35,7 +35,6 @@ const Login = () => {
   const location = useLocation();
   const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [nextMessageIndex, setNextMessageIndex] = useState(1);
 
   useEffect(() => {
     if (session) {
@@ -44,29 +43,26 @@ const Login = () => {
     }
   }, [session, loading, navigate, location]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
+  const handleTypingComplete = useCallback(() => {
+    if (!isTransitioning) {
       setIsTransitioning(true);
-      setNextMessageIndex((currentMessageIndex + 1) % messages.length);
-      
-      // Start fading out current image
       setTimeout(() => {
-        setCurrentMessageIndex(nextMessageIndex);
+        setCurrentMessageIndex((prev) => (prev + 1) % messages.length);
         setIsTransitioning(false);
-      }, 1000); // Longer fade for smoother transition
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [currentMessageIndex, nextMessageIndex]);
+      }, 1000);
+    }
+  }, [isTransitioning]);
 
   if (loading) {
     return <LoadingScreen />;
   }
 
+  const nextMessageIndex = (currentMessageIndex + 1) % messages.length;
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-background">
-      {/* Left side with background image and centered text */}
-      <div className="relative w-full md:w-3/5 aspect-square md:aspect-auto md:min-h-screen flex items-center justify-center">
+      {/* Left side with background image */}
+      <div className="relative w-full md:w-3/5 aspect-square md:aspect-auto md:min-h-screen">
         {/* Background images with transition */}
         <div className={cn(
           "absolute inset-0 transition-opacity duration-1000",
@@ -88,33 +84,37 @@ const Login = () => {
             className="w-full h-full object-cover"
           />
         </div>
-        
-        {/* Centered text overlay */}
-        <div className="relative z-10 text-center px-6 py-4 bg-background/80 backdrop-blur-sm rounded-lg max-w-[90%] md:max-w-[70%]">
-          <h1 className="text-2xl md:text-3xl font-semibold mb-4">
-            Welcome to Ring
-          </h1>
-          <p className="text-lg md:text-xl text-foreground/90 h-12">
-            <Typewriter
-              words={messages.map(msg => msg.text)}
-              cursor
-              cursorStyle="_"
-              typeSpeed={50}
-              deleteSpeed={30}
-              delaySpeed={3000}
-              loop={true}
-            />
-          </p>
-        </div>
       </div>
 
       {/* Right side - Auth UI */}
       <div className="w-full md:w-2/5 flex items-center justify-center p-8 bg-background/95 backdrop-blur-sm md:bg-background md:backdrop-blur-none border-t md:border-t-0 md:border-l border-border">
-        <div className="w-full max-w-[320px] space-y-4">
-          <AuthUI buttonText="Continue with Google" />
-          <p className="text-center text-sm text-muted-foreground">
-            By continuing, you agree to our Terms of Service and Privacy Policy
-          </p>
+        <div className="w-full max-w-[320px] space-y-8">
+          <div className="space-y-4 text-center">
+            <h1 className="text-2xl md:text-3xl font-semibold">
+              Welcome to Ring
+            </h1>
+            <p className="text-lg md:text-xl text-foreground/90 min-h-[3rem]">
+              <Typewriter
+                words={messages.map(msg => msg.text)}
+                cursor
+                cursorStyle="_"
+                typeSpeed={50}
+                deleteSpeed={30}
+                delaySpeed={2000}
+                onType={() => {}}
+                onDelete={() => {}}
+                onLoopDone={handleTypingComplete}
+                loop={true}
+              />
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <AuthUI buttonText="Continue with Google" />
+            <p className="text-center text-sm text-muted-foreground">
+              By continuing, you agree to our Terms of Service and Privacy Policy
+            </p>
+          </div>
         </div>
       </div>
     </div>

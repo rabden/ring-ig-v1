@@ -4,12 +4,11 @@
 - Split screen design with showcase on left and login on right
 - Left side features:
   - Full-screen background image with smooth transitions
-  - Centered text overlay with backdrop blur
-  - Typewriter effect for feature messages
+  - Synchronized image changes with typewriter completion
 - Right side features:
-  - Simple Google OAuth login
-  - Minimal UI with single button
-  - Loading state and error handling
+  - Welcome message and typewriter text
+  - Google OAuth login button
+  - Terms of service notice
 
 ### Authentication Flow
 - Uses Supabase Auth with Google OAuth
@@ -25,57 +24,50 @@
 ### Latest Changes
 
 #### Layout Updates
-1. Made left side image full-screen background
-2. Added centered text overlay with blur effect
-3. Maintained 60/40 split on desktop
-4. Enforced 1:1 aspect ratio for mobile
-5. Improved responsive layout transitions
+1. Moved typewriter text to right side above sign-in button
+2. Maintained 60/40 split on desktop
+3. Enforced 1:1 aspect ratio for mobile
+4. Simplified layout structure
+5. Improved spacing and alignment
 
 #### Visual Improvements
-1. Added backdrop blur to text overlay
-2. Enhanced text visibility with semi-transparent background
-3. Improved typography scaling for different screens
-4. Added smooth cross-fade between images
-5. Synchronized text and image transitions
-
-#### Auth UI Updates
-1. Enhanced Google sign-in button
-   - Increased height and padding
-   - Larger Google icon
-   - Better text sizing
-2. Improved mobile layout
-   - Full-width button
-   - Better spacing
-3. Added subtle backdrop blur on mobile
+1. Removed text overlay from image
+2. Enhanced text visibility in right panel
+3. Improved typography and spacing
+4. Synchronized image transitions with text completion
+5. Cleaner visual hierarchy
 
 #### Animation Enhancements
-1. Implemented cross-fade image transitions
-   - 1-second duration for smooth fade
-   - Preloads next image
-2. Synchronized typewriter with image changes
-3. Improved loading states
-4. Added subtle hover effects
+1. Fixed image transition timing
+   - Transitions only after typewriter completes
+   - Consistent 1-second fade duration
+   - Predictable sequence
+2. Improved typewriter effect
+   - Reduced delay between cycles
+   - Added completion callback
+   - Better synchronization
+3. Smoother loading states
 
 ### Responsive Behavior
 1. Mobile:
    - 1:1 aspect ratio for showcase
-   - Stacked layout
-   - Full-width auth section
+   - Stacked layout with text above button
+   - Full-width sections
 2. Desktop:
    - 60/40 split layout
    - Full-height showcase
-   - Fixed-width auth section
+   - Right-aligned content
 
 ### Next Steps
-1. Consider adding:
-   - Loading state for images
-   - Progressive image loading
-   - Preload optimization
-2. Enhance accessibility:
+1. Performance optimization:
+   - Image preloading
+   - Transition smoothing
+   - Load time improvements
+2. Accessibility:
    - Better alt text
    - ARIA labels
    - Keyboard navigation
-3. Performance optimization:
-   - Image compression
-   - Transition optimization
-   - Load time improvements
+3. User experience:
+   - Loading indicators
+   - Error handling
+   - Responsive image optimization
