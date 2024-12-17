@@ -34,16 +34,9 @@ export const improvePrompt = async (originalPrompt, activeModel, modelConfigs) =
         {
           role: "system",
           content: `You are an expert at crafting high-quality image generation prompts. Your task is to enhance the given prompt while maintaining its core concept and artistic intent. Follow these guidelines:
-
 1. Preserve the main subject and style of the original prompt
-2. Add relevant quality-enhancing terms like "highly detailed", "professional", or "masterful" where appropriate
-3. Include lighting, atmosphere, and composition details if missing
-4. Reference this example prompt structure: ${modelExample}
-5. Keep the prompt clear and well-structured
-6. Do not add unrelated concepts or change the core idea
-7. Maintain any specific artistic style mentioned in the original prompt
-
-Respond only with the improved prompt, no explanations.`
+2. stongly make the prompt relevent to this example prompt structure: ${modelExample}
+Respond only with the improved prompt, nothing else.`
         },
         {
           role: "user",
