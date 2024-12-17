@@ -34,22 +34,22 @@ export const AuthUI = ({ buttonText }) => {
   };
 
   return (
-    <div className="w-full space-y-4">
+    <div className="w-full">
       <Button
-        className="w-full bg-white hover:bg-zinc-50 text-black border border-border"
+        className="w-full bg-white hover:bg-zinc-50 text-black border border-border h-12 text-base"
         onClick={handleGoogleSignIn}
         disabled={isLoading}
       >
         {isLoading ? (
-          <Loader className="mr-2 h-4 w-4 animate-spin" />
+          <Loader className="mr-2 h-5 w-5 animate-spin" />
         ) : (
-          <FcGoogle className="mr-2 h-5 w-5" />
+          <FcGoogle className="mr-2 h-6 w-6" />
         )}
         {buttonText || "Continue with Google"}
       </Button>
 
       {error && (
-        <div className="text-sm text-destructive text-center">
+        <div className="mt-4 text-sm text-destructive text-center">
           {error}
         </div>
       )}
