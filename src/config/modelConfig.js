@@ -8,7 +8,7 @@ export const modelConfig = {
     promptSuffix: null,
     tagline: "Fast generation with good quality",
     image: "https://i.ibb.co.com/3C2N2LJ/1734417062623.jpg",
-    example: "A majestic lion standing on a rocky outcrop at sunset, in the style of hyper-realistic digital painting. The lion's mane is flowing in the wind, with golden hues reflecting the sunlight. Captured from a low angle, emphasizing its grandeur against a vast sky. Soft, warm lighting creates a serene atmosphere. Wide-angle shot with high resolution for detailed textures."
+    example: "make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
   },
   flux: {
     name: "Flux.1 Schnell",
@@ -19,7 +19,7 @@ export const modelConfig = {
     promptSuffix: null,
     tagline: "Balanced speed and quality",
     image: "https://i.ibb.co.com/51P0fS0/out-0.webp",
-    example: "A fierce lion standing proudly on a rugged cliff at sunset, rendered in stunning hyper-realistic digital painting. Its luscious mane flows elegantly in the wind, glistening with rich golden highlights from the setting sun. The composition features a low-angle perspective to accentuate the lion's power against a dramatic sky filled with warm hues. The lighting is soft and inviting, creating a peaceful ambiance. The image should be high resolution to capture every detail vividly"
+    example: "make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
   },
   sd35l: {
     name: "SD-3.5Large",
@@ -30,7 +30,7 @@ export const modelConfig = {
     promptSuffix: null,
     tagline: "Latest Stable diffusion model",
     image: "https://i.ibb.co.com/XDLVk6m/R8-sd3-5-L-00001.webp",
-    example: "A powerful lion perched on a rocky cliff during sunset, illustrated in hyper-realistic digital art. The lion's mane billows dramatically in the breeze, showcasing vibrant golden tones illuminated by the sun. The perspective is from below, highlighting the lion's majesty against an expansive sky filled with warm colors. The scene is bathed in soft, golden light to evoke tranquility. High-resolution image capturing intricate details"
+    example: "make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
   },
   fluxDev: {
     name: "FLx.1 Dev",
@@ -41,7 +41,7 @@ export const modelConfig = {
     promptSuffix: null,
     tagline: "Flux dev by black forest labs",
     image: "https://i.ibb.co.com/gjrM8R5/out-0-1.webp",
-    example: "A striking lion atop a rocky outcrop during sunset, depicted in hyper-realistic digital art style. The mane of the lion sways gracefully in the breeze, reflecting brilliant golden shades from the sunlight. The viewpoint is low to emphasize its dominance against an expansive sky filled with warm sunset colors. Soft lighting enhances the serene mood of the scene. Ensure high resolution to highlight intricate textures and details throughout the image. Exclude any human figures or modern elements from view."
+    example: "make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
   },
   fastReal: {
     name: "Realism turbo",
@@ -52,7 +52,7 @@ export const modelConfig = {
     promptSuffix: ", photography, photorealistic",
     tagline: "make realistic images fast",
     image: "https://i.ibb.co.com/JrYsbmT/SD3.webp",
-    example: "*A photorealistic portrait* of a young woman with short dark brown hair, wearing a grey spaghetti-strap top, standing outdoors in soft daylight. The background includes a blurred pool and greenery, creating a serene and summery atmosphere. Warm lighting highlights her natural beauty and relaxed expression."
+    example: "Start with 'A photorealistic portrait of' .Make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
   },
   Illustturbo: {
     name: "Illustration turbo",
@@ -63,7 +63,7 @@ export const modelConfig = {
     promptSuffix: ", Simple Doodle",
     tagline: "make simple illustrations fast",
     image: "https://i.ibb.co.com/Mhk3M6v/SD1.webp",
-    example: "*Simple Doodle, A cartoon drawing of* a woman with long dark brown hair and a white face. The womans face has black eyes, a black nose, and a black smile. She is wearing a peach colored top with a white collar. The background is a light beige color."
+    example: "Start with .Simple Doodle, A cartoon drawing of' then describe a simple illustration image"
   },
   render3d: {
     name: "3D Render XL",
@@ -74,7 +74,7 @@ export const modelConfig = {
     promptSuffix: ", 3d render",
     tagline: "render 3D images",
     image: "https://i.ibb.co.com/sbmM5mp/3d-style-2.jpg",
-    example: "*a 3D rendered scene of* a modern minimalist living room, soft ambient occlusion, ray tracing, blender style"
+    example: "Start with 'a 3D rendered scene of'. Make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, 3D style, blender style, 3D rendered. make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c. End with ', blender style'"
   },
   anime: {
     name: "Anime XL",
@@ -85,7 +85,7 @@ export const modelConfig = {
     promptSuffix: ", anm",
     tagline: "Flwaless Anime style images",
     image: "https://i.ibb.co.com/k2YdjZK/images-example-7y3r4uk1q.jpg",
-    example: "a beautiful *anime* girl in a school uniform, cherry blossoms falling, soft lighting, detailed eyes, anime style"
+    example: "Make high quality flawless prompt, use quality and style tags like: high quality, studio ghibi, Vibrant Anime make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
   },
   anime2xl: {
     name: "Anime XL Fast",
@@ -96,7 +96,7 @@ export const modelConfig = {
     promptSuffix: ", anime",
     tagline: "Anime style images make fast",
     image: "https://i.ibb.co.com/bgYbVQJ/Euv-INv-Bs-CKZQusp-ZHN-u-F.png",
-    example: "an epic *anime* battle scene, dynamic poses, special effects, dramatic lighting, detailed characters"
+    example: "Make high quality flawless prompt, use quality and style tags like: high quality, studio ghibi, Vibrant Anime make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
   },
   midjourney: {
     name: "Midjourney-V6",
@@ -107,7 +107,7 @@ export const modelConfig = {
     promptSuffix: ", MJ v6",
     tagline: "Latest version of Midjourney for free",
     image: "https://i.ibb.co.com/8PnDLkf/1.png",
-    example: "*MJ v6*, Portrait photography of a woman in a red dress, in the style of unsplash photography, street photography, dark green background --ar 47:64 --v 6.0 --style raw"
+    example: "Start with 'MJ v6,'. Make high quality flawless prompts that will go well wth Midjourney, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c. End with '--ar 47:64 --v 6.0 --style raw'"
   },
   sketchart: {
     name: "Sketch Art",
@@ -118,7 +118,7 @@ export const modelConfig = {
     promptSuffix: ", shou_xin, pencil sketch",
     tagline: "sketch art pencil and colors",
     image: "https://i.ibb.co.com/P4xLs4W/img-00282.png",
-    example: "*shou_xin*, A color *pencil sketch of* a woman wearing red dress, realistic, close up, minimalist, impressionism, negative space"
+    example: "Start with 'shou_xin A color pencil sketch of' then describe a minimal sketch image subject and End with ', close up, minimalist, impressionism, negative space'"
   },
   vertorArt: {
     name: "Vector Art",
@@ -129,7 +129,7 @@ export const modelConfig = {
     promptSuffix: ", v3ct0r, vector",
     tagline: "Create Vector arts",
     image: "https://i.ibb.co.com/wKszPV2/images-example-ylmvpzdqk.jpg",
-    example: "*v3ct0r style, simple flat vector art, isolated on white bg,* rocket"
+    example: "Start with 'v3ct0r style, simple flat vector art, isolated on white bg,' Then describe the Vector Graphics element that should show in the image"
   },
   Isometric: {
     name: "Isometric",
@@ -140,7 +140,7 @@ export const modelConfig = {
     promptSuffix: ", Isometric Building",
     tagline: "Isometric style, build your world",
     image: "https://i.ibb.co.com/84bxty7/2.png",
-    example: "*Isometric Building, a top-down view of* a two-story white house with a blue roof is seen against a beige backdrop. The house is adorned with a variety of plants, including a tree, a table, and a bench, adding a touch of greenery to the scene. The staircase leads to the entrance of the house, which is flanked by a brown wooden gate. The ground is covered in grass, with a small patio in the middle of the stairs."
+    example: "Start with 'Isometric Building, a top-down view of' Then describe the things to appear in the imgage"
   },
   handwriting: {
     name: "Handwriting",
@@ -151,7 +151,7 @@ export const modelConfig = {
     promptSuffix: ", HWRIT handwriting",
     tagline: "Real lookin handwriting images",
     image: "https://i.ibb.co.com/mFPgMkj/0041358a-ee46-4cab-85f5-108c4f09b729.jpg",
-    example: "*HWRIT very neat handwriting saying *'this is a handwriting model', black thin ink on white paper"
+    example: "make prompt like this: HWRIT very neat handwriting saying 'this is a handwriting model'(replace this with the text to write in the image), black(replace with suitable color) ink on white_paper(replace with on what to write)"
   },
   outfitGenerator: {
     name: "Outfit Generator",
@@ -162,7 +162,7 @@ export const modelConfig = {
     promptSuffix: ", Teen Outfit",
     tagline: "Make cool outfits and cloths",
     image: "https://i.ibb.co.com/MCWQZBN/TO3.png",
-    example: "*Teen Outfit*, a light brown and white varsity jacket is hung on a black wall. The jacket is adorned with a white collar, white stripes and the words 'FORE CAST' in bold white letters. A keychain is hanging from the collar, adding a touch of charm to the jacket."
+    example: "Start with 'Teen Outfit,' Then describe the Cloth in very details, Example: ."
   },
   colorChaos: {
     name: "Color Chaos",
@@ -173,7 +173,7 @@ export const modelConfig = {
     promptSuffix: ", Digital Chaos",
     tagline: "Chaos of Colors to make modern art",
     image: "https://i.ibb.co.com/TgcCsdf/HDRDC2.webp",
-    example: "*Digital Chaos,* An abstract painting of a womans face, the womans head is covered in black hair. The womans eyes are closed, and her lips are slightly parted. *The background is a mix of blue, purple, orange, and yellow, and white.* The painting has splashes of white, red, and blue, and black, creating a vibrant and colorful effect."
+    example: "Start with 'Digital Chaos,' in the end describe background colors like this: 'The background is a mix of blue, purple, orange, and yellow, and white.' heres an example: "
   },
   pixelArt: {
     name: "Pixel Art",
@@ -184,7 +184,7 @@ export const modelConfig = {
     promptSuffix: ", pixel art",
     tagline: "Modern Pixel art",
     image: "https://i.ibb.co.com/DkdtLrG/Comfy-UI-00047.png",
-    example: "A bearded inventor with wild, curly hair, standing confidently in his steampunk workshop. He wears brass goggles on his forehead, a leather apron over a white shirt with rolled-up sleeves, and fingerless gloves. His hands are slightly stained with grease, and he holds a small, intricate mechanical device. The background is cluttered with gears, blueprints, and tools, illuminated by the warm glow of oil lamps, giving the scene a creative, industrious atmosphere."
+    example: "Make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
   },
   iconkit: {
     name: "Icon Kit",
@@ -195,7 +195,7 @@ export const modelConfig = {
     promptSuffix: ", Icon kit",
     tagline: "3d Icons",
     image: "https://i.ibb.co.com/cxqCCnf/1-1.png",
-    example: "*Icon Kit, An animated image of* a yellow and purple jar. The jar has a white lightning bolt on it. *The background is* a bright blue."
+    example: "Start with 'Icon Kit, An animated image of' then describe a minimal element as icon for the image and at the end describe a suitable calm background color"
   },
   aura: {
     name: "Aura 9999+",
@@ -206,7 +206,7 @@ export const modelConfig = {
     promptSuffix: ", Aura 9999",
     tagline: "gives your creations some aura",
     image: "https://i.ibb.co.com/NNWjs4d/A3.png",
-    example: "*Aura 9999*, a silhouette of a mans face can be seen *in front of a dark background*. The mans head is facing towards the right side of the frame, and his eyes are slightly open. His hair is a mix of brown and yellow, and he has a slight smile on his face. His mouth is slightly open, and there is a line of fire behind him, adding a touch of warmth to the scene."
+    example: "Start with 'Aura 9999,' then describe the image and add aura elements to the image suitably to generte an image that showcases Aura on the subject of the image."
   },
   blacked: {
     name: "Minimal blacked",
@@ -217,7 +217,7 @@ export const modelConfig = {
     promptSuffix: ", blacked",
     tagline: "minimal black background",
     image: "https://i.ibb.co.com/qskQPqT/q4.webp",
-    example: "A bright green leaf logo is *depicted against a dark blacked background*. The leaf has smooth, organic lines with subtle veins running through it, giving it a natural and lifelike appearance. A soft glow surrounds the leaf, adding a gentle illumination that contrasts beautifully with the dark background. This contrast between the vibrant green and deep black creates a fresh and eco-friendly feel, making the logo appear both vibrant and serene."
+    example: "Describe a minimal graphics element then use 'depicted against a dark blacked background' example: A bright green leaf logo is depicted against a dark blacked background. The leaf has smooth, organic lines with subtle veins running through it, giving it a natural and lifelike appearance. A soft glow surrounds the leaf, adding a gentle illumination that contrasts beautifully with the dark background. This contrast between the vibrant green and deep black creates a fresh and eco-friendly feel, making the logo appear both vibrant and serene."
   },
   disney: {
     name: "Disney",
@@ -228,7 +228,7 @@ export const modelConfig = {
     promptSuffix: null,
     tagline: "Disney princes, use name",
     image: "https://i.ibb.co.com/54bxzMk/4058459.jpg",
-    example: "a Disney-style princess *{princess_name_here}* in a magical forest, expressive features, vibrant colors, animated movie style"
+    example: "You have to make amazing disney style images prompt of disney princesses, if princess name not mentioned in original prompt then add suitable name like Elsa or Anna"
   },
   ultra: {
     name: "Flux.1 Pro",
@@ -239,7 +239,7 @@ export const modelConfig = {
     promptSuffix: null,
     tagline: "A merge of multiple models",
     image: "https://i.ibb.co.com/Tqb5Pgk/sample.jpg",
-    example: "A regal lion positioned on a rocky ledge at sunset, captured in hyper-realistic digital painting style. Its magnificent mane flows majestically in the wind, illuminated by warm golden sunlight that enhances its features. The composition should be from a low angle to showcase its grandeur against a vast and colorful sky at dusk. The lighting is soft and warm, creating a tranquil atmosphere throughout the scene. Aim for high resolution to ensure every detail is sharp and clear"
+    example: "Make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
   },
   nsfwMaster: {
     name: "Real",
@@ -250,7 +250,7 @@ export const modelConfig = {
     promptSuffix: ", Nsfw, naked,",
     tagline: "NSFW generation",
     image: "https://i.ibb.co.com/qm9ZjV4/b36e71ed-c142-49c4-8ba5-4f3a57bd6ae9.jpg",
-    example: "a tasteful boudoir photo, artistic lighting, professional photography style, a *nude* woman standing in a sexy pose"
+    example: "craft high quality prompts to make images of naked girls in nudity related things"
   },
   animeNsfw: {
     name: "Anime",
@@ -261,7 +261,7 @@ export const modelConfig = {
     promptSuffix: null,
     tagline: "Anime-style NSFW generation",
     image: "https://i.ibb.co.com/Tt1gwLG/1730283256633.jpg",
-    example: "an artistic anime character illustration, dynamic pose, detailed style, a *naked* teen girl having passionate sex, naked, *Cum* dripping everywhere"
+    example: "craft high quality prompts to make images of naked girls in nudity or sex related things"
   },
   nudephotography: {
     name: "Nude Photography",
@@ -272,6 +272,6 @@ export const modelConfig = {
     promptSuffix: ", Nude photograpy, naked",
     tagline: "Nude models for Photoshoot",
     image: "https://i.ibb.co.com/GW2LDP1/example-20kld8mba.jpg",
-    example: "an artistic figure tudio photograph, professional studio lighting, fine art style, a *nude* *porn* actress spredding her legs wide, closeup on pussy"
+    example: "craft high quality prompts to make images of naked porn models girls"
   }
 };
