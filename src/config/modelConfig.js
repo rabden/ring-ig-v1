@@ -46,8 +46,8 @@ export const modelConfig = {
   fastReal: {
     name: "Realism turbo",
     category: "General",
-    apiUrl: "https://api-inference.huggingface.co/models/prithivMLmods/SD3.5-Large-Photorealistic-LoRA",
-    qualityLimits: ["HD"],
+    apiUrl: "https://api-inference.huggingface.co/models/prithivMLmods/Canopus-LoRA-Flux-FaceRealism",
+    qualityLimits: null,
     isPremium: false,
     promptSuffix: ", photography, photorealistic",
     tagline: "make realistic images fast",
@@ -68,10 +68,10 @@ export const modelConfig = {
   render3d: {
     name: "3D Render XL",
     category: "General",
-    apiUrl: "https://api-inference.huggingface.co/models/goofyai/3d_render_style_xl",
-    qualityLimits: ["HD"],
+    apiUrl: "https://api-inference.huggingface.co/models/goofyai/3D_Render_for_Flux",
+    qualityLimits: null,
     isPremium: false,
-    promptSuffix: ", 3d render",
+    promptSuffix: ", 3D render",
     tagline: "render 3D images",
     image: "https://i.ibb.co.com/sbmM5mp/3d-style-2.jpg",
     example: "Start with 'a 3D rendered scene of'. Make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, 3D style, blender style, 3D rendered. make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c. End with ', blender style'"
@@ -85,18 +85,18 @@ export const modelConfig = {
     promptSuffix: ", anm",
     tagline: "Flwaless Anime style images",
     image: "https://i.ibb.co.com/k2YdjZK/images-example-7y3r4uk1q.jpg",
-    example: "Make high quality flawless prompt, use quality and style tags like: high quality, studio ghibi, Vibrant Anime make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
+    example: "Make high quality flawless prompt, use quality and style tags like: high quality, studio ghibli, Vibrant Anime make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
   },
   anime2xl: {
-    name: "Anime XL Fast",
+    name: "Anime XL 2",
     category: "General",
-    apiUrl: "https://api-inference.huggingface.co/models/cagliostrolab/animagine-xl-3.1",
-    qualityLimits: ["HD"],
+    apiUrl: "https://api-inference.huggingface.co/models/Ryouko65777/Anime-Flux",
+    qualityLimits: null,
     isPremium: false,
     promptSuffix: ", anime",
     tagline: "Anime style images make fast",
     image: "https://i.ibb.co.com/bgYbVQJ/Euv-INv-Bs-CKZQusp-ZHN-u-F.png",
-    example: "Make high quality flawless prompt, use quality and style tags like: high quality, studio ghibi, Vibrant Anime make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
+    example: "Make high quality flawless prompt, use quality and style tags like: high quality, studio ghibli, Vibrant Anime make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
   },
   midjourney: {
     name: "Midjourney-V6",
@@ -141,6 +141,28 @@ export const modelConfig = {
     tagline: "Isometric style, build your world",
     image: "https://i.ibb.co.com/88P57s7/ID2.png",
     example: "Start with 'Isometric 3D, a 3D model of' Then describe the things to appear in the image, heres an example: 'Isometric 3D, a 3D model of a tropical island is displayed on a light blue backdrop. The island features a small body of water, surrounded by gray rocks and green grass. There are palm trees and small bushes scattered throughout the island, adding a pop of color to the scene.'"
+  },
+  logodesign: {
+    name: "Logo Design",
+    category: "General",
+    apiUrl: "https://api-inference.huggingface.co/models/Shakker-Labs/FLUX.1-dev-LoRA-Logo-Design",
+    qualityLimits: null,
+    isPremium: false,
+    promptSuffix: ", wablogo, logo, Minimalist",
+    tagline: "Make your brand Identity",
+    image: "https://i.ibb.co.com/277njvK/03.png",
+    example: "Start with 'wablogo, logo, Minimalist' Then describe the logo to appear in the image, heres an example: 'logo,Minimalist,A pair of chopsticks and a bowl of rice with the word Lee', Usage suggestion: Dual Combination: something and something, e.g., cat and coffee, Font Combination: a shape plus a letter, e.g., a book with the word 'M', or The fingerprint pattern consists of the letters 'hp', Text Below Graphic: Below the graphic is the word 'coffee', directly using with the word 'XX' is also feasible"
+  },
+  sticker: {
+    name: "Sticker",
+    category: "General",
+    apiUrl: "https://api-inference.huggingface.co/models/prithivMLmods/Ton618-Only-Stickers-Flux-LoRA",
+    qualityLimits: null,
+    isPremium: false,
+    promptSuffix: ", Only Sticker",
+    tagline: "Make your brand Identity",
+    image: "https://i.ibb.co.com/Ryx6b4B/111.png",
+    example: "Start with 'Only Sticker, An animated image of a' Then describe the sticker to appear in the image, heres an example: 'Only Sticker, An animated illustration of a sloth in a mug with the words 'Sloth Fuel' written on it. The sloth is holding the mug with its left hand and its right hand resting on the mug. The mug is filled with coffee and there is a brown liquid dripping from the bottom of the cup. There is a white background behind the sloth with a smoke coming out of it. There are three coffee beans on the bottom left corner of the image.'"
   },
   handwriting: {
     name: "Handwriting",
