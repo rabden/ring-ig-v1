@@ -8,23 +8,23 @@ import { Typewriter } from 'react-simple-typewriter';
 const messages = [
   { 
     text: "Create stunning AI art with a single prompt", 
-    image: "/showcase-1.png"
+    image: "https://i.ibb.co.com/TgcCsdf/HDRDC2.webp"
   },
   { 
     text: "Transform your imagination into reality", 
-    image: "/showcase-2.png"
+    image: "https://i.ibb.co.com/84bxty7/2.png"
   },
   { 
     text: "Generate multiple styles with one click", 
-    image: "/showcase-3.png"
+    image: "https://i.ibb.co.com/k2YdjZK/images-example-7y3r4uk1q.jpg"
   },
   { 
     text: "Share and remix creations with the community", 
-    image: "/showcase-4.png"
+    image: "https://i.ibb.co.com/sbmM5mp/3d-style-2.jpg"
   },
   { 
     text: "Fine-tune your art with advanced controls", 
-    image: "/showcase-5.png"
+    image: "https://i.ibb.co.com/8PnDLkf/1.png"
   }
 ];
 
