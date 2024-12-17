@@ -182,7 +182,7 @@ export const modelConfig = {
     qualityLimits: ["HD"],
     isPremium: false,
     promptSuffix: ", pixel art",
-    tagline: "CModern Pixel art",
+    tagline: "Modern Pixel art",
     image: "https://i.ibb.co.com/DkdtLrG/Comfy-UI-00047.png",
     example: "A bearded inventor with wild, curly hair, standing confidently in his steampunk workshop. He wears brass goggles on his forehead, a leather apron over a white shirt with rolled-up sleeves, and fingerless gloves. His hands are slightly stained with grease, and he holds a small, intricate mechanical device. The background is cluttered with gears, blueprints, and tools, illuminated by the warm glow of oil lamps, giving the scene a creative, industrious atmosphere."
   },
@@ -207,6 +207,17 @@ export const modelConfig = {
     tagline: "gives your creations some aura",
     image: "https://i.ibb.co.com/NNWjs4d/A3.png",
     example: "Aura 9999, a silhouette of a mans face can be seen in front of a dark background. The mans head is facing towards the right side of the frame, and his eyes are slightly open. His hair is a mix of brown and yellow, and he has a slight smile on his face. His mouth is slightly open, and there is a line of fire behind him, adding a touch of warmth to the scene."
+  },
+  blacked: {
+    name: "Minimal blacked",
+    category: "General",
+    apiUrl: "https://api-inference.huggingface.co/models/prithivMLmods/SD3.5-Large-Minimal-Blacked-LoRA",
+    qualityLimits: ["HD"],
+    isPremium: false,
+    promptSuffix: ", blacked",
+    tagline: "minimal black background",
+    image: "https://i.ibb.co.com/qskQPqT/q4.webp",
+    example: "A bright green leaf logo is depicted against a dark blacked background. The leaf has smooth, organic lines with subtle veins running through it, giving it a natural and lifelike appearance. A soft glow surrounds the leaf, adding a gentle illumination that contrasts beautifully with the dark background. This contrast between the vibrant green and deep black creates a fresh and eco-friendly feel, making the logo appear both vibrant and serene."
   },
   disney: {
     name: "Disney",
