@@ -1,23 +1,15 @@
 import React from 'react'
-import { Card, CardContent } from "@/components/ui/card"
+import { Lightbulb } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { MoreVertical } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import ImageGallery from './ImageGallery'
 
-const Inspiration = ({ userId, onImageClick, onDownload, onRemix, onViewDetails }) => {
-  if (!userId) return null;
-
+export default function Inspiration({ onClick }) {
   return (
-    <ImageGallery
-      userId={userId}
-      onImageClick={onImageClick}
-      onDownload={onDownload}
-      onRemix={onRemix}
-      onViewDetails={onViewDetails}
-      activeView="inspiration"
-    />
-  );
-};
-
-export default Inspiration;
+    <Button
+      variant="ghost"
+      size="icon"
+      className="group"
+      onClick={onClick}>
+      <Lightbulb className="h-5 w-5 text-white/50 transition-colors duration-200 group-hover:text-white" />
+    </Button>
+  )
+}
