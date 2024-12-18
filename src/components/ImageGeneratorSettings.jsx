@@ -13,6 +13,7 @@ import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 import { toast } from 'sonner';
 import CreditCounter from '@/components/ui/credit-counter';
 import { useLocation } from 'react-router-dom';
+import { cn } from "@/lib/utils";
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -37,7 +38,8 @@ const ImageGeneratorSettings = ({
   isPrivate,
   setIsPrivate,
   hidePromptOnDesktop = false,
-  updateCredits
+  updateCredits,
+  className
 }) => {
   const location = useLocation();
   const isGenerateTab = location.hash === '#imagegenerate';
@@ -101,8 +103,17 @@ const ImageGeneratorSettings = ({
   };
 
   return (
-    <div className="space-y-4 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
-      <div className={hidePromptOnDesktop ? 'md:hidden' : ''}>
+    <div className={cn(
+      "space-y-4 pb-20 md:pb-0 overflow-y-auto",
+      "scrollbar-thin scrollbar-thumb-muted-foreground/20",
+      "scrollbar-track-transparent hover:scrollbar-thumb-muted-foreground/30",
+      "transition-colors duration-200",
+      className
+    )}>
+      <div className={cn(
+        hidePromptOnDesktop && 'md:hidden',
+        "transition-all duration-200"
+      )}>
         <PromptInput
           prompt={prompt}
           onChange={(e) => setPrompt(e.target.value)}
@@ -119,60 +130,112 @@ const ImageGeneratorSettings = ({
       </div>
 
       {isGenerateTab && (
-        <div className="flex justify-center w-full">
+        <div className={cn(
+          "flex justify-center w-full",
+          "animate-in fade-in-50 duration-300"
+        )}>
           <CreditCounter credits={credits} bonusCredits={bonusCredits} />
         </div>
       )}
 
-      <ModelChooser
-        model={model}
-        setModel={handleModelChange}
-        nsfwEnabled={nsfwEnabled}
-        proMode={proMode}
-        modelConfigs={modelConfigs}
-      />
-
-      <ImageCountChooser
-        count={imageCount}
-        setCount={setImageCount}
-      />
-
-      <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more credits.">
-        <Tabs value={quality} onValueChange={setQuality}>
-          <TabsList className="grid" style={{ gridTemplateColumns: `repeat(${getAvailableQualities().length}, 1fr)` }}>
-            {getAvailableQualities().map((q) => (
-              <TabsTrigger key={q} value={q}>{q}</TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-      </SettingSection>
-
-      <SettingSection label="Aspect Ratio" tooltip="Slide left for portrait, center for square, right for landscape">
-        <AspectRatioChooser 
-          aspectRatio={aspectRatio} 
-          setAspectRatio={setAspectRatio}
-          proMode={proMode} 
+      <div className="space-y-6">
+        <ModelChooser
+          model={model}
+          setModel={handleModelChange}
+          nsfwEnabled={nsfwEnabled}
+          proMode={proMode}
+          modelConfigs={modelConfigs}
         />
-      </SettingSection>
 
-      <SettingSection label="Seed" tooltip="A seed is a number that initializes the random generation process. Using the same seed with the same settings will produce the same image.">
-        <div className="flex items-center space-x-2">
-          <Input
-            type="number"
-            value={seed}
-            onChange={(e) => setSeed(parseInt(e.target.value))}
-            disabled={randomizeSeed}
+        <ImageCountChooser
+          count={imageCount}
+          setCount={setImageCount}
+        />
+
+        <SettingSection 
+          label="Quality" 
+          tooltip="Higher quality settings produce more detailed images but require more credits."
+        >
+          <Tabs 
+            value={quality} 
+            onValueChange={setQuality}
+            className="w-full"
+          >
+            <TabsList 
+              className={cn(
+                "grid p-1 h-9",
+                "bg-muted/40 hover:bg-muted/60",
+                "transition-colors duration-200"
+              )} 
+              style={{ 
+                gridTemplateColumns: `repeat(${getAvailableQualities().length}, 1fr)` 
+              }}
+            >
+              {getAvailableQualities().map((q) => (
+                <TabsTrigger 
+                  key={q} 
+                  value={q}
+                  className={cn(
+                    "text-sm font-medium",
+                    "data-[state=active]:bg-background",
+                    "data-[state=active]:text-foreground",
+                    "data-[state=active]:shadow-sm",
+                    "transition-all duration-200"
+                  )}
+                >
+                  {q}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        </SettingSection>
+
+        <SettingSection 
+          label="Aspect Ratio" 
+          tooltip="Slide left for portrait, center for square, right for landscape"
+        >
+          <AspectRatioChooser 
+            aspectRatio={aspectRatio} 
+            setAspectRatio={setAspectRatio}
+            proMode={proMode} 
           />
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="randomizeSeed"
-              checked={randomizeSeed}
-              onCheckedChange={setRandomizeSeed}
+        </SettingSection>
+
+        <SettingSection 
+          label="Seed" 
+          tooltip="A seed is a number that initializes the random generation process. Using the same seed with the same settings will produce the same image."
+        >
+          <div className="flex items-center gap-3">
+            <Input
+              type="number"
+              value={seed}
+              onChange={(e) => setSeed(parseInt(e.target.value))}
+              disabled={randomizeSeed}
+              className={cn(
+                "transition-colors duration-200",
+                randomizeSeed && "opacity-50"
+              )}
             />
-            <Label htmlFor="randomizeSeed">Random</Label>
+            <div className="flex items-center gap-2">
+              <Switch
+                id="randomizeSeed"
+                checked={randomizeSeed}
+                onCheckedChange={setRandomizeSeed}
+              />
+              <Label 
+                htmlFor="randomizeSeed"
+                className={cn(
+                  "text-sm text-muted-foreground",
+                  "transition-colors duration-200",
+                  "hover:text-foreground"
+                )}
+              >
+                Random
+              </Label>
+            </div>
           </div>
-        </div>
-      </SettingSection>
+        </SettingSection>
+      </div>
     </div>
   );
 };

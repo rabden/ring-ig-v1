@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { Slider } from "@/components/ui/slider"
 import { Lock } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 const AspectRatioVisualizer = ({ ratio = "1:1", isPremium }) => {
   const [width, height] = (ratio || "1:1").split(':').map(Number)
@@ -11,22 +12,39 @@ const AspectRatioVisualizer = ({ ratio = "1:1", isPremium }) => {
   return (
     <div className="flex flex-col items-center space-y-2 mb-2">
       <div 
-        className="border-2 border-primary bg-muted flex items-center justify-center text-sm transition-all duration-300 ease-in-out"
+        className={cn(
+          "border-2 border-primary/50 bg-muted/40",
+          "flex items-center justify-center text-sm",
+          "transition-all duration-300 ease-spring",
+          "hover:border-primary hover:bg-muted/60",
+          "group"
+        )}
         style={{
           width: `${scaledWidth}px`,
           height: `${maxHeight}px`,
         }}
       >
-        <div className="flex items-center gap-1">
+        <div className={cn(
+          "flex items-center gap-1.5",
+          "text-muted-foreground/90",
+          "group-hover:text-foreground",
+          "transition-colors duration-200"
+        )}>
           {ratio}
-          {isPremium && <Lock className="h-3 w-3" />}
+          {isPremium && (
+            <Lock className={cn(
+              "h-3.5 w-3.5",
+              "transition-transform duration-200",
+              "group-hover:scale-110"
+            )} />
+          )}
         </div>
       </div>
     </div>
   )
 }
 
-const AspectRatioChooser = ({ aspectRatio = "1:1", setAspectRatio, proMode }) => {
+const AspectRatioChooser = ({ aspectRatio = "1:1", setAspectRatio, proMode, className }) => {
   const premiumRatios = ['9:21', '21:9', '3:2', '2:3', '4:5', '5:4', '10:16', '16:10'];
   
   const ratios = [
@@ -82,7 +100,7 @@ const AspectRatioChooser = ({ aspectRatio = "1:1", setAspectRatio, proMode }) =>
   }
 
   return (
-    <div className="space-y-4">
+    <div className={cn("space-y-4", className)}>
       <AspectRatioVisualizer 
         ratio={aspectRatio} 
         isPremium={!proMode && premiumRatios.includes(aspectRatio)} 
@@ -92,7 +110,10 @@ const AspectRatioChooser = ({ aspectRatio = "1:1", setAspectRatio, proMode }) =>
         onValueChange={handleSliderChange}
         max={100}
         step={1}
-        className="w-full transition-all duration-300"
+        className={cn(
+          "w-full transition-all duration-300",
+          "hover:scale-[1.02]"
+        )}
       />
     </div>
   )

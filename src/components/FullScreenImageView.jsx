@@ -18,6 +18,8 @@ import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 const FullScreenImageView = ({ 
   image, 
@@ -123,76 +125,156 @@ const FullScreenImageView = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-background data-[state=open]:duration-0 [&>button]:hidden">
-        <div className="absolute left-4 top-4 z-50">
+      <DialogContent className={cn(
+        "max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh]",
+        "p-0 bg-background/95 backdrop-blur-sm",
+        "data-[state=open]:duration-300",
+        "[&>button]:hidden"
+      )}>
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="absolute left-4 top-4 z-50"
+        >
           <Button 
             variant="ghost" 
             size="icon"
             onClick={onClose}
-            className="bg-background/80 backdrop-blur-sm hover:bg-background/90"
+            className={cn(
+              "bg-background/80 backdrop-blur-sm",
+              "hover:bg-background/90",
+              "transition-all duration-200"
+            )}
           >
             <ArrowLeft className="h-6 w-6" />
           </Button>
-        </div>
+        </motion.div>
         
         <div className="flex h-full">
-          <div className="flex-1 relative flex items-center justify-center bg-card">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className={cn(
+              "flex-1 relative flex items-center justify-center",
+              "bg-card/50 backdrop-blur-sm"
+            )}
+          >
             <img
               src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
               alt={image.prompt}
-              className="max-w-full max-h-[calc(100vh-4rem)] object-contain"
+              className={cn(
+                "max-w-full max-h-[calc(100vh-4rem)]",
+                "object-contain transition-transform duration-300",
+                "hover:scale-[1.02]"
+              )}
               onDoubleClick={handleDoubleClick}
             />
             <HeartAnimation isAnimating={isAnimating} />
-          </div>
+          </motion.div>
 
-          <div className="w-[400px] p-4">
-            <div className="bg-card h-[calc(100vh-32px)] rounded-lg border shadow-sm">
+          <motion.div 
+            initial={{ x: 400 }}
+            animate={{ x: 0 }}
+            transition={{ duration: 0.3, type: "spring", damping: 25 }}
+            className="w-[400px] p-4"
+          >
+            <div className={cn(
+              "bg-card/80 backdrop-blur-sm h-[calc(100vh-32px)]",
+              "rounded-lg border shadow-lg",
+              "transition-all duration-300"
+            )}>
               <ScrollArea className="h-full">
                 <div className="p-6 space-y-6">
                   {session && (
-                    <>
-                      <ImageOwnerHeader 
-                        owner={owner}
-                        image={image}
-                        isOwner={isOwner}
-                        userLikes={userLikes}
-                        toggleLike={toggleLike}
-                        likeCount={likeCount}
-                      />
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                      >
+                        <ImageOwnerHeader 
+                          owner={owner}
+                          image={image}
+                          isOwner={isOwner}
+                          userLikes={userLikes}
+                          toggleLike={toggleLike}
+                          likeCount={likeCount}
+                        />
 
-                      <div className="flex gap-2 justify-between">
-                        <Button onClick={onDownload} className="flex-1" variant="ghost" size="sm">
-                          <Download className="mr-2 h-4 w-4" />
-                          Download
-                        </Button>
-                        {isOwner && (
-                          <Button onClick={handleDiscard} className="flex-1 text-destructive hover:text-destructive" variant="ghost" size="sm">
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Discard
+                        <div className={cn(
+                          "flex gap-2 justify-between mt-6",
+                          "transition-all duration-200"
+                        )}>
+                          <Button 
+                            onClick={onDownload} 
+                            className={cn(
+                              "flex-1 transition-all duration-200",
+                              "hover:bg-accent/20"
+                            )} 
+                            variant="ghost" 
+                            size="sm"
+                          >
+                            <Download className="mr-2 h-4 w-4" />
+                            Download
                           </Button>
-                        )}
-                        <Button onClick={handleRemixClick} className="flex-1" variant="ghost" size="sm">
-                          <RefreshCw className="mr-2 h-4 w-4" />
-                          Remix
-                        </Button>
-                      </div>
-                    </>
+                          {isOwner && (
+                            <Button 
+                              onClick={handleDiscard} 
+                              className={cn(
+                                "flex-1 text-destructive",
+                                "hover:text-destructive hover:bg-destructive/10",
+                                "transition-all duration-200"
+                              )} 
+                              variant="ghost" 
+                              size="sm"
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Discard
+                            </Button>
+                          )}
+                          <Button 
+                            onClick={handleRemixClick} 
+                            className={cn(
+                              "flex-1 transition-all duration-200",
+                              "hover:bg-accent/20"
+                            )} 
+                            variant="ghost" 
+                            size="sm"
+                          >
+                            <RefreshCw className="mr-2 h-4 w-4" />
+                            Remix
+                          </Button>
+                        </div>
+                      </motion.div>
+                    </AnimatePresence>
                   )}
 
-                  <ImagePromptSection 
-                    prompt={image.user_prompt || image.prompt}
-                    copyIcon={copyIcon}
-                    shareIcon={shareIcon}
-                    onCopyPrompt={handleCopyPrompt}
-                    onShare={handleShare}
-                  />
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <ImagePromptSection 
+                      prompt={image.user_prompt || image.prompt}
+                      copyIcon={copyIcon}
+                      shareIcon={shareIcon}
+                      onCopyPrompt={handleCopyPrompt}
+                      onShare={handleShare}
+                    />
+                  </motion.div>
 
-                  <ImageDetailsSection detailItems={detailItems} />
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    <ImageDetailsSection detailItems={detailItems} />
+                  </motion.div>
                 </div>
               </ScrollArea>
             </div>
-          </div>
+          </motion.div>
         </div>
       </DialogContent>
     </Dialog>

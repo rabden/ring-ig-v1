@@ -1,17 +1,31 @@
 import * as React from "react"
 import * as TogglePrimitive from "@radix-ui/react-toggle"
 import { cva } from "class-variance-authority";
-
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 const toggleVariants = cva(
-  "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors hover:bg-muted hover:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground",
+  cn(
+    "inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background",
+    "transition-all duration-200",
+    "hover:bg-muted/50 hover:text-muted-foreground",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+    "disabled:pointer-events-none disabled:opacity-50",
+    "data-[state=on]:bg-accent/50 data-[state=on]:text-accent-foreground"
+  ),
   {
     variants: {
       variant: {
         default: "bg-transparent",
-        outline:
-          "bg-secondary/50 hover:bg-secondary hover:text-accent-foreground",
+        outline: cn(
+          "border border-input",
+          "hover:bg-accent/50 hover:text-accent-foreground",
+          "data-[state=on]:bg-accent/50 data-[state=on]:text-accent-foreground"
+        ),
+        ghost: cn(
+          "hover:bg-accent/30",
+          "data-[state=on]:bg-accent/50 data-[state=on]:text-accent-foreground"
+        ),
       },
       size: {
         default: "h-10 px-3",
@@ -27,10 +41,16 @@ const toggleVariants = cva(
 )
 
 const Toggle = React.forwardRef(({ className, variant, size, ...props }, ref) => (
-  <TogglePrimitive.Root
-    ref={ref}
-    className={cn(toggleVariants({ variant, size, className }))}
-    {...props} />
+  <motion.div
+    whileHover={{ scale: 1.02 }}
+    whileTap={{ scale: 0.98 }}
+    transition={{ duration: 0.2 }}
+  >
+    <TogglePrimitive.Root
+      ref={ref}
+      className={cn(toggleVariants({ variant, size, className }))}
+      {...props} />
+  </motion.div>
 ))
 
 Toggle.displayName = TogglePrimitive.Root.displayName

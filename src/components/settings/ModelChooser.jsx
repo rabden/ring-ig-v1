@@ -16,13 +16,22 @@ import {
 const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, disabled, proMode }) => (
   <div
     className={cn(
-      "flex items-center gap-3 p-3 rounded-lg transition-all duration-200 border border-border/50",
+      "flex items-center gap-3 p-3 rounded-lg",
+      "transition-all duration-200 ease-spring",
+      "border border-border/50",
       isActive ? "bg-muted/80 border-primary/50" : "hover:bg-muted/50 hover:border-primary/30",
-      disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer active:scale-[0.98]"
+      disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer active:scale-[0.98]",
+      "group"
     )}
     onClick={disabled ? undefined : onClick}
   >
-    <div className="relative h-10 w-10 rounded-md overflow-hidden bg-background flex-shrink-0 ring-1 ring-border/50">
+    <div className={cn(
+      "relative h-10 w-10 rounded-md overflow-hidden",
+      "bg-background flex-shrink-0",
+      "ring-1 ring-border/50",
+      "transition-transform duration-200",
+      "group-hover:scale-105"
+    )}>
       <img
         src={config.image}
         alt={config.name}
@@ -31,14 +40,37 @@ const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, dis
     </div>
     <div className="flex-1 min-w-0">
       <div className="flex items-center gap-1.5">
-        <span className="font-medium text-sm truncate">{config.name}</span>
-        {config.isPremium && !proMode && <Lock className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />}
+        <span className={cn(
+          "font-medium text-sm truncate",
+          "transition-colors duration-200",
+          "group-hover:text-foreground"
+        )}>
+          {config.name}
+        </span>
+        {config.isPremium && !proMode && (
+          <Lock className={cn(
+            "h-3.5 w-3.5 flex-shrink-0",
+            "text-muted-foreground/70",
+            "transition-all duration-200",
+            "group-hover:scale-110 group-hover:text-muted-foreground"
+          )} />
+        )}
       </div>
-      <p className="text-xs text-muted-foreground truncate mt-0.5">
+      <p className={cn(
+        "text-xs text-muted-foreground/70 truncate mt-0.5",
+        "transition-colors duration-200",
+        "group-hover:text-muted-foreground"
+      )}>
         {config.tagline || (config.category === "NSFW" ? "NSFW Generation" : "Image Generation")}
       </p>
     </div>
-    <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+    <ChevronRight className={cn(
+      "h-4 w-4 flex-shrink-0",
+      "text-muted-foreground/70",
+      "transition-all duration-200",
+      "group-hover:text-muted-foreground",
+      "group-hover:translate-x-0.5"
+    )} />
   </div>
 );
 
@@ -46,7 +78,9 @@ const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, dis
 const ModelGridCard = ({ modelKey, config, isActive, onClick, disabled, proMode }) => (
   <div
     className={cn(
-      "group relative aspect-square rounded-xl overflow-hidden transition-all duration-200 border-2",
+      "group relative aspect-square rounded-xl overflow-hidden",
+      "transition-all duration-200 ease-spring",
+      "border-2",
       isActive ? "border-primary ring-2 ring-primary/20" : "border-transparent hover:border-primary/50",
       disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
     )}
@@ -55,22 +89,48 @@ const ModelGridCard = ({ modelKey, config, isActive, onClick, disabled, proMode 
     <img
       src={config.image}
       alt={config.name}
-      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+      className={cn(
+        "w-full h-full object-cover",
+        "transition-transform duration-300",
+        "group-hover:scale-105"
+      )}
     />
     {/* Gradient overlay */}
-    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+    <div className={cn(
+      "absolute inset-0",
+      "bg-gradient-to-t from-black/80 via-black/20 to-transparent",
+      "transition-opacity duration-200",
+      "group-hover:opacity-90"
+    )} />
     
     {/* Content */}
     <div className="absolute bottom-0 left-0 right-0 p-3">
       <div className="flex items-center gap-2">
-        <span className="font-medium text-white truncate">{config.name}</span>
-        {config.isPremium && !proMode && <Lock className="h-3.5 w-3.5 flex-shrink-0 text-white/80" />}
+        <span className={cn(
+          "font-medium text-white truncate",
+          "transition-transform duration-200",
+          "group-hover:translate-y-[-2px]"
+        )}>
+          {config.name}
+        </span>
+        {config.isPremium && !proMode && (
+          <Lock className={cn(
+            "h-3.5 w-3.5 flex-shrink-0 text-white/80",
+            "transition-all duration-200",
+            "group-hover:scale-110"
+          )} />
+        )}
       </div>
     </div>
 
     {/* Active indicator */}
     {isActive && (
-      <div className="absolute top-2 right-2 h-6 w-6 rounded-full bg-primary/90 text-primary-foreground flex items-center justify-center">
+      <div className={cn(
+        "absolute top-2 right-2 h-6 w-6",
+        "rounded-full bg-primary/90 text-primary-foreground",
+        "flex items-center justify-center",
+        "animate-in zoom-in-95 duration-200"
+      )}>
         <Check className="h-4 w-4" />
       </div>
     )}
@@ -95,7 +155,7 @@ const ModelGrid = ({ filteredModels, model, setModel, proMode, className }) => (
   </ScrollArea>
 );
 
-const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) => {
+const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs, className }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   
   // Filter models based on NSFW state
@@ -149,6 +209,7 @@ const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) =
     <SettingSection 
       label="Model" 
       tooltip="Choose between fast generation or higher quality output."
+      className={className}
     >
       {/* Desktop: Popover */}
       <div className="hidden md:block">
@@ -168,7 +229,12 @@ const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) =
             side="left"
             align="start"
             sideOffset={20}
-            className="w-[500px] p-3 max-h-[65vh]"
+            className={cn(
+              "w-[500px] p-3 max-h-[65vh]",
+              "bg-card/80 backdrop-blur-sm",
+              "border-none shadow-lg",
+              "animate-in fade-in-0 zoom-in-95"
+            )}
           >
             <ModelGrid 
               filteredModels={filteredModels}
@@ -196,9 +262,19 @@ const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) =
           open={isDrawerOpen} 
           onOpenChange={setIsDrawerOpen}
         >
-          <DrawerContent className="focus:outline-none">
-            <DrawerHeader className="border-b border-border/30 px-4 pb-4">
-              <DrawerTitle>Select Model</DrawerTitle>
+          <DrawerContent className={cn(
+            "focus:outline-none",
+            "bg-background/80 backdrop-blur-sm",
+            "border-t border-border/30"
+          )}>
+            <DrawerHeader className="px-4 pb-4">
+              <DrawerTitle className={cn(
+                "text-xl font-semibold tracking-tight",
+                "bg-gradient-to-br from-foreground to-foreground/70",
+                "bg-clip-text text-transparent"
+              )}>
+                Select Model
+              </DrawerTitle>
             </DrawerHeader>
             <div className="px-4 py-6">
               <ModelGrid 

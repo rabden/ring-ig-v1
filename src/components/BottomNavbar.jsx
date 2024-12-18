@@ -1,106 +1,79 @@
-import React, { memo, useState, useEffect } from 'react';
-import { Image, Plus, Sparkles, User } from 'lucide-react';
+import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useNotifications } from '@/contexts/NotificationContext';
-import { useProUser } from '@/hooks/useProUser';
-import { useNavigate, useLocation } from 'react-router-dom';
-import GeneratingImagesDrawer from './GeneratingImagesDrawer';
-import MobileNavButton from './navbar/MobileNavButton';
+import { cn } from '@/lib/utils';
+import { Home, Image, Bell, User } from 'lucide-react';
 import NotificationBell from './notifications/NotificationBell';
-import ProfileMenu from './ProfileMenu';
 
-const BottomNavbar = ({ 
-  activeTab, 
-  setActiveTab, 
-  session, 
-  credits, 
-  bonusCredits, 
-  generatingImages = [],
-  nsfwEnabled,
-  setNsfwEnabled
-}) => {
-  const { unreadCount } = useNotifications();
-  const { data: isPro } = useProUser(session?.user?.id);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [showCheckmark, setShowCheckmark] = useState(false);
-  const [prevLength, setPrevLength] = useState(generatingImages.length);
-  const navigate = useNavigate();
+const BottomNavbar = ({ user }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { unreadCount } = useNotifications();
 
-  // Handle showing checkmark when an image completes
-  useEffect(() => {
-    if (generatingImages.length < prevLength && prevLength > 0) {
-      setShowCheckmark(true);
-      const timer = setTimeout(() => {
-        setShowCheckmark(false);
-      }, 1500);
-      return () => clearTimeout(timer);
+  const handleNavigation = (path, hash) => {
+    navigate(path);
+    if (hash) {
+      setTimeout(() => {
+        const element = document.getElementById(hash);
+        element?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     }
-    setPrevLength(generatingImages.length);
-  }, [generatingImages.length, prevLength]);
-
-  const handleNavigation = (route, tab) => {
-    setActiveTab(tab);
-    navigate(route);
   };
 
-  return (
-    <>
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/30 md:hidden z-50">
-        <div className="flex items-center justify-around px-2 max-w-md mx-auto">
-          <MobileNavButton
-            icon={Image}
-            isActive={location.pathname === '/' && (!location.hash || location.hash === '#myimages')}
-            onClick={() => handleNavigation('/#myimages', 'images')}
-          />
-          <MobileNavButton
-            icon={Sparkles}
-            isActive={location.pathname === '/inspiration'}
-            onClick={() => handleNavigation('/inspiration', 'images')}
-          />
-          <MobileNavButton
-            icon={Plus}
-            isActive={location.hash === '#imagegenerate'}
-            onClick={() => handleNavigation('/#imagegenerate', 'input')}
-            onLongPress={() => setDrawerOpen(true)}
-            badge={generatingImages.length}
-            showCheckmark={showCheckmark}
-          />
-          <MobileNavButton
-            icon={NotificationBell}
-            isActive={location.hash === '#notifications'}
-            onClick={() => handleNavigation('/#notifications', 'notifications')}
-          />
-          <div className="flex items-center justify-center">
-            {session ? (
-              <div className="group">
-                <ProfileMenu 
-                  user={session.user} 
-                  credits={credits} 
-                  bonusCredits={bonusCredits} 
-                  isMobile={true}
-                  nsfwEnabled={nsfwEnabled}
-                  setNsfwEnabled={setNsfwEnabled}
-                />
-              </div>
-            ) : (
-              <MobileNavButton
-                icon={User}
-                isActive={activeTab === 'profile'}
-                onClick={() => setActiveTab('profile')}
-              />
-            )}
-          </div>
-        </div>
-        <div className="h-safe-area-bottom bg-background" />
+  const NavItem = ({ icon: Icon, label, isActive, onClick, badge }) => (
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex flex-col items-center justify-center gap-1 w-full h-full",
+        "transition-all duration-200 ease-spring",
+        "hover:text-primary active:scale-95",
+        isActive ? "text-primary" : "text-muted-foreground"
+      )}
+    >
+      <div className="relative">
+        <Icon className="h-5 w-5" />
+        {badge && (
+          <span className="absolute -top-1 -right-1 flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+          </span>
+        )}
       </div>
+      <span className="text-[10px] font-medium">{label}</span>
+    </button>
+  );
 
-      <GeneratingImagesDrawer 
-        open={drawerOpen} 
-        onOpenChange={setDrawerOpen}
-        generatingImages={generatingImages}
-      />
-    </>
+  return (
+    <div className="md:hidden fixed bottom-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-sm border-t border-border/40 z-50">
+      <div className="grid grid-cols-4 h-full">
+        <NavItem
+          icon={Home}
+          label="Home"
+          isActive={location.hash === '#myimages' || !location.hash}
+          onClick={() => handleNavigation('/#myimages')}
+        />
+        <NavItem
+          icon={Image}
+          label="Inspiration"
+          isActive={location.pathname === '/inspiration'}
+          onClick={() => handleNavigation('/inspiration')}
+        />
+        <NavItem
+          icon={Bell}
+          label="Notifications"
+          isActive={location.hash === '#notifications'}
+          onClick={() => handleNavigation('/#notifications')}
+          badge={unreadCount > 0}
+        />
+        <NavItem
+          icon={User}
+          label="Profile"
+          isActive={location.hash === '#profile'}
+          onClick={() => handleNavigation('/#profile')}
+        />
+      </div>
+    </div>
   );
 };
 
-export default memo(BottomNavbar);
+export default BottomNavbar;

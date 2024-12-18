@@ -2,6 +2,7 @@ import React from 'react'
 import { Button } from "@/components/ui/button"
 import { useNavigate, useLocation } from 'react-router-dom'
 import GeneratingImagesDropdown from './GeneratingImagesDropdown'
+import { cn } from '@/lib/utils'
 
 const ActionButtons = ({ generatingImages }) => {
   const navigate = useNavigate();
@@ -10,19 +11,27 @@ const ActionButtons = ({ generatingImages }) => {
   const isMyImages = location.pathname === '/' && (!location.hash || location.hash === '#myimages');
 
   return (
-    <div className="hidden md:flex items-center space-x-2">
+    <div className="hidden md:flex items-center gap-2">
       <Button
-        variant={isMyImages ? 'default' : 'outline'}
+        variant="ghost"
         onClick={() => navigate('/#myimages')}
-        className="text-xs px-2 py-1 h-8 transition-colors hover:bg-accent hover:text-accent-foreground"
+        className={cn(
+          "text-xs px-3 py-1 h-8 transition-all duration-200",
+          "hover:bg-accent/40 hover:text-accent-foreground",
+          isMyImages && "bg-accent/30 text-accent-foreground"
+        )}
         aria-pressed={isMyImages}
       >
         My Images
       </Button>
       <Button
-        variant={isInspiration ? 'default' : 'outline'}
+        variant="ghost"
         onClick={() => navigate('/inspiration')}
-        className="text-xs px-2 py-1 h-8 transition-colors hover:bg-accent hover:text-accent-foreground"
+        className={cn(
+          "text-xs px-3 py-1 h-8 transition-all duration-200",
+          "hover:bg-accent/40 hover:text-accent-foreground",
+          isInspiration && "bg-accent/30 text-accent-foreground"
+        )}
         aria-pressed={isInspiration}
       >
         Inspiration

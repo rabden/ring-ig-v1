@@ -8,14 +8,17 @@ import NoResults from './NoResults';
 import { useGalleryImages } from '@/hooks/useGalleryImages';
 import { cn } from '@/lib/utils';
 import { format, isToday, isYesterday, isThisWeek, isThisMonth, parseISO, subWeeks, isAfter } from 'date-fns';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const getBreakpointColumns = () => ({
   default: 4,
-  1600: 4,
-  1000: 4,
-  900: 3,
-  700: 3,
-  500: 2
+  2400: 5,
+  1920: 4,
+  1440: 3,
+  1024: 3,
+  768: 2,
+  640: 2,
+  480: 1
 });
 
 const groupImagesByDate = (images) => {
@@ -56,10 +59,29 @@ const groupImagesByDate = (images) => {
 };
 
 const DateHeader = ({ children }) => (
-  <div className="flex items-center gap-3 px-2 mb-6">
-    <h2 className="text-sm font-medium text-muted-foreground">{children}</h2>
-    <div className="h-px flex-grow bg-border/30" />
-  </div>
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    className={cn(
+      "flex items-center gap-3 px-2 mb-6",
+      "sticky top-0 z-10 py-2",
+      "bg-background/80 backdrop-blur-sm"
+    )}
+  >
+    <h2 className={cn(
+      "text-sm font-medium",
+      "text-muted-foreground/80",
+      "transition-colors duration-200",
+      "hover:text-foreground"
+    )}>
+      {children}
+    </h2>
+    <div className={cn(
+      "h-px flex-grow",
+      "bg-border/20",
+      "transition-colors duration-200"
+    )} />
+  </motion.div>
 );
 
 const ImageGallery = ({ 
@@ -129,14 +151,28 @@ const ImageGallery = ({
 
   if (isLoading && !images.length) {
     return (
-      <div className={cn("w-full h-full md:px-0 md:pt-0 pt-12", className)}>
+      <div className={cn(
+        "w-full h-full md:px-0 md:pt-0 pt-12",
+        "animate-in fade-in-50 duration-500",
+        className
+      )}>
         <Masonry
           breakpointCols={breakpointColumnsObj}
           className="flex w-auto md:px-2 -mx-1 md:mx-0"
-          columnClassName="bg-clip-padding px-1 md:px-2"
+          columnClassName={cn(
+            "bg-clip-padding px-1 md:px-2",
+            "space-y-6 transition-all duration-300"
+          )}
         >
-          {Array.from({ length: 8 }).map((_, index) => (
-            <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
+          {Array.from({ length: 12 }).map((_, index) => (
+            <motion.div
+              key={`loading-${index}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <SkeletonImageCard width={512} height={512} />
+            </motion.div>
           ))}
         </Masonry>
       </div>
@@ -154,53 +190,81 @@ const ImageGallery = ({
       .filter(([_, images]) => images.length > 0);
 
     return (
-      <div className={cn("w-full h-full md:px-0 pt-12 space-y-12", className)}>
-        {nonEmptyGroups.map(([groupName, groupImages], groupIndex) => (
-          <div key={groupName}>
-            <DateHeader>
-              {groupName === 'today' && 'Today'}
-              {groupName === 'yesterday' && 'Yesterday'}
-              {groupName === 'thisWeek' && 'This Week'}
-              {groupName === 'lastWeek' && 'Last Week'}
-              {groupName === 'thisMonth' && 'This Month'}
-              {groupName === 'lastMonth' && 'Last Month'}
-              {groupName === 'earlier' && 'Earlier'}
-            </DateHeader>
-            <Masonry
-              breakpointCols={breakpointColumnsObj}
-              className="flex w-auto md:px-2 -mx-1 md:mx-0"
-              columnClassName="bg-clip-padding px-1 md:px-2 space-y-6"
+      <div className={cn(
+        "w-full h-full md:px-0 pt-12",
+        "space-y-12 animate-in fade-in-50 duration-500",
+        className
+      )}>
+        <AnimatePresence mode="wait">
+          {nonEmptyGroups.map(([groupName, groupImages], groupIndex) => (
+            <motion.div
+              key={groupName}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: groupIndex * 0.1 }}
             >
-              {groupImages.map((image, index) => (
-                <div
-                  key={image.id}
-                  ref={groupIndex === nonEmptyGroups.length - 1 && index === groupImages.length - 1 ? lastImageRef : null}
-                  className="mb-6"
-                >
-                  <ImageCard
-                    image={image}
-                    onImageClick={() => onImageClick(image)}
-                    onDownload={onDownload}
-                    onDiscard={onDiscard}
-                    onRemix={onRemix}
-                    onViewDetails={onViewDetails}
-                    onMoreClick={handleMobileMoreClick}
-                    userId={userId}
-                    isMobile={isMobile}
-                    isLiked={userLikes.includes(image.id)}
-                    onToggleLike={toggleLike}
-                    setStyle={setStyle}
-                    style={style}
-                  />
-                </div>
-              ))}
-            </Masonry>
-          </div>
-        ))}
+              <DateHeader>
+                {groupName === 'today' && 'Today'}
+                {groupName === 'yesterday' && 'Yesterday'}
+                {groupName === 'thisWeek' && 'This Week'}
+                {groupName === 'lastWeek' && 'Last Week'}
+                {groupName === 'thisMonth' && 'This Month'}
+                {groupName === 'lastMonth' && 'Last Month'}
+                {groupName === 'earlier' && 'Earlier'}
+              </DateHeader>
+              <Masonry
+                breakpointCols={breakpointColumnsObj}
+                className="flex w-auto md:px-2 -mx-1 md:mx-0"
+                columnClassName={cn(
+                  "bg-clip-padding px-1 md:px-2",
+                  "space-y-6 transition-all duration-300"
+                )}
+              >
+                {groupImages.map((image, index) => (
+                  <motion.div
+                    key={image.id}
+                    ref={groupIndex === nonEmptyGroups.length - 1 && index === groupImages.length - 1 ? lastImageRef : null}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="mb-6"
+                  >
+                    <ImageCard
+                      image={image}
+                      onImageClick={() => onImageClick(image)}
+                      onDownload={onDownload}
+                      onDiscard={onDiscard}
+                      onRemix={onRemix}
+                      onViewDetails={onViewDetails}
+                      onMoreClick={handleMobileMoreClick}
+                      userId={userId}
+                      isMobile={isMobile}
+                      isLiked={userLikes.includes(image.id)}
+                      onToggleLike={toggleLike}
+                      setStyle={setStyle}
+                      style={style}
+                    />
+                  </motion.div>
+                ))}
+              </Masonry>
+            </motion.div>
+          ))}
+        </AnimatePresence>
         {isFetchingNextPage && (
-          <div className="flex justify-center my-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className={cn(
+              "flex justify-center my-4",
+              "transition-opacity duration-300"
+            )}
+          >
+            <div className={cn(
+              "animate-spin rounded-full h-8 w-8",
+              "border-2 border-primary/20",
+              "border-t-primary transition-colors duration-300"
+            )} />
+          </motion.div>
         )}
       </div>
     );
@@ -208,39 +272,62 @@ const ImageGallery = ({
 
   // Regular masonry grid for other views
   return (
-    <div className={cn("w-full h-full md:px-0 md:pt-0 pt-0", className)}>
+    <div className={cn(
+      "w-full h-full md:px-0 md:pt-0 pt-0",
+      "animate-in fade-in-50 duration-500",
+      className
+    )}>
       <Masonry
         breakpointCols={breakpointColumnsObj}
         className="flex w-auto md:px-2 -mx-1 md:mx-0"
-        columnClassName="bg-clip-padding px-1 md:px-2"
+        columnClassName={cn(
+          "bg-clip-padding px-1 md:px-2",
+          "space-y-6 transition-all duration-300"
+        )}
       >
-        {images.map((image, index) => (
-          <div
-            key={image.id}
-            ref={index === images.length - 1 ? lastImageRef : null}
-          >
-            <ImageCard
-              image={image}
-              onImageClick={() => onImageClick(image)}
-              onDownload={onDownload}
-              onDiscard={onDiscard}
-              onRemix={onRemix}
-              onViewDetails={onViewDetails}
-              onMoreClick={handleMobileMoreClick}
-              userId={userId}
-              isMobile={isMobile}
-              isLiked={userLikes.includes(image.id)}
-              onToggleLike={toggleLike}
-              setStyle={setStyle}
-              style={style}
-            />
-          </div>
-        ))}
+        <AnimatePresence mode="wait">
+          {images.map((image, index) => (
+            <motion.div
+              key={image.id}
+              ref={index === images.length - 1 ? lastImageRef : null}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <ImageCard
+                image={image}
+                onImageClick={() => onImageClick(image)}
+                onDownload={onDownload}
+                onDiscard={onDiscard}
+                onRemix={onRemix}
+                onViewDetails={onViewDetails}
+                onMoreClick={handleMobileMoreClick}
+                userId={userId}
+                isMobile={isMobile}
+                isLiked={userLikes.includes(image.id)}
+                onToggleLike={toggleLike}
+                setStyle={setStyle}
+                style={style}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </Masonry>
       {isFetchingNextPage && (
-        <div className="flex justify-center my-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className={cn(
+            "flex justify-center my-4",
+            "transition-opacity duration-300"
+          )}
+        >
+          <div className={cn(
+            "animate-spin rounded-full h-8 w-8",
+            "border-2 border-primary/20",
+            "border-t-primary transition-colors duration-300"
+          )} />
+        </motion.div>
       )}
     </div>
   );
