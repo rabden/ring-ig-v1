@@ -121,3 +121,63 @@
 1. Individual component implementations
 2. Mobile vs Desktop implementations
 3. UI/UX flow and interactions
+
+# UI Components Visual Improvements
+
+## Goals
+- Make components more subtle and visually appealing
+- Add calming visual effects
+- Improve rounded corners
+- Enhance visibility
+- Maintain consistency across components
+
+## Components to Improve
+1. Card
+   - Current: Basic shadow and rounded corners
+   - Planned: Softer shadow, larger border radius, subtle backdrop blur
+2. Button
+   - Current: Basic rounded corners, solid backgrounds
+   - Planned: Softer transitions, improved hover states, more rounded corners
+3. Drawer
+4. Dropdown Menu
+5. Dialog
+6. Navigation Menu
+7. Slider
+8. Switch
+9. Tabs
+10. Tooltip
+
+## Design Principles
+- Use softer shadows (shadow-sm -> custom shadow with lower opacity)
+- Implement consistent border radius (rounded-xl for larger components, rounded-lg for medium, rounded-md for small)
+- Add subtle transitions (300ms duration, ease-in-out)
+- Use calming color palette (lower opacity backgrounds, softer contrasts)
+- Improve spacing and padding
+- Enhance hover and focus states with smooth transitions
+
+## Improvements Made
+### Button Component
+- Increased border radius
+- Added smoother transitions
+- Softened background colors
+- Improved hover states
+- Enhanced focus ring visibility
+
+### Card Component
+- Added subtle backdrop blur effect
+- Increased border radius
+- Softened shadow
+- Improved spacing
+- Added subtle border
+
+## Progress Tracking
+[x] Button
+[x] Card
+[ ] Drawer
+[ ] Dropdown Menu
+[ ] Dialog
+[ ] Navigation Menu
+[ ] Slider
+[ ] Switch
+[ ] Tabs
+[ ] Tooltip
