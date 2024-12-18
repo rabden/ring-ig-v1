@@ -1,27 +1,20 @@
-import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Heart } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
-const LikeButton = ({ isLiked, onToggle, className }) => {
+export default function LikeButton({ isLiked, onClick, className }) {
   return (
     <Button
       variant="ghost"
       size="icon"
-      className={cn("h-6 w-6 p-0", className)}
-      onClick={(e) => {
-        e.stopPropagation();
-        onToggle();
-      }}
-    >
-      <Heart 
+      className={cn("group", className)}
+      onClick={onClick}>
+      <Heart
         className={cn(
-          "h-4 w-4",
-          isLiked ? "fill-red-500 text-red-500" : "text-foreground"
-        )} 
+          "h-5 w-5 transition-colors duration-200",
+          isLiked ? "fill-red-500 text-red-500" : "text-white/50 group-hover:text-white"
+        )}
       />
     </Button>
-  );
-};
-
-export default LikeButton;
+  )
+}

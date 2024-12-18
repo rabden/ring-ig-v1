@@ -1,10 +1,7 @@
 import React from 'react';
-import { Skeleton } from "@/components/ui/skeleton";
 
-const SkeletonImage = ({ width, height }) => {
+export default function SkeletonImage() {
   return (
-    <Skeleton className="w-full h-full" style={{ paddingTop: `${(height / width) * 100}%` }} />
-  );
-};
-
-export default SkeletonImage;
+    <div className="aspect-square w-full animate-pulse rounded-md bg-black/30 backdrop-blur-sm" />
+  )
+}

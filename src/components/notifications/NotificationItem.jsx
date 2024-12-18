@@ -28,12 +28,17 @@ const NotificationItem = ({ notification }) => {
     }
   };
 
+  console.log('Notification data:', notification);
+  console.log('Raw image_url:', notification.image_url);
+
   // Parse image URLs and ensure they are valid
   const images = notification.image_url 
     ? notification.image_url.split(',')
         .map(url => url.trim())
         .filter(url => url.length > 0)
     : [];
+
+  console.log('Processed images array:', images);
 
   const links = notification.link ? notification.link.split(',').map(link => link.trim()) : [];
   const linkNames = notification.link_names ? notification.link_names.split(',').map(name => name.trim()) : [];
@@ -64,10 +69,7 @@ const NotificationItem = ({ notification }) => {
         </div>
       )}
       
-      <div className={cn(
-        "flex-1 min-w-0",
-        images.length === 0 && "w-full"
-      )}>
+      <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
           <div className="space-y-1">
             <p className={cn(

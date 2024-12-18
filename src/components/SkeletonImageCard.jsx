@@ -1,23 +1,18 @@
-import React from 'react'
-import { Card, CardContent } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Card, CardContent, CardFooter } from "@/components/ui/card"
 
-const SkeletonImageCard = ({ width = 512, height = 512 }) => {
-  const aspectRatio = (height / width) * 100
-
+export default function SkeletonImageCard() {
   return (
-    <div className="mb-4">
-      <Card className="overflow-hidden">
-        <CardContent className="p-0 relative" style={{ paddingTop: `${aspectRatio}%` }}>
-          <Skeleton className="absolute inset-0 w-full h-full" />
-        </CardContent>
-      </Card>
-      <div className="mt-2 flex items-center justify-between">
-        <Skeleton className="h-4 w-3/4" />
-        <Skeleton className="h-8 w-8 rounded-full" />
-      </div>
-    </div>
+    <Card>
+      <CardContent className="p-0">
+        <div className="aspect-square w-full animate-pulse rounded-t-md bg-black/30 backdrop-blur-sm" />
+      </CardContent>
+      <CardFooter className="flex items-center justify-between p-4">
+        <div className="flex flex-col gap-2">
+          <div className="h-4 w-24 animate-pulse rounded bg-black/30 backdrop-blur-sm" />
+          <div className="h-3 w-16 animate-pulse rounded bg-black/30 backdrop-blur-sm" />
+        </div>
+        <div className="h-8 w-8 animate-pulse rounded-full bg-black/30 backdrop-blur-sm" />
+      </CardFooter>
+    </Card>
   )
 }
-
-export default SkeletonImageCard
