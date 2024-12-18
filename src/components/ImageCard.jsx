@@ -12,6 +12,7 @@ import { handleImageDiscard } from '@/utils/discardUtils';
 import ImageCardMedia from './image-card/ImageCardMedia';
 import ImageCardBadges from './image-card/ImageCardBadges';
 import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
 const ImageCard = ({ 
   image, 
@@ -81,8 +82,12 @@ const ImageCard = ({
 
   return (
     <>
-      <div className="mb-4">
-        <Card className="overflow-hidden">
+      <div className="group mb-4 transition-all duration-200">
+        <Card className={cn(
+          "overflow-hidden backdrop-blur-sm transition-all duration-200",
+          "bg-black/30 hover:bg-black/40",
+          "border border-white/10 hover:border-white/20"
+        )}>
           <CardContent className="p-0 relative">
             <ImageStatusIndicators 
               isTrending={image.is_trending} 
@@ -100,8 +105,12 @@ const ImageCard = ({
             />
           </CardContent>
         </Card>
-        <div className="mt-1 flex items-center justify-between">
-          <p className="text-sm truncate w-[70%]">{image.prompt}</p>
+        <div className="mt-2 flex items-center justify-between">
+          <p className={cn(
+            "text-sm truncate w-[70%]",
+            "text-white/70 group-hover:text-white",
+            "transition-colors duration-200"
+          )}>{image.prompt}</p>
           <ImageCardActions
             image={image}
             isMobile={isMobile}

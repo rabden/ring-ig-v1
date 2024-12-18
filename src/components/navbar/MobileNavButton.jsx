@@ -1,109 +1,92 @@
-import React, { memo, useState, useRef, useEffect } from 'react';
-import { cn } from "@/lib/utils";
+import React from 'react';
+import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
+import { cn } from '@/lib/utils';
 
 const MobileNavButton = ({ 
   icon: Icon, 
   isActive, 
   onClick, 
-  children, 
-  badge, 
-  onLongPress, 
-  asChild,
-  showCheckmark 
+  onLongPress,
+  badge,
+  showCheckmark
 }) => {
-  const [isPressed, setIsPressed] = useState(false);
-  const pressTimer = useRef(null);
-  const touchStartTime = useRef(0);
-  const isMoved = useRef(false);
+  let pressTimer;
 
-  const handleTouchStart = (e) => {
-    isMoved.current = false;
-    touchStartTime.current = Date.now();
-    if (onLongPress) {
-      pressTimer.current = setTimeout(() => {
-        if (!isMoved.current) {
-          setIsPressed(true);
-          onLongPress();
-        }
-      }, 500);
-    }
+  const handleMouseDown = () => {
+    if (!onLongPress) return;
+    pressTimer = setTimeout(() => {
+      onLongPress();
+    }, 500);
   };
 
-  const handleTouchMove = () => {
-    isMoved.current = true;
-    if (pressTimer.current) {
-      clearTimeout(pressTimer.current);
-      setIsPressed(false);
-    }
+  const handleMouseUp = () => {
+    if (pressTimer) clearTimeout(pressTimer);
   };
-
-  const handleTouchEnd = (e) => {
-    const touchDuration = Date.now() - touchStartTime.current;
-    if (pressTimer.current) {
-      clearTimeout(pressTimer.current);
-    }
-    setIsPressed(false);
-
-    // Only trigger click if it wasn't a long press and the touch didn't move
-    if (touchDuration < 500 && !isMoved.current) {
-      onClick?.(e);
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      if (pressTimer.current) {
-        clearTimeout(pressTimer.current);
-      }
-    };
-  }, []);
-
-  const ButtonComponent = asChild ? 'div' : 'button';
 
   return (
-    <ButtonComponent
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onClick={(e) => {
-        // Only handle click for non-touch devices
-        if (e.pointerType !== 'touch') {
-          onClick?.(e);
-        }
-      }}
-      className={cn(
-        "flex items-center justify-center w-14 h-12 transition-all relative",
-        isActive ? "text-primary" : "text-muted-foreground",
-        "relative group"
+    <div className="relative">
+      <Button
+        variant="ghost"
+        size="icon"
+        className={cn(
+          "relative h-12 w-12",
+          "bg-transparent",
+          "transition-all duration-200",
+          isActive ? (
+            "text-white opacity-100"
+          ) : (
+            "text-white/70 hover:text-white opacity-70 hover:opacity-100"
+          )
+        )}
+        onClick={onClick}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onTouchStart={handleMouseDown}
+        onTouchEnd={handleMouseUp}
+      >
+        <Icon className="h-5 w-5" />
+        
+        {/* Badge */}
+        {badge > 0 && (
+          <span className={cn(
+            "absolute -top-0.5 -right-0.5",
+            "min-w-[1.25rem] h-5",
+            "flex items-center justify-center",
+            "rounded-full px-1",
+            "bg-white text-black",
+            "text-xs font-medium",
+            "transition-all duration-200"
+          )}>
+            {badge}
+          </span>
+        )}
+
+        {/* Checkmark Animation */}
+        {showCheckmark && (
+          <span className={cn(
+            "absolute inset-0",
+            "flex items-center justify-center",
+            "bg-green-500/90 text-white",
+            "rounded-full",
+            "animate-checkmark"
+          )}>
+            <Check className="h-5 w-5" />
+          </span>
+        )}
+      </Button>
+
+      {/* Active Indicator */}
+      {isActive && (
+        <div className={cn(
+          "absolute -bottom-1 left-1/2 -translate-x-1/2",
+          "h-0.5 w-6",
+          "bg-white rounded-full",
+          "transition-all duration-200"
+        )} />
       )}
-    >
-      <div className={cn(
-        "absolute inset-x-2 h-0.5 -top-1 rounded-full transition-all",
-        isActive ? "bg-primary" : "bg-transparent"
-      )} />
-      {children || (
-        <>
-          <Icon size={20} className={cn(
-            "transition-transform duration-200",
-            isActive ? "scale-100" : "scale-90 group-hover:scale-100"
-          )} />
-          {(badge > 0 || showCheckmark) && (
-            <span className={cn(
-              "absolute top-1 right-2 h-4 w-4 rounded-full bg-primary text-[10px] font-medium text-primary-foreground flex items-center justify-center",
-              showCheckmark && "animate-in zoom-in duration-300"
-            )}>
-              {showCheckmark ? (
-                <Check className="h-3 w-3" />
-              ) : (
-                badge > 9 ? '9+' : badge
-              )}
-            </span>
-          )}
-        </>
-      )}
-    </ButtonComponent>
+    </div>
   );
 };
 
-export default memo(MobileNavButton);
+export default MobileNavButton;
