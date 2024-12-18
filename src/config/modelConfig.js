@@ -139,7 +139,7 @@ export const modelConfig = {
     isPremium: false,
     promptSuffix: ", ANMCH",
     tagline: "Flwaless Anime style images",
-    image: "https://i.ibb.co.com/c1kPmWg/Euv-INv-Bs-CKZQusp-ZHN-u-F.png",
+    image: "https://i.ibb.co.com/bgYbVQJ/Euv-INv-Bs-CKZQusp-ZHN-u-F.png",
     example: "Make high quality flawless prompt, use quality and style tags like: high quality, studio ghibli, Vibrant Anime make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
   },
   anime2xl: {

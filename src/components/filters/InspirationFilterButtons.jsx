@@ -2,24 +2,57 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { cn } from '@/lib/utils';
 
-export default function InspirationFilterButtons({ activeFilter, onFilterChange }) {
-  const filters = [
-    { id: "all", label: "All" },
-    { id: "liked", label: "Liked" },
-    { id: "remixed", label: "Remixed" },
-  ]
+const InspirationFilterButtons = ({ 
+  showFollowing,
+  showTop,
+  onFollowingChange,
+  onTopChange,
+  className
+}) => {
+  const handleFollowingClick = () => {
+    if (showFollowing) {
+      onFollowingChange(false);
+    } else {
+      onFollowingChange(true);
+      onTopChange(false);
+    }
+  };
+
+  const handleTopClick = () => {
+    if (showTop) {
+      onTopChange(false);
+    } else {
+      onTopChange(true);
+      onFollowingChange(false);
+    }
+  };
 
   return (
-    <div className="flex gap-2">
-      {filters.map((filter) => (
-        <Button
-          key={filter.id}
-          variant={activeFilter === filter.id ? "default" : "ghost"}
-          size="sm"
-          onClick={() => onFilterChange(filter.id)}>
-          {filter.label}
-        </Button>
-      ))}
+    <div className={cn("flex gap-1", className)}>
+      <Button
+        variant={showFollowing ? "default" : "outline"}
+        size="sm"
+        onClick={handleFollowingClick}
+        className={cn(
+          "h-7 text-xs px-3 rounded-full",
+          "md:h-8 md:px-4"
+        )}
+      >
+        Following
+      </Button>
+      <Button
+        variant={showTop ? "default" : "outline"}
+        size="sm"
+        onClick={handleTopClick}
+        className={cn(
+          "h-7 text-xs px-3 rounded-full",
+          "md:h-8 md:px-4"
+        )}
+      >
+        Top
+      </Button>
     </div>
-  )
-} 
+  );
+};
+
+export default InspirationFilterButtons; 
