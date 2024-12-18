@@ -16,30 +16,29 @@ import {
 const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, disabled, proMode }) => (
   <div
     className={cn(
-      "flex items-center gap-4 p-4 rounded-xl transition-all duration-200",
-      "border border-border/10 bg-card/95 backdrop-blur-[2px]",
-      isActive ? "bg-muted/10 border-primary/30 shadow-[0_0_0_1px_rgba(var(--primary),.2)]" : "hover:bg-muted/5 hover:border-border/20",
-      disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-[0.98]"
+      "flex items-center gap-3 p-3 rounded-lg transition-all duration-200 border border-border/50",
+      isActive ? "bg-muted/80 border-primary/50" : "hover:bg-muted/50 hover:border-primary/30",
+      disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer active:scale-[0.98]"
     )}
     onClick={disabled ? undefined : onClick}
   >
-    <div className="relative h-12 w-12 rounded-lg overflow-hidden bg-background/50 flex-shrink-0 ring-1 ring-border/5">
+    <div className="relative h-10 w-10 rounded-md overflow-hidden bg-background flex-shrink-0 ring-1 ring-border/50">
       <img
         src={config.image}
         alt={config.name}
-        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+        className="w-full h-full object-cover"
       />
     </div>
     <div className="flex-1 min-w-0">
-      <div className="flex items-center gap-2">
-        <span className="font-medium text-sm text-foreground/90">{config.name}</span>
-        {config.isPremium && !proMode && <Lock className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground/70" />}
+      <div className="flex items-center gap-1.5">
+        <span className="font-medium text-sm truncate">{config.name}</span>
+        {config.isPremium && !proMode && <Lock className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground" />}
       </div>
-      <p className="text-xs text-muted-foreground/60 truncate mt-1">
+      <p className="text-xs text-muted-foreground truncate mt-0.5">
         {config.tagline || (config.category === "NSFW" ? "NSFW Generation" : "Image Generation")}
       </p>
     </div>
-    <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground/50" />
+    <ChevronRight className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
   </div>
 );
 
@@ -47,10 +46,9 @@ const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, dis
 const ModelGridCard = ({ modelKey, config, isActive, onClick, disabled, proMode }) => (
   <div
     className={cn(
-      "group relative aspect-square rounded-xl overflow-hidden transition-all duration-200",
-      "border border-border/10 bg-card/95 backdrop-blur-[2px]",
-      isActive ? "ring-2 ring-primary/20 border-primary/30" : "hover:border-border/20",
-      disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+      "group relative aspect-square rounded-xl overflow-hidden transition-all duration-200 border-2",
+      isActive ? "border-primary ring-2 ring-primary/20" : "border-transparent hover:border-primary/50",
+      disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"
     )}
     onClick={disabled ? undefined : onClick}
   >
@@ -60,19 +58,19 @@ const ModelGridCard = ({ modelKey, config, isActive, onClick, disabled, proMode 
       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
     />
     {/* Gradient overlay */}
-    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent backdrop-blur-[1px]" />
+    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
     
     {/* Content */}
-    <div className="absolute bottom-0 left-0 right-0 p-4">
+    <div className="absolute bottom-0 left-0 right-0 p-3">
       <div className="flex items-center gap-2">
-        <span className="font-medium text-white/90 truncate text-sm">{config.name}</span>
-        {config.isPremium && !proMode && <Lock className="h-3.5 w-3.5 flex-shrink-0 text-white/70" />}
+        <span className="font-medium text-white truncate">{config.name}</span>
+        {config.isPremium && !proMode && <Lock className="h-3.5 w-3.5 flex-shrink-0 text-white/80" />}
       </div>
     </div>
 
     {/* Active indicator */}
     {isActive && (
-      <div className="absolute top-3 right-3 h-7 w-7 rounded-lg bg-primary/80 text-primary-foreground backdrop-blur-[1px] flex items-center justify-center shadow-sm">
+      <div className="absolute top-2 right-2 h-6 w-6 rounded-full bg-primary/90 text-primary-foreground flex items-center justify-center">
         <Check className="h-4 w-4" />
       </div>
     )}
@@ -80,8 +78,8 @@ const ModelGridCard = ({ modelKey, config, isActive, onClick, disabled, proMode 
 );
 
 const ModelGrid = ({ filteredModels, model, setModel, proMode, className }) => (
-  <ScrollArea className={cn("h-full overflow-y-auto px-2", className)}>
-    <div className="grid grid-cols-2 gap-4">
+  <ScrollArea className={cn("h-full overflow-y-auto px-1", className)}>
+    <div className="grid grid-cols-2 gap-3">
       {filteredModels.map(([key, config]) => (
         <ModelGridCard
           key={key}
@@ -170,14 +168,14 @@ const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) =
             side="left"
             align="start"
             sideOffset={20}
-            className="w-[500px] p-4 max-h-[65vh] border-border/10 bg-card/95 backdrop-blur-[2px] shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
+            className="w-[500px] p-3 max-h-[65vh]"
           >
             <ModelGrid 
               filteredModels={filteredModels}
               model={model}
               setModel={handleModelSelection}
               proMode={proMode}
-              className="max-h-[calc(65vh-2rem)]"
+              className="max-h-[calc(65vh-1rem)]"
             />
           </PopoverContent>
         </Popover>
@@ -199,10 +197,10 @@ const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) =
           onOpenChange={setIsDrawerOpen}
         >
           <DrawerContent className="focus:outline-none">
-            <DrawerHeader className="border-b border-border/5 px-6 pb-4">
-              <DrawerTitle className="text-lg font-medium text-foreground/90">Select Model</DrawerTitle>
+            <DrawerHeader className="border-b border-border/30 px-4 pb-4">
+              <DrawerTitle>Select Model</DrawerTitle>
             </DrawerHeader>
-            <div className="px-6 py-6">
+            <div className="px-4 py-6">
               <ModelGrid 
                 filteredModels={filteredModels}
                 model={model}

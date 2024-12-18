@@ -7,7 +7,6 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { cn } from "@/lib/utils";
 
 const ImageCardActions = ({ 
   image, 
@@ -55,16 +54,11 @@ const ImageCardActions = ({
   };
 
   return (
-    <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+    <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
       {session && (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
-          <span className={cn(
-            "text-xs text-muted-foreground/60 group-hover:text-muted-foreground/80",
-            "transition-colors duration-200"
-          )}>
-            {likeCount}
-          </span>
+          <span className="text-xs text-muted-foreground">{likeCount}</span>
         </div>
       )}
       <DropdownMenu>
@@ -72,82 +66,52 @@ const ImageCardActions = ({
           <Button 
             variant="ghost" 
             size="icon"
-            className={cn(
-              "h-7 w-7 p-0 rounded-lg",
-              "bg-muted/5 hover:bg-muted/10",
-              "transition-all duration-200"
-            )}
+            className="h-6 w-6 p-0 hover:bg-background/80 transition-colors duration-200"
           >
-            <MoreVertical className="h-4 w-4 text-foreground/70" />
+            <MoreVertical className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent 
           align="end"
-          className={cn(
-            "w-52 p-2",
-            "border-border/10 bg-card/95 backdrop-blur-[2px]",
-            "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
-            "animate-in fade-in-0 zoom-in-95 duration-200"
-          )}
+          className="w-48 p-1 animate-in fade-in-0 zoom-in-95"
         >
           <DropdownMenuItem 
             onClick={handleDownload}
-            className={cn(
-              "flex items-center gap-3 py-2 px-3 rounded-lg",
-              "cursor-pointer transition-colors duration-200",
-              "hover:bg-accent/10 focus:bg-accent/10",
-              "group"
-            )}
+            className="flex items-center gap-2 py-2 px-3 cursor-pointer hover:bg-accent rounded-sm group"
           >
-            <Download className="h-4 w-4 text-muted-foreground/70 group-hover:text-foreground/90 transition-colors duration-200" />
-            <span className="text-sm font-medium text-foreground/90">Download</span>
+            <Download className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+            <span className="font-medium">Download</span>
           </DropdownMenuItem>
 
           {session && (
             <>
-              <DropdownMenuSeparator className="my-2 bg-border/5" />
+              <DropdownMenuSeparator className="my-1" />
               {image.user_id === userId && (
                 <DropdownMenuItem 
                   onClick={handleDiscard}
-                  className={cn(
-                    "flex items-center gap-3 py-2 px-3 rounded-lg",
-                    "cursor-pointer transition-colors duration-200",
-                    "hover:bg-destructive/10 focus:bg-destructive/10",
-                    "text-destructive/90 hover:text-destructive",
-                    "group"
-                  )}
+                  className="flex items-center gap-2 py-2 px-3 cursor-pointer hover:bg-accent rounded-sm group text-destructive hover:text-destructive"
                 >
-                  <Trash2 className="h-4 w-4 transition-colors duration-200" />
-                  <span className="text-sm font-medium">Discard</span>
+                  <Trash2 className="h-4 w-4 group-hover:text-destructive transition-colors" />
+                  <span className="font-medium">Discard</span>
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem 
                 onClick={handleRemixClick}
-                className={cn(
-                  "flex items-center gap-3 py-2 px-3 rounded-lg",
-                  "cursor-pointer transition-colors duration-200",
-                  "hover:bg-accent/10 focus:bg-accent/10",
-                  "group"
-                )}
+                className="flex items-center gap-2 py-2 px-3 cursor-pointer hover:bg-accent rounded-sm group"
               >
-                <Wand2 className="h-4 w-4 text-muted-foreground/70 group-hover:text-foreground/90 transition-colors duration-200" />
-                <span className="text-sm font-medium text-foreground/90">Remix</span>
+                <Wand2 className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                <span className="font-medium">Remix</span>
               </DropdownMenuItem>
             </>
           )}
 
-          <DropdownMenuSeparator className="my-2 bg-border/5" />
+          <DropdownMenuSeparator className="my-1" />
           <DropdownMenuItem 
             onClick={handleViewDetails}
-            className={cn(
-              "flex items-center gap-3 py-2 px-3 rounded-lg",
-              "cursor-pointer transition-colors duration-200",
-              "hover:bg-accent/10 focus:bg-accent/10",
-              "group"
-            )}
+            className="flex items-center gap-2 py-2 px-3 cursor-pointer hover:bg-accent rounded-sm group"
           >
-            <Info className="h-4 w-4 text-muted-foreground/70 group-hover:text-foreground/90 transition-colors duration-200" />
-            <span className="text-sm font-medium text-foreground/90">View Details</span>
+            <Info className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+            <span className="font-medium">View Details</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

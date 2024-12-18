@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Progress } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
 
 const LoadingScreen = () => {
   const [progress, setProgress] = useState(0);
@@ -17,34 +16,15 @@ const LoadingScreen = () => {
   }, []);
 
   return (
-    <div className={cn(
-      "fixed inset-0 z-50",
-      "bg-background/95 backdrop-blur-[2px]",
-      "flex flex-col items-center justify-center gap-8",
-      "transition-all duration-500"
-    )}>
+    <div className="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center gap-8 transition-opacity duration-500">
       <div className="flex flex-col items-center gap-6">
-        <div className={cn(
-          "w-20 h-20 rounded-xl overflow-hidden",
-          "border border-border/10",
-          "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
-          "transition-all duration-300"
-        )}>
-          <img 
-            src="/logo.jpg" 
-            alt="Ring IG Logo" 
-            className="w-full h-full object-cover"
-          />
-        </div>
-        <h1 className="text-2xl font-medium text-foreground/90">Ring IG</h1>
-        <Progress 
-          value={progress} 
-          className={cn(
-            "w-64 h-1 rounded-full overflow-hidden",
-            "bg-muted/5",
-            "transition-all duration-300"
-          )}
+        <img 
+          src="/logo.jpg" 
+          alt="Ring IG Logo" 
+          className="w-24 h-24 rounded-full"
         />
+        <h1 className="text-4xl font-bold text-white">Ring IG</h1>
+        <Progress value={progress} className="w-64 h-1" />
       </div>
     </div>
   );

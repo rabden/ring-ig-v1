@@ -7,7 +7,6 @@ import GeneratingImagesDrawer from './GeneratingImagesDrawer';
 import MobileNavButton from './navbar/MobileNavButton';
 import NotificationBell from './notifications/NotificationBell';
 import ProfileMenu from './ProfileMenu';
-import { cn } from "@/lib/utils";
 
 const BottomNavbar = ({ 
   activeTab, 
@@ -46,8 +45,8 @@ const BottomNavbar = ({
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-[2px] border-t border-border/10 md:hidden z-50 transition-all duration-300">
-        <div className="flex items-center justify-around px-2 max-w-md mx-auto h-14">
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/30 md:hidden z-50">
+        <div className="flex items-center justify-around px-2 max-w-md mx-auto">
           <MobileNavButton
             icon={Image}
             isActive={location.pathname === '/' && (!location.hash || location.hash === '#myimages')}
@@ -58,19 +57,14 @@ const BottomNavbar = ({
             isActive={location.pathname === '/inspiration'}
             onClick={() => handleNavigation('/inspiration', 'images')}
           />
-          <div className={cn(
-            "relative flex items-center justify-center",
-            "before:absolute before:inset-x-0 before:-top-3 before:h-3 before:bg-gradient-to-t before:from-background/95 before:to-transparent before:pointer-events-none"
-          )}>
-            <MobileNavButton
-              icon={Plus}
-              isActive={location.hash === '#imagegenerate'}
-              onClick={() => handleNavigation('/#imagegenerate', 'input')}
-              onLongPress={() => setDrawerOpen(true)}
-              badge={generatingImages.length}
-              showCheckmark={showCheckmark}
-            />
-          </div>
+          <MobileNavButton
+            icon={Plus}
+            isActive={location.hash === '#imagegenerate'}
+            onClick={() => handleNavigation('/#imagegenerate', 'input')}
+            onLongPress={() => setDrawerOpen(true)}
+            badge={generatingImages.length}
+            showCheckmark={showCheckmark}
+          />
           <MobileNavButton
             icon={NotificationBell}
             isActive={location.hash === '#notifications'}
@@ -97,7 +91,7 @@ const BottomNavbar = ({
             )}
           </div>
         </div>
-        <div className="h-safe-area-bottom bg-background/95 backdrop-blur-[2px]" />
+        <div className="h-safe-area-bottom bg-background" />
       </div>
 
       <GeneratingImagesDrawer 

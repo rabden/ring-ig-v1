@@ -18,7 +18,6 @@ import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { cn } from "@/lib/utils";
 
 const FullScreenImageView = ({ 
   image, 
@@ -124,51 +123,33 @@ const FullScreenImageView = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className={cn(
-        "max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0",
-        "bg-background/95 backdrop-blur-[2px]",
-        "data-[state=open]:duration-0 [&>button]:hidden"
-      )}>
+      <DialogContent className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-background data-[state=open]:duration-0 [&>button]:hidden">
         <div className="absolute left-4 top-4 z-50">
           <Button 
             variant="ghost" 
             size="icon"
             onClick={onClose}
-            className={cn(
-              "h-8 w-8 p-0 rounded-lg",
-              "bg-background/80 backdrop-blur-[2px]",
-              "hover:bg-background/90",
-              "transition-all duration-200"
-            )}
+            className="bg-background/80 backdrop-blur-sm hover:bg-background/90"
           >
-            <ArrowLeft className="h-5 w-5 text-foreground/70" />
+            <ArrowLeft className="h-6 w-6" />
           </Button>
         </div>
         
         <div className="flex h-full">
-          <div className="flex-1 relative flex items-center justify-center bg-card/95 backdrop-blur-[2px]">
+          <div className="flex-1 relative flex items-center justify-center bg-card">
             <img
               src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
               alt={image.prompt}
-              className={cn(
-                "max-w-full max-h-[calc(100vh-4rem)]",
-                "object-contain rounded-lg",
-                "transition-all duration-300"
-              )}
+              className="max-w-full max-h-[calc(100vh-4rem)] object-contain"
               onDoubleClick={handleDoubleClick}
             />
             <HeartAnimation isAnimating={isAnimating} />
           </div>
 
           <div className="w-[400px] p-4">
-            <div className={cn(
-              "h-[calc(100vh-32px)] rounded-xl",
-              "border border-border/10 bg-card/95",
-              "backdrop-blur-[2px]",
-              "shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
-            )}>
+            <div className="bg-card h-[calc(100vh-32px)] rounded-lg border shadow-sm">
               <ScrollArea className="h-full">
-                <div className="p-4 space-y-6">
+                <div className="p-6 space-y-6">
                   {session && (
                     <>
                       <ImageOwnerHeader 
@@ -180,48 +161,20 @@ const FullScreenImageView = ({
                         likeCount={likeCount}
                       />
 
-                      <div className="flex gap-2">
-                        <Button 
-                          onClick={onDownload} 
-                          variant="ghost" 
-                          size="sm"
-                          className={cn(
-                            "flex-1 h-8 rounded-lg",
-                            "bg-muted/5 hover:bg-muted/10",
-                            "transition-all duration-200"
-                          )}
-                        >
-                          <Download className="mr-2 h-4 w-4 text-foreground/70" />
-                          <span className="text-sm">Download</span>
+                      <div className="flex gap-2 justify-between">
+                        <Button onClick={onDownload} className="flex-1" variant="ghost" size="sm">
+                          <Download className="mr-2 h-4 w-4" />
+                          Download
                         </Button>
                         {isOwner && (
-                          <Button 
-                            onClick={handleDiscard} 
-                            variant="ghost" 
-                            size="sm"
-                            className={cn(
-                              "flex-1 h-8 rounded-lg",
-                              "bg-destructive/5 hover:bg-destructive/10",
-                              "text-destructive/90 hover:text-destructive",
-                              "transition-all duration-200"
-                            )}
-                          >
+                          <Button onClick={handleDiscard} className="flex-1 text-destructive hover:text-destructive" variant="ghost" size="sm">
                             <Trash2 className="mr-2 h-4 w-4" />
-                            <span className="text-sm">Discard</span>
+                            Discard
                           </Button>
                         )}
-                        <Button 
-                          onClick={handleRemixClick} 
-                          variant="ghost" 
-                          size="sm"
-                          className={cn(
-                            "flex-1 h-8 rounded-lg",
-                            "bg-muted/5 hover:bg-muted/10",
-                            "transition-all duration-200"
-                          )}
-                        >
-                          <RefreshCw className="mr-2 h-4 w-4 text-foreground/70" />
-                          <span className="text-sm">Remix</span>
+                        <Button onClick={handleRemixClick} className="flex-1" variant="ghost" size="sm">
+                          <RefreshCw className="mr-2 h-4 w-4" />
+                          Remix
                         </Button>
                       </div>
                     </>

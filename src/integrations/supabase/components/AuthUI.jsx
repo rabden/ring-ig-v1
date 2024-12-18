@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { toast } from 'sonner';
 import { Loader } from 'lucide-react';
 import { FcGoogle } from 'react-icons/fc';
-import { cn } from "@/lib/utils";
 
 export const AuthUI = ({ buttonText }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -35,28 +34,14 @@ export const AuthUI = ({ buttonText }) => {
   };
 
   return (
-    <div className="w-full space-y-3">
+    <div className="w-full">
       <Button
-        className={cn(
-          "w-full h-10 md:h-12",
-          "rounded-xl text-sm md:text-base",
-          "bg-white hover:bg-zinc-50 text-black",
-          "border border-border/10",
-          "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
-          "backdrop-blur-[2px]",
-          "transition-all duration-300",
-          "hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]",
-          "hover:border-border/20",
-          "disabled:opacity-70"
-        )}
+        className="w-full bg-white hover:bg-zinc-50 text-black border border-border h-10 md:h-12 text-sm md:text-base"
         onClick={handleGoogleSignIn}
         disabled={isLoading}
       >
         {isLoading ? (
-          <Loader className={cn(
-            "mr-2 h-4 w-4 md:h-5 md:w-5",
-            "animate-spin text-foreground/70"
-          )} />
+          <Loader className="mr-2 h-4 w-4 md:h-5 md:w-5 animate-spin" />
         ) : (
           <FcGoogle className="mr-2 h-5 w-5 md:h-6 md:w-6" />
         )}
@@ -64,13 +49,7 @@ export const AuthUI = ({ buttonText }) => {
       </Button>
 
       {error && (
-        <div className={cn(
-          "p-3 rounded-lg",
-          "bg-destructive/5 text-destructive/90",
-          "text-xs md:text-sm text-center",
-          "border border-destructive/10",
-          "transition-all duration-200"
-        )}>
+        <div className="mt-3 md:mt-4 text-xs md:text-sm text-destructive text-center">
           {error}
         </div>
       )}

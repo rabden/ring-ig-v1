@@ -18,7 +18,6 @@ import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { cn } from "@/lib/utils";
 
 const MobileImageView = ({ 
   image, 
@@ -134,41 +133,24 @@ const MobileImageView = ({
   ];
 
   return (
-    <div className={cn(
-      "min-h-screen",
-      "bg-background/95 backdrop-blur-[2px]",
-      "transition-all duration-300"
-    )}>
+    <div className="min-h-screen bg-background">
       <Button 
         variant="ghost" 
         size="icon" 
         onClick={onClose} 
-        className={cn(
-          "fixed top-4 left-4 z-50",
-          "h-8 w-8 p-0 rounded-lg",
-          "bg-background/80 backdrop-blur-[2px]",
-          "hover:bg-background/90",
-          "transition-all duration-200"
-        )}
+        className="fixed top-4 left-4 z-50 bg-background/80 backdrop-blur-sm hover:bg-background/90"
       >
-        <ArrowLeft className="h-5 w-5 text-foreground/70" />
+        <ArrowLeft className="h-5 w-5" />
       </Button>
 
       <ScrollArea className={isMobile ? "h-[100dvh]" : "h-screen"}>
         <div className="space-y-6 pb-6">
           {image && (
-            <div className={cn(
-              "relative flex items-center justify-center",
-              "bg-card/95 backdrop-blur-[2px]",
-              "transition-all duration-300"
-            )}>
+            <div className="relative flex items-center justify-center bg-black/10 dark:bg-black/30">
               <img
                 src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
                 alt={image.prompt || 'Generated image'}
-                className={cn(
-                  "w-full h-auto",
-                  "transition-all duration-300"
-                )}
+                className="w-full h-auto"
                 onDoubleClick={handleDoubleClick}
                 loading="eager"
               />
@@ -176,7 +158,7 @@ const MobileImageView = ({
             </div>
           )}
 
-          <div className="px-4 space-y-6">
+          <div className="px-4">
             {session && (
               <>
                 <ImageOwnerHeader 
@@ -188,48 +170,20 @@ const MobileImageView = ({
                   likeCount={likeCount}
                 />
                 
-                <div className="flex gap-2">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={onDownload}
-                    className={cn(
-                      "flex-1 h-8 rounded-lg",
-                      "bg-muted/5 hover:bg-muted/10",
-                      "transition-all duration-200"
-                    )}
-                  >
-                    <Download className="mr-2 h-4 w-4 text-foreground/70" />
-                    <span className="text-sm">Download</span>
+                <div className="flex gap-1 justify-between mb-6 mt-6">
+                  <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={onDownload}>
+                    <Download className="mr-1 h-3 w-3" />
+                    Download
                   </Button>
                   {isOwner && (
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={handleDiscardImage}
-                      className={cn(
-                        "flex-1 h-8 rounded-lg",
-                        "bg-destructive/5 hover:bg-destructive/10",
-                        "text-destructive/90 hover:text-destructive",
-                        "transition-all duration-200"
-                      )}
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      <span className="text-sm">Discard</span>
+                    <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs text-destructive hover:text-destructive" onClick={handleDiscardImage}>
+                      <Trash2 className="mr-1 h-3 w-3" />
+                      Discard
                     </Button>
                   )}
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={handleRemixClick}
-                    className={cn(
-                      "flex-1 h-8 rounded-lg",
-                      "bg-muted/5 hover:bg-muted/10",
-                      "transition-all duration-200"
-                    )}
-                  >
-                    <RefreshCw className="mr-2 h-4 w-4 text-foreground/70" />
-                    <span className="text-sm">Remix</span>
+                  <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={handleRemixClick}>
+                    <RefreshCw className="mr-1 h-3 w-3" />
+                    Remix
                   </Button>
                 </div>
               </>
@@ -243,7 +197,9 @@ const MobileImageView = ({
               onShare={handleShare}
             />
 
-            <ImageDetailsSection detailItems={detailItems} />
+            <div className="mt-4">
+              <ImageDetailsSection detailItems={detailItems} />
+            </div>
           </div>
         </div>
       </ScrollArea>
