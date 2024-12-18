@@ -87,8 +87,8 @@ const DesktopPromptBox = ({
           className
         )}
       >
-        <div className="relative bg-card shadow-sm border border-border/50 rounded-lg shadow-lg">
-          <div className="p-2">
+        <div className="relative bg-card/95 backdrop-blur-[2px] border border-border/10 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
+          <div className="p-4">
             <div className="relative">
               <textarea
                 ref={textareaRef}
@@ -96,14 +96,14 @@ const DesktopPromptBox = ({
                 onChange={onChange}
                 onKeyDown={onKeyDown}
                 placeholder="A 4D HDR immersive 3D image..."
-                className="w-full min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/50 overflow-y-auto scrollbar-none border-y border-border/20 py-4 px-2"
+                className="w-full min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/40 overflow-y-auto scrollbar-none border-y border-border/5 py-6 px-3 transition-colors duration-200"
                 style={{ caretColor: 'currentColor' }}
               />
-              <div className="absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-[1]" />
-              <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-[1]" />
+              <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-b from-card/95 to-transparent pointer-events-none z-[1]" />
+              <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-card/95 to-transparent pointer-events-none z-[1]" />
             </div>
 
-            <div className="flex justify-between items-center mt-0">
+            <div className="flex justify-between items-center mt-2">
               <div className="w-[300px]">
                 <CreditCounter credits={credits} bonusCredits={bonusCredits} />
               </div>
@@ -111,34 +111,34 @@ const DesktopPromptBox = ({
                 {prompt?.length > 0 && (
                   <Button
                     size="sm"
-                    variant="outline"
-                    className="rounded-full"
+                    variant="ghost"
+                    className="h-8 w-8 p-0 rounded-xl hover:bg-accent/10"
                     onClick={onClear}
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-4 w-4 text-foreground/70" />
                   </Button>
                 )}
                 <Button
                   size="sm"
                   variant="outline"
-                  className="rounded-full"
+                  className="h-8 rounded-xl bg-background/50 hover:bg-accent/10 transition-all duration-200"
                   onClick={handleImprovePrompt}
                   disabled={!prompt?.length || isImproving || !hasEnoughCreditsForImprovement}
                 >
                   {isImproving ? (
-                    <Loader className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader className="h-4 w-4 mr-2 animate-spin text-foreground/70" />
                   ) : (
-                    <Sparkles className="h-4 w-4 mr-2" />
+                    <Sparkles className="h-4 w-4 mr-2 text-foreground/70" />
                   )}
-                  Improve
+                  <span className="text-sm">Improve</span>
                 </Button>
                 <Button
                   size="sm"
-                  className="rounded-full"
+                  className="h-8 rounded-xl bg-primary/90 hover:bg-primary/80 transition-all duration-200"
                   onClick={handleSubmit}
                   disabled={!prompt?.length || !hasEnoughCredits}
                 >
-                  Create
+                  <span className="text-sm">Create</span>
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
@@ -150,15 +150,15 @@ const DesktopPromptBox = ({
       {/* Fixed position box */}
       <div 
         className={cn(
-          "hidden md:block fixed top-12 left-0 right-0 z-50",
+          "hidden md:block fixed top-14 left-0 right-0 z-50 transition-all duration-300 ease-in-out",
           isFixed ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
         )}
       >
         <div className="max-w-[700px] mx-auto px-10 py-2">
-          <div className="relative bg-card shadow-sm border border-border/50 rounded-full">
-            <div className="flex items-center gap-4 p-1">
+          <div className="relative bg-card/95 backdrop-blur-[2px] border border-border/10 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
+            <div className="flex items-center gap-4 p-1.5">
               <div 
-                className="flex-1 px-4 text-muted-foreground/50 truncate cursor-pointer"
+                className="flex-1 px-4 text-muted-foreground/60 truncate cursor-pointer transition-colors duration-200 hover:text-muted-foreground/80"
                 onClick={() => {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                   setTimeout(() => {
@@ -172,11 +172,11 @@ const DesktopPromptBox = ({
               </div>
               <Button
                 size="sm"
-                className="rounded-full"
+                className="h-8 rounded-xl bg-primary/90 hover:bg-primary/80 transition-all duration-200"
                 onClick={handleSubmit}
                 disabled={!prompt?.length || !hasEnoughCredits}
               >
-                Create
+                <span className="text-sm">Create</span>
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </div>
