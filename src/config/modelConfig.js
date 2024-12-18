@@ -54,6 +54,17 @@ export const modelConfig = {
     image: "https://i.ibb.co.com/Tqb5Pgk/sample.jpg",
     example: "Make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
   },
+  midjourney: {
+    name: "Midjourney-V6",
+    category: "General",
+    apiUrl: "https://api-inference.huggingface.co/models/strangerzonehf/Flux-Midjourney-Mix2-LoRA",
+    qualityLimits: null,
+    isPremium: false,
+    promptSuffix: ", MJ v6",
+    tagline: "Latest version of Midjourney for free",
+    image: "https://i.ibb.co.com/8PnDLkf/1.png",
+    example: "Start with 'MJ v6,'. Make high quality flawless prompts that will go well wth Midjourney, use quality and style tags like: high quality, studio lighting, professional portrait, e.t.c make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c. End with '--ar 47:64 --v 6.0 --style raw' this is an example: 'MJ v6, A photo of an attractive man in his thirties, wearing a black coat and yellow scarf with a brown pattern inside a building talking on a phone standing near a modern glass skyscraper in London, shot from below looking up at him in the style of street photography, cinematic.  --ar 85:128 --v 6.0 --style raw'"
+  },
   dalle: {
     name: "Dall-E 3",
     category: "General",
@@ -73,8 +84,19 @@ export const modelConfig = {
     isPremium: true,
     promptSuffix: ", dalle",
     tagline: "try Playground 3",
-    image: "https://i.ibb.co.com/18gFNNS/images-example-kz79mj1mz.jpg",
+    image: "https://i.ibb.co.com/7gPdJTh/OIP.jpg",
     example: "Make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
+  },
+  leonardoillust: {
+    name: "Lenoardo illust",
+    category: "General",
+    apiUrl: "https://api-inference.huggingface.co/models/goofyai/Leonardo_Ai_Style_Illustration",
+    qualityLimits: null,
+    isPremium: true,
+    promptSuffix: ", leonardo style, illustration, vector art",
+    tagline: "Leonardo Style illustration",
+    image: "https://i.ibb.co.com/p4TMjdp/leo-1.png",
+    example: "tailor the prompt to make vector illustration type images, Make high quality flawless prompt not too long not too short "
   },
   fastReal: {
     name: "Realism turbo",
@@ -112,35 +134,24 @@ export const modelConfig = {
   anime: {
     name: "Anime XL",
     category: "General",
-    apiUrl: "https://api-inference.huggingface.co/models/Nishitbaria/Anime-style-flux-lora-Large",
+    apiUrl: "https://api-inference.huggingface.co/models/Nishitbaria/LoRa-Flux-Anime-Style",
     qualityLimits: null,
     isPremium: false,
-    promptSuffix: ", anm",
+    promptSuffix: ", ANMCH",
     tagline: "Flwaless Anime style images",
-    image: "https://i.ibb.co.com/k2YdjZK/images-example-7y3r4uk1q.jpg",
+    image: "https://i.ibb.co.com/bgYbVQJ/Euv-INv-Bs-CKZQusp-ZHN-u-F.png",
     example: "Make high quality flawless prompt, use quality and style tags like: high quality, studio ghibli, Vibrant Anime make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
   },
   anime2xl: {
     name: "Anime XL 2",
     category: "General",
-    apiUrl: "https://api-inference.huggingface.co/models/Ryouko65777/Anime-Flux",
+    apiUrl: "https://api-inference.huggingface.co/models/Nishitbaria/AnimeXL",
     qualityLimits: null,
     isPremium: false,
-    promptSuffix: ", anime",
+    promptSuffix: ", animexl",
     tagline: "Anime style images make fast",
-    image: "https://i.ibb.co.com/bgYbVQJ/Euv-INv-Bs-CKZQusp-ZHN-u-F.png",
+    image: "https://i.ibb.co.com/hc3dWxr/images-example-zgfn69jth.jpg",
     example: "Make high quality flawless prompt, use quality and style tags like: high quality, studio ghibli, Vibrant Anime make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c"
-  },
-  midjourney: {
-    name: "Midjourney-V6",
-    category: "General",
-    apiUrl: "https://api-inference.huggingface.co/models/strangerzonehf/Flux-Midjourney-Mix2-LoRA",
-    qualityLimits: null,
-    isPremium: false,
-    promptSuffix: ", MJ v6",
-    tagline: "Latest version of Midjourney for free",
-    image: "https://i.ibb.co.com/8PnDLkf/1.png",
-    example: "Start with 'MJ v6,'. Make high quality flawless prompts that will go well wth Midjourney, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c. End with '--ar 47:64 --v 6.0 --style raw' this is an example: 'MJ v6, A photo of an attractive man in his thirties, wearing a black coat and yellow scarf with a brown pattern inside a building talking on a phone standing near a modern glass skyscraper in London, shot from below looking up at him in the style of street photography, cinematic.  --ar 85:128 --v 6.0 --style raw'"
   },
   dreamscape: {
     name: "Dreamscape",
@@ -152,6 +163,17 @@ export const modelConfig = {
     tagline: "Dream up",
     image: "https://i.ibb.co.com/nkxPsYG/images-2.jpg",
     example: "Start with 'in the style of BSstyle004,'. follow this example: 'white-haired young man, extremely simple, large-scale blue, brightly colored board, dark white and light blue'"
+  },
+  cinestill: {
+    name: "CineStill",
+    category: "General",
+    apiUrl: "https://api-inference.huggingface.co/models/adirik/flux-cinestill",
+    qualityLimits: null,
+    isPremium: false,
+    promptSuffix: ", CNSTLL",
+    tagline: "make distilled Cinematic scenes",
+    image: "https://i.ibb.co.com/rs5g7Xz/3.png",
+    example: "Start with 'CNSTLL,'. Best suited for generating night and dusk time photograph-like images with a distinctive slight halation effect. Keywords that result in better generations 'cinestill 800t', 'night time', 'dusk', '4k', 'high resolution', 'analog film'. Example: 'in the style of CNSTLL , urban landscape, people fishing on Galata  bridge in Istanbul at night'"
   },
   sketchart: {
     name: "Sketch Art",
@@ -196,6 +218,17 @@ export const modelConfig = {
     tagline: "Make your brand Identity",
     image: "https://i.ibb.co.com/277njvK/03.png",
     example: "Start with 'wablogo, logo, Minimalist' Then describe the logo to appear in the image, heres an example: 'logo,Minimalist,A pair of chopsticks and a bowl of rice with the word Lee', Usage suggestion: Dual Combination: something and something, e.g., cat and coffee, Font Combination: a shape plus a letter, e.g., a book with the word 'M', or The fingerprint pattern consists of the letters 'hp', Text Below Graphic: Below the graphic is the word 'coffee', directly using with the word 'XX' is also feasible"
+  },
+  mixreality: {
+    name: "Mix Reality",
+    category: "General",
+    apiUrl: "https://api-inference.huggingface.co/models/Shakker-Labs/FLUX.1-dev-LoRA-Logo-Design",
+    qualityLimits: null,
+    isPremium: false,
+    promptSuffix: null,
+    tagline: "Cross the boudary",
+    image: "https://i.ibb.co.com/gw2DNvN/images-3.jpg",
+    example: "Make prompt for making images where reality and anime or illustration mixes, example: 'A vivid photo of a 2D illustrated anime girl riding a bicycle, busy street, road signs. The photo is a blend of illustration and reality, in the style of HLFILSTHLFPHTO'"
   },
   sticker: {
     name: "Sticker",
