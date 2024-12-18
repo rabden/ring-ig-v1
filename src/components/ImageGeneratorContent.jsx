@@ -42,8 +42,7 @@ const ImageGeneratorContent = ({
   fullScreenViewOpen,
   setFullScreenViewOpen,
   imageGeneratorProps,
-  proMode,
-  className
+  proMode
 }) => {
   const location = useLocation();
   const isMobile = window.innerWidth < 768;
@@ -124,16 +123,9 @@ const ImageGeneratorContent = ({
 
   return (
     <>
-      <div className={cn(
-        "flex flex-col md:flex-row min-h-screen",
-        "bg-background text-foreground",
-        "image-generator-content",
-        className
-      )}>
+      <div className="flex flex-col md:flex-row min-h-screen bg-background text-foreground image-generator-content">
         <div className={cn(
-          "flex-grow overflow-y-auto",
-          "transition-all duration-300 ease-spring",
-          "p-2 md:p-6",
+          "flex-grow p-2 md:p-6 overflow-y-auto transition-[padding] duration-300 ease-in-out",
           !isGenerateTab ? 'block' : 'hidden md:block',
           isSidebarVisible ? 'md:pr-[350px]' : 'md:pr-6',
           "pb-20 md:pb-6"
@@ -192,10 +184,7 @@ const ImageGeneratorContent = ({
                 />
               )}
 
-              <div className={cn(
-                "md:mt-16",
-                "transition-all duration-300 ease-spring"
-              )}>
+              <div className="md:mt-16">
                 <ImageGallery
                   userId={session?.user?.id}
                   onImageClick={handleImageClick}
@@ -221,37 +210,20 @@ const ImageGeneratorContent = ({
         {isSidebarMounted && !searchQuery && (
           <div 
             className={cn(
-              "w-full md:w-[350px]",
-              "bg-card/80 backdrop-blur-sm text-card-foreground",
+              "w-full md:w-[350px] bg-card text-card-foreground",
               "md:fixed md:right-0 md:top-12 md:bottom-0",
               isGenerateTab ? 'block' : 'hidden md:block',
               "md:h-[calc(100vh-3rem)] relative",
-              "transition-all duration-300 ease-spring",
+              "transition-transform duration-300 ease-in-out",
               isSidebarVisible 
-                ? "translate-x-0 opacity-100" 
-                : isMobile 
-                  ? "translate-x-full opacity-0" 
-                  : "md:translate-x-full md:opacity-0",
-              "border-l border-border/30"
+                ? "translate-x-0" 
+                : isMobile ? "translate-x-full" : "md:translate-x-full",
             )}
           >
-            {/* Fade gradients */}
-            <div className={cn(
-              "hidden md:block absolute top-0 left-0 right-0 h-8",
-              "bg-gradient-to-b from-card to-transparent",
-              "pointer-events-none z-10"
-            )} />
-            <div className={cn(
-              "hidden md:block absolute bottom-0 left-0 right-0 h-8",
-              "bg-gradient-to-t from-card to-transparent",
-              "pointer-events-none z-10"
-            )} />
+            <div className="hidden md:block absolute top-0 left-0 w-full h-8 bg-gradient-to-b from-card to-transparent pointer-events-none z-10" />
+            <div className="hidden md:block absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-card to-transparent pointer-events-none z-10" />
             
-            <div className={cn(
-              "min-h-[calc(100vh-56px)] md:h-full",
-              "overflow-y-auto md:scrollbar-none",
-              "px-4 md:px-6 py-4 md:py-8"
-            )}>
+            <div className="min-h-[calc(100vh-56px)] md:h-full overflow-y-auto md:scrollbar-none px-4 md:px-6 py-4 md:py-8">
               <ImageGeneratorSettings 
                 {...imageGeneratorProps} 
                 hidePromptOnDesktop={!isMobile && !isGenerateTab}
@@ -276,6 +248,32 @@ const ImageGeneratorContent = ({
         activeTab={activeTab}
         nsfwEnabled={nsfwEnabled}
         setNsfwEnabled={setNsfwEnabled}
+      />
+
+      <BottomNavbar 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        session={session} 
+        credits={credits}
+        bonusCredits={bonusCredits}
+        generatingImages={generatingImages}
+        nsfwEnabled={nsfwEnabled}
+        setNsfwEnabled={setNsfwEnabled}
+      />
+      
+      <ImageDetailsDialog
+        open={detailsDialogOpen}
+        onOpenChange={setDetailsDialogOpen}
+        image={selectedImage}
+      />
+      <FullScreenImageView
+        image={selectedImage}
+        isOpen={fullScreenViewOpen}
+        onClose={() => setFullScreenViewOpen(false)}
+        onDownload={handleDownload}
+        onDiscard={handleDiscard}
+        onRemix={handleRemix}
+        isOwner={selectedImage?.user_id === session?.user?.id}
       />
     </>
   );

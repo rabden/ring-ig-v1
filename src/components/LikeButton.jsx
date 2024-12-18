@@ -8,13 +8,7 @@ const LikeButton = ({ isLiked, onToggle, className }) => {
     <Button
       variant="ghost"
       size="icon"
-      className={cn(
-        "h-7 w-7 p-0 transition-all duration-200",
-        "hover:bg-accent/40 hover:text-accent-foreground",
-        "focus-visible:ring-1 focus-visible:ring-ring",
-        "group",
-        className
-      )}
+      className={cn("h-6 w-6 p-0", className)}
       onClick={(e) => {
         e.stopPropagation();
         onToggle();
@@ -22,10 +16,8 @@ const LikeButton = ({ isLiked, onToggle, className }) => {
     >
       <Heart 
         className={cn(
-          "h-4 w-4 transition-all duration-200 ease-spring",
-          isLiked ? 
-            "fill-red-500 text-red-500 scale-110" : 
-            "text-foreground group-hover:scale-105 group-active:scale-95"
+          "h-4 w-4",
+          isLiked ? "fill-red-500 text-red-500" : "text-foreground"
         )} 
       />
     </Button>

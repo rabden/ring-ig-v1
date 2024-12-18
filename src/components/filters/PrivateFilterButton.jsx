@@ -6,27 +6,20 @@ import { cn } from "@/lib/utils";
 const PrivateFilterButton = ({ showPrivate, onToggle }) => {
   return (
     <Button
-      variant="ghost"
-      onClick={() => onToggle(!showPrivate)}
+      variant={showPrivate ? "default" : "ghost"}
+      size="sm"
+      onClick={() => {
+        // Call onToggle with the new value
+        onToggle(!showPrivate);
+      }}
       className={cn(
-        "h-8 md:h-9 px-3 md:px-4 flex items-center gap-1.5",
-        "transition-all duration-200",
-        "hover:bg-accent/40 hover:text-accent-foreground",
-        showPrivate && "bg-accent/30 text-accent-foreground shadow-sm"
+        "h-8 px-3 flex items-center gap-1 transition-colors duration-200",
+        showPrivate && "bg-primary text-primary-foreground hover:bg-primary/90"
       )}
       title={showPrivate ? "Show public images" : "Show private images"}
     >
-      {showPrivate ? (
-        <Lock className="h-3.5 w-3.5 transition-transform duration-200" />
-      ) : (
-        <Unlock className="h-3.5 w-3.5 transition-transform duration-200" />
-      )}
-      <span className={cn(
-        "text-xs md:text-sm font-medium",
-        "hidden md:inline"
-      )}>
-        Private
-      </span>
+      {showPrivate ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
+      <span className="hidden md:inline">Private</span>
     </Button>
   );
 };

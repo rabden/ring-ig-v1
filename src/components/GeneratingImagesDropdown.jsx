@@ -44,68 +44,33 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className={cn(
-            "h-8 transition-all duration-200",
-            "hover:bg-accent/40 hover:text-accent-foreground",
-            "group"
-          )}
-        >
+        <Button variant="outline" size="sm" className="h-8">
           {showCheckmark ? (
             <Check className={cn(
-              "w-4 h-4 mr-2 text-primary",
+              "w-4 h-4 mr-2",
               completedImages.size > 0 && "animate-in zoom-in duration-300"
             )} />
           ) : (
             <Loader className="w-4 h-4 mr-2 animate-spin" />
           )}
-          <span className="text-sm">
-            {generatingImages.length > 0 ? `Generating-${generatingImages.length}` : 'Complete'}
-          </span>
+          {generatingImages.length > 0 ? `Generating-${generatingImages.length}` : 'Complete'}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent 
-        align="end" 
-        className={cn(
-          "w-[300px] p-2",
-          "bg-card/80 backdrop-blur-sm",
-          "border-none shadow-lg",
-          "animate-in fade-in-0 zoom-in-95"
-        )}
-      >
+      <DropdownMenuContent align="end" className="w-[300px]">
         {generatingImages.map((img) => (
-          <DropdownMenuItem 
-            key={img.id} 
-            className={cn(
-              "flex flex-col items-start gap-2 py-3 px-3 rounded-lg",
-              "transition-colors duration-200",
-              "hover:bg-accent/40 hover:text-accent-foreground",
-              "focus:bg-accent/40 focus:text-accent-foreground",
-              "group"
-            )}
-          >
+          <DropdownMenuItem key={img.id} className="flex flex-col items-start gap-1 py-2">
             <div className="flex items-center gap-2 w-full">
-              <span className="font-medium text-sm">Generating...</span>
-              <Badge 
-                variant="secondary" 
-                className={cn(
-                  "ml-auto",
-                  "bg-accent/30 text-accent-foreground",
-                  "transition-colors duration-200",
-                  "group-hover:bg-accent/50"
-                )}
-              >
+              <span className="font-medium">Generating...</span>
+              <Badge variant="secondary" className="ml-auto">
                 {img.width}x{img.height}
               </Badge>
             </div>
             {img.prompt && (
-              <span className="text-xs text-muted-foreground/80 line-clamp-1 w-full transition-colors duration-200 group-hover:text-muted-foreground">
-                {img.prompt}
+              <span className="text-xs text-muted-foreground truncate w-full">
+                {img.prompt.length > 50 ? `${img.prompt.substring(0, 50)}...` : img.prompt}
               </span>
             )}
-            <div className="flex gap-2 text-xs text-muted-foreground/70 transition-colors duration-200 group-hover:text-muted-foreground">
+            <div className="flex gap-2 text-xs text-muted-foreground">
               <span>{modelConfigs?.[img.model]?.name || img.model}</span>
             </div>
           </DropdownMenuItem>

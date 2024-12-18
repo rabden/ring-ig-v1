@@ -1,25 +1,14 @@
 import React from 'react'
 import { Flame, TrendingUp } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { motion } from "framer-motion"
 
 const StatusIcon = ({ children, className }) => (
-  <motion.div 
-    initial={{ opacity: 0, scale: 0.8 }}
-    animate={{ opacity: 1, scale: 1 }}
-    whileHover={{ scale: 1.1 }}
-    whileTap={{ scale: 0.95 }}
-    className={cn(
-      "absolute z-[2] rounded-full p-1.5",
-      "bg-background/80 backdrop-blur-sm",
-      "shadow-sm border border-border/10",
-      "transition-all duration-200",
-      "hover:bg-background/90 hover:shadow-md",
-      className
-    )}
-  >
+  <div className={cn(
+    "absolute z-[2] rounded-full p-1 bg-background/80 backdrop-blur-sm",
+    className
+  )}>
     {children}
-  </motion.div>
+  </div>
 )
 
 const ImageStatusIndicators = ({ isTrending, isHot }) => {
@@ -28,25 +17,16 @@ const ImageStatusIndicators = ({ isTrending, isHot }) => {
   return (
     <>
       {isTrending && (
-        <StatusIcon className="top-3 left-3">
-          <TrendingUp className={cn(
-            "w-3.5 h-3.5 text-blue-500",
-            "transition-colors duration-200",
-            "group-hover:text-blue-600"
-          )} />
+        <StatusIcon className="top-2 left-2">
+          <TrendingUp className="w-4 h-4 text-blue-500" />
         </StatusIcon>
       )}
       {isHot && (
         <StatusIcon className={cn(
-          "top-3",
-          isTrending ? "left-12" : "left-3",
-          "transition-all duration-300"
+          "top-2",
+          isTrending ? "left-10" : "left-2"
         )}>
-          <Flame className={cn(
-            "w-3.5 h-3.5 text-red-500",
-            "transition-colors duration-200",
-            "group-hover:text-red-600"
-          )} />
+          <Flame className="w-4 h-4 text-red-500" />
         </StatusIcon>
       )}
     </>

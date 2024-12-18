@@ -18,8 +18,6 @@ import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
 
 const MobileImageView = ({ 
   image, 
@@ -135,162 +133,77 @@ const MobileImageView = ({
   ];
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className={cn(
-        "min-h-screen bg-background",
-        "transition-colors duration-300"
-      )}
-    >
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="fixed top-4 left-4 z-50"
+    <div className="min-h-screen bg-background">
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        onClick={onClose} 
+        className="fixed top-4 left-4 z-50 bg-background/80 backdrop-blur-sm hover:bg-background/90"
       >
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={onClose} 
-          className={cn(
-            "bg-background/80 backdrop-blur-sm",
-            "hover:bg-background/90",
-            "transition-all duration-200"
-          )}
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-      </motion.div>
+        <ArrowLeft className="h-5 w-5" />
+      </Button>
 
       <ScrollArea className={isMobile ? "h-[100dvh]" : "h-screen"}>
         <div className="space-y-6 pb-6">
           {image && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-              className={cn(
-                "relative flex items-center justify-center",
-                "bg-black/10 dark:bg-black/30",
-                "transition-colors duration-300"
-              )}
-            >
+            <div className="relative flex items-center justify-center bg-black/10 dark:bg-black/30">
               <img
                 src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
                 alt={image.prompt || 'Generated image'}
-                className={cn(
-                  "w-full h-auto",
-                  "transition-transform duration-300",
-                  "hover:scale-[1.02]"
-                )}
+                className="w-full h-auto"
                 onDoubleClick={handleDoubleClick}
                 loading="eager"
               />
               <HeartAnimation isAnimating={isAnimating} />
-            </motion.div>
+            </div>
           )}
 
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="px-4"
-          >
+          <div className="px-4">
             {session && (
-              <AnimatePresence mode="wait">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  <ImageOwnerHeader 
-                    owner={owner}
-                    image={image}
-                    isOwner={isOwner}
-                    userLikes={userLikes}
-                    toggleLike={toggleLike}
-                    likeCount={likeCount}
-                  />
-                  
-                  <div className={cn(
-                    "flex gap-1 justify-between mb-6 mt-6",
-                    "transition-all duration-200"
-                  )}>
-                    <Button 
-                      variant="ghost" 
-                      size="xs" 
-                      className={cn(
-                        "flex-1 h-8 text-xs",
-                        "transition-all duration-200",
-                        "hover:bg-accent/20"
-                      )} 
-                      onClick={onDownload}
-                    >
-                      <Download className="mr-1 h-3 w-3" />
-                      Download
+              <>
+                <ImageOwnerHeader 
+                  owner={owner}
+                  image={image}
+                  isOwner={isOwner}
+                  userLikes={userLikes}
+                  toggleLike={toggleLike}
+                  likeCount={likeCount}
+                />
+                
+                <div className="flex gap-1 justify-between mb-6 mt-6">
+                  <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={onDownload}>
+                    <Download className="mr-1 h-3 w-3" />
+                    Download
+                  </Button>
+                  {isOwner && (
+                    <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs text-destructive hover:text-destructive" onClick={handleDiscardImage}>
+                      <Trash2 className="mr-1 h-3 w-3" />
+                      Discard
                     </Button>
-                    {isOwner && (
-                      <Button 
-                        variant="ghost" 
-                        size="xs" 
-                        className={cn(
-                          "flex-1 h-8 text-xs",
-                          "text-destructive hover:text-destructive",
-                          "hover:bg-destructive/10",
-                          "transition-all duration-200"
-                        )} 
-                        onClick={handleDiscardImage}
-                      >
-                        <Trash2 className="mr-1 h-3 w-3" />
-                        Discard
-                      </Button>
-                    )}
-                    <Button 
-                      variant="ghost" 
-                      size="xs" 
-                      className={cn(
-                        "flex-1 h-8 text-xs",
-                        "transition-all duration-200",
-                        "hover:bg-accent/20"
-                      )} 
-                      onClick={handleRemixClick}
-                    >
-                      <RefreshCw className="mr-1 h-3 w-3" />
-                      Remix
-                    </Button>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
+                  )}
+                  <Button variant="ghost" size="xs" className="flex-1 h-8 text-xs" onClick={handleRemixClick}>
+                    <RefreshCw className="mr-1 h-3 w-3" />
+                    Remix
+                  </Button>
+                </div>
+              </>
             )}
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              <ImagePromptSection 
-                prompt={image.user_prompt || image.prompt}
-                copyIcon={copyIcon}
-                shareIcon={shareIcon}
-                onCopyPrompt={handleCopyPrompt}
-                onShare={handleShare}
-              />
-            </motion.div>
+            <ImagePromptSection 
+              prompt={image.user_prompt || image.prompt}
+              copyIcon={copyIcon}
+              shareIcon={shareIcon}
+              onCopyPrompt={handleCopyPrompt}
+              onShare={handleShare}
+            />
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="mt-4"
-            >
+            <div className="mt-4">
               <ImageDetailsSection detailItems={detailItems} />
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </ScrollArea>
-    </motion.div>
+    </div>
   );
 };
 

@@ -27,25 +27,27 @@ const InspirationFilterButtons = ({
     }
   };
 
-  const buttonClasses = (isActive) => cn(
-    "h-8 md:h-9 text-xs md:text-sm px-4 transition-all duration-200",
-    "hover:bg-accent/40 hover:text-accent-foreground",
-    isActive && "bg-accent/30 text-accent-foreground shadow-sm"
-  );
-
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div className={cn("flex gap-1", className)}>
       <Button
-        variant="ghost"
+        variant={showFollowing ? "default" : "outline"}
+        size="sm"
         onClick={handleFollowingClick}
-        className={buttonClasses(showFollowing)}
+        className={cn(
+          "h-7 text-xs px-3 rounded-full",
+          "md:h-8 md:px-4"
+        )}
       >
         Following
       </Button>
       <Button
-        variant="ghost"
+        variant={showTop ? "default" : "outline"}
+        size="sm"
         onClick={handleTopClick}
-        className={buttonClasses(showTop)}
+        className={cn(
+          "h-7 text-xs px-3 rounded-full",
+          "md:h-8 md:px-4"
+        )}
       >
         Top
       </Button>

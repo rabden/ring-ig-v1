@@ -42,30 +42,21 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="focus:outline-none max-w-[400px] mx-auto">
-        <DrawerHeader className="border-b border-border/20 px-6 py-4">
+        <DrawerHeader className="border-b border-border/10 px-6 py-4">
           <DrawerTitle className="flex items-center gap-3 text-base font-medium">
             {pendingCount > 0 ? (
               <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-primary/10 animate-ping rounded-full" />
-                  <Loader className="h-4 w-4 animate-spin text-primary relative" />
-                </div>
+                <Loader className="h-4 w-4 animate-spin text-primary" />
                 <span>Generating {pendingCount} image{pendingCount > 1 ? 's' : ''}...</span>
               </div>
             ) : allCompleted ? (
               <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-primary/10 rounded-full animate-scale-down" />
-                  <Check className="h-4 w-4 text-primary relative animate-bounce-in" />
-                </div>
+                <Check className="h-4 w-4 text-primary" />
                 <span>Complete</span>
               </div>
             ) : (
               <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-primary/10 animate-ping rounded-full" />
-                  <Loader className="h-4 w-4 animate-spin text-primary relative" />
-                </div>
+                <Loader className="h-4 w-4 animate-spin text-primary" />
                 <span>Processing...</span>
               </div>
             )}
@@ -78,16 +69,15 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
               <div
                 key={image.id}
                 className={cn(
-                  "flex flex-col gap-2.5 p-4 rounded-xl transition-all duration-300",
-                  "backdrop-blur-sm",
+                  "flex flex-col gap-2 p-4 rounded-lg transition-all duration-200",
                   image.status === 'completed' 
-                    ? "bg-muted/30 border border-border/20 shadow-sm" 
-                    : "bg-primary/5 border border-primary/20 animate-pulse"
+                    ? "bg-muted/30 border border-border/10" 
+                    : "bg-primary/5 border border-primary/10"
                 )}
               >
                 <div className="flex items-center gap-3 w-full">
                   <span className={cn(
-                    "font-medium text-sm transition-colors duration-200",
+                    "font-medium text-sm",
                     image.status === 'completed' ? "text-muted-foreground" : "text-primary"
                   )}>
                     {image.status === 'completed' ? 'Complete' : 'Generating...'}
@@ -95,10 +85,7 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
                   {image.width && image.height && (
                     <Badge 
                       variant={image.status === 'completed' ? "secondary" : "outline"} 
-                      className={cn(
-                        "ml-auto transition-all duration-200",
-                        image.status === 'completed' ? "bg-accent/30" : "bg-primary/10"
-                      )}
+                      className="ml-auto"
                     >
                       {image.width}x{image.height}
                     </Badge>
@@ -112,16 +99,10 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
                 <div className="flex items-center gap-2 text-xs text-muted-foreground/70">
                   <span>{modelConfigs?.[image.model]?.name || image.model}</span>
                   {image.status === 'completed' ? (
-                    <div className="ml-auto relative">
-                      <div className="absolute inset-0 bg-primary/10 rounded-full animate-scale-down" />
-                      <Check className="h-3.5 w-3.5 text-primary relative animate-bounce-in" />
-                    </div>
+                    <Check className="h-3.5 w-3.5 ml-auto text-primary" />
                   ) : (
-                    <div className="ml-auto p-1 rounded-full bg-primary/10">
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-primary/10 animate-ping rounded-full" />
-                        <Loader className="h-3 w-3 animate-spin text-primary relative" />
-                      </div>
+                    <div className="ml-auto p-0.5 rounded-full bg-primary/10">
+                      <Loader className="h-3 w-3 animate-spin text-primary" />
                     </div>
                   )}
                 </div>

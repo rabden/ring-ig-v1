@@ -12,7 +12,6 @@ import { handleImageDiscard } from '@/utils/discardUtils';
 import ImageCardMedia from './image-card/ImageCardMedia';
 import ImageCardBadges from './image-card/ImageCardBadges';
 import { useNavigate } from 'react-router-dom';
-import { cn } from '@/lib/utils';
 
 const ImageCard = ({ 
   image, 
@@ -25,7 +24,6 @@ const ImageCard = ({
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [isDeleted, setIsDeleted] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const { data: modelConfigs } = useModelConfigs();
   const isMobileDevice = useMediaQuery('(max-width: 768px)');
   const navigate = useNavigate();
@@ -83,15 +81,8 @@ const ImageCard = ({
 
   return (
     <>
-      <div 
-        className="group mb-4 relative"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        <Card className={cn(
-          "overflow-hidden transition-all duration-300 ease-in-out",
-          isHovered && "transform scale-[1.02] shadow-lg"
-        )}>
+      <div className="mb-4">
+        <Card className="overflow-hidden">
           <CardContent className="p-0 relative">
             <ImageStatusIndicators 
               isTrending={image.is_trending} 
@@ -102,7 +93,6 @@ const ImageCard = ({
               onImageClick={handleImageClick}
               onDoubleClick={handleDoubleClick}
               isAnimating={isAnimating}
-              isHovered={isHovered}
             />
             <ImageCardBadges
               modelName={modelName}
@@ -110,11 +100,8 @@ const ImageCard = ({
             />
           </CardContent>
         </Card>
-        <div className={cn(
-          "mt-2 flex items-center justify-between transition-opacity duration-200",
-          !isHovered && !isMobileDevice && "opacity-60"
-        )}>
-          <p className="text-sm truncate w-[70%] font-medium">{image.prompt}</p>
+        <div className="mt-1 flex items-center justify-between">
+          <p className="text-sm truncate w-[70%]">{image.prompt}</p>
           <ImageCardActions
             image={image}
             isMobile={isMobile}
@@ -125,7 +112,6 @@ const ImageCard = ({
             onDownload={handleDownload}
             onDiscard={handleDiscard}
             userId={userId}
-            isHovered={isHovered}
           />
         </div>
       </div>
