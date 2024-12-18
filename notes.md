@@ -1,126 +1,123 @@
-# Ring Image Generator - UI/UX Design Documentation
+# Notification System Analysis
 
-## Design Philosophy
-- Modern minimalist design with focus on functionality and clean aesthetics
-- High contrast, clear visual hierarchy
-- Emphasis on content and user interaction
-- Distraction-free interface with purposeful whitespace
+## Key Files Structure
+1. Context:
+   - `src/contexts/NotificationContext.jsx` - Global notification management
 
-## Color Scheme
-### Primary Colors
-- Background: Pure black (#000000)
-- Text: Pure white (#FFFFFF)
-- Primary Accent: white muted for interactive elements
-- Secondary: deep dark gray for subtle hierarchy
+2. Components:
+   - `src/components/notifications/NotificationBell.jsx` - Notification indicator
+   - `src/components/notifications/NotificationItem.jsx` - Individual notification items
+   - `src/components/notifications/NotificationList.jsx` - Container for notifications
+   - `src/components/MobileNotificationsMenu.jsx` - Mobile-specific notifications view
 
-### State Colors
-- Success: Subtle green
-- Error: Subtle red
-- Warning: Subtle yellow
-- Info: Subtle dark gey
+3. Integration Points:
+   - `App.jsx` - NotificationProvider wrapper
+   - `DesktopHeader.jsx` - NotificationBell integration
+   - `BottomNavbar.jsx` - Mobile notification integration
 
-## Typography
-- System font stack for optimal performance
-- Font Hierarchy:
-  - Headings: Bold, larger sizes
-  - Body: Regular weight, comfortable reading size
-  - UI Elements: Medium weight for better visibility
+## NotificationContext Implementation
+1. State Management:
+   - Uses React Context API
+   - Maintains notifications array and unreadCount
+   - Integrates with Supabase for real-time updates
 
-## Component Design
+2. Key Features:
+   - Real-time notification updates via Supabase channels
+   - User-specific notifications filtering
+   - Automatic unread count management
+   - Sorted by creation date (descending)
 
-### Buttons
-- Clean shape
-- No shadows, borders or rings
-- States:
-  - Default: Semi-transparent background
-  - Hover: Increased opacity
-  - Active: Full opacity
-  - Disabled: Reduced opacity
+3. Core Functions:
+   - `markAsRead(notificationId)` - Mark notification as read
+   - `deleteNotification(notificationId)` - Remove notification
+   - `fetchNotifications()` - Get user's notifications
 
-### Input Fields
-- Minimal borders
-- Clear focus states without rings
-- Consistent padding and height
-- Placeholder text in muted color
+4. Database Integration:
+   - Uses Supabase 'notifications' table
+   - Real-time subscription to notification changes
+   - User-specific filtering using session.user.id
 
-### Dropdowns & Menus
-- Clean rectangular containers
-- No shadows
-- Subtle borders for definition
-- Consistent spacing and padding
-- Clear hover states
+## Component Implementation Details
 
-### Cards & Containers
-- Simple rectangular shapes
-- Minimal borders when needed
-- No box shadows
-- Clear content hierarchy
-- Consistent padding and spacing
+### NotificationBell
+1. Features:
+   - Responsive design (mobile/desktop variants)
+   - Unread indicator dot
+   - Sheet-based notification panel (desktop)
+   - Click handler for mobile navigation
 
-### Modal & Dialogs
-- Center-aligned
-- Clean borders
-- No shadows
-- Simple entrance/exit animations
-- Clear action hierarchy
+2. UI Elements:
+   - Bell icon with unread indicator
+   - Sheet panel for desktop view
+   - Custom styling with Tailwind CSS
 
-### Navigation
-- Clean and minimal
-- Clear active states
-- Consistent spacing
-- Easy to scan and navigate
+### NotificationList
+1. Features:
+   - Scrollable notification area
+   - Empty state handling
+   - Responsive height calculation
 
-### Scroll Areas
-- Clean scrollbars
-- No visible borders unless necessary
-- Smooth scrolling behavior
+2. UI Elements:
+   - ScrollArea component
+   - Empty state with Bell icon
+   - Divider between notifications
 
-### Tabs
-- Minimal design
-- Clear active state
-- No decorative elements
-- Consistent spacing
+### NotificationItem
+1. Features:
+   - Rich notification content display
+   - Adaptive layout based on image presence
+   - Image support with error handling
+   - Multiple link support
+   - Read/unread state indication
+   - Delete functionality
+   - Timestamp formatting
 
-### Switches & Toggle Elements
-- Simple design
-- Clear on/off states
-- No decorative elements
-- Smooth transitions
+2. Data Structure:
+   - Title and message
+   - Optional image URLs (comma-separated)
+   - Optional links and link names
+   - Created timestamp
+   - Read/unread state
 
-## Layout Principles
-- Consistent grid system
-- Purposeful whitespace
-- Clear visual hierarchy
-- Responsive design considerations
-- Content-first approach
+3. UI Elements:
+   - Conditional image preview (w-24 width when present)
+   - Full-width text content when no image
+   - Title and message text
+   - Link buttons
+   - Delete button (hover state)
+   - Read/unread indicator
+   - Timestamp
 
-## Spacing System
-- Consistent spacing scale
-- Proper breathing room between elements
-- Hierarchical spacing for related components
+4. Layout Behavior:
+   - With image: Flex layout with 96px image width
+   - Without image: Full-width text content
+   - Responsive spacing and alignment
+   - Consistent padding in both layouts
 
-## Interaction Design
-- Smooth transitions (200-300ms)
-- Clear feedback on user actions
-- Consistent hover and active states
-- Accessible focus states
+## Mobile vs Desktop Implementation
+1. Desktop:
+   - Sheet-based side panel
+   - Hover interactions
+   - Persistent notification list
 
-## Accessibility
-- High contrast ratios
-- Clear focus indicators
-- Proper ARIA labels
-- Keyboard navigation support
+2. Mobile:
+   - Full-screen notification view
+   - Touch-optimized interactions
+   - Navigation-based access
 
-## Responsive Design
-- Mobile-first approach
-- Fluid layouts
-- Breakpoint consistency
-- Touch-friendly interactions
+## Notification Types Supported
+1. Basic notifications:
+   - Title
+   - Message
+   - Timestamp
+   - Read/unread state
 
-## Special Features
-- Image generation progress indicators
-- Real-time status updates
-- Clear loading states
-- Error handling with user feedback
+2. Rich notifications:
+   - Images
+   - Multiple links
+   - Custom link names
 
-This design system emphasizes clarity, functionality, and user experience while maintaining a modern, minimalist aesthetic. All components follow these guidelines to create a cohesive and professional application interface.
+## To Analyze Next:
+1. Individual component implementations
+2. Mobile vs Desktop implementations
+3. UI/UX flow and interactions
