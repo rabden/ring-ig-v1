@@ -194,7 +194,7 @@ const ImageGeneratorContent = ({
                   onViewDetails={handleViewDetails}
                   generatingImages={generatingImages}
                   nsfwEnabled={nsfwEnabled}
-                  modelConfigs={imageGeneratorProps.modelConfigs}
+                  modelConfigs={imageGeneratorProps.modelConfigs || {}}
                   activeFilters={activeFilters}
                   searchQuery={searchQuery}
                   showPrivate={showPrivate}
@@ -234,6 +234,7 @@ const ImageGeneratorContent = ({
                 proMode={proMode}
                 nsfwEnabled={nsfwEnabled}
                 setNsfwEnabled={setNsfwEnabled}
+                modelConfigs={imageGeneratorProps.modelConfigs || {}}
               />
             </div>
           </div>

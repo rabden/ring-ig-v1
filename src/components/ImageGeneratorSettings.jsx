@@ -56,9 +56,9 @@ const ImageGeneratorSettings = ({
   };
 
   const getAvailableQualities = () => {
-    const modelConfig = modelConfigs[model];
-    // If qualityLimits not specified, allow all qualities
-    if (!modelConfig?.qualityLimits) {
+    const modelConfig = modelConfigs?.[model];
+    // If qualityLimits not specified or modelConfigs is undefined, allow all qualities
+    if (!modelConfig?.qualityLimits || !modelConfigs) {
       return Object.keys(qualityOptions);
     }
     
@@ -129,7 +129,7 @@ const ImageGeneratorSettings = ({
         setModel={handleModelChange}
         nsfwEnabled={nsfwEnabled}
         proMode={proMode}
-        modelConfigs={modelConfigs}
+        modelConfigs={modelConfigs || {}}
       />
 
       <ImageCountChooser

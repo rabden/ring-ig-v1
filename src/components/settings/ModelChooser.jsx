@@ -95,18 +95,19 @@ const ModelGrid = ({ filteredModels, model, setModel, proMode, className }) => (
   </ScrollArea>
 );
 
-const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) => {
+const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs = {} }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   
   // Filter models based on NSFW state
   const filteredModels = useMemo(() => {
-    if (!modelConfigs) return [];
+    if (!modelConfigs || typeof modelConfigs !== 'object') return [];
     
     // Get all models as entries
     const allModels = Object.entries(modelConfigs);
     
     // Filter based on NSFW state
     return allModels.filter(([_, config]) => {
+      if (!config) return false;
       if (nsfwEnabled) {
         return config.category === "NSFW";
       }
@@ -143,7 +144,7 @@ const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) =
   }, [nsfwEnabled, model, defaultModel, setModel, modelConfigs]);
 
   const currentModel = modelConfigs?.[model];
-  if (!currentModel) return null;
+  if (!currentModel || !model) return null;
 
   return (
     <SettingSection 
