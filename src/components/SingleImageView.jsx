@@ -8,6 +8,7 @@ import { downloadImage } from '@/utils/downloadUtils';
 import MobileImageView from '@/components/MobileImageView';
 import FullScreenImageView from '@/components/FullScreenImageView';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { cn } from "@/lib/utils";
 
 const SingleImageView = () => {
   const { imageId } = useParams();
@@ -37,16 +38,35 @@ const SingleImageView = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background p-4">
-        <Skeleton className="w-full h-[60vh]" />
+      <div className={cn(
+        "min-h-screen p-4",
+        "bg-background/95 backdrop-blur-[2px]",
+        "transition-all duration-300"
+      )}>
+        <Skeleton className={cn(
+          "w-full h-[60vh] rounded-xl",
+          "bg-muted/5",
+          "animate-pulse"
+        )} />
       </div>
     );
   }
 
   if (!image) {
     return (
-      <div className="min-h-screen bg-background p-4">
-        <div className="text-center">Image not found</div>
+      <div className={cn(
+        "min-h-screen p-4",
+        "bg-background/95 backdrop-blur-[2px]",
+        "transition-all duration-300"
+      )}>
+        <div className={cn(
+          "flex items-center justify-center",
+          "h-[60vh] rounded-xl",
+          "bg-muted/5 border border-border/10",
+          "text-sm text-muted-foreground/70"
+        )}>
+          Image not found
+        </div>
       </div>
     );
   }

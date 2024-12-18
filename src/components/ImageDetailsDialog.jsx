@@ -43,16 +43,17 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={cn(
-        "sm:max-w-[425px] max-h-[80vh] overflow-hidden",
+        "sm:max-w-[400px] max-h-[80vh] overflow-hidden",
         "border-border/10 bg-card/95 backdrop-blur-[2px]",
-        "shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
+        "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
+        "p-4"
       )}>
-        <DialogHeader>
-          <DialogTitle className="text-xl font-medium text-foreground/90">Image Details</DialogTitle>
+        <DialogHeader className="px-2">
+          <DialogTitle className="text-sm font-medium text-muted-foreground/70 uppercase tracking-wider">Image Details</DialogTitle>
         </DialogHeader>
-        <ScrollArea className="mt-6 max-h-[calc(80vh-100px)]">
-          <div className="space-y-8 px-1">
-            <div className="space-y-4">
+        <ScrollArea className="mt-4 max-h-[calc(80vh-100px)]">
+          <div className="space-y-6 px-2">
+            <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <h3 className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">Prompt</h3>
                 <div className="flex gap-2">
@@ -60,7 +61,7 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
                     variant="ghost" 
                     size="icon" 
                     className={cn(
-                      "h-8 w-8 p-0 rounded-lg",
+                      "h-7 w-7 p-0 rounded-lg",
                       "bg-muted/5 hover:bg-muted/10",
                       "transition-all duration-200"
                     )}
@@ -76,7 +77,7 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
                     variant="ghost" 
                     size="icon" 
                     className={cn(
-                      "h-8 w-8 p-0 rounded-lg",
+                      "h-7 w-7 p-0 rounded-lg",
                       "bg-muted/5 hover:bg-muted/10",
                       "transition-all duration-200"
                     )}
@@ -91,21 +92,22 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
                 </div>
               </div>
               <div className={cn(
-                "p-4 rounded-xl",
+                "p-3 rounded-lg",
                 "bg-muted/5 hover:bg-muted/10",
                 "border border-border/5",
-                "transition-colors duration-200"
+                "transition-colors duration-200",
+                "group"
               )}>
                 <p className="text-sm text-foreground/90 leading-relaxed">{image.prompt}</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               {detailItems.map((item, index) => (
                 <div 
                   key={index} 
                   className={cn(
-                    "space-y-1.5 p-3 rounded-xl",
+                    "space-y-1 p-2.5 rounded-lg",
                     "bg-muted/5 hover:bg-muted/10",
                     "border border-border/5",
                     "transition-colors duration-200",
