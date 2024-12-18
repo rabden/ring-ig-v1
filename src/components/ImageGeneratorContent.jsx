@@ -58,9 +58,6 @@ const ImageGeneratorContent = ({
   const { following } = useFollows(session?.user?.id);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Ensure modelConfigs is an object
-  const safeModelConfigs = imageGeneratorProps?.modelConfigs || {};
-
   // Handle sidebar visibility with transitions
   useEffect(() => {
     const shouldMount = isMobile 
@@ -183,7 +180,7 @@ const ImageGeneratorContent = ({
                   userId={session?.user?.id}
                   onVisibilityChange={setIsPromptVisible}
                   activeModel={imageGeneratorProps.model}
-                  modelConfigs={safeModelConfigs}
+                  modelConfigs={imageGeneratorProps.modelConfigs}
                 />
               )}
 
@@ -197,7 +194,7 @@ const ImageGeneratorContent = ({
                   onViewDetails={handleViewDetails}
                   generatingImages={generatingImages}
                   nsfwEnabled={nsfwEnabled}
-                  modelConfigs={safeModelConfigs}
+                  modelConfigs={imageGeneratorProps.modelConfigs}
                   activeFilters={activeFilters}
                   searchQuery={searchQuery}
                   showPrivate={showPrivate}
@@ -237,7 +234,6 @@ const ImageGeneratorContent = ({
                 proMode={proMode}
                 nsfwEnabled={nsfwEnabled}
                 setNsfwEnabled={setNsfwEnabled}
-                modelConfigs={safeModelConfigs}
               />
             </div>
           </div>

@@ -7,7 +7,6 @@ import GeneratingImagesDrawer from './GeneratingImagesDrawer';
 import MobileNavButton from './navbar/MobileNavButton';
 import NotificationBell from './notifications/NotificationBell';
 import ProfileMenu from './ProfileMenu';
-import { cn } from '@/lib/utils';
 
 const BottomNavbar = ({ 
   activeTab, 
@@ -46,18 +45,8 @@ const BottomNavbar = ({
 
   return (
     <>
-      <div className={cn(
-        "fixed bottom-0 left-0 right-0 z-50",
-        "bg-black/80 backdrop-blur-sm",
-        "border-t border-white/10",
-        "transition-all duration-200",
-        "md:hidden"
-      )}>
-        <div className={cn(
-          "flex items-center justify-around",
-          "px-2 max-w-md mx-auto",
-          "h-14"
-        )}>
+      <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border/30 md:hidden z-50">
+        <div className="flex items-center justify-around px-2 max-w-md mx-auto">
           <MobileNavButton
             icon={Image}
             isActive={location.pathname === '/' && (!location.hash || location.hash === '#myimages')}
@@ -102,10 +91,7 @@ const BottomNavbar = ({
             )}
           </div>
         </div>
-        <div className={cn(
-          "h-safe-area-bottom",
-          "bg-black/80 backdrop-blur-sm"
-        )} />
+        <div className="h-safe-area-bottom bg-background" />
       </div>
 
       <GeneratingImagesDrawer 

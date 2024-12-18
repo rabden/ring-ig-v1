@@ -1,47 +1,27 @@
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
-const TruncatablePrompt = ({ prompt, maxLength = 100 }) => {
+const TruncatablePrompt = ({ prompt, className }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const shouldTruncate = prompt.length > maxLength;
-  const displayText = shouldTruncate && !isExpanded 
-    ? `${prompt.slice(0, maxLength)}...` 
-    : prompt;
+  const shouldTruncate = prompt.length > 150;
 
   return (
-    <div className={cn(
-      "group relative",
-      "transition-all duration-200"
-    )}>
-      <p className={cn(
-        "text-sm whitespace-pre-wrap",
-        "text-white/70 group-hover:text-white/90",
-        "transition-colors duration-200"
-      )}>
-        {displayText}
+    <div className={cn("relative", className)}>
+      <p 
+        className={cn(
+          "text-sm text-muted-foreground",
+          !isExpanded && shouldTruncate && "line-clamp-3"
+        )}
+      >
+        {prompt}
       </p>
       {shouldTruncate && (
-        <Button
-          variant="ghost"
-          size="sm"
+        <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className={cn(
-            "absolute -bottom-6 left-1/2 -translate-x-1/2",
-            "h-6 px-2 py-1",
-            "bg-black/30 hover:bg-black/40",
-            "text-white/70 hover:text-white",
-            "opacity-80 hover:opacity-100",
-            "transition-all duration-200"
-          )}
+          className="text-xs text-primary hover:underline mt-1 font-medium"
         >
-          {isExpanded ? (
-            <ChevronUp className="h-4 w-4" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          )}
-        </Button>
+          {isExpanded ? "Less" : "More"}
+        </button>
       )}
     </div>
   );

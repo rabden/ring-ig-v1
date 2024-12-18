@@ -31,7 +31,7 @@ const ImageGeneratorSettings = ({
   bonusCredits = 0,
   nsfwEnabled, setNsfwEnabled,
   proMode,
-  modelConfigs = {},
+  modelConfigs,
   imageCount = 1,
   setImageCount,
   isPrivate,
@@ -56,10 +56,13 @@ const ImageGeneratorSettings = ({
   };
 
   const getAvailableQualities = () => {
-    const modelConfig = modelConfigs?.[model];
+    const modelConfig = modelConfigs[model];
+    // If qualityLimits not specified, allow all qualities
     if (!modelConfig?.qualityLimits) {
       return Object.keys(qualityOptions);
     }
+    
+    // If specified, only allow those qualities
     return modelConfig.qualityLimits;
   };
 

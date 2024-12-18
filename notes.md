@@ -124,5 +124,3 @@
 - Error handling with user feedback
 
 This design system emphasizes clarity, functionality, and user experience while maintaining a modern, minimalist aesthetic. All components follow these guidelines to create a cohesive and professional application interface.
-
-# there will be 2 type of components, except for the active showing components all other components will follow ghost styling, it will be borderless, shadowless, colorless container with less then 80% opacity, on hover 100% opacity. and the active type components will be white colored

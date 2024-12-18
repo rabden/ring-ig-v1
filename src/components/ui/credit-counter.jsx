@@ -1,22 +1,25 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
 
-const CreditCounter = React.forwardRef(({ className, credits, bonusCredits, ...props }, ref) => {
-  const totalCredits = (credits || 0) + (bonusCredits || 0);
-  
+const CreditCounter = ({ credits, bonusCredits, className }) => {
+  const MAX_CREDITS = 50;
+  const creditsProgress = (credits / MAX_CREDITS) * 100;
+
   return (
-    <div
-      ref={ref}
-      className={cn(
-        "inline-flex h-8 items-center rounded-md bg-black/30 px-3 text-sm text-white backdrop-blur-sm",
-        className
-      )}
-      {...props}>
-      {totalCredits} credits
+    <div className={cn("space-y-2 w-full", className)}>
+      <div className="flex justify-between text-sm">
+        <span className="text-muted-foreground">Credits</span>
+        <span className="font-medium">
+          {credits}
+          <span className="text-muted-foreground font-normal"> / {MAX_CREDITS}</span>
+          {bonusCredits > 0 && (
+            <span className="text-green-500 ml-1">|+B{bonusCredits}</span>
+          )}
+        </span>
+      </div>
+      <Progress value={creditsProgress} className="h-2 bg-secondary" />
     </div>
   );
-})
+};
 
-CreditCounter.displayName = "CreditCounter"
-
-export default CreditCounter
+export default CreditCounter; 
