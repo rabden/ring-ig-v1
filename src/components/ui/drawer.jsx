@@ -1,6 +1,5 @@
 import * as React from "react"
-import * as DrawerPrimitive from "@vaul/vaul"
-
+import * as DrawerPrimitive from "vaul"
 import { cn } from "@/lib/utils"
 
 const Drawer = ({
