@@ -26,12 +26,12 @@ const MobileHeader = ({
   return (
     <div 
       className={cn(
-        "md:hidden fixed top-0 left-0 right-0 bg-background z-10 transition-transform duration-300 ease-in-out",
+        "md:hidden fixed top-0 left-0 right-0 bg-background/90 backdrop-blur-[2px] z-10 transition-all duration-200 ease-in-out border-b border-border/10 shadow-sm",
         isVisible ? "translate-y-0" : "-translate-y-full"
       )}
     >
-      <div className="flex flex-col gap-2 p-2">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-2.5 p-3">
+        <div className="flex items-center gap-2.5">
           {isMyImages && (
             <PrivateFilterButton
               showPrivate={showPrivate}
@@ -49,6 +49,8 @@ const MobileHeader = ({
           <SearchBar onSearch={onSearch} />
         </div>
       </div>
+      {/* Fade-out gradient */}
+      <div className="h-2 bg-gradient-to-b from-background/50 to-transparent pointer-events-none" />
     </div>
   );
 };

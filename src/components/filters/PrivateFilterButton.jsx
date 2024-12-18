@@ -13,13 +13,16 @@ const PrivateFilterButton = ({ showPrivate, onToggle }) => {
         onToggle(!showPrivate);
       }}
       className={cn(
-        "h-8 px-3 flex items-center gap-1 transition-colors duration-200",
-        showPrivate && "bg-primary text-primary-foreground hover:bg-primary/90"
+        "h-8 px-4 flex items-center gap-2 rounded-xl bg-background/50 hover:bg-accent/10 transition-all duration-200",
+        showPrivate && "bg-primary/30 hover:bg-primary/40 text-primary-foreground"
       )}
       title={showPrivate ? "Show public images" : "Show private images"}
     >
-      {showPrivate ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
-      <span className="hidden md:inline">Private</span>
+      {showPrivate ? 
+        <Lock className="h-4 w-4 text-foreground/80" /> : 
+        <Unlock className="h-4 w-4 text-foreground/80" />
+      }
+      <span className="hidden md:inline text-xs">Private</span>
     </Button>
   );
 };

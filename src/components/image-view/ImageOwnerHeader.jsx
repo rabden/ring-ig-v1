@@ -15,9 +15,9 @@ const ImageOwnerHeader = ({ owner, image, isOwner, userLikes, toggleLike, likeCo
   };
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between p-1">
       <div 
-        className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+        className="flex items-center gap-2.5 cursor-pointer rounded-xl px-2 py-1.5 transition-colors hover:bg-accent/10"
         onClick={handleProfileClick}
       >
         <ProfileAvatar 
@@ -25,19 +25,19 @@ const ImageOwnerHeader = ({ owner, image, isOwner, userLikes, toggleLike, likeCo
           size="sm"
           isPro={isPro}
         />
-        <span className="text-sm font-medium">{owner?.display_name}</span>
+        <span className="text-sm font-medium text-foreground/90">{owner?.display_name}</span>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2.5">
         {!isOwner && (
           <FollowButton userId={image.user_id} />
         )}
         <ImagePrivacyToggle image={image} isOwner={isOwner} />
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5 rounded-xl bg-muted/5 px-3 py-1.5">
           <LikeButton 
             isLiked={userLikes?.includes(image.id)} 
             onToggle={() => toggleLike(image.id)} 
           />
-          <span className="text-xs text-muted-foreground">{likeCount}</span>
+          <span className="text-xs text-muted-foreground/70">{likeCount}</span>
         </div>
       </div>
     </div>

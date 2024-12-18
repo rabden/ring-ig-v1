@@ -41,8 +41,8 @@ const NotificationItem = ({ notification }) => {
   return (
     <div
       className={cn(
-        "group relative flex items-start gap-4 p-4 transition-colors",
-        !notification.is_read && "bg-muted/50"
+        "group relative flex items-start gap-4 p-4 transition-all duration-200 hover:bg-accent/5",
+        !notification.is_read && "bg-muted/10"
       )}
       onClick={handleClick}
     >
@@ -52,7 +52,7 @@ const NotificationItem = ({ notification }) => {
             <img
               src={images[0]}
               alt=""
-              className="rounded-md object-cover w-full h-full"
+              className="rounded-xl object-cover w-full h-full ring-1 ring-border/5"
               onError={(e) => {
                 console.error('Failed to load notification image:', images[0]);
                 e.target.style.display = 'none';
@@ -69,34 +69,34 @@ const NotificationItem = ({ notification }) => {
         images.length === 0 && "w-full"
       )}>
         <div className="flex items-start justify-between gap-2">
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <p className={cn(
-              "text-sm font-medium leading-none",
+              "text-sm font-medium leading-none text-foreground/90",
               !notification.is_read && "text-primary"
             )}>
               {notification.title}
             </p>
-            <p className="text-sm text-muted-foreground line-clamp-2">
+            <p className="text-sm text-muted-foreground/70 line-clamp-2">
               {notification.message}
             </p>
           </div>
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity -mr-2"
+            className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-all duration-200 rounded-lg hover:bg-accent/10 -mr-2"
             onClick={handleHideOrDelete}
           >
-            <X className="h-3 w-3" />
+            <X className="h-3.5 w-3.5 text-foreground/70" />
           </Button>
         </div>
 
         {links.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="mt-2.5 flex flex-wrap gap-2">
             {links.map((link, index) => (
               <Link
                 key={index}
                 to={link}
-                className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-primary/80 hover:text-primary transition-colors duration-200"
                 onClick={(e) => e.stopPropagation()}
               >
                 {linkNames[index] || `View details`}
@@ -106,13 +106,13 @@ const NotificationItem = ({ notification }) => {
           </div>
         )}
 
-        <p className="mt-1 text-[11px] text-muted-foreground">
+        <p className="mt-1.5 text-[11px] text-muted-foreground/60">
           {format(new Date(notification.created_at), 'MMM d, h:mm a')}
         </p>
       </div>
 
       {!notification.is_read && (
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1/2 bg-primary rounded-r-full" />
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1/2 bg-primary/50 rounded-r-full" />
       )}
     </div>
   );

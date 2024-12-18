@@ -34,13 +34,13 @@ const ImagePrivacyToggle = ({ image, isOwner }) => {
       variant="ghost"
       size="icon"
       onClick={handleTogglePrivacy}
-      className="h-8 w-8"
+      className="h-8 w-8 rounded-xl hover:bg-accent/10"
       title={image.is_private ? "Private" : "Public"}
     >
       {image.is_private ? (
-        <Lock className="h-4 w-4" />
+        <Lock className="h-4 w-4 text-foreground/80" />
       ) : (
-        <Unlock className="h-4 w-4" />
+        <Unlock className="h-4 w-4 text-foreground/80" />
       )}
     </Button>
   );
