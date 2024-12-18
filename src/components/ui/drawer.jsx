@@ -1,19 +1,17 @@
 import * as React from "react"
-import * as DrawerPrimitive from "vaul"
+import { Drawer as DrawerPrimitive } from "vaul"
 import { cn } from "@/lib/utils"
 
 const Drawer = ({
   shouldScaleBackground = true,
   ...props
 }) => (
-  <DrawerPrimitive.Root shouldScaleBackground={shouldScaleBackground} {...props} />
+  <DrawerPrimitive shouldScaleBackground={shouldScaleBackground} {...props} />
 )
 Drawer.displayName = "Drawer"
 
 const DrawerTrigger = DrawerPrimitive.Trigger
-
 const DrawerPortal = DrawerPrimitive.Portal
-
 const DrawerClose = DrawerPrimitive.Close
 
 const DrawerOverlay = React.forwardRef(({ className, ...props }, ref) => (
