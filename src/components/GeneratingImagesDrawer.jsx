@@ -42,21 +42,27 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="focus:outline-none max-w-[400px] mx-auto">
-        <DrawerHeader className="border-b border-border/10 px-6 py-4">
-          <DrawerTitle className="flex items-center gap-3 text-base font-medium">
+        <DrawerHeader className="border-b border-border/5 px-6 py-4">
+          <DrawerTitle className="flex items-center gap-3 text-base font-medium text-foreground/90">
             {pendingCount > 0 ? (
               <div className="flex items-center gap-3">
-                <Loader className="h-4 w-4 animate-spin text-primary" />
+                <div className="p-1 rounded-lg bg-primary/10 backdrop-blur-[1px]">
+                  <Loader className="h-4 w-4 animate-spin text-primary/90" />
+                </div>
                 <span>Generating {pendingCount} image{pendingCount > 1 ? 's' : ''}...</span>
               </div>
             ) : allCompleted ? (
               <div className="flex items-center gap-3">
-                <Check className="h-4 w-4 text-primary" />
+                <div className="p-1 rounded-lg bg-primary/10 backdrop-blur-[1px]">
+                  <Check className="h-4 w-4 text-primary/90" />
+                </div>
                 <span>Complete</span>
               </div>
             ) : (
               <div className="flex items-center gap-3">
-                <Loader className="h-4 w-4 animate-spin text-primary" />
+                <div className="p-1 rounded-lg bg-primary/10 backdrop-blur-[1px]">
+                  <Loader className="h-4 w-4 animate-spin text-primary/90" />
+                </div>
                 <span>Processing...</span>
               </div>
             )}
@@ -69,40 +75,49 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
               <div
                 key={image.id}
                 className={cn(
-                  "flex flex-col gap-2 p-4 rounded-lg transition-all duration-200",
+                  "flex flex-col gap-3 p-4 rounded-xl transition-all duration-300",
+                  "border border-border/10 backdrop-blur-[2px]",
                   image.status === 'completed' 
-                    ? "bg-muted/30 border border-border/10" 
-                    : "bg-primary/5 border border-primary/10"
+                    ? "bg-muted/5 hover:bg-muted/10" 
+                    : "bg-primary/5 hover:bg-primary/10",
+                  "group"
                 )}
               >
                 <div className="flex items-center gap-3 w-full">
                   <span className={cn(
-                    "font-medium text-sm",
-                    image.status === 'completed' ? "text-muted-foreground" : "text-primary"
+                    "font-medium text-sm transition-colors duration-200",
+                    image.status === 'completed' ? "text-foreground/70" : "text-primary/90"
                   )}>
                     {image.status === 'completed' ? 'Complete' : 'Generating...'}
                   </span>
                   {image.width && image.height && (
                     <Badge 
                       variant={image.status === 'completed' ? "secondary" : "outline"} 
-                      className="ml-auto"
+                      className={cn(
+                        "ml-auto transition-colors duration-200",
+                        image.status === 'completed' 
+                          ? "bg-muted/20 hover:bg-muted/30 text-foreground/70" 
+                          : "border-primary/20 bg-primary/10 text-primary/90"
+                      )}
                     >
                       {image.width}x{image.height}
                     </Badge>
                   )}
                 </div>
                 {image.prompt && (
-                  <span className="text-sm text-muted-foreground/80 line-clamp-2">
+                  <span className="text-sm text-muted-foreground/60 line-clamp-2 group-hover:text-muted-foreground/70 transition-colors duration-200">
                     {image.prompt}
                   </span>
                 )}
-                <div className="flex items-center gap-2 text-xs text-muted-foreground/70">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground/50 group-hover:text-muted-foreground/60 transition-colors duration-200">
                   <span>{modelConfigs?.[image.model]?.name || image.model}</span>
                   {image.status === 'completed' ? (
-                    <Check className="h-3.5 w-3.5 ml-auto text-primary" />
+                    <div className="ml-auto p-1 rounded-lg bg-primary/10 backdrop-blur-[1px]">
+                      <Check className="h-3.5 w-3.5 text-primary/90" />
+                    </div>
                   ) : (
-                    <div className="ml-auto p-0.5 rounded-full bg-primary/10">
-                      <Loader className="h-3 w-3 animate-spin text-primary" />
+                    <div className="ml-auto p-1 rounded-lg bg-primary/10 backdrop-blur-[1px]">
+                      <Loader className="h-3.5 w-3.5 animate-spin text-primary/90" />
                     </div>
                   )}
                 </div>

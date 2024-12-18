@@ -93,7 +93,9 @@ const ProfileMenu = ({
             variant="ghost" 
             size="icon" 
             className={cn(
-              "h-7 w-7 p-0",
+              "h-7 w-7 p-0 rounded-lg",
+              "bg-muted/5 hover:bg-muted/10",
+              "transition-all duration-200",
               isMobile && "h-10 w-10 p-2.5"
             )}
           >
@@ -103,14 +105,21 @@ const ProfileMenu = ({
               size={isMobile ? "sm" : "sm"} 
               showEditOnHover={false}
               className={cn(
-                "w-full h-full",
-                isMobile && "opacity-70 group-hover:opacity-100 transition-opacity"
+                "w-full h-full rounded-lg",
+                "transition-all duration-200",
+                isMobile && "opacity-70 group-hover:opacity-100"
               )}
             />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent 
-          className="w-80 p-4" 
+          className={cn(
+            "w-80 p-4",
+            "border-border/10 bg-card/95",
+            "backdrop-blur-[2px]",
+            "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
+            "animate-in fade-in-0 zoom-in-95 duration-200"
+          )}
           align={isMobile ? "center" : "end"}
           side={isMobile ? "top" : "bottom"}
           alignOffset={isMobile ? 0 : -8}
@@ -119,53 +128,65 @@ const ProfileMenu = ({
           avoidCollisions={true}
         >
           <div className="space-y-4">
-            {/* Profile Header with Link */}
-            <Link to="/userprofile" className="flex items-center gap-3 group hover:bg-accent rounded-md p-2 -m-2 transition-colors">
+            <Link 
+              to="/userprofile" 
+              className={cn(
+                "flex items-center gap-3 group",
+                "p-2 -m-2 rounded-lg",
+                "bg-muted/5 hover:bg-muted/10",
+                "transition-all duration-200"
+              )}
+            >
               <ProfileAvatar 
                 user={user} 
                 isPro={isPro} 
                 size="sm" 
                 showEditOnHover={true}
                 onClick={() => setShowImageDialog(true)}
-                className="w-8 h-8"
+                className="w-8 h-8 rounded-lg"
               />
               <div className="flex-1 flex flex-col justify-center min-w-0">
-                <h4 className="font-medium text-base leading-tight truncate">{displayName}</h4>
-                <p className="text-sm text-muted-foreground leading-tight truncate">{user.email}</p>
+                <h4 className="text-sm font-medium text-foreground/90 leading-tight truncate">{displayName}</h4>
+                <p className="text-xs text-muted-foreground/70 leading-tight truncate">{user.email}</p>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground/60 group-hover:text-muted-foreground/80 transition-colors duration-200" />
             </Link>
 
-            {/* Credits Progress */}
             <CreditCounter credits={credits} bonusCredits={bonusCredits} />
 
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-2 text-sm py-2">
+            <div className={cn(
+              "grid grid-cols-3 gap-2 p-3 rounded-lg",
+              "bg-muted/5 hover:bg-muted/10",
+              "border border-border/5",
+              "transition-colors duration-200"
+            )}>
               <div className="text-center">
-                <span className="font-medium block">{followCounts.followers}</span>
-                <span className="text-muted-foreground text-xs">Followers</span>
+                <span className="block text-sm font-medium text-foreground/90">{followCounts.followers}</span>
+                <span className="text-xs text-muted-foreground/60">Followers</span>
               </div>
               <div className="text-center">
-                <span className="font-medium block">{followCounts.following}</span>
-                <span className="text-muted-foreground text-xs">Following</span>
+                <span className="block text-sm font-medium text-foreground/90">{followCounts.following}</span>
+                <span className="text-xs text-muted-foreground/60">Following</span>
               </div>
               <div className="text-center">
-                <span className="font-medium block">{totalLikes}</span>
-                <span className="text-muted-foreground text-xs">Likes</span>
+                <span className="block text-sm font-medium text-foreground/90">{totalLikes}</span>
+                <span className="text-xs text-muted-foreground/60">Likes</span>
               </div>
             </div>
 
-            {/* Sign Out and NSFW Buttons */}
             <div className="flex justify-between items-center pt-2">
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={() => setNsfwEnabled(!nsfwEnabled)}
                 className={cn(
-                  "text-xs",
-                  nsfwEnabled 
-                    ? "hover:bg-destructive/10 hover:text-destructive text-destructive/90" 
-                    : "hover:bg-primary/10 hover:text-primary text-primary/90"
+                  "h-8 rounded-lg text-xs",
+                  "transition-all duration-200",
+                  nsfwEnabled ? (
+                    "bg-destructive/5 hover:bg-destructive/10 text-destructive/90 hover:text-destructive"
+                  ) : (
+                    "bg-primary/5 hover:bg-primary/10 text-primary/90 hover:text-primary"
+                  )
                 )}
               >
                 {nsfwEnabled ? 'Unsafe' : 'Safe'}
@@ -174,9 +195,14 @@ const ProfileMenu = ({
                 variant="ghost" 
                 size="sm" 
                 onClick={() => logout()}
-                className="text-xs hover:bg-destructive/10 hover:text-destructive"
+                className={cn(
+                  "h-8 rounded-lg text-xs",
+                  "bg-destructive/5 hover:bg-destructive/10",
+                  "text-destructive/90 hover:text-destructive",
+                  "transition-all duration-200"
+                )}
               >
-                <LogOut className="w-3 h-3 mr-1" />
+                <LogOut className="w-3.5 h-3.5 mr-1.5" />
                 Sign out
               </Button>
             </div>
@@ -185,22 +211,42 @@ const ProfileMenu = ({
       </DropdownMenu>
 
       <AlertDialog open={showImageDialog} onOpenChange={setShowImageDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className={cn(
+          "sm:max-w-[400px]",
+          "border-border/10 bg-card/95",
+          "backdrop-blur-[2px]",
+          "shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
+        )}>
           <AlertDialogHeader>
-            <AlertDialogTitle>Change Profile Picture</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-sm font-medium text-muted-foreground/70 uppercase tracking-wider">
+              Change Profile Picture
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm text-foreground/90">
               Would you like to upload a new profile picture?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => {
-              const input = document.createElement('input');
-              input.type = 'file';
-              input.accept = 'image/*';
-              input.onchange = onAvatarUpload;
-              input.click();
-            }}>
+            <AlertDialogCancel className={cn(
+              "h-8 rounded-lg text-sm",
+              "bg-muted/5 hover:bg-muted/10",
+              "transition-all duration-200"
+            )}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = onAvatarUpload;
+                input.click();
+              }}
+              className={cn(
+                "h-8 rounded-lg text-sm",
+                "bg-primary/90 hover:bg-primary/80",
+                "transition-all duration-200"
+              )}
+            >
               Upload
             </AlertDialogAction>
           </AlertDialogFooter>

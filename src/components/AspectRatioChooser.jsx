@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { Slider } from "@/components/ui/slider"
 import { Lock } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 const AspectRatioVisualizer = ({ ratio = "1:1", isPremium }) => {
   const [width, height] = (ratio || "1:1").split(':').map(Number)
@@ -9,17 +10,30 @@ const AspectRatioVisualizer = ({ ratio = "1:1", isPremium }) => {
   const scaledWidth = width * scale
   
   return (
-    <div className="flex flex-col items-center space-y-2 mb-2">
+    <div className="flex flex-col items-center space-y-3 mb-4">
       <div 
-        className="border-2 border-primary bg-muted flex items-center justify-center text-sm transition-all duration-300 ease-in-out"
+        className={cn(
+          "relative border border-border/10 bg-muted/5 rounded-xl",
+          "flex items-center justify-center",
+          "shadow-[0_8px_30px_rgb(0,0,0,0.06)] backdrop-blur-[2px]",
+          "transition-all duration-300 ease-in-out",
+          isPremium && "ring-2 ring-primary/20"
+        )}
         style={{
           width: `${scaledWidth}px`,
           height: `${maxHeight}px`,
         }}
       >
-        <div className="flex items-center gap-1">
+        <div className={cn(
+          "flex items-center gap-2 px-3 py-1.5 rounded-lg",
+          "bg-background/80 backdrop-blur-[1px] border border-border/5",
+          "text-sm font-medium text-foreground/90",
+          "transition-all duration-200"
+        )}>
           {ratio}
-          {isPremium && <Lock className="h-3 w-3" />}
+          {isPremium && (
+            <Lock className="h-3.5 w-3.5 text-primary/70" />
+          )}
         </div>
       </div>
     </div>
@@ -82,18 +96,20 @@ const AspectRatioChooser = ({ aspectRatio = "1:1", setAspectRatio, proMode }) =>
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <AspectRatioVisualizer 
         ratio={aspectRatio} 
         isPremium={!proMode && premiumRatios.includes(aspectRatio)} 
       />
-      <Slider
-        value={[getCurrentRatioIndex()]}
-        onValueChange={handleSliderChange}
-        max={100}
-        step={1}
-        className="w-full transition-all duration-300"
-      />
+      <div className="px-2">
+        <Slider
+          value={[getCurrentRatioIndex()]}
+          onValueChange={handleSliderChange}
+          max={100}
+          step={1}
+          className="w-full transition-all duration-300"
+        />
+      </div>
     </div>
   )
 }

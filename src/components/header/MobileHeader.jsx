@@ -26,31 +26,33 @@ const MobileHeader = ({
   return (
     <div 
       className={cn(
-        "md:hidden fixed top-0 left-0 right-0 bg-background/90 backdrop-blur-[2px] z-10 transition-all duration-200 ease-in-out border-b border-border/10 shadow-sm",
+        "md:hidden fixed top-0 left-0 right-0 z-10",
+        "bg-background/95 backdrop-blur-[2px]",
+        "border-b border-border/10",
+        "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
+        "transition-all duration-300 ease-in-out",
         isVisible ? "translate-y-0" : "-translate-y-full"
       )}
     >
-      <div className="flex flex-col gap-2.5 p-3">
-        <div className="flex items-center gap-2.5">
-          {isMyImages && (
-            <PrivateFilterButton
-              showPrivate={showPrivate}
-              onToggle={onTogglePrivate}
-            />
-          )}
-          {isInspiration && (
-            <InspirationFilterButtons
-              showFollowing={showFollowing}
-              showTop={showTop}
-              onFollowingChange={onFollowingChange}
-              onTopChange={onTopChange}
-            />
-          )}
-          <SearchBar onSearch={onSearch} />
-        </div>
+      <div className="flex items-center gap-2 px-2 h-12">
+        {isMyImages && (
+          <PrivateFilterButton
+            showPrivate={showPrivate}
+            onToggle={onTogglePrivate}
+          />
+        )}
+        {isInspiration && (
+          <InspirationFilterButtons
+            showFollowing={showFollowing}
+            showTop={showTop}
+            onFollowingChange={onFollowingChange}
+            onTopChange={onTopChange}
+          />
+        )}
+        <SearchBar onSearch={onSearch} />
       </div>
       {/* Fade-out gradient */}
-      <div className="h-2 bg-gradient-to-b from-background/50 to-transparent pointer-events-none" />
+      <div className="h-1.5 bg-gradient-to-b from-background/50 to-transparent pointer-events-none" />
     </div>
   );
 };
