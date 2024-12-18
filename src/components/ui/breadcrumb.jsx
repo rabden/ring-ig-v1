@@ -1,17 +1,19 @@
 import * as React from "react"
+import { Slot } from "@radix-ui/react-slot"
 import { ChevronRight, MoreHorizontal } from "lucide-react"
+
 import { cn } from "@/lib/utils"
 
-const Breadcrumb = React.forwardRef(({ ...props }, ref) => (
-  <nav ref={ref} aria-label="breadcrumb" {...props} />
-))
+const Breadcrumb = React.forwardRef(
+  ({ ...props }, ref) => <nav ref={ref} aria-label="breadcrumb" {...props} />
+)
 Breadcrumb.displayName = "Breadcrumb"
 
 const BreadcrumbList = React.forwardRef(({ className, ...props }, ref) => (
   <ol
     ref={ref}
     className={cn(
-      "flex flex-wrap items-center gap-1.5 break-words text-sm text-white/70",
+      "flex flex-wrap items-center gap-1.5 break-words text-sm text-muted-foreground sm:gap-2.5",
       className
     )}
     {...props} />
@@ -26,14 +28,15 @@ const BreadcrumbItem = React.forwardRef(({ className, ...props }, ref) => (
 ))
 BreadcrumbItem.displayName = "BreadcrumbItem"
 
-const BreadcrumbLink = React.forwardRef(({ className, asChild, ...props }, ref) => {
+const BreadcrumbLink = React.forwardRef(({ asChild, className, ...props }, ref) => {
   const Comp = asChild ? Slot : "a"
+
   return (
-    <Comp
+    (<Comp
       ref={ref}
-      className={cn("hover:text-white", className)}
-      {...props} />
-  )
+      className={cn("transition-colors hover:text-foreground", className)}
+      {...props} />)
+  );
 })
 BreadcrumbLink.displayName = "BreadcrumbLink"
 
@@ -43,7 +46,7 @@ const BreadcrumbPage = React.forwardRef(({ className, ...props }, ref) => (
     role="link"
     aria-disabled="true"
     aria-current="page"
-    className={cn("text-white font-medium", className)}
+    className={cn("font-normal text-foreground", className)}
     {...props} />
 ))
 BreadcrumbPage.displayName = "BreadcrumbPage"
@@ -58,7 +61,7 @@ const BreadcrumbSeparator = ({
     aria-hidden="true"
     className={cn("[&>svg]:size-3.5", className)}
     {...props}>
-    {children || <ChevronRight className="h-4 w-4 text-white/50" />}
+    {children ?? <ChevronRight />}
   </li>
 )
 BreadcrumbSeparator.displayName = "BreadcrumbSeparator"
@@ -72,11 +75,11 @@ const BreadcrumbEllipsis = ({
     aria-hidden="true"
     className={cn("flex h-9 w-9 items-center justify-center", className)}
     {...props}>
-    <MoreHorizontal className="h-4 w-4 text-white/50" />
+    <MoreHorizontal className="h-4 w-4" />
     <span className="sr-only">More</span>
   </span>
 )
-BreadcrumbEllipsis.displayName = "BreadcrumbEllipsis"
+BreadcrumbEllipsis.displayName = "BreadcrumbElipssis"
 
 export {
   Breadcrumb,

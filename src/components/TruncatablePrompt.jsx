@@ -1,26 +1,30 @@
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
+import React, { useState } from 'react';
+import { cn } from "@/lib/utils";
 
-export default function TruncatablePrompt({ prompt, maxLength = 100 }) {
-  const [isExpanded, setIsExpanded] = useState(false)
-  const shouldTruncate = prompt.length > maxLength
-
-  if (!shouldTruncate) {
-    return <p className="text-sm text-white/70">{prompt}</p>
-  }
+const TruncatablePrompt = ({ prompt, className }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const shouldTruncate = prompt.length > 150;
 
   return (
-    <div className="flex flex-col gap-2">
-      <p className="text-sm text-white/70">
-        {isExpanded ? prompt : `${prompt.slice(0, maxLength)}...`}
+    <div className={cn("relative", className)}>
+      <p 
+        className={cn(
+          "text-sm text-muted-foreground",
+          !isExpanded && shouldTruncate && "line-clamp-3"
+        )}
+      >
+        {prompt}
       </p>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="w-fit px-0 text-white/50 hover:text-white"
-        onClick={() => setIsExpanded(!isExpanded)}>
-        {isExpanded ? "Show less" : "Show more"}
-      </Button>
+      {shouldTruncate && (
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="text-xs text-primary hover:underline mt-1 font-medium"
+        >
+          {isExpanded ? "Less" : "More"}
+        </button>
+      )}
     </div>
-  )
-}
+  );
+};
+
+export default TruncatablePrompt;

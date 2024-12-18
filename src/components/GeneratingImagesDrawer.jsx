@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Check, Loader } from "lucide-react"
+import { Check, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { format, isValid } from 'date-fns';
 import { Badge } from "@/components/ui/badge"
