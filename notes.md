@@ -574,43 +574,50 @@ This styling guide provides a comprehensive foundation for maintaining consisten
 ## Current Structure
 - Login page with split layout (left: images, right: auth UI)
 - Images and texts are now separated into different arrays
-- Modern reflection effect with subtle blur
+- Custom reflection effect with dynamic positioning
 - No border radius on image section
 
 ## Implemented Changes
-1. ✅ Separated messages array into:
-   - `texts` array with 7 different messages
-   - `images` array with 5 different images
-2. ✅ Replaced black gradient shadow with:
-   - Modern reflection effect using linear gradients
-   - Added subtle backdrop blur for depth
-   - Used white-based gradients for a modern look
-3. ✅ Removed border radius from image container
-4. ✅ Updated animation logic to work with separate arrays
-5. ✅ Improved text animation:
-   - Created custom TypewriterWrapper component
-   - Text now types in, stays for 2 seconds, fades out
-   - Smooth transition between texts using AnimatePresence
-   - No deletion animation, just clean fade transitions
+1. ✅ Fixed image blurriness:
+   - Removed blur effect during loading
+   - Added high-quality image rendering attributes
+   - Using opacity for transitions instead of blur
+2. ✅ Added custom reflection effect:
+   - Bottom reflection on mobile (full width, 1/3 height)
+   - Right side reflection on desktop (1/3 width, full height)
+   - Hover effect increases reflection opacity
+   - Smooth transitions between states
+3. ✅ Improved image loading:
+   - Clean fade in/out transitions
+   - No scale effect during loading
+   - Better performance with transform-gpu
+4. ✅ Enhanced reflection styling:
+   - Uses mask gradients for fade effect
+   - Flips image vertically on mobile
+   - Flips image horizontally on desktop
+   - 30% base opacity, 40% on hover
 
 ## Technical Details
 - Using Framer Motion for animations
 - Using Tailwind CSS for styling
 - Display duration: 5000ms
-- New reflection effect:
-  - Bottom gradient for mobile: `transparent → rgba(255,255,255,0.1) → rgba(255,255,255,0.2)`
-  - Right gradient for desktop: Same as above but horizontal
-  - Added `backdrop-blur-[2px]` for depth
-- Typewriter timing:
-  - Type speed: 50ms per character
-  - Display duration: 2000ms after typing
-  - Transition duration: 300ms for fade effects
+- Image improvements:
+  - Added `imageRendering: "high-quality"`
+  - Added `WebkitImageSmoothing: "high"`
+  - Using `transform-gpu` for better performance
+- Reflection effects:
+  - Mobile: Bottom aligned, full width
+  - Desktop: Right aligned, 1/3 width
+  - Gradient mask for fade effect
+  - GPU-accelerated transforms
 
-## Additional Improvements
-- Added more text variations (7 total) while keeping 5 images
-- Maintained smooth transitions and loading states
-- Kept responsive design intact
-- Enhanced text animations with fade transitions
+## Additional Features
+- Group hover effects for reflection
+- Smooth opacity transitions
+- Hardware-accelerated animations
+- Responsive design maintained
+- Better image quality
+- Enhanced loading states
 
 # Color Scheme Update
 
