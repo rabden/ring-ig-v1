@@ -14,13 +14,12 @@ const AspectRatioVisualizer = ({ ratio = "1:1", isPremium }) => {
       <div 
         className={cn(
           "relative overflow-hidden",
-          "border border-border/20 hover:border-border/30",
-          "bg-muted/20 hover:bg-muted/30",
+          "border-2 border-border/30 hover:border-border/40",
+          "bg-muted/10 hover:bg-muted/20",
           "rounded-2xl",
           "flex items-center justify-center",
-          "shadow-lg shadow-primary/5",
           "transition-all duration-200 ease-in-out",
-          isPremium && "ring-2 ring-primary/30 border-primary/30"
+          isPremium && "ring-2 ring-primary/40 border-primary/40"
         )}
         style={{
           width: `${scaledWidth}px`,
@@ -32,29 +31,44 @@ const AspectRatioVisualizer = ({ ratio = "1:1", isPremium }) => {
           {[...Array(9)].map((_, i) => (
             <div 
               key={i} 
-              className="border border-border/5"
+              className="border border-border/20 hover:border-border/30 transition-colors duration-200"
             />
           ))}
         </div>
         
         {/* Center lines */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-full h-px bg-border/10" />
-          <div className="absolute h-full w-px bg-border/10" />
+          <div className="w-full h-[2px] bg-border/20" />
+          <div className="absolute h-full w-[2px] bg-border/20" />
+        </div>
+
+        {/* Helper lines */}
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-1/3 w-[2px] h-2 bg-border/30" />
+          <div className="absolute top-0 right-1/3 w-[2px] h-2 bg-border/30" />
+          <div className="absolute bottom-0 left-1/3 w-[2px] h-2 bg-border/30" />
+          <div className="absolute bottom-0 right-1/3 w-[2px] h-2 bg-border/30" />
+          <div className="absolute left-0 top-1/3 h-[2px] w-2 bg-border/30" />
+          <div className="absolute left-0 bottom-1/3 h-[2px] w-2 bg-border/30" />
+          <div className="absolute right-0 top-1/3 h-[2px] w-2 bg-border/30" />
+          <div className="absolute right-0 bottom-1/3 h-[2px] w-2 bg-border/30" />
         </div>
 
         <div className={cn(
           "relative flex items-center gap-2 px-4 py-2 rounded-xl",
-          "bg-background/95 backdrop-blur-[1px]",
-          "border border-border/20",
-          "text-sm font-medium text-foreground/90",
+          "bg-background/98 backdrop-blur-[2px]",
+          "border-2 border-border/30",
+          "text-sm font-medium text-foreground",
           "shadow-sm",
           "transition-all duration-200",
-          "hover:border-border/30 hover:bg-background/98"
+          "hover:border-border/40 hover:bg-background",
+          "group"
         )}>
-          {ratio}
+          <span className="group-hover:text-primary transition-colors duration-200">
+            {ratio}
+          </span>
           {isPremium && (
-            <Lock className="h-3.5 w-3.5 text-primary/90" />
+            <Lock className="h-3.5 w-3.5 text-primary opacity-80 group-hover:opacity-100 transition-opacity duration-200" />
           )}
         </div>
       </div>

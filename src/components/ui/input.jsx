@@ -7,15 +7,23 @@ const Input = React.forwardRef(({ className, type, error, ...props }, ref) => {
     <input
       type={type}
       className={cn(
-        "flex h-10 w-full rounded-xl border bg-secondary/20 px-4 py-2 text-sm",
-        "border-border/20 hover:border-border/30",
+        "flex h-10 w-full rounded-xl px-4 py-2 text-sm",
+        "bg-muted/10 hover:bg-muted/20",
+        "border border-border/20 hover:border-border/30",
         "ring-offset-2 ring-offset-background",
         "transition-all duration-200",
         "placeholder:text-muted-foreground/50",
-        "focus-visible:outline-none focus-visible:bg-secondary/30",
-        "focus-visible:ring-2 focus-visible:ring-primary/30",
+        "focus-visible:outline-none focus-visible:bg-muted/30",
+        "focus-visible:ring-2 focus-visible:ring-primary/50",
+        "focus-visible:border-primary/20",
         "disabled:cursor-not-allowed disabled:opacity-50",
-        error && "border-destructive/50 focus-visible:ring-destructive/30",
+        error && [
+          "border-destructive/50",
+          "focus-visible:ring-destructive/40",
+          "hover:border-destructive/60",
+          "bg-destructive/10 hover:bg-destructive/20",
+          "focus-visible:bg-destructive/20"
+        ],
         className
       )}
       ref={ref}

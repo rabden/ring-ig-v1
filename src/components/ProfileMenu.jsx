@@ -93,8 +93,9 @@ const ProfileMenu = ({
             variant="ghost" 
             size="icon" 
             className={cn(
-              "h-7 w-7 p-0 rounded-lg",
-              "bg-muted/5 hover:bg-muted/10",
+              "h-8 w-8 p-0 rounded-lg",
+              "bg-muted/10 hover:bg-muted/20",
+              "ring-2 ring-border/20 hover:ring-border/30",
               "transition-all duration-200",
               isMobile && "h-10 w-10 p-2.5"
             )}
@@ -106,6 +107,7 @@ const ProfileMenu = ({
               showEditOnHover={false}
               className={cn(
                 "w-full h-full rounded-lg",
+                "ring-1 ring-border/10 hover:ring-border/20",
                 "transition-all duration-200",
                 isMobile && "opacity-70 group-hover:opacity-100"
               )}
@@ -115,9 +117,8 @@ const ProfileMenu = ({
         <DropdownMenuContent 
           className={cn(
             "w-80 p-4",
-            "border-border/10 bg-card/95",
+            "border-2 border-border/20 bg-card/98",
             "backdrop-blur-[2px]",
-            "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
             "animate-in fade-in-0 zoom-in-95 duration-200"
           )}
           align={isMobile ? "center" : "end"}
@@ -132,8 +133,9 @@ const ProfileMenu = ({
               to="/userprofile" 
               className={cn(
                 "flex items-center gap-3 group",
-                "p-2 -m-2 rounded-lg",
+                "p-3 -m-2 rounded-lg",
                 "bg-muted/10 hover:bg-muted/20",
+                "ring-1 ring-border/10 hover:ring-border/20",
                 "transition-all duration-200"
               )}
             >
@@ -143,13 +145,17 @@ const ProfileMenu = ({
                 size="sm" 
                 showEditOnHover={true}
                 onClick={() => setShowImageDialog(true)}
-                className="w-8 h-8 rounded-lg"
+                className="w-9 h-9 rounded-lg ring-2 ring-border/20 group-hover:ring-border/30"
               />
               <div className="flex-1 flex flex-col justify-center min-w-0">
-                <h4 className="text-sm font-medium text-foreground leading-tight truncate">{displayName}</h4>
-                <p className="text-xs text-muted-foreground/80 leading-tight truncate">{user.email}</p>
+                <h4 className="text-sm font-medium text-foreground leading-tight truncate group-hover:text-primary transition-colors duration-200">
+                  {displayName}
+                </h4>
+                <p className="text-xs text-muted-foreground/70 leading-tight truncate">
+                  {user.email}
+                </p>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground/80 group-hover:text-foreground transition-colors duration-200" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground/60 group-hover:text-primary group-hover:translate-x-0.5 transition-all duration-200" />
             </Link>
 
             <CreditCounter credits={credits} bonusCredits={bonusCredits} />
@@ -157,20 +163,28 @@ const ProfileMenu = ({
             <div className={cn(
               "grid grid-cols-3 gap-2 p-3 rounded-lg",
               "bg-muted/10 hover:bg-muted/20",
-              "border border-border/10 hover:border-border/20",
-              "transition-colors duration-200"
+              "border-2 border-border/20 hover:border-border/30",
+              "ring-1 ring-border/10 hover:ring-border/20",
+              "transition-all duration-200",
+              "group"
             )}>
-              <div className="text-center">
-                <span className="block text-sm font-medium text-foreground">{followCounts.followers}</span>
-                <span className="text-xs text-muted-foreground/80">Followers</span>
+              <div className="text-center group-hover:scale-105 transition-transform duration-200">
+                <span className="block text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-200">
+                  {followCounts.followers}
+                </span>
+                <span className="text-xs text-muted-foreground/70">Followers</span>
               </div>
-              <div className="text-center">
-                <span className="block text-sm font-medium text-foreground">{followCounts.following}</span>
-                <span className="text-xs text-muted-foreground/80">Following</span>
+              <div className="text-center group-hover:scale-105 transition-transform duration-200">
+                <span className="block text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-200">
+                  {followCounts.following}
+                </span>
+                <span className="text-xs text-muted-foreground/70">Following</span>
               </div>
-              <div className="text-center">
-                <span className="block text-sm font-medium text-foreground">{totalLikes}</span>
-                <span className="text-xs text-muted-foreground/80">Likes</span>
+              <div className="text-center group-hover:scale-105 transition-transform duration-200">
+                <span className="block text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-200">
+                  {totalLikes}
+                </span>
+                <span className="text-xs text-muted-foreground/70">Likes</span>
               </div>
             </div>
 
@@ -180,12 +194,13 @@ const ProfileMenu = ({
                 size="sm" 
                 onClick={() => setNsfwEnabled(!nsfwEnabled)}
                 className={cn(
-                  "h-8 rounded-lg text-xs",
+                  "h-9 rounded-lg text-xs px-4",
+                  "ring-1 ring-border/10 hover:ring-border/20",
                   "transition-all duration-200",
                   nsfwEnabled ? (
-                    "bg-destructive/5 hover:bg-destructive/10 text-destructive/90 hover:text-destructive"
+                    "bg-destructive/10 hover:bg-destructive/20 text-destructive hover:text-destructive"
                   ) : (
-                    "bg-primary/5 hover:bg-primary/10 text-primary/90 hover:text-primary"
+                    "bg-primary/10 hover:bg-primary/20 text-primary hover:text-primary"
                   )
                 )}
               >
@@ -196,13 +211,15 @@ const ProfileMenu = ({
                 size="sm" 
                 onClick={() => logout()}
                 className={cn(
-                  "h-8 rounded-lg text-xs",
-                  "bg-destructive/5 hover:bg-destructive/10",
-                  "text-destructive/90 hover:text-destructive",
-                  "transition-all duration-200"
+                  "h-9 rounded-lg text-xs px-4",
+                  "bg-destructive/10 hover:bg-destructive/20",
+                  "text-destructive hover:text-destructive",
+                  "ring-1 ring-border/10 hover:ring-border/20",
+                  "transition-all duration-200",
+                  "group"
                 )}
               >
-                <LogOut className="w-3.5 h-3.5 mr-1.5" />
+                <LogOut className="w-3.5 h-3.5 mr-1.5 group-hover:rotate-12 transition-transform duration-200" />
                 Sign out
               </Button>
             </div>
@@ -213,12 +230,12 @@ const ProfileMenu = ({
       <AlertDialog open={showImageDialog} onOpenChange={setShowImageDialog}>
         <AlertDialogContent className={cn(
           "sm:max-w-[400px]",
-          "border-border/10 bg-card/95",
+          "border-2 border-border/20 bg-card/98",
           "backdrop-blur-[2px]",
-          "shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
+          "shadow-lg shadow-primary/5"
         )}>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-sm font-medium text-muted-foreground/70 uppercase tracking-wider">
+            <AlertDialogTitle className="text-sm font-medium text-primary/90 uppercase tracking-wider">
               Change Profile Picture
             </AlertDialogTitle>
             <AlertDialogDescription className="text-sm text-foreground/90">
@@ -227,8 +244,9 @@ const ProfileMenu = ({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className={cn(
-              "h-8 rounded-lg text-sm",
-              "bg-muted/5 hover:bg-muted/10",
+              "h-9 rounded-lg text-sm px-4",
+              "bg-muted/10 hover:bg-muted/20",
+              "ring-1 ring-border/10 hover:ring-border/20",
               "transition-all duration-200"
             )}>
               Cancel
@@ -242,8 +260,9 @@ const ProfileMenu = ({
                 input.click();
               }}
               className={cn(
-                "h-8 rounded-lg text-sm",
+                "h-9 rounded-lg text-sm px-4",
                 "bg-primary/90 hover:bg-primary/80",
+                "ring-1 ring-border/10 hover:ring-border/20",
                 "transition-all duration-200"
               )}
             >
