@@ -43,56 +43,56 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={cn(
-        "sm:max-w-[400px] max-h-[80vh] overflow-hidden",
+        "sm:max-w-[350px] max-h-[80vh] overflow-hidden",
         "border-border/10 bg-card/95 backdrop-blur-[2px]",
         "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
-        "p-4"
+        "p-3"
       )}>
-        <DialogHeader className="px-2">
-          <DialogTitle className="text-sm font-medium text-muted-foreground/70 uppercase tracking-wider">Image Details</DialogTitle>
+        <DialogHeader className="px-1">
+          <DialogTitle className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">Image Details</DialogTitle>
         </DialogHeader>
-        <ScrollArea className="mt-4 max-h-[calc(80vh-100px)]">
-          <div className="space-y-6 px-2">
-            <div className="space-y-3">
+        <ScrollArea className="mt-3 max-h-[calc(80vh-80px)]">
+          <div className="space-y-4 px-1">
+            <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <h3 className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">Prompt</h3>
-                <div className="flex gap-2">
+                <div className="flex gap-1.5">
                   <Button 
                     variant="ghost" 
                     size="icon" 
                     className={cn(
-                      "h-7 w-7 p-0 rounded-lg",
+                      "h-6 w-6 p-0 rounded-md",
                       "bg-muted/5 hover:bg-muted/10",
                       "transition-all duration-200"
                     )}
                     onClick={handleCopyPrompt}
                   >
                     {copyIcon === 'copy' ? (
-                      <Copy className="h-4 w-4 text-foreground/70" />
+                      <Copy className="h-3.5 w-3.5 text-foreground/70" />
                     ) : (
-                      <Check className="h-4 w-4 text-primary/90 animate-in zoom-in duration-300" />
+                      <Check className="h-3.5 w-3.5 text-primary/90 animate-in zoom-in duration-300" />
                     )}
                   </Button>
                   <Button 
                     variant="ghost" 
                     size="icon" 
                     className={cn(
-                      "h-7 w-7 p-0 rounded-lg",
+                      "h-6 w-6 p-0 rounded-md",
                       "bg-muted/5 hover:bg-muted/10",
                       "transition-all duration-200"
                     )}
                     onClick={handleShare}
                   >
                     {shareIcon === 'share' ? (
-                      <Share2 className="h-4 w-4 text-foreground/70" />
+                      <Share2 className="h-3.5 w-3.5 text-foreground/70" />
                     ) : (
-                      <Check className="h-4 w-4 text-primary/90 animate-in zoom-in duration-300" />
+                      <Check className="h-3.5 w-3.5 text-primary/90 animate-in zoom-in duration-300" />
                     )}
                   </Button>
                 </div>
               </div>
               <div className={cn(
-                "p-3 rounded-lg",
+                "p-2 rounded-md",
                 "bg-muted/5 hover:bg-muted/10",
                 "border border-border/5",
                 "transition-colors duration-200",
@@ -102,12 +102,12 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               {detailItems.map((item, index) => (
                 <div 
                   key={index} 
                   className={cn(
-                    "space-y-1 p-2.5 rounded-lg",
+                    "space-y-1 p-2 rounded-md",
                     "bg-muted/5 hover:bg-muted/10",
                     "border border-border/5",
                     "transition-colors duration-200",

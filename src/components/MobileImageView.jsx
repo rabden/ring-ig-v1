@@ -176,7 +176,7 @@ const MobileImageView = ({
             </div>
           )}
 
-          <div className="px-4 space-y-6">
+          <div className="px-3 space-y-4">
             {session && (
               <>
                 <ImageOwnerHeader 
@@ -188,19 +188,19 @@ const MobileImageView = ({
                   likeCount={likeCount}
                 />
                 
-                <div className="flex gap-2">
+                <div className="flex gap-1.5">
                   <Button 
                     variant="ghost" 
                     size="sm"
                     onClick={onDownload}
                     className={cn(
-                      "flex-1 h-8 rounded-lg",
+                      "flex-1 h-7 rounded-md text-xs",
                       "bg-muted/5 hover:bg-muted/10",
                       "transition-all duration-200"
                     )}
                   >
-                    <Download className="mr-2 h-4 w-4 text-foreground/70" />
-                    <span className="text-sm">Download</span>
+                    <Download className="mr-1.5 h-3.5 w-3.5 text-foreground/70" />
+                    <span>Download</span>
                   </Button>
                   {isOwner && (
                     <Button 
@@ -208,14 +208,14 @@ const MobileImageView = ({
                       size="sm"
                       onClick={handleDiscardImage}
                       className={cn(
-                        "flex-1 h-8 rounded-lg",
+                        "flex-1 h-7 rounded-md text-xs",
                         "bg-destructive/5 hover:bg-destructive/10",
                         "text-destructive/90 hover:text-destructive",
                         "transition-all duration-200"
                       )}
                     >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      <span className="text-sm">Discard</span>
+                      <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                      <span>Discard</span>
                     </Button>
                   )}
                   <Button 
@@ -223,13 +223,13 @@ const MobileImageView = ({
                     size="sm"
                     onClick={handleRemixClick}
                     className={cn(
-                      "flex-1 h-8 rounded-lg",
+                      "flex-1 h-7 rounded-md text-xs",
                       "bg-muted/5 hover:bg-muted/10",
                       "transition-all duration-200"
                     )}
                   >
-                    <RefreshCw className="mr-2 h-4 w-4 text-foreground/70" />
-                    <span className="text-sm">Remix</span>
+                    <RefreshCw className="mr-1.5 h-3.5 w-3.5 text-foreground/70" />
+                    <span>Remix</span>
                   </Button>
                 </div>
               </>

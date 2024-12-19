@@ -151,7 +151,7 @@ const FullScreenImageView = ({
               src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
               alt={image.prompt}
               className={cn(
-                "max-w-full max-h-[calc(100vh-4rem)]",
+                "max-w-full max-h-[calc(100vh-2rem)]",
                 "object-contain rounded-lg",
                 "transition-all duration-300"
               )}
@@ -160,15 +160,15 @@ const FullScreenImageView = ({
             <HeartAnimation isAnimating={isAnimating} />
           </div>
 
-          <div className="w-[400px] p-4">
+          <div className="w-[350px] p-3">
             <div className={cn(
-              "h-[calc(100vh-32px)] rounded-xl",
+              "h-[calc(100vh-24px)] rounded-lg",
               "border border-border/10 bg-card/95",
               "backdrop-blur-[2px]",
               "shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
             )}>
               <ScrollArea className="h-full">
-                <div className="p-4 space-y-6">
+                <div className="p-3 space-y-4">
                   {session && (
                     <>
                       <ImageOwnerHeader 
@@ -180,19 +180,19 @@ const FullScreenImageView = ({
                         likeCount={likeCount}
                       />
 
-                      <div className="flex gap-2">
+                      <div className="flex gap-1.5">
                         <Button 
                           onClick={onDownload} 
                           variant="ghost" 
                           size="sm"
                           className={cn(
-                            "flex-1 h-8 rounded-lg",
+                            "flex-1 h-7 rounded-md text-xs",
                             "bg-muted/5 hover:bg-muted/10",
                             "transition-all duration-200"
                           )}
                         >
-                          <Download className="mr-2 h-4 w-4 text-foreground/70" />
-                          <span className="text-sm">Download</span>
+                          <Download className="mr-1.5 h-3.5 w-3.5 text-foreground/70" />
+                          <span>Download</span>
                         </Button>
                         {isOwner && (
                           <Button 
@@ -200,14 +200,14 @@ const FullScreenImageView = ({
                             variant="ghost" 
                             size="sm"
                             className={cn(
-                              "flex-1 h-8 rounded-lg",
+                              "flex-1 h-7 rounded-md text-xs",
                               "bg-destructive/5 hover:bg-destructive/10",
                               "text-destructive/90 hover:text-destructive",
                               "transition-all duration-200"
                             )}
                           >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            <span className="text-sm">Discard</span>
+                            <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                            <span>Discard</span>
                           </Button>
                         )}
                         <Button 
@@ -215,13 +215,13 @@ const FullScreenImageView = ({
                           variant="ghost" 
                           size="sm"
                           className={cn(
-                            "flex-1 h-8 rounded-lg",
+                            "flex-1 h-7 rounded-md text-xs",
                             "bg-muted/5 hover:bg-muted/10",
                             "transition-all duration-200"
                           )}
                         >
-                          <RefreshCw className="mr-2 h-4 w-4 text-foreground/70" />
-                          <span className="text-sm">Remix</span>
+                          <RefreshCw className="mr-1.5 h-3.5 w-3.5 text-foreground/70" />
+                          <span>Remix</span>
                         </Button>
                       </div>
                     </>
