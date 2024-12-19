@@ -60,19 +60,19 @@ const ModelGridCard = ({ modelKey, config, isActive, onClick, disabled, proMode 
       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
     />
     {/* Gradient overlay */}
-    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent backdrop-blur-[1px]" />
+    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
     
     {/* Content */}
     <div className="absolute bottom-0 left-0 right-0 p-2.5">
       <div className="flex items-center gap-1.5">
-        <span className="font-medium text-white/90 truncate text-xs">{config.name}</span>
-        {config.isPremium && !proMode && <Lock className="h-3 w-3 flex-shrink-0 text-white/70" />}
+        <span className="font-medium text-white/95 truncate text-xs">{config.name}</span>
+        {config.isPremium && !proMode && <Lock className="h-3 w-3 flex-shrink-0 text-white/80" />}
       </div>
     </div>
 
     {/* Active indicator */}
     {isActive && (
-      <div className="absolute top-2 right-2 h-6 w-6 rounded-md bg-primary/80 text-primary-foreground backdrop-blur-[1px] flex items-center justify-center shadow-sm">
+      <div className="absolute top-2 right-2 h-6 w-6 rounded-md bg-primary/90 text-primary-foreground flex items-center justify-center shadow-sm">
         <Check className="h-3.5 w-3.5" />
       </div>
     )}
@@ -206,13 +206,13 @@ const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) =
             <DrawerHeader className="border-b border-border/5 px-4 py-3">
               <DrawerTitle className="text-base font-medium text-foreground/90">Select Model</DrawerTitle>
             </DrawerHeader>
-            <div className="px-4 py-3">
+            <div className="px-3 py-3">
               <ModelGrid 
                 filteredModels={filteredModels}
                 model={model}
                 setModel={handleModelSelection}
                 proMode={proMode}
-                className="max-h-[90vh]"
+                className="max-h-[80vh]"
               />
             </div>
           </DrawerContent>

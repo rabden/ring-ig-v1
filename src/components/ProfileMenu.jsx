@@ -133,7 +133,7 @@ const ProfileMenu = ({
               className={cn(
                 "flex items-center gap-3 group",
                 "p-2 -m-2 rounded-lg",
-                "bg-muted/5 hover:bg-muted/10",
+                "bg-muted/10 hover:bg-muted/20",
                 "transition-all duration-200"
               )}
             >
@@ -146,31 +146,31 @@ const ProfileMenu = ({
                 className="w-8 h-8 rounded-lg"
               />
               <div className="flex-1 flex flex-col justify-center min-w-0">
-                <h4 className="text-sm font-medium text-foreground/90 leading-tight truncate">{displayName}</h4>
-                <p className="text-xs text-muted-foreground/70 leading-tight truncate">{user.email}</p>
+                <h4 className="text-sm font-medium text-foreground leading-tight truncate">{displayName}</h4>
+                <p className="text-xs text-muted-foreground/80 leading-tight truncate">{user.email}</p>
               </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground/60 group-hover:text-muted-foreground/80 transition-colors duration-200" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground/80 group-hover:text-foreground transition-colors duration-200" />
             </Link>
 
             <CreditCounter credits={credits} bonusCredits={bonusCredits} />
 
             <div className={cn(
               "grid grid-cols-3 gap-2 p-3 rounded-lg",
-              "bg-muted/5 hover:bg-muted/10",
-              "border border-border/5",
+              "bg-muted/10 hover:bg-muted/20",
+              "border border-border/10 hover:border-border/20",
               "transition-colors duration-200"
             )}>
               <div className="text-center">
-                <span className="block text-sm font-medium text-foreground/90">{followCounts.followers}</span>
-                <span className="text-xs text-muted-foreground/60">Followers</span>
+                <span className="block text-sm font-medium text-foreground">{followCounts.followers}</span>
+                <span className="text-xs text-muted-foreground/80">Followers</span>
               </div>
               <div className="text-center">
-                <span className="block text-sm font-medium text-foreground/90">{followCounts.following}</span>
-                <span className="text-xs text-muted-foreground/60">Following</span>
+                <span className="block text-sm font-medium text-foreground">{followCounts.following}</span>
+                <span className="text-xs text-muted-foreground/80">Following</span>
               </div>
               <div className="text-center">
-                <span className="block text-sm font-medium text-foreground/90">{totalLikes}</span>
-                <span className="text-xs text-muted-foreground/60">Likes</span>
+                <span className="block text-sm font-medium text-foreground">{totalLikes}</span>
+                <span className="text-xs text-muted-foreground/80">Likes</span>
               </div>
             </div>
 

@@ -26,14 +26,14 @@ const AspectRatioVisualizer = ({ ratio = "1:1", isPremium }) => {
       >
         <div className={cn(
           "flex items-center gap-2 px-3 py-1.5 rounded-lg",
-          "bg-background/90 backdrop-blur-[1px] border border-border/10",
-          "text-sm font-medium text-foreground/90",
+          "bg-background/95 border border-border/20",
+          "text-sm font-medium text-foreground",
           "shadow-sm",
           "transition-all duration-200"
         )}>
           {ratio}
           {isPremium && (
-            <Lock className="h-3.5 w-3.5 text-primary/80" />
+            <Lock className="h-3.5 w-3.5 text-primary" />
           )}
         </div>
       </div>

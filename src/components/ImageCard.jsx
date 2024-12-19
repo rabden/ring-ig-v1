@@ -82,7 +82,7 @@ const ImageCard = ({
 
   return (
     <>
-      <div className="mb-6 group">
+      <div className="mb-3 group">
         <Card className={cn(
           "overflow-hidden rounded-2xl border-border/10 bg-card/95",
           "backdrop-blur-[2px] shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
@@ -106,7 +106,7 @@ const ImageCard = ({
             />
           </CardContent>
         </Card>
-        <div className="mt-1.5 flex items-center justify-between gap-2">
+        <div className="mt-0.5 flex items-center justify-between gap-2">
           <p className={cn(
             "text-sm truncate w-[70%]",
             "text-muted-foreground/70 group-hover:text-muted-foreground/90",
