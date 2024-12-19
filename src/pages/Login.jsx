@@ -7,36 +7,73 @@ import { Typewriter } from 'react-simple-typewriter';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const messages = [
-  { 
-    text: "Create stunning AI art with a single prompt", 
-    image: "https://i.ibb.co.com/TgcCsdf/HDRDC2.webp"
-  },
-  { 
-    text: "Transform your imagination into reality", 
-    image: "https://i.ibb.co.com/88P57s7/ID2.png"
-  },
-  { 
-    text: "Generate multiple styles with one click", 
-    image: "https://i.ibb.co.com/k2YdjZK/images-example-7y3r4uk1q.jpg"
-  },
-  { 
-    text: "Share and remix creations with the community", 
-    image: "https://i.ibb.co.com/sbmM5mp/3d-style-2.jpg"
-  },
-  { 
-    text: "Fine-tune your art with advanced controls", 
-    image: "https://i.ibb.co.com/8PnDLkf/1.png"
-  }
+const texts = [
+  "Create stunning AI art with a single prompt",
+  "Transform your imagination into reality",
+  "Generate multiple styles with one click",
+  "Share and remix creations with the community",
+  "Fine-tune your art with advanced controls",
+  "Explore endless creative possibilities",
+  "Join a community of AI artists"
+];
+
+const images = [
+  "https://i.ibb.co.com/TgcCsdf/HDRDC2.webp",
+  "https://i.ibb.co.com/88P57s7/ID2.png",
+  "https://i.ibb.co.com/k2YdjZK/images-example-7y3r4uk1q.jpg",
+  "https://i.ibb.co.com/sbmM5mp/3d-style-2.jpg",
+  "https://i.ibb.co.com/8PnDLkf/1.png"
 ];
 
 const DISPLAY_DURATION = 5000;
+const TYPE_DELAY = 2000;
+
+const TypewriterWrapper = () => {
+  const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsVisible(false);
+      setTimeout(() => {
+        setCurrentTextIndex((prev) => (prev + 1) % texts.length);
+        setIsVisible(true);
+      }, 300); // Short delay for smooth transition
+    }, TYPE_DELAY + 2000); // Wait for typing + 2 seconds display
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <AnimatePresence mode="wait">
+      {isVisible && (
+        <motion.div
+          key={currentTextIndex}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Typewriter
+            words={[texts[currentTextIndex]]}
+            cursor
+            cursorStyle="|"
+            typeSpeed={50}
+            deleteSpeed={0}
+            delaySpeed={0}
+            loop={false}
+          />
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
 
 const Login = () => {
   const { session, loading } = useSupabaseAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isImageLoading, setIsImageLoading] = useState(true);
 
   useEffect(() => {
@@ -48,7 +85,7 @@ const Login = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % messages.length);
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
       setIsImageLoading(true);
     }, DISPLAY_DURATION);
 
@@ -70,13 +107,13 @@ const Login = () => {
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="w-full md:w-3/5 md:min-h-screen relative rounded-none md:rounded-r-[32px] overflow-hidden"
+        className="w-full md:w-3/5 md:min-h-screen relative overflow-hidden"
       >
         <div className="relative w-full pb-[100%] md:pb-0 md:h-full">
           <div className="absolute inset-0">
             <AnimatePresence mode="wait">
               <motion.div
-                key={currentIndex}
+                key={currentImageIndex}
                 initial={{ opacity: 0, scale: 1.1 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
@@ -84,12 +121,14 @@ const Login = () => {
                 className="absolute inset-0"
               >
                 <div className={cn(
-                  "absolute inset-0 bg-gradient-to-b from-background/0 via-background/0 to-background/90",
-                  "md:bg-gradient-to-r md:from-background/0 md:via-background/0 md:to-background/90",
+                  "absolute inset-0",
+                  "bg-[linear-gradient(to_bottom,transparent_0%,rgba(255,255,255,0.1)_50%,rgba(255,255,255,0.2)_100%)]",
+                  "md:bg-[linear-gradient(to_right,transparent_0%,rgba(255,255,255,0.1)_50%,rgba(255,255,255,0.2)_100%)]",
+                  "backdrop-blur-[2px]",
                   "z-10"
                 )} />
                 <img
-                  src={messages[currentIndex].image}
+                  src={images[currentImageIndex]}
                   alt="Feature showcase"
                   onLoad={() => setIsImageLoading(false)}
                   className={cn(
@@ -122,15 +161,7 @@ const Login = () => {
               Welcome to Ring
             </h1>
             <p className="text-base md:text-xl text-foreground/70 min-h-[3rem] font-normal">
-              <Typewriter
-                words={messages.map(msg => msg.text)}
-                cursor
-                cursorStyle="_"
-                typeSpeed={50}
-                deleteSpeed={30}
-                delaySpeed={2000}
-                loop={true}
-              />
+              <TypewriterWrapper />
             </p>
           </motion.div>
 

@@ -568,3 +568,77 @@ xl: '1280px'
 - Reusable utility classes
 
 This styling guide provides a comprehensive foundation for maintaining consistency across the application while ensuring a modern, accessible, and performant user interface. The system is designed to be flexible enough to accommodate future changes while maintaining a cohesive visual language.
+
+# Login Page Notes
+
+## Current Structure
+- Login page with split layout (left: images, right: auth UI)
+- Images and texts are now separated into different arrays
+- Modern reflection effect with subtle blur
+- No border radius on image section
+
+## Implemented Changes
+1. ✅ Separated messages array into:
+   - `texts` array with 7 different messages
+   - `images` array with 5 different images
+2. ✅ Replaced black gradient shadow with:
+   - Modern reflection effect using linear gradients
+   - Added subtle backdrop blur for depth
+   - Used white-based gradients for a modern look
+3. ✅ Removed border radius from image container
+4. ✅ Updated animation logic to work with separate arrays
+5. ✅ Improved text animation:
+   - Created custom TypewriterWrapper component
+   - Text now types in, stays for 2 seconds, fades out
+   - Smooth transition between texts using AnimatePresence
+   - No deletion animation, just clean fade transitions
+
+## Technical Details
+- Using Framer Motion for animations
+- Using Tailwind CSS for styling
+- Display duration: 5000ms
+- New reflection effect:
+  - Bottom gradient for mobile: `transparent → rgba(255,255,255,0.1) → rgba(255,255,255,0.2)`
+  - Right gradient for desktop: Same as above but horizontal
+  - Added `backdrop-blur-[2px]` for depth
+- Typewriter timing:
+  - Type speed: 50ms per character
+  - Display duration: 2000ms after typing
+  - Transition duration: 300ms for fade effects
+
+## Additional Improvements
+- Added more text variations (7 total) while keeping 5 images
+- Maintained smooth transitions and loading states
+- Kept responsive design intact
+- Enhanced text animations with fade transitions
+
+# Color Scheme Update
+
+## Dark Theme Colors
+Updated the dark theme with a modern, cohesive color palette:
+
+### Base Colors
+- Background: `224 71% 4%` (Deep blue-black)
+- Foreground: `213 31% 91%` (Soft white)
+- Card/Popover: Matches background for consistency
+
+### Primary Colors
+- Primary: `210 40% 98%` (Bright white-blue)
+- Primary Foreground: `222.2 47.4% 11.2%` (Dark blue)
+
+### Secondary & Accent
+- Secondary: `222.2 47.4% 11.2%` (Dark blue)
+- Accent: `216 34% 17%` (Muted blue)
+- Both with light foregrounds for contrast
+
+### UI Elements
+- Muted: `223 47% 11%` (Dark blue-gray)
+- Border/Input/Ring: `216 34% 17%` (Consistent accent color)
+- Destructive: `0 63% 31%` (Deep red)
+
+### Design Choices
+1. More saturated background for depth
+2. Better contrast ratios for accessibility
+3. Consistent blue undertones throughout
+4. Simplified color repetition for cohesion
+5. Softer foreground colors for reduced eye strain
