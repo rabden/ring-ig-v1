@@ -307,3 +307,264 @@
 - Reduced opacity for better visual hierarchy
 - Improved disabled states
 - Enhanced overall user experience
+
+This is a React+Vite+Tailwind+Javascirpt project, Its goal is to make a AI image generator Called Ring-Ig.
+
+We have these pages: @ImageGenerator.jsx , @UserProfile.jsx , @PublicProfile.jsx , @Login.jsx , @Inspiration.jsx , @Documentation.jsx
+
+We use supabase provider for: auth, storage, datatables
+
+we use huggingface serverless inference api call @useImageGeneration.js @imageUtils.js for image generation and offer a lot of models @modelConfig.js .
+
+we use a credit system @useUserCredits.js @usePromptCredits.js @usePromptImprovement.js @promptImprovement.js that allocates 50 daily credits and bonus credits to user and apply special conditions for credit deduction on image generation and also have a pro system that includes some features to be pro and only pro users can acces them @useProUser.js
+
+we have a retry system that allows to retry image generation when fails @retryUtils.js
+
+# Ring IG Design System & Styling Guide
+
+## 1. Core Design Principles
+
+### Visual Aesthetics
+- **Subtle & Calming**: Uses soft colors, reduced opacity, and gentle transitions
+- **Modern & Clean**: Emphasizes whitespace and clear visual hierarchy
+- **Consistent Roundness**: Unified border-radius approach across components
+- **Depth & Layering**: Strategic use of backdrop blur and shadows
+- **Fluid Interactions**: Smooth transitions and micro-animations
+
+### Color Philosophy
+```css
+/* Base Colors */
+--background: Subtle, dark theme background
+--foreground: High contrast text (90% opacity for primary text)
+--muted-foreground: Secondary text (60-70% opacity)
+--primary: Brand color with reduced opacity (80-90%)
+--accent: Interactive elements with very low opacity (5-10%)
+--border: Subtle borders with low opacity (5-10%)
+```
+
+## 2. Component Architecture
+
+### Common Component Properties
+```css
+/* Base Component Styling */
+.component {
+  /* Background & Blur */
+  background-color: rgb(var(--card)/95%);
+  backdrop-filter: blur(2px);
+  
+  /* Border & Shadow */
+  border: 1px solid rgb(var(--border)/10%);
+  border-radius: theme(borderRadius.xl); /* 12px */
+  box-shadow: 0 8px 30px rgb(0 0 0 / 0.06);
+  
+  /* Transitions */
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hover States */
+.component:hover {
+  border-color: rgb(var(--border)/20%);
+  box-shadow: 0 8px 30px rgb(0 0 0 / 0.08);
+}
+```
+
+### Border Radius Scale
+- **Extra Small**: `rounded-lg` (8px) - Small buttons, badges
+- **Regular**: `rounded-xl` (12px) - Cards, inputs, dropdowns
+- **Large**: `rounded-2xl` (16px) - Modal dialogs, large cards
+- **Extra Large**: `rounded-[24px]` - Full-screen modals
+
+## 3. Interactive Elements
+
+### Buttons
+```css
+/* Base Button */
+.button {
+  height: 32px; /* h-8 */
+  padding: 0 16px;
+  border-radius: theme(borderRadius.xl);
+  font-size: 14px;
+  transition: all 200ms;
+}
+
+/* Variants */
+.button-primary {
+  background: rgb(var(--primary)/90%);
+  hover:background: rgb(var(--primary)/80%);
+}
+
+.button-ghost {
+  background: rgb(var(--muted)/5%);
+  hover:background: rgb(var(--accent)/10%);
+}
+```
+
+### Inputs & Form Elements
+```css
+.input {
+  /* Base */
+  height: 36px;
+  padding: 8px 12px;
+  border-radius: theme(borderRadius.xl);
+  
+  /* States */
+  background: rgb(var(--secondary)/20%);
+  hover:background: rgb(var(--secondary)/30%);
+  focus:ring: 1px rgb(var(--ring));
+  
+  /* Placeholder */
+  placeholder:color: rgb(var(--muted-foreground)/40%);
+}
+```
+
+## 4. Layout Components
+
+### Cards
+```css
+.card {
+  /* Base */
+  background: rgb(var(--card)/95%);
+  backdrop-filter: blur(2px);
+  border: 1px solid rgb(var(--border)/10%);
+  border-radius: theme(borderRadius.2xl);
+  
+  /* Shadow */
+  box-shadow: 0 8px 30px rgb(0 0 0 / 0.06);
+  hover:box-shadow: 0 8px 30px rgb(0 0 0 / 0.08);
+  
+  /* Content Spacing */
+  padding: 24px;
+  gap: 16px;
+}
+```
+
+### Dialogs & Modals
+```css
+.dialog {
+  /* Overlay */
+  background: rgb(0 0 0 / 60%);
+  backdrop-filter: blur(2px);
+  
+  /* Content */
+  border-radius: 28px;
+  padding: 32px;
+  background: rgb(var(--card)/95%);
+  border: 1px solid rgb(var(--border)/10%);
+}
+```
+
+## 5. Animation & Transitions
+
+### Duration Scale
+- **Fast**: 200ms - Hover states, small interactions
+- **Medium**: 300ms - Modals, drawers, larger state changes
+- **Slow**: 500ms - Page transitions, complex animations
+
+### Common Animations
+```css
+/* Fade In */
+.fade-in {
+  animation: fadeIn 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Scale */
+.scale {
+  transform: scale(0.95);
+  transition: transform 200ms;
+}
+.scale:hover {
+  transform: scale(1);
+}
+```
+
+## 6. Typography
+
+### Text Hierarchy
+```css
+/* Headings */
+.heading {
+  color: rgb(var(--foreground)/90%);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+/* Body Text */
+.body {
+  color: rgb(var(--foreground)/70%);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Muted Text */
+.muted {
+  color: rgb(var(--muted-foreground)/60%);
+  font-size: 12px;
+}
+```
+
+## 7. Responsive Design
+
+### Breakpoints
+```css
+/* Mobile First Approach */
+sm: '640px'
+md: '768px'
+lg: '1024px'
+xl: '1280px'
+2xl: '1536px'
+```
+
+### Mobile Optimizations
+- Increased touch targets (min 44px)
+- Simplified layouts
+- Full-width components
+- Bottom sheet patterns instead of dropdowns
+
+## 8. State Management
+
+### Interactive States
+```css
+/* Default */
+.default {
+  opacity: 90%;
+}
+
+/* Hover */
+.hover {
+  opacity: 100%;
+  background: rgb(var(--accent)/10%);
+}
+
+/* Active */
+.active {
+  background: rgb(var(--accent)/20%);
+}
+
+/* Disabled */
+.disabled {
+  opacity: 40%;
+  pointer-events: none;
+}
+```
+
+## 9. Best Practices
+
+### Performance
+- Use `transform` and `opacity` for animations
+- Implement will-change for heavy animations
+- Lazy load images and heavy content
+- Use responsive images with correct sizing
+
+### Accessibility
+- Maintain color contrast ratios (WCAG 2.1)
+- Proper focus states with visible indicators
+- Semantic HTML structure
+- ARIA labels for interactive elements
+
+### Maintainability
+- Use CSS variables for theme values
+- Implement consistent naming conventions
+- Modular component structure
+- Reusable utility classes
+
+This styling guide provides a comprehensive foundation for maintaining consistency across the application while ensuring a modern, accessible, and performant user interface. The system is designed to be flexible enough to accommodate future changes while maintaining a cohesive visual language.

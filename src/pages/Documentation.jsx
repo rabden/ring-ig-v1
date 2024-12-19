@@ -28,6 +28,7 @@ import {
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useModelConfigs } from '@/hooks/useModelConfigs';
+import { cn } from '@/lib/utils';
 
 const sections = [
   { id: 'getting-started', title: 'Getting Started', icon: Play },
@@ -41,6 +42,10 @@ const glowStyles = {
   heroGlow: "after:absolute after:inset-0 after:bg-[radial-gradient(ellipse_at_center,rgba(var(--primary-rgb),0.15),transparent_50%)] after:animate-mesh after:-z-10",
   cardGlow: "after:absolute after:inset-0 after:bg-[radial-gradient(ellipse_at_center,rgba(var(--primary-rgb),0.1),transparent_50%)] after:animate-mesh after:-z-10",
   textGlow: "text-shadow-glow",
+  cardHover: "hover:shadow-lg hover:shadow-primary/10 hover:border-primary/20 transition-all duration-300",
+  gradientBg: "bg-gradient-to-br from-background/95 via-background/98 to-primary/5",
+  gradientText: "bg-gradient-to-r from-primary via-primary/80 to-foreground bg-clip-text text-transparent",
+  buttonGradient: "bg-gradient-to-r from-primary/90 to-primary/80 hover:from-primary/80 hover:to-primary/70",
 };
 
 const FeatureCard = ({ icon: Icon, title, description }) => (
@@ -48,17 +53,23 @@ const FeatureCard = ({ icon: Icon, title, description }) => (
     initial={{ opacity: 0, y: 20 }}
     whileInView={{ opacity: 1, y: 0 }}
     viewport={{ once: true }}
-    transition={{ duration: 0.5 }}
-    className="group hover:-translate-y-1 transition-all duration-300"
+    transition={{ duration: 0.3 }}
+    whileHover={{ y: -4 }}
+    className="group"
   >
-    <Card className="p-6 h-full hover:shadow-lg transition-shadow">
-      <div className="flex items-start gap-4">
-        <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+    <Card className={cn(
+      "p-6 h-full relative overflow-hidden rounded-2xl border-border/10",
+      glowStyles.cardHover,
+      glowStyles.gradientBg
+    )}>
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="flex items-start gap-4 relative">
+        <div className="p-3 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors duration-300">
           <Icon className="h-6 w-6 text-primary" />
         </div>
         <div>
-          <h3 className="text-xl font-semibold mb-2">{title}</h3>
-          <p className="text-muted-foreground">{description}</p>
+          <h3 className={cn("text-xl font-medium mb-2", glowStyles.gradientText)}>{title}</h3>
+          <p className="text-muted-foreground/70 group-hover:text-foreground/80 transition-colors duration-300">{description}</p>
         </div>
       </div>
     </Card>
@@ -71,15 +82,22 @@ const VideoPlaceholder = ({ title }) => (
     whileInView={{ opacity: 1, scale: 1 }}
     viewport={{ once: true }}
     whileHover={{ scale: 1.02 }}
-    className="relative aspect-video rounded-lg bg-muted/30 overflow-hidden group cursor-pointer"
+    className={cn(
+      "relative aspect-video rounded-2xl overflow-hidden group cursor-pointer",
+      glowStyles.gradientBg
+    )}
   >
-    <div className="absolute inset-0 flex items-center justify-center">
-      <div className="p-4 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
+    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+    <div className="absolute inset-0 flex items-center justify-center backdrop-blur-[2px]">
+      <motion.div 
+        whileHover={{ scale: 1.1 }}
+        className="p-4 rounded-full bg-primary/20 group-hover:bg-primary/30 transition-all duration-300 border border-primary/20"
+      >
         <Play className="h-8 w-8 text-primary" />
-      </div>
+      </motion.div>
     </div>
-    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background/80 to-transparent">
-      <p className="text-sm font-medium">{title}</p>
+    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background/95 to-transparent backdrop-blur-[1px]">
+      <p className="text-sm font-medium group-hover:text-primary transition-colors duration-300">{title}</p>
     </div>
   </motion.div>
 );
@@ -94,33 +112,58 @@ const InteractivePromptBuilder = () => {
   };
 
   return (
-    <div className="space-y-4">
-      <div className="bg-muted/30 p-4 rounded-lg">
-        <div className="flex justify-between items-center mb-2">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="space-y-4"
+    >
+      <div className={cn(
+        "bg-muted/30 p-4 rounded-lg relative overflow-hidden",
+        glowStyles.cardHover
+      )}>
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        <div className="flex justify-between items-center mb-2 relative">
           <p className="text-sm font-medium">Your Prompt</p>
           <Button 
             variant="ghost" 
             size="sm"
             onClick={() => setShowEnhanced(false)}
-            className="text-xs"
+            className="text-xs hover:text-primary transition-colors"
           >
             Reset
           </Button>
         </div>
-        <p className="text-muted-foreground">{prompt}</p>
+        <motion.p 
+          key={prompt}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-muted-foreground"
+        >
+          {prompt}
+        </motion.p>
       </div>
       {!showEnhanced && (
-        <Button 
-          variant="outline" 
-          size="sm" 
-          onClick={enhancePrompt}
-          className="w-full"
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
         >
-          <Wand2 className="w-4 h-4 mr-2" />
-          Enhance Prompt
-        </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={enhancePrompt}
+            className={cn(
+              "w-full group relative overflow-hidden",
+              glowStyles.cardHover
+            )}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <Wand2 className="w-4 h-4 mr-2 text-primary" />
+            <span className="relative">Enhance Prompt</span>
+          </Button>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 };
 
@@ -153,17 +196,15 @@ const ModelShowcase = () => {
 
   return (
     <div className="relative">
-      {/* Background gradient for the section */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(var(--primary-rgb),0.15),transparent_50%)] animate-mesh" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(var(--primary-rgb),0.15),transparent_50%)] animate-mesh" />
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center relative">
-        {/* Model Info */}
         <motion.div
           key={currentModel?.id}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: 20 }}
           transition={{ duration: 1, ease: "easeInOut" }}
           className="space-y-6 relative"
         >
@@ -174,7 +215,11 @@ const ModelShowcase = () => {
             >
               Model
             </Badge>
-            <h3 className={`text-2xl font-bold mb-2 bg-gradient-to-r from-primary via-primary/80 to-transparent bg-clip-text text-transparent ${glowStyles.textGlow}`}>
+            <h3 className={cn(
+              "text-2xl font-bold mb-2",
+              glowStyles.gradientText,
+              glowStyles.textGlow
+            )}>
               {currentModel?.name}
             </h3>
             <p className="text-muted-foreground backdrop-blur-sm">{currentModel?.description}</p>
@@ -198,12 +243,11 @@ const ModelShowcase = () => {
           </div>
         </motion.div>
 
-        {/* Model Image */}
         <motion.div
           key={`image-${currentModel?.id}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 1.05 }}
           transition={{ duration: 1, ease: "easeInOut" }}
           className="relative aspect-square rounded-lg overflow-hidden shadow-2xl shadow-primary/20"
         >
@@ -368,9 +412,9 @@ const Documentation = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background/95 backdrop-blur-sm">
       {/* Hero Section */}
-      <div className={`relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-background border-b`}>
+      <div className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background/98 to-background border-b border-border/10">
         {/* Background gradients */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(var(--primary-rgb),0.15),transparent_50%)] animate-mesh pointer-events-none" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(var(--primary-rgb),0.15),transparent_50%)] animate-mesh pointer-events-none" />
@@ -378,35 +422,42 @@ const Documentation = () => {
         <div className="container max-w-6xl mx-auto px-4 py-8 md:py-16 lg:py-24 relative">
           <Link 
             to="/" 
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors relative z-10"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors relative z-10 group"
           >
-            <ArrowLeft className="w-4 h-4" />
-            Back to App
+            <ArrowLeft className="w-4 h-4 group-hover:text-primary transition-colors duration-300" />
+            <span className="group-hover:text-primary transition-colors duration-300">Back to App</span>
           </Link>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center mt-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.3 }}
               className="relative z-10 space-y-6"
             >
               <Badge 
-                className="mb-4 bg-gradient-to-r from-primary/20 via-primary/30 to-primary/10 backdrop-blur-sm" 
+                className="mb-4 bg-gradient-to-r from-primary/20 via-primary/30 to-primary/10 backdrop-blur-sm border-primary/20" 
                 variant="secondary"
               >
                 Documentation
               </Badge>
-              <h1 className={`text-3xl md:text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent ${glowStyles.textGlow}`}>
+              <h1 className={cn(
+                "text-3xl md:text-4xl lg:text-5xl font-medium tracking-tight",
+                glowStyles.gradientText,
+                glowStyles.textGlow
+              )}>
                 Create Amazing AI Art
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground mb-8 backdrop-blur-sm">
+              <p className="text-lg md:text-xl text-foreground/70 backdrop-blur-sm">
                 Learn how to use our powerful AI image generation platform to bring your creative vision to life.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 mt-8">
                 <Button 
                   size="lg" 
-                  className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                  className={cn(
+                    glowStyles.buttonGradient,
+                    "rounded-xl"
+                  )}
                   onClick={() => window.open('https://www.youtube.com/watch?v=your-tutorial-id', '_blank')}
                 >
                   <Play className="w-4 h-4 mr-2" />
@@ -415,6 +466,7 @@ const Documentation = () => {
                 <Button 
                   variant="outline" 
                   size="lg"
+                  className="rounded-xl border-primary/20 hover:bg-primary/10"
                   onClick={() => {
                     const docsElement = document.getElementById('features');
                     if (docsElement) {
@@ -433,15 +485,20 @@ const Documentation = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 1, ease: "easeInOut" }}
-              className={`relative aspect-square rounded-lg overflow-hidden shadow-2xl shadow-primary/20 ${glowStyles.heroGlow} hidden md:block`}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className={cn(
+                "relative aspect-square rounded-2xl overflow-hidden shadow-2xl shadow-primary/20",
+                glowStyles.heroGlow,
+                "hidden md:block"
+              )}
             >
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/80" />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/90" />
               <img
                 src={heroImages[currentHeroImage]}
                 alt="AI Art Example"
                 className="w-full h-full object-cover"
               />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(var(--primary-rgb),0.1),transparent_70%)] animate-mesh" />
             </motion.div>
           </div>
         </div>

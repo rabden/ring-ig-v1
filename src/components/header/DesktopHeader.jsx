@@ -6,6 +6,7 @@ import SearchBar from '../search/SearchBar';
 import NotificationBell from '../notifications/NotificationBell';
 import PrivateFilterButton from '../filters/PrivateFilterButton';
 import InspirationFilterButtons from '../filters/InspirationFilterButtons';
+import { cn } from '@/lib/utils';
 
 const DesktopHeader = ({ 
   user, 
@@ -28,9 +29,14 @@ const DesktopHeader = ({
 
   return (
     <>
-      <div className="hidden md:block fixed top-0 left-0 right-0 bg-background/90 backdrop-blur-[2px] z-10 h-12 border-b border-border/10 shadow-sm">
+      <div className={cn(
+        "hidden md:block fixed top-0 left-0 right-0 z-10 h-12",
+        "bg-background/95 backdrop-blur-[2px]",
+        "border-b border-border/10",
+        "shadow-sm"
+      )}>
         <div className="flex justify-between items-center h-full px-4 max-w-full">
-          <div className="flex items-center gap-2 whitespace-nowrap">
+          <div className="flex items-center gap-3">
             <div className="h-8">
               <ProfileMenu 
                 user={user} 
@@ -45,6 +51,13 @@ const DesktopHeader = ({
             </div>
             <ActionButtons 
               generatingImages={generatingImages}
+              className="gap-3"
+              buttonClassName={cn(
+                "h-8 rounded-lg px-3",
+                "bg-transparent hover:bg-muted/10",
+                "text-foreground/70 hover:text-foreground",
+                "transition-colors duration-200"
+              )}
             />
             {isMyImages && (
               <PrivateFilterButton
@@ -58,6 +71,12 @@ const DesktopHeader = ({
                 showTop={showTop}
                 onFollowingChange={onFollowingChange}
                 onTopChange={onTopChange}
+                buttonClassName={cn(
+                  "h-8 rounded-lg px-3",
+                  "bg-transparent hover:bg-muted/10",
+                  "text-foreground/70 hover:text-foreground",
+                  "transition-colors duration-200"
+                )}
               />
             )}
             <SearchBar onSearch={onSearch} />

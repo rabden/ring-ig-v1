@@ -13,27 +13,48 @@ const AspectRatioVisualizer = ({ ratio = "1:1", isPremium }) => {
     <div className="flex flex-col items-center space-y-3 mb-4">
       <div 
         className={cn(
-          "relative border border-border/30 bg-muted/20 rounded-xl",
+          "relative overflow-hidden",
+          "border border-border/20 hover:border-border/30",
+          "bg-muted/20 hover:bg-muted/30",
+          "rounded-2xl",
           "flex items-center justify-center",
-          "shadow-[0_8px_30px_rgb(0,0,0,0.12)]",
-          "transition-all duration-300 ease-in-out",
-          isPremium && "ring-2 ring-primary/40 border-primary/40"
+          "shadow-lg shadow-primary/5",
+          "transition-all duration-200 ease-in-out",
+          isPremium && "ring-2 ring-primary/30 border-primary/30"
         )}
         style={{
           width: `${scaledWidth}px`,
           height: `${maxHeight}px`,
         }}
       >
+        {/* Grid lines */}
+        <div className="absolute inset-0 grid grid-cols-3 grid-rows-3">
+          {[...Array(9)].map((_, i) => (
+            <div 
+              key={i} 
+              className="border border-border/5"
+            />
+          ))}
+        </div>
+        
+        {/* Center lines */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="w-full h-px bg-border/10" />
+          <div className="absolute h-full w-px bg-border/10" />
+        </div>
+
         <div className={cn(
-          "flex items-center gap-2 px-3.5 py-2 rounded-lg",
-          "bg-background/95 border border-border/30",
-          "text-sm font-medium text-foreground",
+          "relative flex items-center gap-2 px-4 py-2 rounded-xl",
+          "bg-background/95 backdrop-blur-[1px]",
+          "border border-border/20",
+          "text-sm font-medium text-foreground/90",
           "shadow-sm",
-          "transition-all duration-200"
+          "transition-all duration-200",
+          "hover:border-border/30 hover:bg-background/98"
         )}>
           {ratio}
           {isPremium && (
-            <Lock className="h-3.5 w-3.5 text-primary" />
+            <Lock className="h-3.5 w-3.5 text-primary/90" />
           )}
         </div>
       </div>
@@ -50,10 +71,8 @@ const AspectRatioChooser = ({ aspectRatio = "1:1", setAspectRatio, proMode }) =>
     "5:4", "4:3", "3:2", "16:10", "16:9", "2:1", "21:9"
   ].filter(ratio => proMode || !premiumRatios.includes(ratio));
 
-  // Check if current aspect ratio is premium and user is not pro
   useEffect(() => {
     if (!proMode && premiumRatios.includes(aspectRatio)) {
-      // Revert to default non-premium aspect ratio
       setAspectRatio("1:1");
     }
   }, [aspectRatio, proMode, setAspectRatio]);
@@ -108,7 +127,7 @@ const AspectRatioChooser = ({ aspectRatio = "1:1", setAspectRatio, proMode }) =>
           onValueChange={handleSliderChange}
           max={100}
           step={1}
-          className="w-full transition-all duration-300"
+          className="w-full"
         />
       </div>
     </div>
