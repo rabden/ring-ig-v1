@@ -29,47 +29,19 @@ const images = [
   "https://i.ibb.co.com/nkxPsYG/images-2.jpg"
 ];
 
-const DISPLAY_DURATION = 5000;
-const TYPE_DELAY = 2000;
+const DISPLAY_DURATION = 10000;
 
 const TypewriterWrapper = () => {
-  const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  const [isVisible, setIsVisible] = useState(true);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsVisible(false);
-      setTimeout(() => {
-        setCurrentTextIndex((prev) => (prev + 1) % texts.length);
-        setIsVisible(true);
-      }, 300); // Short delay for smooth transition
-    }, TYPE_DELAY + 2000); // Wait for typing + 2 seconds display
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
-    <AnimatePresence mode="wait">
-      {isVisible && (
-        <motion.div
-          key={currentTextIndex}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Typewriter
-            words={[texts[currentTextIndex]]}
-            cursor
-            cursorStyle="|"
-            typeSpeed={50}
-            deleteSpeed={0}
-            delaySpeed={0}
-            loop={false}
-          />
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <Typewriter
+      words={texts}
+      loop={true}
+      cursor={true}
+      cursorStyle="|"
+      typeSpeed={50}
+      deleteSpeed={30}
+      delaySpeed={2000}
+    />
   );
 };
 

@@ -576,31 +576,34 @@ This styling guide provides a comprehensive foundation for maintaining consisten
 - Images and texts are now separated into different arrays
 - Custom reflection effect with dynamic positioning
 - No border radius on image section
+- Simplified typewriter effect
 
 ## Implemented Changes
-1. ✅ Fixed image blurriness:
+1. ✅ Simplified Typewriter:
+   - Removed custom wrapper logic
+   - Using direct Typewriter component
+   - Consistent typing and deletion speed
+   - 2-second delay between texts
+   - Continuous loop through all texts
+2. ✅ Fixed image blurriness:
    - Removed blur effect during loading
    - Added high-quality image rendering attributes
    - Using opacity for transitions instead of blur
-2. ✅ Added custom reflection effect:
+3. ✅ Added custom reflection effect:
    - Bottom reflection on mobile (full width, 1/3 height)
    - Right side reflection on desktop (1/3 width, full height)
    - Hover effect increases reflection opacity
    - Smooth transitions between states
-3. ✅ Improved image loading:
-   - Clean fade in/out transitions
-   - No scale effect during loading
-   - Better performance with transform-gpu
-4. ✅ Enhanced reflection styling:
-   - Uses mask gradients for fade effect
-   - Flips image vertically on mobile
-   - Flips image horizontally on desktop
-   - 30% base opacity, 40% on hover
 
 ## Technical Details
 - Using Framer Motion for animations
 - Using Tailwind CSS for styling
 - Display duration: 5000ms
+- Typewriter settings:
+  - Type speed: 50ms
+  - Delete speed: 30ms
+  - Delay between texts: 2000ms
+  - Continuous loop enabled
 - Image improvements:
   - Added `imageRendering: "high-quality"`
   - Added `WebkitImageSmoothing: "high"`
