@@ -16,8 +16,8 @@ import {
 const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, disabled, proMode }) => (
   <div
     className={cn(
-      "flex items-center gap-3 p-3 rounded-lg transition-all duration-200",
-      isActive ? "bg-muted/5 shadow-[0_0_0_1px_rgba(var(--primary),.15)] mx-4" : "border border-border/10 hover:bg-muted/5 hover:border-border/20",
+      "flex items-center gap-3 transition-all duration-200",
+      isActive ? "bg-muted/5 shadow-[0_0_0_1px_rgba(var(--primary),.15)]" : "border border-border/10 hover:bg-muted/5 hover:border-border/20 p-3 rounded-lg",
       "bg-card",
       disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-[0.98]"
     )}

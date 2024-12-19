@@ -13,11 +13,11 @@ const AspectRatioVisualizer = ({ ratio = "1:1", isPremium }) => {
     <div className="flex flex-col items-center space-y-3 mb-4">
       <div 
         className={cn(
-          "relative border border-border/20 bg-muted/10 rounded-xl",
+          "relative border border-border/30 bg-muted/20 rounded-xl",
           "flex items-center justify-center",
-          "shadow-[0_8px_30px_rgb(0,0,0,0.08)]",
+          "shadow-[0_8px_30px_rgb(0,0,0,0.12)]",
           "transition-all duration-300 ease-in-out",
-          isPremium && "ring-2 ring-primary/30 border-primary/30"
+          isPremium && "ring-2 ring-primary/40 border-primary/40"
         )}
         style={{
           width: `${scaledWidth}px`,
@@ -25,8 +25,8 @@ const AspectRatioVisualizer = ({ ratio = "1:1", isPremium }) => {
         }}
       >
         <div className={cn(
-          "flex items-center gap-2 px-3 py-1.5 rounded-lg",
-          "bg-background/95 border border-border/20",
+          "flex items-center gap-2 px-3.5 py-2 rounded-lg",
+          "bg-background/95 border border-border/30",
           "text-sm font-medium text-foreground",
           "shadow-sm",
           "transition-all duration-200"
