@@ -574,31 +574,26 @@ This styling guide provides a comprehensive foundation for maintaining consisten
 ## Current Structure
 - Login page with split layout (left: images, right: auth UI)
 - Images and texts are now separated into different arrays
-- Custom reflection effect with dynamic positioning
+- Clean, simple image transitions
 - No border radius on image section
 - Simplified typewriter effect
 
 ## Implemented Changes
-1. ✅ Simplified Typewriter:
-   - Removed custom wrapper logic
+1. ✅ Simplified Image Display:
+   - Removed reflection effect
+   - Clean fade and scale transitions
+   - High-quality image rendering
+   - Simple opacity-based loading states
+2. ✅ Simplified Typewriter:
    - Using direct Typewriter component
    - Consistent typing and deletion speed
    - 2-second delay between texts
    - Continuous loop through all texts
-2. ✅ Fixed image blurriness:
-   - Removed blur effect during loading
-   - Added high-quality image rendering attributes
-   - Using opacity for transitions instead of blur
-3. ✅ Added custom reflection effect:
-   - Bottom reflection on mobile (full width, 1/3 height)
-   - Right side reflection on desktop (1/3 width, full height)
-   - Hover effect increases reflection opacity
-   - Smooth transitions between states
 
 ## Technical Details
 - Using Framer Motion for animations
 - Using Tailwind CSS for styling
-- Display duration: 5000ms
+- Display duration: 10000ms (10 seconds per image)
 - Typewriter settings:
   - Type speed: 50ms
   - Delete speed: 30ms
@@ -607,20 +602,15 @@ This styling guide provides a comprehensive foundation for maintaining consisten
 - Image improvements:
   - Added `imageRendering: "high-quality"`
   - Added `WebkitImageSmoothing: "high"`
-  - Using `transform-gpu` for better performance
-- Reflection effects:
-  - Mobile: Bottom aligned, full width
-  - Desktop: Right aligned, 1/3 width
-  - Gradient mask for fade effect
-  - GPU-accelerated transforms
+  - Clean opacity transitions
+  - Smooth scale animations
 
 ## Additional Features
-- Group hover effects for reflection
-- Smooth opacity transitions
 - Hardware-accelerated animations
 - Responsive design maintained
 - Better image quality
 - Enhanced loading states
+- Smooth transitions between images
 
 # Color Scheme Update
 

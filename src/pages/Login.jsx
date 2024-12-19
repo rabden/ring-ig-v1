@@ -83,7 +83,7 @@ const Login = () => {
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="w-full md:w-3/5 md:min-h-screen relative overflow-hidden group"
+        className="w-full md:w-3/5 md:min-h-screen relative overflow-hidden"
       >
         <div className="relative w-full pb-[100%] md:pb-0 md:h-full">
           <div className="absolute inset-0">
@@ -94,49 +94,21 @@ const Login = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.5, ease: "easeOut" }}
-                className="absolute inset-0 reflection-wrapper"
+                className="absolute inset-0"
               >
-                {/* Main Image */}
-                <div className="relative w-full h-full">
-                  <img
-                    src={images[currentImageIndex]}
-                    alt="Feature showcase"
-                    onLoad={() => setIsImageLoading(false)}
-                    className={cn(
-                      "w-full h-full object-cover transition-all duration-500",
-                      isImageLoading ? "opacity-0" : "opacity-100"
-                    )}
-                    style={{ 
-                      imageRendering: "high-quality",
-                      WebkitImageSmoothing: "high",
-                      imageSmoothing: "high"
-                    }}
-                  />
-                  
-                  {/* Reflection Container */}
-                  <div className={cn(
-                    "absolute w-full md:w-1/3 h-1/3 md:h-full",
-                    "bottom-0 md:right-0",
-                    "overflow-hidden",
-                    "opacity-30 group-hover:opacity-40 transition-opacity duration-300"
-                  )}>
-                    {/* Reflection Image */}
-                    <img
-                      src={images[currentImageIndex]}
-                      alt=""
-                      className={cn(
-                        "w-full h-full object-cover",
-                        "scale-y-[-1] md:scale-x-[-1] md:scale-y-100",
-                        "transform-gpu",
-                        "opacity-50"
-                      )}
-                      style={{
-                        maskImage: "linear-gradient(to bottom, transparent, rgba(0,0,0,0.5))",
-                        WebkitMaskImage: "linear-gradient(to bottom, transparent, rgba(0,0,0,0.5))"
-                      }}
-                    />
-                  </div>
-                </div>
+                <img
+                  src={images[currentImageIndex]}
+                  alt="Feature showcase"
+                  onLoad={() => setIsImageLoading(false)}
+                  className={cn(
+                    "w-full h-full object-cover transition-all duration-500",
+                    isImageLoading ? "opacity-0" : "opacity-100"
+                  )}
+                  style={{ 
+                    imageRendering: "high-quality",
+                    WebkitImageSmoothing: "high"
+                  }}
+                />
               </motion.div>
             </AnimatePresence>
           </div>
