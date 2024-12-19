@@ -59,10 +59,7 @@ const ImagePromptSection = ({
           </div>
         </div>
         <div className={cn(
-          "p-2 rounded-md",
-          "bg-muted/5 hover:bg-muted/10",
-          "border border-border/5",
-          "transition-colors duration-200"
+          "rounded-md",
         )}>
           <TruncatablePrompt 
             prompt={prompt} 

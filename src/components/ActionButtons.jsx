@@ -16,8 +16,8 @@ const ActionButtons = ({ generatingImages }) => {
         variant={isMyImages ? 'default' : 'ghost'}
         onClick={() => navigate('/#myimages')}
         className={cn(
-          "h-8 text-xs px-4 rounded-xl bg-background/50 hover:bg-accent/10",
-          isMyImages && "bg-primary/30 hover:bg-primary/40 text-primary-foreground",
+          "h-8 text-xs px-4 rounded-xl bg-background/50 hover:bg-background/70",
+          isMyImages && "bg-primary hover:bg-primary/80 text-primary-foreground",
           "transition-all duration-200"
         )}
         aria-pressed={isMyImages}
@@ -28,8 +28,8 @@ const ActionButtons = ({ generatingImages }) => {
         variant={isInspiration ? 'default' : 'ghost'}
         onClick={() => navigate('/inspiration')}
         className={cn(
-          "h-8 text-xs px-4 rounded-xl bg-background/50 hover:bg-accent/10",
-          isInspiration && "bg-primary/30 hover:bg-primary/40 text-primary-foreground",
+          "h-8 text-xs px-4 rounded-xl bg-background/50 hover:bg-background/70",
+          isInspiration && "bg-primary hover:bg-primary/80 text-primary-foreground",
           "transition-all duration-200"
         )}
         aria-pressed={isInspiration}

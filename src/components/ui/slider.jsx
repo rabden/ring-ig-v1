@@ -27,7 +27,7 @@ const Slider = React.forwardRef(({ className, ...props }, ref) => (
     </SliderPrimitive.Track>
     <SliderPrimitive.Thumb
       className={cn(
-        "block h-3 w-3 rounded-full",
+        "block h-5 w-5 rounded-full",
         "border-1 border-border/30",
         "bg-primary",
         "ring-1 ring-border/10 ring-offset-1 ring-offset-background",

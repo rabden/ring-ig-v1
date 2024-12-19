@@ -107,7 +107,7 @@ const ProfileMenu = ({
               className={cn(
                 "w-full h-full rounded-lg",
                 "transition-all duration-200",
-                isMobile && "opacity-70 group-hover:opacity-100"
+                isMobile && "opacity-100"
               )}
             />
           </Button>
@@ -115,7 +115,7 @@ const ProfileMenu = ({
         <DropdownMenuContent 
           className={cn(
             "w-80 p-4",
-            "border-border/10 bg-card/95",
+            "border-border/40 bg-card",
             "backdrop-blur-[2px]",
             "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
             "animate-in fade-in-0 zoom-in-95 duration-200"
@@ -132,8 +132,8 @@ const ProfileMenu = ({
               to="/userprofile" 
               className={cn(
                 "flex items-center gap-3 group",
-                "p-2 -m-2 rounded-lg",
-                "bg-muted/10 hover:bg-muted/20",
+                "p-2 -m-2 rounded-xl",
+                "bg-muted/40 hover:bg-muted/80",
                 "transition-all duration-200"
               )}
             >
@@ -155,8 +155,8 @@ const ProfileMenu = ({
             <CreditCounter credits={credits} bonusCredits={bonusCredits} />
 
             <div className={cn(
-              "grid grid-cols-3 gap-2 p-3 rounded-lg",
-              "bg-muted/10 hover:bg-muted/20",
+              "grid grid-cols-3 gap-2 p-3 rounded-xl",
+              "bg-muted/10",
               "border border-border/10 hover:border-border/20",
               "transition-colors duration-200"
             )}>
@@ -185,7 +185,7 @@ const ProfileMenu = ({
                   nsfwEnabled ? (
                     "bg-destructive/5 hover:bg-destructive/10 text-destructive/90 hover:text-destructive"
                   ) : (
-                    "bg-primary/5 hover:bg-primary/10 text-primary/90 hover:text-primary"
+                    "bg-background/5 hover:bg-background/10 text-primary/90 hover:text-primary"
                   )
                 )}
               >

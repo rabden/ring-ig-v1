@@ -110,7 +110,7 @@ const ImageCardActions = ({
                 <DropdownMenuItem 
                   onClick={handleDiscard}
                   className={cn(
-                    "flex items-center gap-3 py-2 px-3 rounded-lg",
+                    "flex items-center gap-3 py-2 px-3 rounded-lg mb-2",
                     "cursor-pointer transition-colors duration-200",
                     "hover:bg-destructive/10 focus:bg-destructive/10",
                     "text-destructive/90 hover:text-destructive",

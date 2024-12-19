@@ -48,8 +48,8 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
         "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
         "p-3"
       )}>
-        <DialogHeader className="px-1">
-          <DialogTitle className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">Image Details</DialogTitle>
+        <DialogHeader className="px-3">
+          <DialogTitle className="text-md font-medium text-muted-foreground/70 uppercase tracking-wider">Image Details</DialogTitle>
         </DialogHeader>
         <ScrollArea className="mt-3 max-h-[calc(80vh-80px)]">
           <div className="space-y-4 px-1">
@@ -92,7 +92,7 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
                 </div>
               </div>
               <div className={cn(
-                "p-2 rounded-md",
+                "rounded-md",
                 "bg-muted/5 hover:bg-muted/10",
                 "border border-border/5",
                 "transition-colors duration-200",
