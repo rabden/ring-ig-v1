@@ -60,8 +60,7 @@ const ImageCardActions = ({
         <div className="flex items-center gap-2">
           <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
           <span className={cn(
-            "text-xs font-medium",
-            "text-muted-foreground/70 group-hover:text-muted-foreground/90",
+            "text-xs text-muted-foreground/60 group-hover:text-muted-foreground/80",
             "transition-colors duration-200"
           )}>
             {likeCount}
@@ -74,54 +73,47 @@ const ImageCardActions = ({
             variant="ghost" 
             size="icon"
             className={cn(
-              "h-8 w-8 p-0 rounded-lg",
-              "bg-muted/10 hover:bg-muted/20",
-              "ring-1 ring-border/10 hover:ring-border/20",
-              "transition-all duration-200",
-              "group"
+              "h-7 w-7 p-0 rounded-lg",
+              "bg-muted/5 hover:bg-muted/10",
+              "transition-all duration-200"
             )}
           >
-            <MoreVertical className="h-4 w-4 text-foreground/70 group-hover:text-foreground/90 transition-colors duration-200" />
+            <MoreVertical className="h-4 w-4 text-foreground/70" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent 
           align="end"
           className={cn(
             "w-52 p-2",
-            "border-2 border-border/20 bg-card/98",
-            "backdrop-blur-[2px]",
-            "shadow-lg shadow-primary/5",
+            "border-border/10 bg-card/95 backdrop-blur-[2px]",
+            "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
             "animate-in fade-in-0 zoom-in-95 duration-200"
           )}
         >
           <DropdownMenuItem 
             onClick={handleDownload}
             className={cn(
-              "flex items-center gap-3 py-2.5 px-3 rounded-lg",
-              "cursor-pointer transition-all duration-200",
-              "hover:bg-muted/20 focus:bg-muted/20",
-              "ring-1 ring-border/10 hover:ring-border/20",
+              "flex items-center gap-3 py-2 px-3 rounded-lg",
+              "cursor-pointer transition-colors duration-200",
+              "hover:bg-accent/10 focus:bg-accent/10",
               "group"
             )}
           >
-            <Download className="h-4 w-4 text-muted-foreground/70 group-hover:text-primary transition-colors duration-200" />
-            <span className="text-sm font-medium text-foreground/90 group-hover:text-primary transition-colors duration-200">
-              Download
-            </span>
+            <Download className="h-4 w-4 text-muted-foreground/70 group-hover:text-foreground/90 transition-colors duration-200" />
+            <span className="text-sm font-medium text-foreground/90">Download</span>
           </DropdownMenuItem>
 
           {session && (
             <>
-              <DropdownMenuSeparator className="my-2 bg-border/10" />
+              <DropdownMenuSeparator className="my-2 bg-border/5" />
               {image.user_id === userId && (
                 <DropdownMenuItem 
                   onClick={handleDiscard}
                   className={cn(
-                    "flex items-center gap-3 py-2.5 px-3 rounded-lg",
-                    "cursor-pointer transition-all duration-200",
-                    "hover:bg-destructive/20 focus:bg-destructive/20",
-                    "ring-1 ring-border/10 hover:ring-destructive/20",
-                    "text-destructive hover:text-destructive",
+                    "flex items-center gap-3 py-2 px-3 rounded-lg",
+                    "cursor-pointer transition-colors duration-200",
+                    "hover:bg-destructive/10 focus:bg-destructive/10",
+                    "text-destructive/90 hover:text-destructive",
                     "group"
                   )}
                 >
@@ -132,36 +124,30 @@ const ImageCardActions = ({
               <DropdownMenuItem 
                 onClick={handleRemixClick}
                 className={cn(
-                  "flex items-center gap-3 py-2.5 px-3 rounded-lg",
-                  "cursor-pointer transition-all duration-200",
-                  "hover:bg-muted/20 focus:bg-muted/20",
-                  "ring-1 ring-border/10 hover:ring-border/20",
+                  "flex items-center gap-3 py-2 px-3 rounded-lg",
+                  "cursor-pointer transition-colors duration-200",
+                  "hover:bg-accent/10 focus:bg-accent/10",
                   "group"
                 )}
               >
-                <Wand2 className="h-4 w-4 text-muted-foreground/70 group-hover:text-primary transition-colors duration-200" />
-                <span className="text-sm font-medium text-foreground/90 group-hover:text-primary transition-colors duration-200">
-                  Remix
-                </span>
+                <Wand2 className="h-4 w-4 text-muted-foreground/70 group-hover:text-foreground/90 transition-colors duration-200" />
+                <span className="text-sm font-medium text-foreground/90">Remix</span>
               </DropdownMenuItem>
             </>
           )}
 
-          <DropdownMenuSeparator className="my-2 bg-border/10" />
+          <DropdownMenuSeparator className="my-2 bg-border/5" />
           <DropdownMenuItem 
             onClick={handleViewDetails}
             className={cn(
-              "flex items-center gap-3 py-2.5 px-3 rounded-lg",
-              "cursor-pointer transition-all duration-200",
-              "hover:bg-muted/20 focus:bg-muted/20",
-              "ring-1 ring-border/10 hover:ring-border/20",
+              "flex items-center gap-3 py-2 px-3 rounded-lg",
+              "cursor-pointer transition-colors duration-200",
+              "hover:bg-accent/10 focus:bg-accent/10",
               "group"
             )}
           >
-            <Info className="h-4 w-4 text-muted-foreground/70 group-hover:text-primary transition-colors duration-200" />
-            <span className="text-sm font-medium text-foreground/90 group-hover:text-primary transition-colors duration-200">
-              View Details
-            </span>
+            <Info className="h-4 w-4 text-muted-foreground/70 group-hover:text-foreground/90 transition-colors duration-200" />
+            <span className="text-sm font-medium text-foreground/90">View Details</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

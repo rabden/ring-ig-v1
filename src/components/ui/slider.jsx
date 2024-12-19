@@ -15,7 +15,7 @@ const Slider = React.forwardRef(({ className, ...props }, ref) => (
       className={cn(
         "relative h-2 w-full grow overflow-hidden rounded-full",
         "bg-muted/30 hover:bg-muted/40",
-        "transition-colors duration-200"
+        "transition-colors duration-200",
       )}
     >
       <SliderPrimitive.Range 
@@ -29,7 +29,7 @@ const Slider = React.forwardRef(({ className, ...props }, ref) => (
       className={cn(
         "block h-3 w-3 rounded-full",
         "border-1 border-border/30",
-        "bg-background shadow-md",
+        "bg-primary",
         "ring-1 ring-border/10 ring-offset-1 ring-offset-background",
         "transition-all duration-200",
         "hover:scale-110 hover:border-primary/30",

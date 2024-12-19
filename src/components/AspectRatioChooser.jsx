@@ -14,7 +14,7 @@ const AspectRatioVisualizer = ({ ratio = "1:1", isPremium }) => {
       <div 
         className={cn(
           "relative overflow-hidden",
-          "border-2 border-border/30 hover:border-border/40",
+          "border-2 border-border/60",
           "bg-muted/10 hover:bg-muted/20",
           "rounded-2xl",
           "flex items-center justify-center",
@@ -56,13 +56,6 @@ const AspectRatioVisualizer = ({ ratio = "1:1", isPremium }) => {
 
         <div className={cn(
           "relative flex items-center gap-2 px-4 py-2 rounded-xl",
-          "bg-background/98 backdrop-blur-[2px]",
-          "border-2 border-border/30",
-          "text-sm font-medium text-foreground",
-          "shadow-sm",
-          "transition-all duration-200",
-          "hover:border-border/40 hover:bg-background",
-          "group"
         )}>
           <span className="group-hover:text-primary transition-colors duration-200">
             {ratio}
