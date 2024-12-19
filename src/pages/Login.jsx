@@ -19,10 +19,14 @@ const texts = [
 
 const images = [
   "https://i.ibb.co.com/TgcCsdf/HDRDC2.webp",
+  "https://i.ibb.co.com/hc3dWxr/images-example-zgfn69jth.jpg",
+  "https://i.ibb.co.com/rs5g7Xz/3.png",
+  "https://i.ibb.co.com/8PnDLkf/1.png",
   "https://i.ibb.co.com/88P57s7/ID2.png",
-  "https://i.ibb.co.com/k2YdjZK/images-example-7y3r4uk1q.jpg",
-  "https://i.ibb.co.com/sbmM5mp/3d-style-2.jpg",
-  "https://i.ibb.co.com/8PnDLkf/1.png"
+  "https://i.ibb.co.com/gjrM8R5/out-0-1.webp",
+  "https://i.ibb.co.com/DkdtLrG/Comfy-UI-00047.png",
+  "https://i.ibb.co.com/NNWjs4d/A3.png",
+  "https://i.ibb.co.com/nkxPsYG/images-2.jpg"
 ];
 
 const DISPLAY_DURATION = 5000;
