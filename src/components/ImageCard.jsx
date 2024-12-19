@@ -82,7 +82,7 @@ const ImageCard = ({
 
   return (
     <>
-      <div className="mb-3 group">
+      <div className="mb-1 group">
         <Card className={cn(
           "overflow-hidden rounded-2xl border-border/10 bg-card/95",
           "backdrop-blur-[2px] shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
