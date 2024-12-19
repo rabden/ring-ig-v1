@@ -17,8 +17,8 @@ const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, dis
   <div
     className={cn(
       "flex items-center gap-3 p-3 rounded-lg transition-all duration-200",
-      "border border-border/10 bg-card/95 backdrop-blur-[2px]",
-      isActive ? "bg-muted/10 border-primary/30 shadow-[0_0_0_1px_rgba(var(--primary),.2)] mx-4" : "hover:bg-muted/5 hover:border-border/20",
+      isActive ? "bg-muted/5 shadow-[0_0_0_1px_rgba(var(--primary),.15)] mx-4" : "border border-border/10 hover:bg-muted/5 hover:border-border/20",
+      "bg-card/95 backdrop-blur-[2px]",
       disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-[0.98]"
     )}
     onClick={disabled ? undefined : onClick}
@@ -156,7 +156,7 @@ const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) =
       <div className="hidden md:block">
         <Popover>
           <PopoverTrigger asChild>
-            <div className="w-full group mx-3">
+            <div className="w-full group">
               <ModelCard
                 modelKey={model}
                 config={currentModel}
@@ -170,14 +170,14 @@ const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) =
             side="left"
             align="start"
             sideOffset={16}
-            className="w-[400px] p-3 max-h-[80vh] border-border/10 bg-card/95 backdrop-blur-[2px] shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
+            className="w-[400px] p-3 max-h-[90vh] border-border/10 bg-card/95 backdrop-blur-[2px] shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
           >
             <ModelGrid 
               filteredModels={filteredModels}
               model={model}
               setModel={handleModelSelection}
               proMode={proMode}
-              className="max-h-[calc(80vh-1.5rem)]"
+              className="max-h-[calc(90vh-1.5rem)]"
             />
           </PopoverContent>
         </Popover>
@@ -185,7 +185,7 @@ const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) =
 
       {/* Mobile: Drawer */}
       <div className="md:hidden">
-        <div className="w-full group mx-3" onClick={() => setIsDrawerOpen(true)}>
+        <div className="w-full group" onClick={() => setIsDrawerOpen(true)}>
           <ModelCard
             modelKey={model}
             config={currentModel}
