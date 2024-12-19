@@ -34,7 +34,7 @@ const MobileHeader = ({
         isVisible ? "translate-y-0" : "-translate-y-full"
       )}
     >
-      <div className="flex items-center gap-2 px-2 h-12">
+      <div className="flex items-center gap-1.5 px-2 h-10">
         {isMyImages && (
           <PrivateFilterButton
             showPrivate={showPrivate}

@@ -28,14 +28,16 @@ const InspirationFilterButtons = ({
   };
 
   return (
-    <div className={cn("flex gap-2", className)}>
+    <div className={cn("flex gap-1.5", className)}>
       <Button
         variant={showFollowing ? "default" : "ghost"}
         size="sm"
         onClick={handleFollowingClick}
         className={cn(
-          "h-8 text-xs px-4 rounded-xl bg-background/50 hover:bg-accent/10",
-          showFollowing && "bg-primary/30 hover:bg-primary/40 text-primary-foreground",
+          "h-7 text-xs px-3 rounded-lg",
+          showFollowing 
+            ? "bg-primary/90 hover:bg-primary/80 text-primary-foreground shadow-sm" 
+            : "bg-muted/5 hover:bg-muted/10",
           "transition-all duration-200"
         )}
       >
@@ -46,8 +48,10 @@ const InspirationFilterButtons = ({
         size="sm"
         onClick={handleTopClick}
         className={cn(
-          "h-8 text-xs px-4 rounded-xl bg-background/50 hover:bg-accent/10",
-          showTop && "bg-primary/30 hover:bg-primary/40 text-primary-foreground",
+          "h-7 text-xs px-3 rounded-lg",
+          showTop 
+            ? "bg-primary/90 hover:bg-primary/80 text-primary-foreground shadow-sm" 
+            : "bg-muted/5 hover:bg-muted/10",
           "transition-all duration-200"
         )}
       >
