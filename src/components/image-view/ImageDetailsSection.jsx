@@ -1,12 +1,26 @@
 import React from 'react';
+import { cn } from "@/lib/utils";
 
 const ImageDetailsSection = ({ detailItems }) => {
   return (
-    <div className="grid grid-cols-2 gap-0 p-1">
+    <div className="grid grid-cols-2 gap-2">
       {detailItems.map((item, index) => (
-        <div key={index} className="space-y-0.5 rounded-lg bg-muted/5 transition-colors hover:bg-muted/10">
-          <p className="text-[11px] text-muted-foreground/70 uppercase tracking-wider">{item.label}</p>
-          <p className="text-xs font-medium text-foreground/90">{item.value}</p>
+        <div 
+          key={index} 
+          className={cn(
+            "space-y-1 p-2 rounded-md",
+            "bg-muted/5 hover:bg-muted/10",
+            "border border-border/5",
+            "transition-colors duration-200",
+            "group"
+          )}
+        >
+          <p className="text-xs text-muted-foreground/60 uppercase tracking-wider group-hover:text-muted-foreground/70 transition-colors duration-200">
+            {item.label}
+          </p>
+          <p className="text-sm font-medium text-foreground/90">
+            {item.value}
+          </p>
         </div>
       ))}
     </div>
