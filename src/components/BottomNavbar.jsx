@@ -46,7 +46,7 @@ const BottomNavbar = ({
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-[2px] border-t border-border/40 md:hidden z-50 transition-all duration-300">
+      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-[2px] border-t border-border/80 md:hidden z-50 transition-all duration-300">
         <div className="flex items-center justify-around px-2 max-w-md mx-auto h-14">
           <MobileNavButton
             icon={Image}

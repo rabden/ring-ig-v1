@@ -85,8 +85,7 @@ const ImageCardActions = ({
           align="end"
           className={cn(
             "w-52 p-2 m-2",
-            "border-border/40 bg-card/95",
-            "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
+            "border-border/80 bg-card/95",
             "animate-in fade-in-0 zoom-in-95 duration-200"
           )}
         >
@@ -113,7 +112,7 @@ const ImageCardActions = ({
                     "flex items-center gap-3 py-2 px-3 rounded-lg mb-2",
                     "cursor-pointer transition-colors duration-200",
                     "hover:bg-destructive/10 focus:bg-destructive/10",
-                    "text-destructive/90 hover:text-destructive/100",
+                    "text-destructive/90",
                     "group"
                   )}
                 >

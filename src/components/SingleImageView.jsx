@@ -62,7 +62,7 @@ const SingleImageView = () => {
         <div className={cn(
           "flex items-center justify-center",
           "h-[60vh] rounded-xl",
-          "bg-muted/5 border border-border/40",
+          "bg-muted/5 border border-border/80",
           "text-sm text-muted-foreground/70"
         )}>
           Image not found

@@ -103,7 +103,7 @@ const EditProfileForm = ({ user, onClose }) => {
           placeholder="Enter your display name"
           className={cn(
             "h-9 bg-muted/5 hover:bg-muted/10 focus:bg-muted/10",
-            "border-border/5 focus-visible:border-border/40",
+            "border-border/5 focus-visible:border-border/80",
             "rounded-xl transition-all duration-200",
             "placeholder:text-muted-foreground/40"
           )}
@@ -133,7 +133,7 @@ const EditProfileForm = ({ user, onClose }) => {
             disabled={uploading}
             className={cn(
               "h-9 bg-muted/5 hover:bg-muted/10 focus:bg-muted/10",
-              "border-border/5 focus-visible:border-border/40",
+              "border-border/5 focus-visible:border-border/80",
               "rounded-xl transition-all duration-200",
               "file:h-9 file:bg-transparent file:border-0 file:text-sm file:font-medium",
               "file:text-foreground/70 hover:file:text-foreground/90",

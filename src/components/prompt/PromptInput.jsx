@@ -67,7 +67,7 @@ const PromptInput = ({
 
   return (
     <div className="relative mb-8">
-      <div className="relative bg-card/95 backdrop-blur-[2px] border border-border/40 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
+      <div className="relative bg-card/95 backdrop-blur-[2px] border border-border/80 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
         <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-b from-card/95 to-transparent pointer-events-none z-10 rounded-t-2xl" />
         <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-card/95 to-transparent pointer-events-none z-10 rounded-b-2xl" />
         

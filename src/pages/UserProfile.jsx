@@ -23,7 +23,7 @@ const SettingsCard = ({ title, children, icon: Icon, isPro }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    className="rounded-xl border border-border/40 bg-card text-card-foreground relative overflow-hidden group"
+    className="rounded-xl border border-border/80 bg-card text-card-foreground relative overflow-hidden group"
   >
     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
     <div className="p-6 relative">

@@ -51,22 +51,12 @@ const SearchBar = ({ onSearch, initialQuery = '', className }) => {
               className={cn(
                 "h-8 w-full min-w-[100px] text-sm",
                 "bg-muted/5 hover:bg-muted/10 focus:bg-muted/10",
-                "border-border/5 focus-visible:border-border/40",
+                "border-border/5 focus-visible:border-border/80",
                 "rounded-xl transition-all duration-200",
                 "placeholder:text-muted-foreground/40"
               )}
               autoFocus
             />
-            {query && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 p-0 rounded-lg hover:bg-accent/10"
-                onClick={() => handleSearch('')}
-              >
-                <X className="h-3 w-3 text-muted-foreground/50" />
-              </Button>
-            )}
           </div>
           <Button
             variant="ghost"

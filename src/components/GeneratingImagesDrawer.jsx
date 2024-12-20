@@ -76,7 +76,7 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
                 key={image.id}
                 className={cn(
                   "flex flex-col gap-3 p-4 rounded-xl transition-all duration-300",
-                  "border border-border/40 backdrop-blur-[2px]",
+                  "border border-border/80 backdrop-blur-[2px]",
                   image.status === 'completed' 
                     ? "bg-muted/5 hover:bg-muted/10" 
                     : "bg-primary/5 hover:bg-primary/10",

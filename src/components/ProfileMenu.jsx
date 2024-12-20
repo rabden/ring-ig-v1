@@ -115,9 +115,7 @@ const ProfileMenu = ({
         <DropdownMenuContent 
           className={cn(
             "w-80 p-4",
-            "border-border/40 bg-card",
-            "backdrop-blur-[2px]",
-            "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
+            "border-border/80 bg-card",
             "animate-in fade-in-0 zoom-in-95 duration-200"
           )}
           align={isMobile ? "center" : "end"}
@@ -156,8 +154,6 @@ const ProfileMenu = ({
 
             <div className={cn(
               "grid grid-cols-3 gap-2 p-3 rounded-xl",
-              "bg-muted/10",
-              "border border-border/40 hover:border-border/20",
               "transition-colors duration-200"
             )}>
               <div className="text-center">
@@ -213,7 +209,7 @@ const ProfileMenu = ({
       <AlertDialog open={showImageDialog} onOpenChange={setShowImageDialog}>
         <AlertDialogContent className={cn(
           "sm:max-w-[400px]",
-          "border-border/40 bg-card/95",
+          "border-border/80 bg-card/95",
           "backdrop-blur-[2px]",
           "shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
         )}>

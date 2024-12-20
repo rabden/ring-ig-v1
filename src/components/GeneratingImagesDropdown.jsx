@@ -72,7 +72,7 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="end" 
-        className="w-[300px] p-2 border-border/40 bg-card/95 backdrop-blur-[2px] shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
+        className="w-[300px] p-2 border-border/80 bg-card/95 backdrop-blur-[2px] shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
       >
         {generatingImages.map((img) => (
           <DropdownMenuItem 

@@ -28,7 +28,7 @@ const MobileHeader = ({
       className={cn(
         "md:hidden fixed top-0 left-0 right-0 z-10",
         "bg-background/95 backdrop-blur-[2px]",
-        "border-b border-border/40",
+        "border-b border-border/80",
         "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
         "transition-all duration-300 ease-in-out",
         isVisible ? "translate-y-0" : "-translate-y-full"

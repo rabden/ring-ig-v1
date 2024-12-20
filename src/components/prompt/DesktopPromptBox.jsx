@@ -87,7 +87,7 @@ const DesktopPromptBox = ({
           className
         )}
       >
-        <div className="relative bg-card backdrop-blur-[2px] border border-border/40 rounded-2xl transition-all duration-300">
+        <div className="relative bg-card backdrop-blur-[2px] border border-border/80 rounded-2xl transition-all duration-300">
           <div className="p-2">
             <div className="relative">
               <textarea
@@ -155,7 +155,7 @@ const DesktopPromptBox = ({
         )}
       >
         <div className="max-w-[900px] mx-auto px-10 py-2">
-          <div className="relative bg-card/95 backdrop-blur-[2px] border border-border/40 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
+          <div className="relative bg-card/95 backdrop-blur-[2px] border border-border/80 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
             <div className="flex items-center gap-4 p-1.5">
               <div 
                 className="flex-1 px-4 text-muted-foreground/60 truncate cursor-pointer transition-colors duration-200 hover:text-muted-foreground/80"

@@ -6,7 +6,7 @@ const NoResults = () => {
     <div className={cn(
       "flex flex-col items-center justify-center",
       "p-8 rounded-xl",
-      "bg-muted/5 border border-border/40",
+      "bg-muted/5 border border-border/80",
       "backdrop-blur-[2px]",
       "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
       "transition-all duration-300"

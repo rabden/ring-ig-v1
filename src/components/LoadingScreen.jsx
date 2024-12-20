@@ -26,7 +26,7 @@ const LoadingScreen = () => {
       <div className="flex flex-col items-center gap-6">
         <div className={cn(
           "w-20 h-20 rounded-xl overflow-hidden",
-          "border border-border/40",
+          "border border-border/80",
           "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
           "transition-all duration-300"
         )}>

@@ -44,8 +44,7 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={cn(
         "sm:max-w-[500px] max-h-[80vh] overflow-hidden",
-        "border-border/40 bg-card/95",
-        "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
+        "border-border/80 bg-card/95",
         "p-4 rounded-xl"
       )}>
         <DialogHeader className="px-3">

@@ -210,7 +210,7 @@ const ImageGeneratorContent = ({
         {isSidebarMounted && !searchQuery && (
           <div 
             className={cn(
-              "w-full md:w-[350px] bg-card text-card-foreground",
+              "w-full md:w-[350px] bg-background text-card-foreground",
               "md:fixed md:right-0 md:top-12 md:bottom-0",
               isGenerateTab ? 'block' : 'hidden md:block',
               "md:h-[calc(100vh-3rem)] relative",

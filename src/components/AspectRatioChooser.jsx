@@ -10,12 +10,12 @@ const AspectRatioVisualizer = ({ ratio = "1:1", isPremium }) => {
   const scaledWidth = width * scale
   
   return (
-    <div className="flex flex-col items-center space-y-3 mb-4">
+    <div className="flex flex-col items-center space-y-2">
       <div 
         className={cn(
           "relative overflow-hidden",
-          "border-2 border-border/60",
-          "bg-muted/10 hover:bg-muted/20",
+          "border-2 border-border/80",
+          "bg-accent/10 hover:bg-accent/20",
           "rounded-2xl",
           "flex items-center justify-center",
           "transition-all duration-200 ease-in-out",
@@ -31,27 +31,27 @@ const AspectRatioVisualizer = ({ ratio = "1:1", isPremium }) => {
           {[...Array(9)].map((_, i) => (
             <div 
               key={i} 
-              className="border border-border/20 hover:border-border/30 transition-colors duration-200"
+              className="border border-border/40 hover:border-border/60 transition-colors duration-200"
             />
           ))}
         </div>
         
         {/* Center lines */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-full h-[2px] bg-border/20" />
-          <div className="absolute h-full w-[2px] bg-border/20" />
+          <div className="w-full h-[2px] bg-border/40" />
+          <div className="absolute h-full w-[2px] bg-border/60" />
         </div>
 
         {/* Helper lines */}
         <div className="absolute inset-0">
-          <div className="absolute top-0 left-1/3 w-[2px] h-2 bg-border/30" />
-          <div className="absolute top-0 right-1/3 w-[2px] h-2 bg-border/30" />
-          <div className="absolute bottom-0 left-1/3 w-[2px] h-2 bg-border/30" />
-          <div className="absolute bottom-0 right-1/3 w-[2px] h-2 bg-border/30" />
-          <div className="absolute left-0 top-1/3 h-[2px] w-2 bg-border/30" />
-          <div className="absolute left-0 bottom-1/3 h-[2px] w-2 bg-border/30" />
-          <div className="absolute right-0 top-1/3 h-[2px] w-2 bg-border/30" />
-          <div className="absolute right-0 bottom-1/3 h-[2px] w-2 bg-border/30" />
+          <div className="absolute top-0 left-1/3 w-[2px] h-2 border-border/40" />
+          <div className="absolute top-0 right-1/3 w-[2px] h-2 border-border/40" />
+          <div className="absolute bottom-0 left-1/3 w-[2px] h-2 border-border/40" />
+          <div className="absolute bottom-0 right-1/3 w-[2px] h-2 border-border/40" />
+          <div className="absolute left-0 top-1/3 h-[2px] w-2 border-border/40" />
+          <div className="absolute left-0 bottom-1/3 h-[2px] w-2 border-border/40" />
+          <div className="absolute right-0 top-1/3 h-[2px] w-2 border-border/40" />
+          <div className="absolute right-0 bottom-1/3 h-[2px] w-2 border-border/40" />
         </div>
 
         <div className={cn(

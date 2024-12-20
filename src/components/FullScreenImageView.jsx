@@ -163,7 +163,7 @@ const FullScreenImageView = ({
           <div className="w-[350px] p-3">
             <div className={cn(
               "h-[calc(100vh-24px)] rounded-lg",
-              "border border-border/40 bg-card/95",
+              "border border-border/80 bg-card/95",
               "backdrop-blur-[2px]",
               "shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
             )}>
