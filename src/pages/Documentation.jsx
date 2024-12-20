@@ -58,7 +58,7 @@ const FeatureCard = ({ icon: Icon, title, description }) => (
     className="group"
   >
     <Card className={cn(
-      "p-6 h-full relative overflow-hidden rounded-2xl border-border/10",
+      "p-6 h-full relative overflow-hidden rounded-2xl border-border/40",
       glowStyles.cardHover,
       glowStyles.gradientBg
     )}>
@@ -414,7 +414,7 @@ const Documentation = () => {
   return (
     <div className="min-h-screen bg-background/95 backdrop-blur-sm">
       {/* Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background/98 to-background border-b border-border/10">
+      <div className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background/98 to-background border-b border-border/40">
         {/* Background gradients */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(var(--primary-rgb),0.15),transparent_50%)] animate-mesh pointer-events-none" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(var(--primary-rgb),0.15),transparent_50%)] animate-mesh pointer-events-none" />

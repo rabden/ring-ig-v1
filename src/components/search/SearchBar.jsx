@@ -51,7 +51,7 @@ const SearchBar = ({ onSearch, initialQuery = '', className }) => {
               className={cn(
                 "h-8 w-full min-w-[100px] text-sm",
                 "bg-muted/5 hover:bg-muted/10 focus:bg-muted/10",
-                "border-border/5 focus-visible:border-border/10",
+                "border-border/5 focus-visible:border-border/40",
                 "rounded-xl transition-all duration-200",
                 "placeholder:text-muted-foreground/40"
               )}

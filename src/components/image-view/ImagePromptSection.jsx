@@ -13,7 +13,7 @@ const ImagePromptSection = ({
 }) => {
   return (
     <div className={cn(
-      "rounded-lg border border-border/10",
+      "rounded-lg border border-border/40",
       "bg-card/95 backdrop-blur-[2px]",
       "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
       "transition-all duration-300",

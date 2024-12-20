@@ -17,7 +17,7 @@ const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, dis
   <div
     className={cn(
       "flex items-center gap-3 transition-all duration-200",
-      isActive ? "bg-muted/5 shadow-[0_0_0_1px_rgba(var(--primary),.15)]" : "border border-border/10 hover:bg-muted/5 hover:border-border/20 p-3 rounded-lg",
+      isActive ? "bg-muted/5 shadow-[0_0_0_1px_rgba(var(--primary),.15)]" : "border border-border/40 hover:bg-muted/5 hover:border-border/20 p-3 rounded-lg",
       "bg-card",
       disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-[0.98]"
     )}
@@ -48,7 +48,7 @@ const ModelGridCard = ({ modelKey, config, isActive, onClick, disabled, proMode 
   <div
     className={cn(
       "group relative aspect-square rounded-lg overflow-hidden transition-all duration-200",
-      "border border-border/10 bg-card",
+      "border border-border/40 bg-card",
       isActive ? "ring-2 ring-primary/20 border-primary/30" : "hover:border-border/20",
       disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
     )}
@@ -174,7 +174,7 @@ const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) =
             side="left"
             align="start"
             sideOffset={16}
-            className="w-[400px] p-3 max-h-[90vh] border-border/10 bg-card shadow-[0_8px_30px_rgb(0,0,0,0.06)] overflow-hidden"
+            className="w-[400px] p-3 max-h-[90vh] border-border/40 bg-card shadow-[0_8px_30px_rgb(0,0,0,0.06)] overflow-hidden"
           >
             <ModelGrid 
               filteredModels={filteredModels}

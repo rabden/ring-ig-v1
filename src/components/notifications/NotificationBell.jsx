@@ -42,9 +42,9 @@ const NotificationBell = () => {
       </SheetTrigger>
       <SheetContent 
         side="left" 
-        className="w-full sm:w-[380px] p-0 m-4 rounded-xl border border-border/10 bg-background/95 backdrop-blur-[2px] max-h-[calc(100vh-2rem)] overflow-y-auto shadow-lg"
+        className="w-full sm:w-[380px] p-0 m-4 rounded-xl border border-border/40 bg-background/95 backdrop-blur-[2px] max-h-[calc(100vh-2rem)] overflow-y-auto shadow-lg"
       >
-        <SheetHeader className="p-4 border-b border-border/10">
+        <SheetHeader className="p-4 border-b border-border/40">
           <div className="flex items-center justify-between">
             <SheetTitle className="text-lg font-medium text-foreground/90">
               Notifications

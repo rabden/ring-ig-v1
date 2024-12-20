@@ -41,7 +41,7 @@ export const AuthUI = ({ buttonText }) => {
           "w-full h-10 md:h-12",
           "rounded-xl text-sm md:text-base",
           "bg-white hover:bg-zinc-50 text-black",
-          "border border-border/10",
+          "border border-border/40",
           "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
           "backdrop-blur-[2px]",
           "transition-all duration-300",
