@@ -67,9 +67,9 @@ const PromptInput = ({
 
   return (
     <div className="relative mb-8">
-      <div className="relative bg-card/95 backdrop-blur-[2px] border border-border/80 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
-        <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-b from-card/95 to-transparent pointer-events-none z-10 rounded-t-2xl" />
-        <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-card/95 to-transparent pointer-events-none z-10 rounded-b-2xl" />
+      <div className="relative bg-background transition-all duration-300">
+        <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-b from-background/95 to-transparent pointer-events-none z-10 rounded-t-2xl" />
+        <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-background/95 to-transparent pointer-events-none z-10 rounded-b-2xl" />
         
         <textarea
           value={prompt}
@@ -79,8 +79,8 @@ const PromptInput = ({
           className={cn(
             "w-full resize-none bg-transparent text-base focus:outline-none",
             "placeholder:text-muted-foreground/40 overflow-y-auto scrollbar-none",
-            "border-y border-border/5 py-6 px-4",
-            "min-h-[450px] md:min-h-[180px]",
+            "py-6 px-1",
+            "min-h-[450px] md:min-h-[230px]",
             "transition-colors duration-200"
           )}
           style={{ 

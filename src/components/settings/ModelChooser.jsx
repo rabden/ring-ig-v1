@@ -172,7 +172,7 @@ const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) =
           </PopoverTrigger>
           <PopoverContent 
             side="left"
-            align="center"
+            align="start"
             sideOffset={16}
             className="w-[400px] p-2 max-h-[90vh] border-border/80 bg-card overflow-hidden"
           >
@@ -202,11 +202,11 @@ const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) =
           open={isDrawerOpen} 
           onOpenChange={setIsDrawerOpen}
         >
-          <DrawerContent className="focus:outline-none bg-card">
+          <DrawerContent className="focus:outline-none">
             <DrawerHeader className="border-b border-border/5 px-2 py-2">
               <DrawerTitle className="text-base font-medium text-foreground/90">Select Model</DrawerTitle>
             </DrawerHeader>
-            <div className="px-3 py-3">
+            <div className="px-3 py-2">
               <ModelGrid 
                 filteredModels={filteredModels}
                 model={model}

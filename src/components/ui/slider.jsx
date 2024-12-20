@@ -14,21 +14,21 @@ const Slider = React.forwardRef(({ className, ...props }, ref) => (
     <SliderPrimitive.Track
       className={cn(
         "relative h-2 w-full grow overflow-hidden rounded-full",
-        "bg-primary/60 hover:bg-primary/90",
+        "bg-muted/60 hover:bg-muted/90",
         "transition-colors duration-200",
       )}
     >
       <SliderPrimitive.Range 
         className={cn(
-          "absolute h-full bg-primary/50 hover:bg-primary/60",
+          "absolute h-full bg-primary/80 hover:bg-primary/90",
           "transition-colors duration-200"
         )} 
       />
     </SliderPrimitive.Track>
     <SliderPrimitive.Thumb
       className={cn(
-        "block h-3 w-3 rounded-full",
-        "border-2 border-border/80",
+        "block h-4 w-4 rounded-full",
+        "border-2 border-border/80 border-muted",
         "bg-primary",
         "ring-1 ring-border/10 ring-offset-1 ring-offset-background",
         "transition-all duration-200",

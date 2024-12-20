@@ -34,7 +34,7 @@ const NotificationBell = () => {
           size="icon" 
           className={cn(
             "h-9 w-9 p-0 relative md:flex rounded-xl hover:bg-accent/10",
-            unreadCount > 0 && "after:content-[''] after:absolute after:top-1.5 after:right-1.5 after:w-2 after:h-2 after:bg-primary/30 after:rounded-full after:ring-2 after:ring-background after:backdrop-blur-[1px]"
+            unreadCount > 0 && "after:content-[''] after:absolute after:top-1.5 after:right-1.5 after:w-2 after:h-2  after:bg-destructive/10 after:rounded-full after:border-2 after:border-border/80"
           )}
         >
           <Bell className="h-5 w-5 text-foreground/70" />
@@ -42,7 +42,7 @@ const NotificationBell = () => {
       </SheetTrigger>
       <SheetContent 
         side="left" 
-        className="w-full sm:w-[380px] p-0 m-4 rounded-xl border border-border/80 bg-background/95 backdrop-blur-[2px] max-h-[calc(100vh-2rem)] overflow-y-auto shadow-lg"
+        className="w-full sm:w-[380px] p-0 m-4 rounded-xl border border-border/80 bg-card/95 max-h-[calc(100vh-2rem)] overflow-y-auto shadow-lg"
       >
         <SheetHeader className="p-4 border-b border-border/80">
           <div className="flex items-center justify-between">
