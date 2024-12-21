@@ -5,11 +5,10 @@ import { supabase } from '@/integrations/supabase/supabase';
 import ImageGallery from '@/components/ImageGallery';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, Image, Heart, Calendar } from 'lucide-react';
+import { ChevronLeft, Image, Heart } from 'lucide-react';
 import ProfileAvatar from '@/components/profile/ProfileAvatar';
 import FollowButton from '@/components/profile/FollowButton';
 import FollowStats from '@/components/profile/FollowStats';
-import { format, isValid, parseISO } from 'date-fns';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { Separator } from '@/components/ui/separator';
 import FullScreenImageView from '@/components/FullScreenImageView';
@@ -90,12 +89,6 @@ const PublicProfile = () => {
     enabled: !!userId
   });
 
-  const formatJoinDate = (dateString) => {
-    if (!dateString) return 'Unknown';
-    const date = parseISO(dateString);
-    return isValid(date) ? format(date, 'MMMM yyyy') : 'Unknown';
-  };
-
   const handleImageClick = (image) => {
     setSelectedImage(image);
   };
@@ -167,10 +160,6 @@ const PublicProfile = () => {
               <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                 {profile.display_name}
               </h1>
-              <div className="flex items-center justify-center sm:justify-start gap-2 text-sm text-muted-foreground mt-1">
-                <Calendar className="w-4 h-4" />
-                <span>Joined {formatJoinDate(profile.created_at)}</span>
-              </div>
             </motion.div>
             
             <motion.div 

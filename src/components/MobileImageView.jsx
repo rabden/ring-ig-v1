@@ -159,7 +159,7 @@ const MobileImageView = ({
           {image && (
             <div className={cn(
               "relative flex items-center justify-center",
-              "bg-card/95 backdrop-blur-[2px]",
+              "bg-background/95 backdrop-blur-[2px]",
               "transition-all duration-300"
             )}>
               <img
@@ -189,26 +189,13 @@ const MobileImageView = ({
                 />
                 
                 <div className="flex gap-1.5">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={onDownload}
-                    className={cn(
-                      "flex-1 h-7 rounded-md text-xs",
-                      "bg-muted/5 hover:bg-muted/10",
-                      "transition-all duration-200"
-                    )}
-                  >
-                    <Download className="mr-1.5 h-3.5 w-3.5 text-foreground/70" />
-                    <span>Download</span>
-                  </Button>
                   {isOwner && (
                     <Button 
                       variant="ghost" 
                       size="sm"
                       onClick={handleDiscardImage}
                       className={cn(
-                        "flex-1 h-7 rounded-md text-xs",
+                        "flex-1 h-12 rounded-lg text-xs",
                         "bg-destructive/5 hover:bg-destructive/10",
                         "text-destructive/90 hover:text-destructive",
                         "transition-all duration-200"
@@ -221,10 +208,23 @@ const MobileImageView = ({
                   <Button 
                     variant="ghost" 
                     size="sm"
+                    onClick={onDownload}
+                    className={cn(
+                      "flex-1 h-12 rounded-lg text-xs",
+                      "bg-muted/5 hover:bg-muted/30",
+                      "transition-all duration-200"
+                    )}
+                  >
+                    <Download className="mr-1.5 h-3.5 w-3.5 text-foreground/70" />
+                    <span>Download</span>
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
                     onClick={handleRemixClick}
                     className={cn(
-                      "flex-1 h-7 rounded-md text-xs",
-                      "bg-muted/5 hover:bg-muted/10",
+                      "flex-1 h-12 rounded-lg text-xs",
+                      "bg-muted/5 hover:bg-muted/30",
                       "transition-all duration-200"
                     )}
                   >

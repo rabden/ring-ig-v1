@@ -123,7 +123,7 @@ const AspectRatioChooser = ({ aspectRatio = "1:1", setAspectRatio, proMode }) =>
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <AspectRatioVisualizer 
         ratio={aspectRatio} 
         isPremium={!proMode && premiumRatios.includes(aspectRatio)} 

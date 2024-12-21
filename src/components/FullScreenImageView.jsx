@@ -146,7 +146,7 @@ const FullScreenImageView = ({
         </div>
         
         <div className="flex h-full">
-          <div className="flex-1 relative flex items-center justify-center bg-card/95 backdrop-blur-[2px]">
+          <div className="flex-1 relative flex items-center justify-center bg-background/95 backdrop-blur-[2px]">
             <img
               src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
               alt={image.prompt}

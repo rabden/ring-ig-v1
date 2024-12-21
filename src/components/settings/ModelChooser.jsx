@@ -18,12 +18,12 @@ const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, dis
     className={cn(
       "flex items-center gap-3 transition-all duration-200",
       isActive ? "bg-muted/5 shadow-[0_0_0_1px_rgba(var(--primary),.15)]" : "border border-border/80 hover:bg-muted/5 hover:border-border/20 p-3 rounded-lg",
-      "bg-card",
+      "bg-background",
       disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-[0.98]"
     )}
     onClick={disabled ? undefined : onClick}
   >
-    <div className="relative h-10 w-10 rounded-md overflow-hidden bg-background/50 flex-shrink-0 ring-1 ring-border/5">
+    <div className="relative h-10 w-10 rounded-md overflow-hidden bg-background flex-shrink-0 ring-1 ring-border/5">
       <img
         src={config.image}
         alt={config.name}
@@ -72,7 +72,7 @@ const ModelGridCard = ({ modelKey, config, isActive, onClick, disabled, proMode 
 
     {/* Active indicator */}
     {isActive && (
-      <div className="absolute top-2 right-2 h-6 w-6 rounded-md bg-primary/90 text-primary-foreground flex items-center justify-center shadow-sm">
+      <div className="absolute top-2 right-2 h-6 w-6 rounded-md bg-background text-primary-foreground flex items-center justify-center">
         <Check className="h-3.5 w-3.5" />
       </div>
     )}

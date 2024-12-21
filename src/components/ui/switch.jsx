@@ -24,7 +24,7 @@ const Switch = React.forwardRef(({ className, ...props }, ref) => (
         "bg-background shadow-md",
         "ring-1 ring-border/20 ring-offset-1 ring-offset-background",
         "transition-all duration-300 ease-in-out",
-        "data-[state=checked] translate-x-6 data-[state=unchecked] translate-x-2"
+        "data-[state=checked]:translate-x-7 data-[state=unchecked]:translate-x-1"
       )} />
   </SwitchPrimitives.Root>
 ))

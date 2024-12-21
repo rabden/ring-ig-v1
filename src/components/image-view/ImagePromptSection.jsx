@@ -12,14 +12,7 @@ const ImagePromptSection = ({
   onShare 
 }) => {
   return (
-    <div className={cn(
-      "rounded-lg border border-border/80",
-      "bg-card/95 backdrop-blur-[2px]",
-      "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
-      "transition-all duration-300",
-      "hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]",
-      "hover:border-border/20"
-    )}>
+    <div className={cn("flex flex-col space-y-2")}>
       <div className="p-2 space-y-2">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">Prompt</h3>

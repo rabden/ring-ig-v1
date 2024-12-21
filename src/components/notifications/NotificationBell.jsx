@@ -20,7 +20,7 @@ const NotificationBell = () => {
     <div 
       className={cn(
         "h-9 w-9 p-0 relative md:flex flex items-center justify-center rounded-xl transition-all duration-200 hover:bg-accent/10",
-        unreadCount > 0 && "after:content-[''] after:absolute after:top-1.5 after:right-1.5 after:w-2 after:h-2 after:bg-destructive/10 after:rounded-full after:border-2 after:border-border/80"
+        unreadCount > 0 && "after:content-[''] after:absolute after:top-1.5 after:right-1.5 after:w-3 after:h-3 after:bg-destructive/50 after:rounded-full"
       )}
       onClick={handleClick}
     >
@@ -34,7 +34,7 @@ const NotificationBell = () => {
           size="icon" 
           className={cn(
             "h-9 w-9 p-0 relative md:flex rounded-xl hover:bg-accent/10",
-            unreadCount > 0 && "after:content-[''] after:absolute after:top-1.5 after:right-1.5 after:w-2 after:h-2  after:bg-destructive/10 after:rounded-full after:border-2 after:border-border/80"
+            unreadCount > 0 && "after:content-[''] after:absolute after:top-1.5 after:right-1.5 after:w-3 after:h-3 after:bg-destructive/50 after:rounded-full"
           )}
         >
           <Bell className="h-5 w-5 text-foreground/70" />

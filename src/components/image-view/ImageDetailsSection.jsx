@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 const ImageDetailsSection = ({ detailItems }) => {
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="grid grid-cols-2 gap-4">
       {detailItems.map((item, index) => (
         <div 
           key={index} 
@@ -15,7 +15,7 @@ const ImageDetailsSection = ({ detailItems }) => {
             "group"
           )}
         >
-          <p className="text-xs text-muted-foreground/60 uppercase tracking-wider group-hover:text-muted-foreground/70 transition-colors duration-200">
+          <p className="text-xs text-foreground/40 uppercase tracking-wider group-hover:text-muted-foreground/70 transition-colors duration-200">
             {item.label}
           </p>
           <p className="text-sm font-medium text-foreground/90">

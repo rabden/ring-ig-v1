@@ -114,16 +114,12 @@ const ProfileMenu = ({
         </DropdownMenuTrigger>
         <DropdownMenuContent 
           className={cn(
-            "w-80 p-4",
-            "border-border/80 bg-card",
+            "w-80 p-4 m-4",
+            "border-border bg-card",
             "animate-in fade-in-0 zoom-in-95 duration-200"
           )}
           align={isMobile ? "center" : "end"}
           side={isMobile ? "top" : "bottom"}
-          alignOffset={isMobile ? 0 : -8}
-          sideOffset={8}
-          collisionPadding={{ left: 16, right: 16, bottom: 16 }}
-          avoidCollisions={true}
         >
           <div className="space-y-4">
             <Link 
@@ -131,7 +127,7 @@ const ProfileMenu = ({
               className={cn(
                 "flex items-center gap-3 group",
                 "p-2 -m-2 rounded-xl",
-                "bg-muted/40 hover:bg-muted/80",
+                "bg-muted/20 hover:bg-muted/90",
                 "transition-all duration-200"
               )}
             >
@@ -181,7 +177,7 @@ const ProfileMenu = ({
                   nsfwEnabled ? (
                     "bg-destructive/5 hover:bg-destructive/10 text-destructive/90 hover:text-destructive"
                   ) : (
-                    "bg-background/5 hover:bg-background/10 text-primary/90 hover:text-primary"
+                    "bg-background/20 hover:bg-background/50 text-primary/90 hover:text-primary"
                   )
                 )}
               >

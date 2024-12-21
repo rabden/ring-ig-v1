@@ -32,10 +32,9 @@ const DesktopHeader = ({
       <div className={cn(
         "hidden md:block fixed top-0 left-0 right-0 z-10 h-12",
         "bg-background/95 backdrop-blur-[2px]",
-        "border-b border-border/80",
-        "shadow-sm"
+        "border-b border-border/50",
       )}>
-        <div className="flex justify-between items-center h-full px-4 max-w-full">
+        <div className="flex justify-between items-center h-full px-10 max-w-full">
           <div className="flex items-center gap-3">
             <div className="h-8">
               <ProfileMenu 
@@ -83,8 +82,6 @@ const DesktopHeader = ({
           </div>
         </div>
       </div>
-      {/* Fade-out gradient */}
-      <div className="hidden md:block fixed top-12 left-0 right-0 h-3 bg-gradient-to-b from-background/50 to-transparent pointer-events-none z-10" />
     </>
   );
 };
