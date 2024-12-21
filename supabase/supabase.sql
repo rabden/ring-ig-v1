@@ -351,3 +351,24 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.generation_queue;
 GRANT ALL ON ALL TABLES IN SCHEMA public TO postgres, authenticated;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO postgres, authenticated;
 GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO postgres, authenticated; 
+
+-- Create profile on signup trigger
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.profiles (id, credit_count, bonus_credits, last_refill_time)
+  VALUES (
+    NEW.id,
+    50,  -- Default credits
+    0,   -- Default bonus credits
+    NOW()
+  );
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger to create profile on signup
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_new_user();
