@@ -43,9 +43,14 @@ const ImageGenerator = () => {
     useAspectRatio, setUseAspectRatio, quality, setQuality,
     selectedImage, setSelectedImage,
     detailsDialogOpen, setDetailsDialogOpen, fullScreenViewOpen, setFullScreenViewOpen,
-    fullScreenImageIndex, setFullScreenImageIndex, generatingImages, setGeneratingImages,
+    fullScreenImageIndex, setFullScreenImageIndex,
     activeView, setActiveView, nsfwEnabled, setNsfwEnabled,
-    imageCount, setImageCount
+    imageCount, setImageCount,
+    currentGeneration,
+    allGenerations,
+    addToGenerationQueue,
+    completeCurrentGeneration,
+    clearCompletedGenerations
   } = useImageGeneratorState();
 
   const [showPrivate, setShowPrivate] = useState(false);
@@ -101,9 +106,11 @@ const ImageGenerator = () => {
     useAspectRatio,
     aspectRatio,
     updateCredits,
-    setGeneratingImages,
     modelConfigs,
-    imageCount
+    imageCount,
+    addToGenerationQueue,
+    currentGeneration,
+    completeCurrentGeneration
   });
 
   const handleGenerateImage = async () => {
@@ -191,7 +198,7 @@ const ImageGenerator = () => {
       bonusCredits={bonusCredits}
       activeTab={activeTab}
       setActiveTab={setActiveTab}
-      generatingImages={generatingImages}
+      generatingImages={allGenerations}
       nsfwEnabled={nsfwEnabled}
       setNsfwEnabled={setNsfwEnabled}
       showPrivate={showPrivate}
