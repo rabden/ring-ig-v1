@@ -10,56 +10,36 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
   const { data: modelConfigs } = useModelConfigs();
   const [showDropdown, setShowDropdown] = useState(false);
   const [completedImages, setCompletedImages] = useState(new Set());
+  const [prevLength, setPrevLength] = useState(generatingImages.length);
   
+  // Handle showing checkmark when an image completes
+  useEffect(() => {
+    if (generatingImages.length < prevLength) {
+      // Show checkmark for 1.5s when an image completes
+      setCompletedImages(new Set(['temp'])); // Use a temp value since we don't track specific images
+      setTimeout(() => {
+        setCompletedImages(new Set());
+      }, 1500);
+    }
+    setPrevLength(generatingImages.length);
+  }, [generatingImages.length]);
+
+  // Handle 4s delay before hiding dropdown
   useEffect(() => {
     if (generatingImages.length > 0) {
       setShowDropdown(true);
     } else {
+      // Wait 4s before hiding
       const timer = setTimeout(() => {
         setShowDropdown(false);
-        setCompletedImages(new Set());
       }, 4000);
       return () => clearTimeout(timer);
     }
   }, [generatingImages.length]);
 
   if (!showDropdown) return null;
-
-  const pendingCount = generatingImages.filter(img => img.status === 'pending').length;
-  const generatingCount = generatingImages.filter(img => img.status === 'generating').length;
-  const completedCount = generatingImages.filter(img => img.status === 'completed').length;
-  const totalCount = generatingImages.length;
-
-  const getStatusDisplay = () => {
-    if (generatingCount > 0) {
-      return (
-        <>
-          <div className="p-1 rounded-lg bg-primary/10 backdrop-blur-[1px] mr-2">
-            <Loader className="w-4 h-4 animate-spin text-primary/90" />
-          </div>
-          <span className="text-sm">Generating {pendingCount > 0 ? `(${pendingCount} queued)` : ''}</span>
-        </>
-      );
-    } else if (pendingCount > 0) {
-      return (
-        <>
-          <div className="p-1 rounded-lg bg-muted/10 backdrop-blur-[1px] mr-2">
-            <Loader className="w-4 h-4 text-muted-foreground/50" />
-          </div>
-          <span className="text-sm">{pendingCount} in queue</span>
-        </>
-      );
-    } else if (completedCount === totalCount) {
-      return (
-        <>
-          <div className="p-1 rounded-lg bg-primary/10 backdrop-blur-[1px] mr-2">
-            <Check className="w-4 h-4 text-primary/90" />
-          </div>
-          <span className="text-sm">Complete</span>
-        </>
-      );
-    }
-  };
+  
+  const showCheckmark = completedImages.size > 0 || (generatingImages.length === 0 && showDropdown);
 
   return (
     <DropdownMenu>
@@ -70,10 +50,24 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
           className={cn(
             "h-8 rounded-xl bg-background/50 hover:bg-accent/10",
             "transition-all duration-200",
-            completedCount === totalCount && "text-primary"
+            showCheckmark && "text-primary"
           )}
         >
-          {getStatusDisplay()}
+          {showCheckmark ? (
+            <div className={cn(
+              "p-1 rounded-lg bg-primary/10 backdrop-blur-[1px] mr-2",
+              completedImages.size > 0 && "animate-in zoom-in duration-300"
+            )}>
+              <Check className="w-4 h-4 text-primary/90" />
+            </div>
+          ) : (
+            <div className="p-1 rounded-lg bg-primary/10 backdrop-blur-[1px] mr-2">
+              <Loader className="w-4 h-4 animate-spin text-primary/90" />
+            </div>
+          )}
+          <span className="text-sm">
+            {generatingImages.length > 0 ? `Generating-${generatingImages.length}` : 'Complete'}
+          </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
@@ -92,46 +86,16 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
           >
             <div className="flex items-center gap-3 w-full">
               <div className="flex items-center gap-2">
-                <div className={cn(
-                  "p-1 rounded-lg backdrop-blur-[1px]",
-                  img.status === 'completed' 
-                    ? "bg-primary/10" 
-                    : img.status === 'generating'
-                    ? "bg-primary/10"
-                    : "bg-muted/10"
-                )}>
-                  {img.status === 'completed' ? (
-                    <Check className="w-3.5 h-3.5 text-primary/90" />
-                  ) : img.status === 'generating' ? (
-                    <Loader className="w-3.5 h-3.5 animate-spin text-primary/90" />
-                  ) : (
-                    <Loader className="w-3.5 h-3.5 text-muted-foreground/50" />
-                  )}
+                <div className="p-1 rounded-lg bg-primary/10 backdrop-blur-[1px]">
+                  <Loader className="w-3.5 h-3.5 animate-spin text-primary/90" />
                 </div>
-                <span className={cn(
-                  "text-sm font-medium",
-                  img.status === 'completed' 
-                    ? "text-foreground/70" 
-                    : img.status === 'generating'
-                    ? "text-primary/90"
-                    : "text-muted-foreground"
-                )}>
-                  {img.status === 'completed' 
-                    ? 'Complete' 
-                    : img.status === 'generating'
-                    ? 'Generating...'
-                    : 'Queued'}
-                </span>
+                <span className="text-sm font-medium text-primary/90">Generating...</span>
               </div>
               <Badge 
                 variant="secondary" 
                 className={cn(
-                  "ml-auto",
-                  img.status === 'completed'
-                    ? "bg-muted/20 hover:bg-muted/30 text-foreground/70"
-                    : img.status === 'generating'
-                    ? "border-primary/20 bg-primary/10 text-primary/90"
-                    : "bg-muted/10 text-muted-foreground/70"
+                  "ml-auto bg-muted/20 hover:bg-muted/30 text-foreground/70",
+                  "transition-colors duration-200"
                 )}
               >
                 {img.width}x{img.height}

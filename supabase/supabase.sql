@@ -1,11 +1,8 @@
 -- Enable required extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS "pg_crypto";
 
 -- Create storage buckets
-INSERT INTO storage.buckets (id, name, public) 
-VALUES ('user-images', 'user-images', true);
-
 CREATE POLICY "User Images are publicly accessible"
 ON storage.objects FOR SELECT
 USING (bucket_id = 'user-images');
@@ -65,41 +62,8 @@ CREATE TABLE public.user_images (
     is_trending boolean NOT NULL DEFAULT false,
     is_hot boolean NOT NULL DEFAULT false,
     is_private boolean NOT NULL DEFAULT false,
-    metadata jsonb DEFAULT '{}'::jsonb,
-    generation_id uuid,
     CONSTRAINT user_images_pkey PRIMARY KEY (id),
     CONSTRAINT user_images_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE
-);
-
--- Create generation_queue table
-CREATE TABLE public.generation_queue (
-    id uuid NOT NULL DEFAULT uuid_generate_v4(),
-    user_id uuid NOT NULL,
-    prompt text NOT NULL,
-    model text NOT NULL,
-    status text NOT NULL DEFAULT 'pending',
-    created_at timestamp with time zone DEFAULT current_timestamp,
-    started_at timestamp with time zone,
-    completed_at timestamp with time zone,
-    github_run_id text,
-    github_run_number integer,
-    parameters jsonb NOT NULL DEFAULT '{}'::jsonb,
-    result_url text,
-    error text,
-    retry_count integer DEFAULT 0,
-    last_error text,
-    last_retry_at timestamp with time zone,
-    width integer,
-    height integer,
-    is_public boolean DEFAULT true,
-    is_nsfw boolean DEFAULT false,
-    priority integer DEFAULT 0,
-    seed integer,
-    quality text,
-    aspect_ratio text,
-    CONSTRAINT generation_queue_pkey PRIMARY KEY (id),
-    CONSTRAINT generation_queue_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE,
-    CONSTRAINT generation_queue_status_check CHECK (status IN ('pending', 'processing', 'completed', 'failed'))
 );
 
 -- Create user_image_likes table
@@ -150,9 +114,6 @@ CREATE TABLE public.huggingface_api_keys (
     is_active boolean DEFAULT true,
     created_at timestamp with time zone DEFAULT current_timestamp,
     last_used_at timestamp with time zone,
-    usage_count integer DEFAULT 0,
-    error_count integer DEFAULT 0,
-    last_error text,
     CONSTRAINT huggingface_api_keys_pkey PRIMARY KEY (id),
     CONSTRAINT huggingface_api_keys_api_key_key UNIQUE (api_key)
 );
@@ -160,7 +121,6 @@ CREATE TABLE public.huggingface_api_keys (
 -- Create indexes
 CREATE INDEX idx_user_images_user_id ON public.user_images USING btree (user_id);
 CREATE INDEX idx_user_images_privacy ON public.user_images USING btree (user_id, is_private);
-CREATE INDEX idx_user_images_generation ON public.user_images USING btree (generation_id);
 CREATE INDEX idx_user_image_likes_user_id ON public.user_image_likes USING btree (user_id);
 CREATE INDEX idx_user_image_likes_image_id ON public.user_image_likes USING btree (image_id);
 CREATE INDEX idx_user_image_likes_created_by ON public.user_image_likes USING btree (created_by);
@@ -168,28 +128,29 @@ CREATE INDEX idx_user_follows_follower ON public.user_follows USING btree (follo
 CREATE INDEX idx_user_follows_following ON public.user_follows USING btree (following_id);
 CREATE INDEX idx_notifications_user_id ON public.notifications USING btree (user_id);
 CREATE INDEX idx_huggingface_api_keys_is_active ON public.huggingface_api_keys USING btree (is_active);
-CREATE INDEX idx_generation_queue_status ON public.generation_queue USING btree (status);
-CREATE INDEX idx_generation_queue_user ON public.generation_queue USING btree (user_id);
-CREATE INDEX idx_generation_queue_created ON public.generation_queue USING btree (created_at);
 
--- Create functions
+-- Create follow count update function
 CREATE OR REPLACE FUNCTION public.update_follow_counts()
 RETURNS trigger AS $$
 BEGIN
   IF TG_OP = 'INSERT' THEN
+    -- Increment following_count for follower
     UPDATE public.profiles
     SET following_count = following_count + 1
     WHERE id = NEW.follower_id;
     
+    -- Increment followers_count for following
     UPDATE public.profiles
     SET followers_count = followers_count + 1
     WHERE id = NEW.following_id;
     
   ELSIF TG_OP = 'DELETE' THEN
+    -- Decrement following_count for follower
     UPDATE public.profiles
     SET following_count = GREATEST(0, following_count - 1)
     WHERE id = OLD.follower_id;
     
+    -- Decrement followers_count for following
     UPDATE public.profiles
     SET followers_count = GREATEST(0, followers_count - 1)
     WHERE id = OLD.following_id;
@@ -199,64 +160,21 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Create credit usage function
-CREATE OR REPLACE FUNCTION public.handle_credit_usage()
-RETURNS trigger AS $$
-BEGIN
-  IF NEW.status = 'processing' AND OLD.status = 'pending' THEN
-    UPDATE public.profiles
-    SET credit_count = GREATEST(0, credit_count - 1)
-    WHERE id = NEW.user_id
-    AND credit_count > 0;
-  END IF;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Create API key rotation function
-CREATE OR REPLACE FUNCTION public.get_next_api_key()
-RETURNS text AS $$
-DECLARE
-  next_key text;
-BEGIN
-  UPDATE public.huggingface_api_keys
-  SET last_used_at = NOW(),
-      usage_count = usage_count + 1
-  WHERE id = (
-    SELECT id
-    FROM public.huggingface_api_keys
-    WHERE is_active = true
-    ORDER BY last_used_at ASC NULLS FIRST
-    LIMIT 1
-  )
-  RETURNING api_key INTO next_key;
-  
-  RETURN next_key;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Create triggers
+-- Create follow trigger
 CREATE TRIGGER on_follow_changed
 AFTER INSERT OR DELETE ON public.user_follows
 FOR EACH ROW
 EXECUTE FUNCTION update_follow_counts();
 
-CREATE TRIGGER on_generation_start
-AFTER UPDATE ON public.generation_queue
-FOR EACH ROW
-WHEN (NEW.status = 'processing' AND OLD.status = 'pending')
-EXECUTE FUNCTION handle_credit_usage();
-
--- Enable RLS
+-- Create RLS policies
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_images ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_image_likes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_follows ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.huggingface_api_keys ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.generation_queue ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies
+-- Profiles policies
 CREATE POLICY "Public profiles are viewable by everyone"
 ON public.profiles FOR SELECT
 USING (true);
@@ -265,10 +183,7 @@ CREATE POLICY "Users can update own profile"
 ON public.profiles FOR UPDATE
 USING (auth.uid() = id);
 
-CREATE POLICY "Users can insert own profile"
-ON public.profiles FOR INSERT
-WITH CHECK (auth.uid() = id);
-
+-- User images policies
 CREATE POLICY "Public images are viewable by everyone"
 ON public.user_images FOR SELECT
 USING (NOT is_private OR auth.uid() = user_id);
@@ -285,6 +200,7 @@ CREATE POLICY "Users can delete own images"
 ON public.user_images FOR DELETE
 USING (auth.uid() = user_id);
 
+-- User image likes policies
 CREATE POLICY "Image likes are viewable by everyone"
 ON public.user_image_likes FOR SELECT
 USING (true);
@@ -297,6 +213,7 @@ CREATE POLICY "Users can remove own likes"
 ON public.user_image_likes FOR DELETE
 USING (auth.uid() = created_by);
 
+-- User follows policies
 CREATE POLICY "Follows are viewable by everyone"
 ON public.user_follows FOR SELECT
 USING (true);
@@ -309,6 +226,7 @@ CREATE POLICY "Users can unfollow"
 ON public.user_follows FOR DELETE
 USING (auth.uid() = follower_id);
 
+-- Notifications policies
 CREATE POLICY "Users can view own notifications"
 ON public.notifications FOR SELECT
 USING (auth.uid() = user_id);
@@ -321,54 +239,13 @@ CREATE POLICY "Users can delete own notifications"
 ON public.notifications FOR DELETE
 USING (auth.uid() = user_id);
 
-CREATE POLICY "Only admins can access API keys"
-ON public.huggingface_api_keys FOR ALL
-USING (auth.uid() IN (SELECT id FROM public.profiles WHERE is_admin = true));
-
-CREATE POLICY "Users can view own queue items"
-ON public.generation_queue FOR SELECT
-USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert own queue items"
-ON public.generation_queue FOR INSERT
-WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "System can update any queue item"
-ON public.generation_queue FOR UPDATE
-USING (true)
-WITH CHECK (true);
-
 -- Enable realtime
-CREATE PUBLICATION supabase_realtime;
-
 ALTER PUBLICATION supabase_realtime ADD TABLE public.user_images;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.user_image_likes;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.user_follows;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.notifications;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.generation_queue;
 
 -- Grant permissions
 GRANT ALL ON ALL TABLES IN SCHEMA public TO postgres, authenticated;
 GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO postgres, authenticated;
 GRANT ALL ON ALL FUNCTIONS IN SCHEMA public TO postgres, authenticated; 
-
--- Create profile on signup trigger
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS trigger AS $$
-BEGIN
-  INSERT INTO public.profiles (id, credit_count, bonus_credits, last_refill_time)
-  VALUES (
-    NEW.id,
-    50,  -- Default credits
-    0,   -- Default bonus credits
-    NOW()
-  );
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Trigger to create profile on signup
-CREATE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW
-  EXECUTE FUNCTION public.handle_new_user();

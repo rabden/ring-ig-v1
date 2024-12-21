@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useModelConfigs } from './useModelConfigs';
 
 export const useImageGeneratorState = () => {
@@ -20,9 +20,7 @@ export const useImageGeneratorState = () => {
     detailsDialogOpen: false,
     fullScreenViewOpen: false,
     fullScreenImageIndex: 0,
-    generationQueue: [],
-    currentGeneration: null,
-    completedGenerations: [],
+    generatingImages: [],
     activeView: 'myImages',
     nsfwEnabled: false,
     style: null,
@@ -30,40 +28,10 @@ export const useImageGeneratorState = () => {
     isPrivate: false
   });
 
-  useEffect(() => {
-    const processQueue = () => {
-      if (state.currentGeneration === null && state.generationQueue.length > 0) {
-        const nextGeneration = state.generationQueue[0];
-        setState(prev => ({
-          ...prev,
-          currentGeneration: nextGeneration,
-          generationQueue: prev.generationQueue.slice(1)
-        }));
-      }
-    };
-
-    processQueue();
-  }, [state.currentGeneration, state.generationQueue]);
-
-  const addToGenerationQueue = (generations) => {
+  const setGeneratingImages = (value) => {
     setState(prev => ({
       ...prev,
-      generationQueue: [...prev.generationQueue, ...generations]
-    }));
-  };
-
-  const completeCurrentGeneration = (completedGeneration) => {
-    setState(prev => ({
-      ...prev,
-      currentGeneration: null,
-      completedGenerations: [...prev.completedGenerations, completedGeneration]
-    }));
-  };
-
-  const clearCompletedGenerations = () => {
-    setState(prev => ({
-      ...prev,
-      completedGenerations: []
+      generatingImages: Array.isArray(value) ? value : typeof value === 'function' ? value(prev.generatingImages) : []
     }));
   };
 
@@ -84,23 +52,16 @@ export const useImageGeneratorState = () => {
     setDetailsDialogOpen: (value) => setState(prev => ({ ...prev, detailsDialogOpen: value })),
     setFullScreenViewOpen: (value) => setState(prev => ({ ...prev, fullScreenViewOpen: value })),
     setFullScreenImageIndex: (value) => setState(prev => ({ ...prev, fullScreenImageIndex: value })),
+    setGeneratingImages,
     setActiveView: (value) => setState(prev => ({ ...prev, activeView: value })),
     setNsfwEnabled: (value) => setState(prev => ({ ...prev, nsfwEnabled: value })),
     setStyle: (value) => setState(prev => ({ ...prev, style: value })),
     setImageCount: (value) => setState(prev => ({ ...prev, imageCount: value })),
-    setIsPrivate: (value) => setState(prev => ({ ...prev, isPrivate: value })),
-    addToGenerationQueue,
-    completeCurrentGeneration,
-    clearCompletedGenerations
+    setIsPrivate: (value) => setState(prev => ({ ...prev, isPrivate: value }))
   };
 
   return {
     ...state,
-    ...setters,
-    allGenerations: [
-      ...(state.currentGeneration ? [{ ...state.currentGeneration, status: 'generating' }] : []),
-      ...state.generationQueue.map(gen => ({ ...gen, status: 'pending' })),
-      ...state.completedGenerations.map(gen => ({ ...gen, status: 'completed' }))
-    ]
+    ...setters
   };
 };

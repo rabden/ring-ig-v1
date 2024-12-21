@@ -3,8 +3,6 @@ import { toast } from 'sonner';
 import { qualityOptions } from '@/utils/imageConfigs';
 import { calculateDimensions, getModifiedPrompt } from '@/utils/imageUtils';
 import { handleApiResponse } from '@/utils/retryUtils';
-import { useSupabaseClient } from '@supabase/auth-helpers-react';
-import { useState } from 'react';
 
 export const useImageGeneration = ({
   session,
@@ -18,70 +16,169 @@ export const useImageGeneration = ({
   useAspectRatio,
   aspectRatio,
   updateCredits,
+  setGeneratingImages,
   modelConfigs,
-  imageCount = 1,
-  addToGenerationQueue,
-  currentGeneration,
-  completeCurrentGeneration
+  imageCount = 1
 }) => {
-  const supabase = useSupabaseClient();
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState(null);
+  const generateImage = async (isPrivate = false, finalPrompt = null) => {
+    if (!session || !prompt || !modelConfigs) {
+      !session && toast.error('Please sign in to generate images');
+      !prompt && toast.error('Please enter a prompt');
+      !modelConfigs && console.error('Model configs not loaded');
+      return;
+    }
 
-  const generateImage = async () => {
-    try {
-      setIsGenerating(true);
-      setError(null);
+    const modelConfig = modelConfigs[model];
+    if (!modelConfig) {
+      toast.error('Invalid model selected');
+      return;
+    }
 
-      // Create queue items for each image
-      const queueItems = [];
-      for (let i = 0; i < imageCount; i++) {
-        const { data: queueItem, error: queueError } = await supabase
-          .from('generation_queue')
-          .insert({
-            user_id: session.user.id,
-            prompt,
-            model: modelConfigs[model]?.apiUrl,
-            width,
-            height,
-            parameters: {
-              num_inference_steps: modelConfigs[model]?.inferenceSteps || 30,
-              seed: randomizeSeed ? Math.floor(Math.random() * 1000000) : seed
+    if (modelConfig?.qualityLimits && !modelConfig.qualityLimits.includes(quality)) {
+      toast.error(`Quality ${quality} not supported for model ${model}`);
+      return;
+    }
+
+    const creditCost = { "HD": 1, "HD+": 2, "4K": 3 }[quality] * imageCount;
+    const totalCredits = session.credits + (session.bonusCredits || 0);
+    if (totalCredits < creditCost) {
+      toast.error('Insufficient credits');
+      return;
+    }
+
+    const generationPromises = [];
+    for (let i = 0; i < imageCount; i++) {
+      const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed + i;
+      const generationId = Date.now().toString() + i;
+      
+      const modifiedPrompt = await getModifiedPrompt(finalPrompt || prompt, model, modelConfigs);
+      const maxDimension = qualityOptions[quality];
+      const { width: finalWidth, height: finalHeight, aspectRatio: finalAspectRatio } = calculateDimensions(
+        useAspectRatio, 
+        aspectRatio, 
+        width, 
+        height, 
+        maxDimension
+      );
+
+      setGeneratingImages(prev => [...prev, { 
+        id: generationId, 
+        width: finalWidth, 
+        height: finalHeight,
+        prompt: modifiedPrompt,
+        model,
+        is_private: isPrivate
+      }]);
+
+      const makeRequest = async (needNewKey = false) => {
+        try {
+          const { data: apiKeyData, error: apiKeyError } = await supabase
+            .from('huggingface_api_keys')
+            .select('api_key')
+            .eq('is_active', true)
+            .order('last_used_at', { ascending: true })
+            .limit(1)
+            .single();
+          
+          if (apiKeyError) {
+            setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
+            toast.error('Failed to get API key');
+            throw new Error(`Failed to get API key: ${apiKeyError.message}`);
+          }
+          if (!apiKeyData) {
+            setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
+            toast.error('No active API key available');
+            throw new Error('No active API key available');
+          }
+
+          await supabase
+            .from('huggingface_api_keys')
+            .update({ last_used_at: new Date().toISOString() })
+            .eq('api_key', apiKeyData.api_key);
+
+          const parameters = {
+            seed: actualSeed,
+            width: finalWidth,
+            height: finalHeight
+          };
+
+          const response = await fetch(modelConfig?.apiUrl, {
+            headers: {
+              Authorization: `Bearer ${apiKeyData.api_key}`,
+              "Content-Type": "application/json",
+              "x-wait-for-model": "true"
             },
-            quality,
-            aspect_ratio: useAspectRatio ? aspectRatio : null,
-            is_public: true
-          })
-          .select()
-          .single();
+            method: "POST",
+            body: JSON.stringify({
+              inputs: modifiedPrompt,
+              parameters
+            }),
+          });
 
-        if (queueError) throw queueError;
-        queueItems.push(queueItem);
+          const imageBlob = await handleApiResponse(response, 0, () => makeRequest(response.status === 429));
+          if (!imageBlob) {
+            setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
+            toast.error('Failed to generate image');
+            return;
+          }
 
-        // Trigger edge function for the first item
-        if (i === 0) {
-          const { error: triggerError } = await supabase
-            .functions.invoke('trigger-generation', {
-              body: { id: queueItem.id }
-            });
+          if (!imageBlob || imageBlob.size === 0) {
+            setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
+            toast.error('Generated image is invalid');
+            throw new Error('Generated image is empty or invalid');
+          }
 
-          if (triggerError) throw triggerError;
+          const timestamp = Date.now();
+          const filePath = `${session.user.id}/${timestamp}.png`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from('user-images')
+            .upload(filePath, imageBlob);
+            
+          if (uploadError) throw uploadError;
+
+          const { data: insertData, error: insertError } = await supabase
+            .from('user_images')
+            .insert([{
+              user_id: session.user.id,
+              storage_path: filePath,
+              prompt: modifiedPrompt,
+              seed: actualSeed,
+              width: finalWidth,
+              height: finalHeight,
+              model,
+              quality,
+              aspect_ratio: finalAspectRatio,
+              is_private: isPrivate
+            }])
+            .select()
+            .single();
+
+          if (insertError) {
+            console.error('Error inserting image record:', insertError);
+            throw insertError;
+          }
+
+          setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
+          toast.success(`Image generated successfully! (${isPrivate ? 'Private' : 'Public'})`);
+
+        } catch (error) {
+          console.error('Error generating image:', error);
+          toast.error('Failed to generate image');
+          setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
         }
-      }
+      };
 
-      return queueItems;
+      generationPromises.push(makeRequest());
+    }
+
+    try {
+      await Promise.all(generationPromises);
+      await updateCredits(quality, imageCount);
     } catch (error) {
-      console.error('Error starting generation:', error);
-      setError(error.message);
-      throw error;
-    } finally {
-      setIsGenerating(false);
+      console.error('Error in batch generation:', error);
     }
   };
 
-  return {
-    generateImage,
-    isGenerating,
-    error
-  };
+  return { generateImage };
 };

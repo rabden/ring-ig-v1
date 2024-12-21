@@ -1,1612 +1,796 @@
-# Ring IG v1 - Code Analysis Report
+# Notification System Analysis
 
-## 1. Architecture Overview
-- The application appears to be an AI-powered image generation platform
-- Built using React with modern hooks and components
-- Uses Supabase for backend services (storage, authentication, database)
-- Follows a modular architecture with clear separation of concerns
-
-## 2. Key Components
-
-### Core Components:
-1. `ImageGenerator.jsx` (Main Page)
-2. `ImageGeneratorContent.jsx` (Layout Component)
-3. `ImageGeneratorSettings.jsx` (Settings Panel)
-
-### Utility Components:
-- ImageGallery
-- BottomNavbar
-- MobileNotificationsMenu
-- ImageDetailsDialog
-- FullScreenImageView
-
-## 3. Custom Hooks
-
-### Primary Hooks:
-1. `useImageGeneration.js`
-   - Handles image generation logic
-   - Integrates with HuggingFace API
-   - Manages credit system
-   - Handles file uploads to Supabase
-
-2. `useImageHandlers.js`
-   - Manages image-related actions (download, remix, discard)
-   - Handles navigation and state updates
-
-3. `useImageGeneratorState.js`
-   - Central state management
-   - Manages all image generator settings and UI states
-
-## 4. Key Features
-
-### Image Generation:
-- Multiple quality options (HD, HD+, 4K)
-- Aspect ratio control
-- Seed management
-- Multiple model support
-- Batch generation capability
-
-### Image Management:
-- Public/Private image toggle
-- Image remixing
-- Download functionality
-- Image deletion
-- Full-screen view
-- Image details dialog
-
-### User Features:
-- Credit system
-- NSFW content toggle
-- Mobile responsive design
-- Profile management
-- Notifications system
-
-## 5. Technical Implementation Details
-
-### State Management:
-- Uses React hooks for local state
-- Custom hook (useImageGeneratorState) for centralized state
-- Query client for data fetching and caching
-
-### API Integration:
-- HuggingFace API for image generation
-- Supabase for:
-  - File storage
-  - User authentication
-  - Database operations
-  - API key management
-
-### Security Features:
-- API key rotation
-- Secure file storage
-- User authentication
-- Private image support
-
-## 6. Notable Design Patterns
-
-1. **Component Composition**
-   - Clear hierarchy of components
-   - Separation of concerns
-   - Reusable UI components
-
-2. **Custom Hook Pattern**
-   - Logic separation
-   - Reusable functionality
-   - State management
-
-3. **Responsive Design**
-   - Mobile-first approach
-   - Adaptive layouts
-   - Device-specific features
-
-## 7. Areas for Potential Improvement
-
-1. **Performance Optimization**
-   - Image caching
-   - Lazy loading implementation
-   - Bundle size optimization
-
-2. **Error Handling**
-   - More comprehensive error states
-   - Better error recovery mechanisms
-   - User feedback improvements
-
-3. **State Management**
-   - Consider using global state management
-   - Reduce prop drilling
-   - Optimize re-renders
-
-## 8. Dependencies and Integration
-
-### Key External Services:
-- Supabase
-- HuggingFace API
-
-### Main Libraries:
-- React
-- React Router
-- Tanstack Query
-- Sonner (for toasts)
-
-## 9. Code Quality
-
-### Strengths:
-- Well-organized file structure
-- Consistent coding patterns
-- Good separation of concerns
-- Clear naming conventions
-
-### Areas for Review:
-- Some duplicate code in handlers
-- Complex state management
-- Potential memory leaks in useEffect
-
-## 10. Image Generation Queue System
-
-### Requirements:
-1. Queue-based Generation:
-   - Images are added to a generation queue when create button is clicked
-   - Only one image generates at a time
-   - Next image starts after current one completes
-   - Queue visible in dropdown/drawer UI
-
-2. Multiple Image Handling:
-   - When using ImageCountChooser (2,3,4 images)
-   - Each image added as separate entry in queue
-   - Same workflow as single image generation
-   - Sequential processing of queue
-
-### Implementation Strategy:
-1. Queue Management:
-   - Add queue state in useImageGeneratorState
-   - Track status: 'pending', 'generating', 'completed'
-   - First-in-first-out (FIFO) processing
-
-2. UI Updates:
-   - Show queue in GeneratingImagesDrawer/Dropdown
-   - Display current generation status
-   - Show pending items in queue
-
-3. Generation Logic:
-   - Process one image at a time
-   - Auto-start next image after completion
-   - Handle errors without breaking queue
-
-## 11. Inference Steps Implementation
-
-### Overview:
-- Added default inference steps for each model in modelConfig
-- Steps vary based on model type and quality requirements
-- No UI control - fixed values per model
-
-### Implementation Details:
-1. Model Configuration:
-   - Fast models (turbo, Illustturbo): 20 steps
-   - Standard models (flux, anime): 25 steps
-   - High-quality models (sd35l, ultra): 30-35 steps
-   - NSFW models: 25-30 steps
-
-2. API Integration:
-   - Added num_inference_steps parameter to API calls
-   - Default fallback to 30 steps if not specified
-   - Included in parameters object for HuggingFace API
-
-3. Model-specific Settings:
-   - Turbo models: 20 steps for faster generation
-   - Art models (vector, pixel): 20 steps
-   - Standard models: 25 steps for balance
-   - Quality-focused models: 30+ steps
-
-### Benefits:
-1. Optimized Generation:
-   - Faster generation for simple models
-   - Better quality for complex models
-   - Balanced approach for standard use cases
-
-2. Model-specific Tuning:
-   - Each model uses optimal steps
-   - Maintains quality standards
-   - Efficient resource usage
-
-## 12. Persistent Image Generation Across Navigation
-
-### Current Issue:
-1. Image Generation State Loss:
-   - Generation tracking lost on page navigation
-   - Generation cancels when leaving generator page
-   - ~2 minute generation time is significant
-   - Queue state not persisted across routes
-
-### Potential Solutions:
-
-1. Supabase-based Queue System:
-   - Store generation queue in Supabase table
-   - Track status: pending, generating, completed
-   - Benefits:
-     * Persistent across sessions/navigation
-     * Real-time updates via subscriptions
-     * Reliable state management
-   - Considerations:
-     * Need queue table schema
-     * Handle concurrent users
-     * Manage API rate limits
-
-2. Global State Management:
-   - Move generation state to app-level
-   - Use React Context or state manager
-   - Benefits:
-     * Maintains state during navigation
-     * Simpler implementation
-   - Limitations:
-     * Lost on page refresh
-     * No persistence between sessions
-
-3. Background Worker Approach:
-   - Use Supabase Edge Functions
-   - Queue jobs for processing
-   - Benefits:
-     * Fully decoupled from frontend
-     * Robust error handling
-   - Challenges:
-     * Complex implementation
-     * Additional infrastructure needed
-
-### Recommended Approach:
-Hybrid solution combining:
-1. Supabase Queue Table:
-   ```sql
-   generation_queue (
-     id uuid primary key
-     user_id uuid references auth.users
-     prompt text
-     model text
-     status text
-     created_at timestamp
-     started_at timestamp
-     completed_at timestamp
-     image_url text
-     error text
-     parameters jsonb
-   )
-   ```
-
-2. Real-time Subscriptions:
-   - Subscribe to queue updates
-   - Update UI across all routes
-   - Handle status changes
-
-3. Global Context:
-   - Share queue state app-wide
-   - Manage UI updates efficiently
-   - Handle navigation gracefully
-
-### Implementation Strategy:
-1. Database Setup:
-   - Create queue table
-   - Add necessary indexes
-   - Setup RLS policies
-
-2. Frontend Integration:
-   - Create QueueContext provider
-   - Setup Supabase subscriptions
-   - Update UI components
-
-3. Generation Flow:
-   - Add to queue table
-   - Monitor status via subscription
-   - Update UI across routes
-   - Handle completion/errors
-
-4. Error Handling:
-   - Track failed generations
-   - Implement retry mechanism
-   - Clear stuck items
-   - User notifications
-
-## 13. Server-Side Image Generation Processing
-
-### Overview:
-- Move image generation process to Supabase Edge Functions
-- Complete independence from client-side state
-- Fully automated background processing
-
-### Architecture:
-
-1. Supabase Edge Function Setup:
-   ```javascript
-   // generation-worker.js
-   async function processGeneration(queueItem) {
-     // 1. HuggingFace API Call
-     // 2. Image Result Fetch
-     // 3. Supabase Storage Upload
-     // 4. Update Queue Status
-   }
-   ```
+## Key Files Structure
+1. Context:
+   - `src/contexts/NotificationContext.jsx` - Global notification management
 
 2. Components:
-   a) Queue Management:
-   ```sql
-   generation_queue (
-     id uuid primary key,
-     user_id uuid references auth.users,
-     prompt text,
-     model text,
-     status text,
-     created_at timestamp default now(),
-     started_at timestamp,
-     completed_at timestamp,
-     image_url text,
-     error text,
-     parameters jsonb,
-     retry_count int default 0,
-     last_error text,
-     processing_id text
-   )
-   ```
-
-   b) Database Functions:
-   ```sql
-   -- Trigger function to process new queue items
-   create function process_generation_queue()
-   returns trigger as $$
-   begin
-     -- Invoke Edge Function
-     -- Update processing status
-     return new;
-   end;
-   $$ language plpgsql;
-   ```
-
-### Flow:
-1. Client-Side:
-   - Add generation request to queue
-   - Subscribe to status updates
-   - Display progress/results
-
-2. Server-Side:
-   - Database trigger detects new queue item
-   - Edge function processes generation:
-     * Make HuggingFace API call
-     * Wait for completion
-     * Download result
-     * Upload to Supabase storage
-     * Update queue status
-   - Handle retries and errors
-
-3. Benefits:
-   - Generation continues if user closes browser
-   - Reliable completion handling
-   - Automatic retries
-   - Better error recovery
-   - Reduced client-side complexity
-
-4. Implementation Requirements:
-   a) Edge Function:
-   - HuggingFace API integration
-   - Error handling
-   - Retry logic
-   - Storage management
-
-   b) Database:
-   - Queue table
-   - Processing triggers
-   - Status tracking
-   - Cleanup procedures
-
-   c) Security:
-   - RLS policies
-   - API key management
-   - Rate limiting
-   - Access control
-
-5. Monitoring:
-   - Track processing times
-   - Monitor error rates
-   - Queue length metrics
-   - Resource usage
-
-6. Error Recovery:
-   - Automatic retry for failed items
-   - Dead letter queue for investigation
-   - Alert system for issues
-   - Manual intervention options
-
-### Implementation Priority:
-1. Setup Edge Function infrastructure
-2. Create queue processing logic
-3. Implement database triggers
-4. Add monitoring and alerts
-5. Build retry mechanism
-6. Create cleanup procedures
-
-### Considerations:
-1. Cost:
-   - Edge Function execution time
-   - Database operations
-   - Storage usage
-   - API rate limits
-
-2. Performance:
-   - Concurrent processing limits
-   - Queue throttling
-   - Resource allocation
-   - Response times
-
-3. Maintenance:
-   - Log management
-   - Error tracking
-   - Version updates
-   - Backup procedures
-
-## 14. Edge Function Limitations & Revised Architecture
-
-### Edge Function Constraints:
-1. Timeout Limits:
-   - Supabase Edge Functions: 50 seconds max
-   - Standard image generation: 120+ seconds
-   - Not suitable for direct API calls
-
-### Revised Architecture Options:
-
-1. Webhook-Based Solution:
-   ```javascript
-   // Step 1: Edge Function initiates generation
-   async function startGeneration(queueItem) {
-     const response = await fetch(modelConfig.apiUrl, {
-       headers: { 
-         'Authorization': `Bearer ${apiKey}`,
-         'X-Callback-URL': webhookUrl // HuggingFace callback
-       }
-     });
-     return response.json();
-   }
-
-   // Step 2: Webhook Endpoint (Separate Edge Function)
-   async function handleWebhook(request) {
-     const { imageData, queueId } = request.body;
-     // Process result and update queue
-   }
-   ```
-
-2. Polling-Based Solution:
-   ```javascript
-   // Step 1: Edge Function starts generation
-   async function initiateGeneration(queueItem) {
-     const { taskId } = await startHFGeneration();
-     await updateQueue({ 
-       status: 'processing',
-       processing_id: taskId 
-     });
-   }
-
-   // Step 2: Scheduled Function (Every 30s)
-   async function checkPendingGenerations() {
-     const pending = await getPendingTasks();
-     for (const task of pending) {
-       const status = await checkHFStatus(task.processing_id);
-       if (status.completed) {
-         await processResult(task, status);
-       }
-     }
-   }
-   ```
-
-### Recommended Architecture:
-
-1. Split Processing:
-   a) Generation Initiation:
-      - Edge Function starts HF generation
-      - Records task ID in queue
-      - Quick operation (<50s)
-
-   b) Status Monitoring:
-      - Scheduled function checks pending tasks
-      - Updates queue status
-      - Downloads & uploads completed images
-      - Handles retries and errors
-
-2. Database Schema Update:
-   ```sql
-   generation_queue (
-     -- Previous fields...
-     task_id text,          -- HuggingFace task ID
-     last_checked timestamp, -- Last status check
-     next_check timestamp,  -- Next scheduled check
-     check_count int,       -- Number of status checks
-     webhook_url text       -- Optional webhook URL
-   )
-   ```
-
-3. Processing States:
-   - 'queued': Initial state
-   - 'initiated': HF API call made
-   - 'processing': Generation in progress
-   - 'downloading': Fetching result
-   - 'uploading': Saving to storage
-   - 'completed': Final state
-   - 'failed': Error state
-
-4. Implementation Components:
-   a) Initiation Function:
-      - Validates request
-      - Starts HF generation
-      - Updates queue entry
-      - Fast execution (<50s)
-
-   b) Status Checker:
-      - Runs every 30 seconds
-      - Checks pending generations
-      - Updates status and progress
-      - Handles completions
-
-   c) Result Processor:
-      - Downloads completed images
-      - Uploads to storage
-      - Updates queue status
-      - Sends notifications
-
-5. Error Handling:
-   - Retry failed API calls
-   - Track check attempts
-   - Handle timeout cases
-   - Manage stuck generations
-
-6. Monitoring:
-   - Track generation times
-   - Monitor success rates
-   - Alert on failures
-   - Log processing metrics
-
-### Benefits:
-1. Reliable Processing:
-   - No timeout issues
-   - Robust status tracking
-   - Automatic recovery
-   - Complete audit trail
-
-2. Scalability:
-   - Handles multiple generations
-   - Efficient resource usage
-   - Predictable performance
-   - Easy to monitor
-
-3. User Experience:
-   - Real-time status updates
-   - Reliable completion
-   - Progress tracking
-   - Error notifications
-
-## 15. Alternative Server Solutions
-
-### Available Options:
-
-1. Serverless Platforms with Extended Timeouts:
-   ```
-   Platform          Max Timeout    Cost Model         Setup Complexity
-   AWS Lambda        15 minutes     Pay per use        Medium
-   GCP Functions     9 minutes      Pay per use        Medium
-   Azure Functions   10 minutes     Pay per use        Medium
-   DO Functions      10 minutes     Pay per use        Low
-   Railway.app       Unlimited      Resource based     Low
-   Render.com        Unlimited      Resource based     Low
-   ```
-
-2. Self-Hosted Solutions:
-   ```
-   Option            Advantages                     Considerations
-   VPS + Node.js     Full control, No timeouts     Server management
-   Docker Container  Portable, Scalable            Container orchestration
-   PM2 + Node.js     Process management            Server maintenance
-   ```
-
-### Recommended Solution:
-Railway.app or Render.com because:
-1. No timeout constraints
-2. Simple deployment process
-3. Built-in CI/CD
-4. Cost-effective for our use case
-5. Good monitoring tools
-
-### Implementation Approach:
-
-1. Server Setup:
-   ```javascript
-   // server.js
-   const express = require('express');
-   const app = express();
-   
-   app.post('/generate', async (req, res) => {
-     const { queueId } = req.body;
-     res.status(200).json({ received: true });
-     
-     // Process in background
-     processGeneration(queueId);
-   });
-   
-   async function processGeneration(queueId) {
-     // 1. Fetch queue item from Supabase
-     // 2. Make HF API call
-     // 3. Wait for completion
-     // 4. Upload to storage
-     // 5. Update queue status
-   }
-   ```
-
-2. Security:
-   - API key authentication
-   - Rate limiting
-   - IP whitelisting
-   - Request validation
-
-3. Integration Flow:
-   a) Edge Function Role:
-      - Receive generation request
-      - Add to queue
-      - Trigger worker server
-      - Fast completion (<50s)
-
-   b) Worker Server Role:
-      - Handle long-running process
-      - Manage HF API calls
-      - Process results
-      - Update Supabase
-
-4. Error Handling:
-   - Automatic retries
-   - Error reporting
-   - Status monitoring
-   - Alert system
-
-5. Monitoring:
-   - Server health checks
-   - Process duration tracking
-   - Error rate monitoring
-   - Resource usage stats
-
-### Cost Analysis:
-1. Railway.app:
-   - $5-20/month based on usage
-   - Includes monitoring
-   - Auto-scaling available
-
-2. Render.com:
-   - $7-15/month for basic instance
-   - Free tier available
-   - Pay for what you use
-
-### Next Steps:
-1. Choose platform (Railway/Render)
-2. Setup worker server
-3. Implement security measures
-4. Create monitoring system
-5. Test with real workloads
-
-## 16. Free Hosting Solutions
-
-### Available Free Options:
-
-1. Oracle Cloud Free Tier:
-   ```
-   Features:
-   - 2 AMD-based Compute VMs
-   - 24/7 availability
-   - 1 GB RAM per VM
-   - 4 ARM-based Ampere A1 cores
-   - 24 GB RAM total
-   - 200 GB block storage
-   - COMPLETELY FREE forever
-   ```
-
-2. Google Cloud Free Tier:
-   ```
-   Features:
-   - 1 e2-micro VM instance
-   - 1 GB RAM
-   - 30 GB HDD
-   - Available in us-west1, us-central1, us-east1
-   - COMPLETELY FREE forever
-   ```
-
-3. Heroku Eco Plan (GitHub Student):
-   ```
-   Features:
-   - Free with GitHub Student
-   - 1000 dyno hours
-   - No sleep mode
-   - Suitable for worker processes
-   ```
-
-4. Free Code Hosting + Oracle VM:
-   ```
-   Architecture:
-   GitHub Actions -> Oracle VM -> HF API
-                  -> Supabase Storage
-                  -> Queue Updates
-   ```
-
-### Recommended Solution:
-Oracle Cloud Free Tier because:
-1. Most generous free resources
-2. No time limits
-3. True 24/7 availability
-4. Sufficient RAM for image processing
-5. Multiple VMs available
-
-### Implementation Plan:
-
-1. Server Setup:
-   ```javascript
-   // Using PM2 for process management
-   const express = require('express');
-   const app = express();
-   
-   // Secure endpoints
-   app.use(express.json());
-   app.use((req, res, next) => {
-     const apiKey = req.headers['x-api-key'];
-     if (apiKey !== process.env.WORKER_API_KEY) {
-       return res.status(401).json({ error: 'Unauthorized' });
-     }
-     next();
-   });
-   
-   app.post('/generate', async (req, res) => {
-     const { queueId } = req.body;
-     res.status(200).json({ received: true });
-     processGeneration(queueId);
-   });
-   ```
-
-2. Deployment Steps:
-   ```bash
-   # Oracle Cloud Setup
-   1. Create Oracle Account
-   2. Setup VM Instance
-   3. Install Node.js and PM2
-   4. Setup SSL with Let's Encrypt
-   5. Configure firewall
-   ```
-
-3. Security (Zero Cost):
-   - Custom API key authentication
-   - Rate limiting with Express
-   - IP whitelist Supabase IPs
-   - HTTPS with Let's Encrypt
-
-4. Process Management:
-   ```javascript
-   // pm2 config
-   module.exports = {
-     apps: [{
-       name: 'image-worker',
-       script: 'server.js',
-       instances: 1,
-       autorestart: true,
-       watch: false,
-       max_memory_restart: '500M',
-       env: {
-         NODE_ENV: 'production'
-       }
-     }]
-   }
-   ```
-
-5. Monitoring (Free Tools):
-   - PM2 monitoring
-   - Server health checks
-   - Custom logging system
-   - Discord webhook alerts
-
-### Architecture Benefits:
-1. Cost: COMPLETELY FREE
-2. Performance:
-   - Dedicated VM
-   - No timeout limits
-   - Reliable processing
-   - Good network speed
-
-3. Reliability:
-   - 24/7 availability
-   - Auto-restart on crash
-   - Process management
-   - Error recovery
-
-4. Maintenance:
-   - Simple deployment
-   - Easy updates
-   - Basic monitoring
-   - Backup options
-
-### Next Steps:
-1. Create Oracle Cloud account
-2. Setup VM and networking
-3. Deploy Node.js worker
-4. Configure security
-5. Test with real workload
-
-## 17. Platform-Specific Free Solutions
-
-### 1. Supabase Options:
-
-a) Database Functions:
-```sql
--- Long-running PG function with pg_background
-CREATE FUNCTION process_image_generation()
-RETURNS void AS $$
-BEGIN
-  PERFORM pg_background_launch('
-    -- HF API call
-    -- Store result
-    -- Update status
-  ');
-END;
-$$ LANGUAGE plpgsql;
+   - `src/components/notifications/NotificationBell.jsx` - Notification indicator
+   - `src/components/notifications/NotificationItem.jsx` - Individual notification items
+   - `src/components/notifications/NotificationList.jsx` - Container for notifications
+   - `src/components/MobileNotificationsMenu.jsx` - Mobile-specific notifications view
+
+3. Integration Points:
+   - `App.jsx` - NotificationProvider wrapper
+   - `DesktopHeader.jsx` - NotificationBell integration
+   - `BottomNavbar.jsx` - Mobile notification integration
+
+## NotificationContext Implementation
+1. State Management:
+   - Uses React Context API
+   - Maintains notifications array and unreadCount
+   - Integrates with Supabase for real-time updates
+
+2. Key Features:
+   - Real-time notification updates via Supabase channels
+   - User-specific notifications filtering
+   - Automatic unread count management
+   - Sorted by creation date (descending)
+
+3. Core Functions:
+   - `markAsRead(notificationId)` - Mark notification as read
+   - `deleteNotification(notificationId)` - Remove notification
+   - `fetchNotifications()` - Get user's notifications
+
+4. Database Integration:
+   - Uses Supabase 'notifications' table
+   - Real-time subscription to notification changes
+   - User-specific filtering using session.user.id
+
+## Component Implementation Details
+
+### NotificationBell
+1. Features:
+   - Responsive design (mobile/desktop variants)
+   - Unread indicator dot
+   - Sheet-based notification panel (desktop)
+   - Click handler for mobile navigation
+
+2. UI Elements:
+   - Bell icon with unread indicator
+   - Sheet panel for desktop view
+   - Custom styling with Tailwind CSS
+
+### NotificationList
+1. Features:
+   - Scrollable notification area
+   - Empty state handling
+   - Responsive height calculation
+
+2. UI Elements:
+   - ScrollArea component
+   - Empty state with Bell icon
+   - Divider between notifications
+
+### NotificationItem
+1. Features:
+   - Rich notification content display
+   - Adaptive layout based on image presence
+   - Image support with error handling
+   - Multiple link support
+   - Read/unread state indication
+   - Delete functionality
+   - Timestamp formatting
+
+2. Data Structure:
+   - Title and message
+   - Optional image URLs (comma-separated)
+   - Optional links and link names
+   - Created timestamp
+   - Read/unread state
+
+3. UI Elements:
+   - Conditional image preview (w-24 width when present)
+   - Full-width text content when no image
+   - Title and message text
+   - Link buttons
+   - Delete button (hover state)
+   - Read/unread indicator
+   - Timestamp
+
+4. Layout Behavior:
+   - With image: Flex layout with 96px image width
+   - Without image: Full-width text content
+   - Responsive spacing and alignment
+   - Consistent padding in both layouts
+
+## Mobile vs Desktop Implementation
+1. Desktop:
+   - Sheet-based side panel
+   - Hover interactions
+   - Persistent notification list
+
+2. Mobile:
+   - Full-screen notification view
+   - Touch-optimized interactions
+   - Navigation-based access
+
+## Notification Types Supported
+1. Basic notifications:
+   - Title
+   - Message
+   - Timestamp
+   - Read/unread state
+
+2. Rich notifications:
+   - Images
+   - Multiple links
+   - Custom link names
+
+## To Analyze Next:
+1. Individual component implementations
+2. Mobile vs Desktop implementations
+3. UI/UX flow and interactions
+
+# UI Components Visual Improvements
+
+## Goals
+- Make components more subtle and visually appealing
+- Add calming visual effects
+- Improve rounded corners
+- Enhance visibility
+- Maintain consistency across components
+
+## Components to Improve
+1. Card
+   - Current: Basic shadow and rounded corners
+   - Planned: Softer shadow, larger border radius, subtle backdrop blur
+2. Button
+   - Current: Basic rounded corners, solid backgrounds
+   - Planned: Softer transitions, improved hover states, more rounded corners
+3. Drawer
+   - Current: Basic rounded top corners, solid overlay
+   - Improved: Larger rounded corners (24px), subtle backdrop blur, softer overlay
+4. Dropdown Menu
+   - Current: Sharp corners, solid backgrounds
+   - Improved: Larger rounded corners, backdrop blur, softer interactions
+5. Dialog
+   - Current: Basic rounded corners, solid overlay
+   - Improved: Larger rounded corners (rounded-2xl), backdrop blur, softer overlay
+6. Navigation Menu
+   - Current: Basic rounded corners, solid backgrounds
+   - Improved: Larger rounded corners, semi-transparent backgrounds, smooth transitions
+7. Slider
+   - Current: Basic slider with solid colors
+   - Improved: Larger thumb, softer colors, smooth transitions
+8. Switch
+   - Current: Basic switch with fixed thumb size
+   - Improved: Dynamic thumb size, softer colors, smooth transitions
+9. Tabs
+   - Current: Basic tabs with sharp corners
+   - Improved: Larger rounded corners, semi-transparent backgrounds, smooth transitions
+10. Tooltip
+    - Current: Basic tooltip with sharp corners
+    - Improved: Larger rounded corners, backdrop blur, softer appearance
+
+## Design Principles
+- Use softer shadows (shadow-sm -> custom shadow with lower opacity)
+- Implement consistent border radius (rounded-2xl/[24px] for larger components, rounded-xl for medium, rounded-lg for small)
+- Add subtle transitions (300ms duration, ease-in-out)
+- Use calming color palette (lower opacity backgrounds, softer contrasts)
+- Improve spacing and padding
+- Enhance hover and focus states with smooth transitions
+- Add subtle backdrop blur effects where appropriate
+
+## Improvements Made
+### Button Component
+- Increased border radius
+- Added smoother transitions
+- Softened background colors
+- Improved hover states
+- Enhanced focus ring visibility
+
+### Card Component
+- Added subtle backdrop blur effect
+- Increased border radius
+- Softened shadow
+- Improved spacing
+- Added subtle border
+
+### Drawer Component
+- Increased top border radius to 24px
+- Added subtle backdrop blur to overlay and content
+- Reduced overlay opacity for softer look
+- Added subtle border with low opacity
+- Improved spacing (p-6 instead of p-4)
+- Added smooth transitions
+- Added pull indicator with soft opacity
+- Softened text colors and font weights
+- Added custom shadow with lower opacity
+
+### Dropdown Menu Component
+- Increased border radius to rounded-xl for container and rounded-lg for items
+- Added backdrop blur effect
+- Added subtle border with low opacity
+- Improved padding (p-2 for container, px-3 py-2 for items)
+- Added smooth transitions (duration-200)
+- Softened background colors with opacity
+- Improved focus states with softer colors
+- Enhanced icon and text opacity for better hierarchy
+- Adjusted spacing for better visual balance
+- Improved disabled state opacity
+
+### Dialog Component
+- Increased border radius to rounded-2xl
+- Added backdrop blur effect to overlay and content
+- Reduced overlay opacity from 80% to 60%
+- Added subtle border with low opacity
+- Improved padding (p-8 instead of p-6)
+- Added smooth transitions (duration-300)
+- Softened background colors with opacity
+- Improved close button styling
+- Enhanced spacing between elements
+- Softened text colors and font weights
+- Added custom shadow with lower opacity
+
+### Navigation Menu Component
+- Increased border radius (rounded-xl for viewport, rounded-lg for triggers)
+- Added semi-transparent backgrounds with opacity
+- Added backdrop blur effect to viewport
+- Added subtle border with low opacity
+- Improved spacing between items
+- Added smooth transitions (duration-200/300)
+- Softened hover and active states
+- Reduced opacity for disabled states
+- Enhanced indicator styling
+- Added custom shadow with lower opacity
+- Improved padding (px-5 for triggers, p-2 for viewport)
+
+### Slider Component
+- Increased thumb size (h-6 w-6)
+- Added hover scale effect to thumb
+- Softened colors with opacity
+- Added smooth transitions
+- Improved track height and appearance
+- Added focus ring to track
+- Enhanced disabled state styling
+- Added subtle shadow to thumb
+- Improved border opacity
+- Added transition effects to range
+
+### Switch Component
+- Increased overall size (h-7 w-12)
+- Added dynamic thumb size (grows when checked)
+- Softened background colors with opacity
+- Added hover effect for unchecked state
+- Improved focus ring visibility
+- Added smooth transitions for all states
+- Enhanced disabled state styling
+- Added subtle shadow to thumb
+- Improved thumb positioning
+- Added transparent border for depth
+
+### Tabs Component
+- Increased list height and padding
+- Added rounded corners (rounded-lg for list, rounded-md for triggers)
+- Added subtle backdrop blur effect
+- Softened background colors with opacity
+- Added hover effects for triggers
+- Improved active state styling
+- Enhanced disabled state opacity
+- Added smooth transitions
+- Improved spacing between elements
+- Softened text colors
+
+### Tooltip Component
+- Increased border radius to rounded-lg
+- Added backdrop blur effect
+- Added subtle border with low opacity
+- Improved padding (px-4 py-2)
+- Added smooth transitions
+- Softened background colors with opacity
+- Softened text colors
+- Added custom shadow with lower opacity
+- Enhanced animations
+- Improved overall visibility
+
+## Progress Tracking
+[x] Button
+[x] Card
+[x] Drawer
+[x] Dropdown Menu
+[x] Dialog
+[x] Navigation Menu
+[x] Slider
+[x] Switch
+[x] Tabs
+[x] Tooltip
+
+## Summary of Overall Improvements
+- Consistent use of rounded corners across all components
+- Added subtle backdrop blur effects where appropriate
+- Implemented smooth transitions and animations
+- Softened colors and improved contrast
+- Enhanced spacing and padding
+- Improved hover and focus states
+- Added subtle shadows and borders
+- Reduced opacity for better visual hierarchy
+- Improved disabled states
+- Enhanced overall user experience
+
+This is a React+Vite+Tailwind+Javascirpt project, Its goal is to make a AI image generator Called Ring-Ig.
+
+We have these pages: @ImageGenerator.jsx , @UserProfile.jsx , @PublicProfile.jsx , @Login.jsx , @Inspiration.jsx , @Documentation.jsx
+
+We use supabase provider for: auth, storage, datatables
+
+we use huggingface serverless inference api call @useImageGeneration.js @imageUtils.js for image generation and offer a lot of models @modelConfig.js .
+
+we use a credit system @useUserCredits.js @usePromptCredits.js @usePromptImprovement.js @promptImprovement.js that allocates 50 daily credits and bonus credits to user and apply special conditions for credit deduction on image generation and also have a pro system that includes some features to be pro and only pro users can acces them @useProUser.js
+
+we have a retry system that allows to retry image generation when fails @retryUtils.js
+
+# Ring IG Design System & Styling Guide
+
+## 1. Core Design Principles
+
+### Visual Aesthetics
+- **Subtle & Calming**: Uses soft colors, reduced opacity, and gentle transitions
+- **Modern & Clean**: Emphasizes whitespace and clear visual hierarchy
+- **Consistent Roundness**: Unified border-radius approach across components
+- **Depth & Layering**: Strategic use of backdrop blur and shadows
+- **Fluid Interactions**: Smooth transitions and micro-animations
+
+### Color Philosophy
+```css
+/* Base Colors */
+--background: Subtle, dark theme background
+--foreground: High contrast text (90% opacity for primary text)
+--muted-foreground: Secondary text (60-70% opacity)
+--primary: Brand color with reduced opacity (80-90%)
+--accent: Interactive elements with very low opacity (5-10%)
+--border: Subtle borders with low opacity (5-10%)
 ```
 
-b) pg_net Extension:
-```sql
--- Make HTTP calls from Postgres
-CREATE FUNCTION start_generation()
-RETURNS void AS $$
-BEGIN
-  PERFORM net.http_post(
-    'https://api-inference.huggingface.co/models/...',
-    '{"inputs": "..."}',
-    '{
-      "Authorization": "Bearer ..."
-    }'::jsonb
-  );
-END;
-$$ LANGUAGE plpgsql;
-```
-
-### 2. GitHub Options:
-
-a) GitHub Actions:
-```yaml
-name: Process Image Generation
-on:
-  repository_dispatch:
-    types: [generate-image]
-
-jobs:
-  generate:
-    runs-on: ubuntu-latest
-    timeout-minutes: 360  # 6 hours
-    steps:
-      - uses: actions/checkout@v2
-      - name: Generate Image
-        run: |
-          # Call HF API
-          # Upload to Supabase
-          # Update status
-```
-
-b) GitHub Actions Workflow:
-```yaml
-name: Queue Processor
-on:
-  schedule:
-    - cron: '*/5 * * * *'  # Every 5 minutes
-  workflow_dispatch:
-
-jobs:
-  process-queue:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Process Queue
-        run: |
-          # Check pending generations
-          # Process each item
-          # Update status
-```
-
-### 3. Vercel Options:
-
-a) Serverless Functions:
-```javascript
-// pages/api/start-generation.js
-export default async function handler(req, res) {
-  // Start generation
-  // Return immediately
-  res.status(200).json({ started: true });
-}
-```
-
-b) Edge Functions:
-```javascript
-// pages/api/check-status.js
-export const config = {
-  runtime: 'edge'
-}
-
-export default async function handler(req) {
-  // Check generation status
-  return new Response(JSON.stringify({ status }));
-}
-```
-
-### Recommended Solution:
-GitHub Actions because:
-1. Free for public repositories
-2. Long execution times (up to 6 hours)
-3. Reliable infrastructure
-4. Good monitoring
-5. Easy integration
-
-### Implementation Strategy:
-
-1. Queue System:
-```sql
--- Supabase table
-create table generation_queue (
-  id uuid primary key default uuid_generate_v4(),
-  user_id uuid references auth.users,
-  prompt text,
-  model text,
-  status text default 'pending',
-  created_at timestamp with time zone default now(),
-  github_run_id text,
-  parameters jsonb,
-  result_url text
-);
-```
-
-2. GitHub Action Workflow:
-```yaml
-name: Image Generation
-on:
-  repository_dispatch:
-    types: [process-queue]
-
-jobs:
-  generate:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Process Queue
-        run: |
-          node process-queue.js
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          HF_API_KEY: ${{ secrets.HF_API_KEY }}
-```
-
-3. Edge Function Trigger:
-```javascript
-// Supabase Edge Function
-export async function trigger() {
-  await fetch('https://api.github.com/repos/owner/repo/dispatches', {
-    method: 'POST',
-    headers: {
-      'Authorization': `token ${process.env.GITHUB_TOKEN}`,
-      'Accept': 'application/vnd.github.v3+json'
-    },
-    body: JSON.stringify({
-      event_type: 'process-queue'
-    })
-  });
-}
-```
-
-### Benefits:
-1. Cost: FREE for public repos
-2. Features:
-   - 2000 minutes/month
-   - 500MB storage
-   - Unlimited queue processing
-   - Good monitoring
-
-3. Integration:
-   - Easy setup with Supabase
-   - Reliable execution
-   - Status tracking
-   - Error handling
-
-4. Limitations:
-   - Public repository required
-   - API keys in secrets
-   - Job concurrency limits
-   - Monthly minutes cap
-
-### Next Steps:
-1. Create GitHub workflow
-2. Setup Supabase queue table
-3. Create trigger function
-4. Implement queue processor
-5. Add monitoring
-
-## 18. GitHub Actions Implementation Plan
-
-### Phase 1: Infrastructure Setup
-
-1. Supabase Database:
-   ```sql
-   -- Generation Queue Table
-   create table public.generation_queue (
-     id uuid primary key default uuid_generate_v4(),
-     user_id uuid references auth.users not null,
-     prompt text not null,
-     model text not null,
-     status text not null default 'pending',
-     created_at timestamp with time zone default now(),
-     started_at timestamp with time zone,
-     completed_at timestamp with time zone,
-     github_run_id text,
-     github_run_number integer,
-     parameters jsonb not null default '{}',
-     result_url text,
-     error text,
-     retry_count integer default 0,
-     last_error text,
-     last_retry_at timestamp with time zone
-   );
-
-   -- Indexes
-   create index idx_generation_queue_status on public.generation_queue(status);
-   create index idx_generation_queue_user on public.generation_queue(user_id);
-   create index idx_generation_queue_created on public.generation_queue(created_at);
-
-   -- RLS Policies
-   alter table public.generation_queue enable row level security;
-
-   -- Users can view their own generations
-   create policy "Users can view own generations"
-     on public.generation_queue for select
-     using (auth.uid() = user_id);
-
-   -- Users can insert their own generations
-   create policy "Users can insert own generations"
-     on public.generation_queue for insert
-     with check (auth.uid() = user_id);
-   ```
-
-2. GitHub Repository Setup:
-   ```bash
-   # Repository Structure
-   /
-   ├── .github/
-   │   └── workflows/
-   │       ├── process-queue.yml    # Main workflow
-   │       └── cleanup.yml          # Maintenance workflow
-   ├── scripts/
-   │   ├── process-queue.js         # Queue processor
-   │   ├── huggingface.js          # HF API wrapper
-   │   ├── supabase.js             # Supabase client
-   │   └── utils.js                # Helper functions
-   └── package.json
-   ```
-
-### Phase 2: Core Components
-
-1. Queue Processor Workflow:
-   ```yaml
-   # .github/workflows/process-queue.yml
-   name: Process Generation Queue
-   on:
-     repository_dispatch:
-       types: [process-queue]
-     schedule:
-       - cron: '*/5 * * * *'  # Backup trigger
-     workflow_dispatch:        # Manual trigger
-
-   jobs:
-     process:
-       runs-on: ubuntu-latest
-       timeout-minutes: 360
-       steps:
-         - uses: actions/checkout@v3
-         - uses: actions/setup-node@v3
-           with:
-             node-version: '18'
-         - name: Process Queue
-           run: node scripts/process-queue.js
-           env:
-             SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-             SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-             HF_API_KEY: ${{ secrets.HF_API_KEY }}
-   ```
-
-2. Queue Processing Script:
-   ```javascript
-   // scripts/process-queue.js
-   async function processQueue() {
-     // 1. Get pending generations
-     const { data: pending } = await supabase
-       .from('generation_queue')
-       .select()
-       .eq('status', 'pending')
-       .order('created_at', { ascending: true })
-       .limit(1);
-
-     if (!pending?.length) return;
-
-     // 2. Process each generation
-     for (const item of pending) {
-       try {
-         // Update status
-         await updateStatus(item.id, 'processing');
-
-         // Generate image
-         const result = await generateImage(item);
-
-         // Upload to storage
-         const url = await uploadResult(result);
-
-         // Mark as complete
-         await updateStatus(item.id, 'completed', { result_url: url });
-       } catch (error) {
-         await handleError(item, error);
-       }
-     }
-   }
-   ```
-
-### Phase 3: Frontend Integration
-
-1. React Context:
-   ```javascript
-   // src/contexts/GenerationQueueContext.jsx
-   export const GenerationQueueProvider = ({ children }) => {
-     const [queue, setQueue] = useState([]);
-     const supabase = useSupabaseClient();
-
-     useEffect(() => {
-       // Subscribe to queue updates
-       const channel = supabase
-         .channel('generation_queue')
-         .on('postgres_changes', {
-           event: '*',
-           schema: 'public',
-           table: 'generation_queue'
-         }, handleQueueUpdate)
-         .subscribe();
-
-       return () => {
-         supabase.removeChannel(channel);
-       };
-     }, []);
-
-     // ... rest of the implementation
-   };
-   ```
-
-2. Queue Hook:
-   ```javascript
-   // src/hooks/useGenerationQueue.js
-   export const useGenerationQueue = () => {
-     const { queue, addToQueue, removeFromQueue } = useContext(GenerationQueueContext);
-     const supabase = useSupabaseClient();
-
-     const startGeneration = async (params) => {
-       // Add to queue
-       const { data, error } = await supabase
-         .from('generation_queue')
-         .insert([params])
-         .select()
-         .single();
-
-       if (error) throw error;
-
-       // Trigger GitHub Action
-       await triggerGitHubAction();
-
-       return data;
-     };
-
-     // ... other queue operations
-   };
-   ```
-
-### Phase 4: Error Handling & Monitoring
-
-1. Error Recovery:
-   ```javascript
-   // scripts/process-queue.js
-   async function handleError(item, error) {
-     const retryCount = (item.retry_count || 0) + 1;
-     const shouldRetry = retryCount <= 3 && isRetryableError(error);
-
-     await supabase
-       .from('generation_queue')
-       .update({
-         status: shouldRetry ? 'pending' : 'failed',
-         retry_count: retryCount,
-         last_error: error.message,
-         last_retry_at: shouldRetry ? new Date().toISOString() : null
-       })
-       .eq('id', item.id);
-   }
-   ```
-
-2. Monitoring Workflow:
-   ```yaml
-   # .github/workflows/monitoring.yml
-   name: Queue Monitoring
-   on:
-     schedule:
-       - cron: '*/15 * * * *'
-
-   jobs:
-     monitor:
-       runs-on: ubuntu-latest
-       steps:
-         - name: Check Queue Health
-           run: node scripts/monitor-queue.js
-         - name: Send Alerts
-           if: failure()
-           uses: actions/github-script@v6
-           with:
-             script: |
-               // Send Discord/Email alerts
-   ```
-
-### Phase 5: Testing & Deployment
-
-1. Test Cases:
-   ```javascript
-   // tests/queue.test.js
-   describe('Generation Queue', () => {
-     test('Successfully processes queue item', async () => {
-       // Test queue processing
-     });
-
-     test('Handles API errors', async () => {
-       // Test error handling
-     });
-
-     test('Respects rate limits', async () => {
-       // Test rate limiting
-     });
-   });
-   ```
-
-2. Deployment Checklist:
-   - [ ] Create Supabase tables and policies
-   - [ ] Setup GitHub repository and secrets
-   - [ ] Deploy Edge Functions
-   - [ ] Test queue processing
-   - [ ] Monitor initial generations
-   - [ ] Setup alerts
-
-### Phase 6: Optimization & Scaling
-
-1. Performance Optimizations:
-   - Batch processing when possible
-   - Efficient status updates
-   - Smart retry mechanisms
-   - Resource usage optimization
-
-2. Scaling Considerations:
-   - Monitor GitHub Actions minutes
-   - Track API rate limits
-   - Optimize storage usage
-   - Handle concurrent users
-
-### Next Steps:
-1. Begin with Phase 1: Database setup
-2. Create basic GitHub workflow
-3. Implement core processing logic
-4. Add frontend integration
-5. Setup monitoring
-6. Deploy and test
-
-## 19. Comprehensive Supabase Setup Plan
-
-### 1. Authentication Setup:
-```sql
--- Enable email auth, OAuth providers
--- Configure auth settings
-auth.users (
-  id uuid primary key,
-  email text,
-  created_at timestamp,
-  last_sign_in timestamp,
-  metadata jsonb
-)
-```
-
-### 2. Database Tables:
-
-a) User Profiles:
-```sql
-create table public.profiles (
-  id uuid primary key references auth.users,
-  username text unique,
-  full_name text,
-  avatar_url text,
-  website text,
-  is_pro boolean default false,
-  created_at timestamp with time zone default now(),
-  updated_at timestamp with time zone default now()
-);
-
--- Indexes
-create index idx_profiles_username on public.profiles(username);
-
--- RLS Policies
-alter table public.profiles enable row level security;
-
-create policy "Public profiles are viewable by everyone"
-  on public.profiles for select
-  using (true);
-
-create policy "Users can insert their own profile"
-  on public.profiles for insert
-  with check (auth.uid() = id);
-
-create policy "Users can update own profile"
-  on public.profiles for update
-  using (auth.uid() = id);
-```
-
-b) User Credits:
-```sql
-create table public.user_credits (
-  user_id uuid primary key references auth.users,
-  credits integer default 0,
-  bonus_credits integer default 0,
-  last_credit_update timestamp with time zone default now(),
-  created_at timestamp with time zone default now()
-);
-
--- RLS Policies
-alter table public.user_credits enable row level security;
-
-create policy "Users can view own credits"
-  on public.user_credits for select
-  using (auth.uid() = user_id);
-
-create policy "Only system can insert/update credits"
-  on public.user_credits for all
-  using (auth.uid() = user_id);
-```
-
-c) Generated Images:
-```sql
-create table public.generated_images (
-  id uuid primary key default uuid_generate_v4(),
-  user_id uuid references auth.users,
-  prompt text not null,
-  model text not null,
-  image_url text not null,
-  thumbnail_url text,
-  width integer,
-  height integer,
-  is_public boolean default true,
-  created_at timestamp with time zone default now(),
-  metadata jsonb default '{}'::jsonb,
-  likes_count integer default 0,
-  views_count integer default 0,
-  is_nsfw boolean default false
-);
-
--- Indexes
-create index idx_generated_images_user on public.generated_images(user_id);
-create index idx_generated_images_public on public.generated_images(is_public);
-create index idx_generated_images_created on public.generated_images(created_at);
-
--- RLS Policies
-alter table public.generated_images enable row level security;
-
-create policy "Public images are viewable by everyone"
-  on public.generated_images for select
-  using (is_public = true or auth.uid() = user_id);
-
-create policy "Users can insert own images"
-  on public.generated_images for insert
-  with check (auth.uid() = user_id);
-
-create policy "Users can update own images"
-  on public.generated_images for update
-  using (auth.uid() = user_id);
-```
-
-d) Generation Queue:
-```sql
-create table public.generation_queue (
-  id uuid primary key default uuid_generate_v4(),
-  user_id uuid references auth.users not null,
-  prompt text not null,
-  model text not null,
-  status text not null default 'pending',
-  created_at timestamp with time zone default now(),
-  started_at timestamp with time zone,
-  completed_at timestamp with time zone,
-  github_run_id text,
-  github_run_number integer,
-  parameters jsonb not null default '{}',
-  result_url text,
-  error text,
-  retry_count integer default 0,
-  last_error text,
-  last_retry_at timestamp with time zone,
-  width integer,
-  height integer,
-  is_public boolean default true,
-  is_nsfw boolean default false,
-  priority integer default 0
-);
-
--- Indexes
-create index idx_generation_queue_status on public.generation_queue(status);
-create index idx_generation_queue_user on public.generation_queue(user_id);
-create index idx_generation_queue_created on public.generation_queue(created_at);
-
--- RLS Policies
-alter table public.generation_queue enable row level security;
-
-create policy "Users can view own queue items"
-  on public.generation_queue for select
-  using (auth.uid() = user_id);
-
-create policy "Users can insert own queue items"
-  on public.generation_queue for insert
-  with check (auth.uid() = user_id);
-```
-
-e) User Follows:
-```sql
-create table public.user_follows (
-  follower_id uuid references auth.users not null,
-  following_id uuid references auth.users not null,
-  created_at timestamp with time zone default now(),
-  primary key (follower_id, following_id)
-);
-
--- Indexes
-create index idx_user_follows_follower on public.user_follows(follower_id);
-create index idx_user_follows_following on public.user_follows(following_id);
-
--- RLS Policies
-alter table public.user_follows enable row level security;
-
-create policy "Users can view follows"
-  on public.user_follows for select
-  using (true);
-
-create policy "Users can manage own follows"
-  on public.user_follows for all
-  using (auth.uid() = follower_id);
-```
-
-### 3. Storage Buckets:
-
-```sql
--- User Images Bucket
-insert into storage.buckets (id, name)
-values ('user-images', 'user-images');
-
--- User Avatars Bucket
-insert into storage.buckets (id, name)
-values ('avatars', 'avatars');
-
--- Storage Policies
-create policy "Images are publicly accessible"
-  on storage.objects for select
-  using (bucket_id = 'user-images');
-
-create policy "Users can upload own images"
-  on storage.objects for insert
-  with check (
-    bucket_id = 'user-images' and
-    auth.uid() = owner
-  );
-
-create policy "Avatar access"
-  on storage.objects for select
-  using (bucket_id = 'avatars');
-
-create policy "Avatar upload"
-  on storage.objects for insert
-  with check (
-    bucket_id = 'avatars' and
-    auth.uid() = owner
-  );
-```
-
-### 4. Functions:
-
-a) Credit Management:
-```sql
-create or replace function handle_credit_usage()
-returns trigger as $$
-begin
-  -- Deduct credits when generation starts
-  update public.user_credits
-  set credits = credits - 1
-  where user_id = NEW.user_id
-  and credits > 0;
-  return NEW;
-end;
-$$ language plpgsql;
-
-create trigger on_generation_start
-  after update of status on public.generation_queue
-  for each row
-  when (NEW.status = 'processing')
-  execute function handle_credit_usage();
-```
-
-b) Image Stats:
-```sql
-create or replace function increment_view_count(image_id uuid)
-returns void as $$
-begin
-  update public.generated_images
-  set views_count = views_count + 1
-  where id = image_id;
-end;
-$$ language plpgsql;
-```
-
-### 5. Edge Functions:
-
-a) Queue Trigger:
-```typescript
-// supabase/functions/trigger-generation/index.ts
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
-
-serve(async (req) => {
-  const { id } = await req.json()
+## 2. Component Architecture
+
+### Common Component Properties
+```css
+/* Base Component Styling */
+.component {
+  /* Background & Blur */
+  background-color: rgb(var(--card)/95%);
+  backdrop-filter: blur(2px);
   
-  // Trigger GitHub Action
-  const response = await fetch(
-    'https://api.github.com/repos/owner/repo/dispatches',
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `token ${Deno.env.get('GITHUB_TOKEN')}`,
-        'Accept': 'application/vnd.github.v3+json'
-      },
-      body: JSON.stringify({
-        event_type: 'process-queue',
-        client_payload: { queue_id: id }
-      })
-    }
-  )
-
-  return new Response(JSON.stringify({ triggered: true }))
-})
-```
-
-### 6. Realtime:
-
-```sql
--- Enable realtime for tables
-alter publication supabase_realtime
-add table public.generation_queue;
-
-alter publication supabase_realtime
-add table public.generated_images;
-```
-
-### 7. Initial Data:
-
-```sql
--- Insert default credits for new users
-create function public.handle_new_user()
-returns trigger as $$
-begin
-  insert into public.profiles (id)
-  values (new.id);
+  /* Border & Shadow */
+  border: 1px solid rgb(var(--border)/10%);
+  border-radius: theme(borderRadius.xl); /* 12px */
+  box-shadow: 0 8px 30px rgb(0 0 0 / 0.06);
   
-  insert into public.user_credits (user_id, credits, bonus_credits)
-  values (new.id, 10, 0);
-  
-  return new;
-end;
-$$ language plpgsql;
+  /* Transitions */
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute function public.handle_new_user();
+/* Hover States */
+.component:hover {
+  border-color: rgb(var(--border)/20%);
+  box-shadow: 0 8px 30px rgb(0 0 0 / 0.08);
+}
 ```
 
-### Next Steps:
-1. Create new Supabase project
-2. Execute schema setup
-3. Configure auth settings
-4. Create storage buckets
-5. Deploy edge functions
-6. Test complete setup
+### Border Radius Scale
+- **Extra Small**: `rounded-lg` (8px) - Small buttons, badges
+- **Regular**: `rounded-xl` (12px) - Cards, inputs, dropdowns
+- **Large**: `rounded-2xl` (16px) - Modal dialogs, large cards
+- **Extra Large**: `rounded-[24px]` - Full-screen modals
+
+## 3. Interactive Elements
+
+### Buttons
+```css
+/* Base Button */
+.button {
+  height: 32px; /* h-8 */
+  padding: 0 16px;
+  border-radius: theme(borderRadius.xl);
+  font-size: 14px;
+  transition: all 200ms;
+}
+
+/* Variants */
+.button-primary {
+  background: rgb(var(--primary)/90%);
+  hover:background: rgb(var(--primary)/80%);
+}
+
+.button-ghost {
+  background: rgb(var(--muted)/5%);
+  hover:background: rgb(var(--accent)/10%);
+}
+```
+
+### Inputs & Form Elements
+```css
+.input {
+  /* Base */
+  height: 36px;
+  padding: 8px 12px;
+  border-radius: theme(borderRadius.xl);
+  
+  /* States */
+  background: rgb(var(--secondary)/20%);
+  hover:background: rgb(var(--secondary)/30%);
+  focus:ring: 1px rgb(var(--ring));
+  
+  /* Placeholder */
+  placeholder:color: rgb(var(--muted-foreground)/40%);
+}
+```
+
+## 4. Layout Components
+
+### Cards
+```css
+.card {
+  /* Base */
+  background: rgb(var(--card)/95%);
+  backdrop-filter: blur(2px);
+  border: 1px solid rgb(var(--border)/10%);
+  border-radius: theme(borderRadius.2xl);
+  
+  /* Shadow */
+  box-shadow: 0 8px 30px rgb(0 0 0 / 0.06);
+  hover:box-shadow: 0 8px 30px rgb(0 0 0 / 0.08);
+  
+  /* Content Spacing */
+  padding: 24px;
+  gap: 16px;
+}
+```
+
+### Dialogs & Modals
+```css
+.dialog {
+  /* Overlay */
+  background: rgb(0 0 0 / 60%);
+  backdrop-filter: blur(2px);
+  
+  /* Content */
+  border-radius: 28px;
+  padding: 32px;
+  background: rgb(var(--card)/95%);
+  border: 1px solid rgb(var(--border)/10%);
+}
+```
+
+## 5. Animation & Transitions
+
+### Duration Scale
+- **Fast**: 200ms - Hover states, small interactions
+- **Medium**: 300ms - Modals, drawers, larger state changes
+- **Slow**: 500ms - Page transitions, complex animations
+
+### Common Animations
+```css
+/* Fade In */
+.fade-in {
+  animation: fadeIn 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Scale */
+.scale {
+  transform: scale(0.95);
+  transition: transform 200ms;
+}
+.scale:hover {
+  transform: scale(1);
+}
+```
+
+## 6. Typography
+
+### Text Hierarchy
+```css
+/* Headings */
+.heading {
+  color: rgb(var(--foreground)/90%);
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+/* Body Text */
+.body {
+  color: rgb(var(--foreground)/70%);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Muted Text */
+.muted {
+  color: rgb(var(--muted-foreground)/60%);
+  font-size: 12px;
+}
+```
+
+## 7. Responsive Design
+
+### Breakpoints
+```css
+/* Mobile First Approach */
+sm: '640px'
+md: '768px'
+lg: '1024px'
+xl: '1280px'
+2xl: '1536px'
+```
+
+### Mobile Optimizations
+- Increased touch targets (min 44px)
+- Simplified layouts
+- Full-width components
+- Bottom sheet patterns instead of dropdowns
+
+## 8. State Management
+
+### Interactive States
+```css
+/* Default */
+.default {
+  opacity: 90%;
+}
+
+/* Hover */
+.hover {
+  opacity: 100%;
+  background: rgb(var(--accent)/10%);
+}
+
+/* Active */
+.active {
+  background: rgb(var(--accent)/20%);
+}
+
+/* Disabled */
+.disabled {
+  opacity: 40%;
+  pointer-events: none;
+}
+```
+
+## 9. Best Practices
+
+### Performance
+- Use `transform` and `opacity` for animations
+- Implement will-change for heavy animations
+- Lazy load images and heavy content
+- Use responsive images with correct sizing
+
+### Accessibility
+- Maintain color contrast ratios (WCAG 2.1)
+- Proper focus states with visible indicators
+- Semantic HTML structure
+- ARIA labels for interactive elements
+
+### Maintainability
+- Use CSS variables for theme values
+- Implement consistent naming conventions
+- Modular component structure
+- Reusable utility classes
+
+This styling guide provides a comprehensive foundation for maintaining consistency across the application while ensuring a modern, accessible, and performant user interface. The system is designed to be flexible enough to accommodate future changes while maintaining a cohesive visual language.
+
+# Login Page Notes
+
+## Current Structure
+- Login page with split layout (left: images, right: auth UI)
+- Images and texts are now separated into different arrays
+- Clean, simple image transitions
+- No border radius on image section
+- Simplified typewriter effect
+
+## Implemented Changes
+1. ✅ Simplified Image Display:
+   - Removed reflection effect
+   - Clean fade and scale transitions
+   - High-quality image rendering
+   - Simple opacity-based loading states
+2. ✅ Simplified Typewriter:
+   - Using direct Typewriter component
+   - Consistent typing and deletion speed
+   - 2-second delay between texts
+   - Continuous loop through all texts
+
+## Technical Details
+- Using Framer Motion for animations
+- Using Tailwind CSS for styling
+- Display duration: 10000ms (10 seconds per image)
+- Typewriter settings:
+  - Type speed: 50ms
+  - Delete speed: 30ms
+  - Delay between texts: 2000ms
+  - Continuous loop enabled
+- Image improvements:
+  - Added `imageRendering: "high-quality"`
+  - Added `WebkitImageSmoothing: "high"`
+  - Clean opacity transitions
+  - Smooth scale animations
+
+## Additional Features
+- Hardware-accelerated animations
+- Responsive design maintained
+- Better image quality
+- Enhanced loading states
+- Smooth transitions between images
+
+# Color Scheme Update
+
+## Dark Theme Colors
+Updated the dark theme with a modern, cohesive color palette:
+
+### Base Colors
+- Background: `224 71% 4%` (Deep blue-black)
+- Foreground: `213 31% 91%` (Soft white)
+- Card/Popover: Matches background for consistency
+
+### Primary Colors
+- Primary: `210 40% 98%` (Bright white-blue)
+- Primary Foreground: `222.2 47.4% 11.2%` (Dark blue)
+
+### Secondary & Accent
+- Secondary: `222.2 47.4% 11.2%` (Dark blue)
+- Accent: `216 34% 17%` (Muted blue)
+- Both with light foregrounds for contrast
+
+### UI Elements
+- Muted: `223 47% 11%` (Dark blue-gray)
+- Border/Input/Ring: `216 34% 17%` (Consistent accent color)
+- Destructive: `0 63% 31%` (Deep red)
+
+### Design Choices
+1. More saturated background for depth
+2. Better contrast ratios for accessibility
+3. Consistent blue undertones throughout
+4. Simplified color repetition for cohesion
+5. Softer foreground colors for reduced eye strain
+
+# README Update Notes
+
+## New Structure
+1. ✅ Header Section:
+   - Project banner image
+   - Concise description
+   - Tech stack badges
+   - Clean visual hierarchy
+
+2. ✅ Features Section:
+   - Features showcase image
+   - Categorized features with emojis
+   - Clear, concise bullet points
+   - Visual organization
+
+3. ✅ Screenshots:
+   - Grid layout for screenshots
+   - Consistent styling
+   - Rounded corners
+   - Key interface views
+
+4. ✅ Quick Start:
+   - Prerequisites
+   - Step-by-step installation
+   - Clear commands
+   - Environment setup
+
+5. ✅ Additional Sections:
+   - Tech stack overview
+   - Responsive design showcase
+   - Security features
+   - Contributing guidelines
+   - License and acknowledgments
+
+## Required Assets
+1. Project Images:
+   - `public/ring-banner.png`
+   - `public/features-showcase.png`
+   - `public/screenshot-generator.png`
+   - `public/screenshot-gallery.png`
+   - `public/screenshot-profile.png`
+   - `public/screenshot-settings.png`
+   - `public/responsive-showcase.png`
+
+2. Image Specifications:
+   - Banner: Full width, 16:9 ratio
+   - Screenshots: 16:9 or 4:3 ratio
+   - Border radius: 8px or 12px
+   - High resolution
+   - Optimized file size
+
+## Style Guidelines
+- Use emojis for section headers
+- Consistent badge styling
+- Grid layout for screenshots
+- Proper spacing and alignment
+- Clean visual hierarchy
+
+# SEO and PWA Implementation Notes
+
+## URL Configuration
+1. ✅ Main Site URL:
+   - Base URL: https://ring.lovable.app
+   - Organization: Lovable (https://lovable.app)
+   - Social handle: @lovableai
+
+2. ✅ URL Updates:
+   - Updated all meta tag URLs
+   - Fixed social sharing URLs
+   - Added proper manifest URLs
+   - Updated structured data URLs
+
+## SEO Improvements
+1. ✅ Meta Tags:
+   - Optimized title with brand and purpose
+   - Descriptive meta description
+   - Relevant keywords
+   - Proper social sharing tags
+   - Author and verification tags
+
+2. ✅ Social Media Optimization:
+   - Open Graph tags for Facebook
+   - Twitter Card support
+   - Custom social images
+   - Rich descriptions
+   - Site name and creator info
+
+3. ✅ Structured Data:
+   - WebApplication schema
+   - Product features
+   - Pricing information
+   - Application category
+   - Organization details
+   - Feature list
+
+4. ✅ Technical SEO:
+   - Preconnect to critical origins
+   - Proper viewport settings
+   - Theme color for browsers
+   - Mobile optimization
+   - NoScript fallback
+
+## PWA Implementation
+1. ✅ Web Manifest:
+   - App name and description
+   - Icons and shortcuts
+   - Theme colors
+   - Display settings
+   - Proper start URL and scope
+   - App ID: app.lovable.ring
+
+2. ✅ Advanced PWA Features:
+   - Handle links preference
+   - Launch handler configuration
+   - Edge side panel support
+   - Related applications
+   - Client mode settings
+
+3. ✅ App Icons:
+   - Favicon (16x16, 32x32)
+   - Apple Touch Icon (180x180)
+   - Android Chrome Icons (192x192, 512x512)
+   - Safari Pinned Tab
+   - Maskable icons
+
+4. ✅ Mobile Optimization:
+   - Touch highlight disabled
+   - Status bar style
+   - Format detection
+   - Tap highlight color
+   - Application name
+
+## Required Assets
+1. Icons and Images:
+   - `/ring-icon.svg`
+   - `/android-chrome-192x192.png`
+   - `/android-chrome-512x512.png`
+   - `/apple-touch-icon.png`
+   - `/favicon-32x32.png`
+   - `/favicon-16x16.png`
+   - `/safari-pinned-tab.svg`
+   - `/og-image.png`
+   - `/twitter-image.png`
+   - `/screenshot-1.png`
+   - `/screenshot-2.png`
+
+2. Image Specifications:
+   - OG Image: 1200x630px
+   - Twitter Image: 1200x600px
+   - App Icons: Various sizes (16px to 512px)
+   - Screenshots: 1080x1920px (mobile), 1920x1080px (desktop)
