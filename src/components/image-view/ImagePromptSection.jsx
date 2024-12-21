@@ -13,7 +13,7 @@ const ImagePromptSection = ({
 }) => {
   return (
     <div className={cn("flex flex-col space-y-2")}>
-      <div className="p-2 space-y-2">
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">Prompt</h3>
           <div className="flex gap-1.5">

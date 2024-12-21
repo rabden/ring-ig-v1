@@ -82,12 +82,10 @@ const ImageCard = ({
 
   return (
     <>
-      <div className="mb-1 group">
+      <div className="mb-2 group">
         <Card className={cn(
-          "overflow-hidden rounded-2xl border-border/80 bg-card/95",
-          "backdrop-blur-[2px] shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
+          "overflow-hidden rounded-2xl bg-card/95",
           "transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]",
-          "hover:border-border/20"
         )}>
           <CardContent className="p-0 relative">
             <ImageStatusIndicators 

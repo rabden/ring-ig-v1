@@ -175,7 +175,6 @@ const ImageGallery = ({
                 <div
                   key={image.id}
                   ref={groupIndex === nonEmptyGroups.length - 1 && index === groupImages.length - 1 ? lastImageRef : null}
-                  className="mb-6"
                 >
                   <ImageCard
                     image={image}

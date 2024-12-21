@@ -181,26 +181,13 @@ const FullScreenImageView = ({
                       />
 
                       <div className="flex gap-1.5">
-                        <Button 
-                          onClick={onDownload} 
-                          variant="ghost" 
-                          size="sm"
-                          className={cn(
-                            "flex-1 h-7 rounded-md text-xs",
-                            "bg-muted/5 hover:bg-muted/10",
-                            "transition-all duration-200"
-                          )}
-                        >
-                          <Download className="mr-1.5 h-3.5 w-3.5 text-foreground/70" />
-                          <span>Download</span>
-                        </Button>
                         {isOwner && (
                           <Button 
                             onClick={handleDiscard} 
                             variant="ghost" 
                             size="sm"
                             className={cn(
-                              "flex-1 h-7 rounded-md text-xs",
+                              "flex-1 h-9 rounded-md text-xs",
                               "bg-destructive/5 hover:bg-destructive/10",
                               "text-destructive/90 hover:text-destructive",
                               "transition-all duration-200"
@@ -211,12 +198,25 @@ const FullScreenImageView = ({
                           </Button>
                         )}
                         <Button 
+                          onClick={onDownload} 
+                          variant="ghost" 
+                          size="sm"
+                          className={cn(
+                            "flex-1 h-9 rounded-lg text-xs",
+                            "bg-muted/5 hover:bg-muted/50",
+                            "transition-all duration-200"
+                          )}
+                        >
+                          <Download className="mr-1.5 h-3.5 w-3.5 text-foreground/70" />
+                          <span>Download</span>
+                        </Button>
+                        <Button 
                           onClick={handleRemixClick} 
                           variant="ghost" 
                           size="sm"
                           className={cn(
-                            "flex-1 h-7 rounded-md text-xs",
-                            "bg-muted/5 hover:bg-muted/10",
+                            "flex-1 h-9 rounded-lg text-xs",
+                            "bg-muted/5 hover:bg-muted/50",
                             "transition-all duration-200"
                           )}
                         >

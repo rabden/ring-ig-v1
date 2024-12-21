@@ -83,11 +83,11 @@ const DesktopPromptBox = ({
       <div 
         ref={boxRef}
         className={cn(
-          "hidden md:block w-full max-w-[900px] mx-auto px-2 mt-16 transition-all duration-300",
+          "hidden md:block w-full max-w-[850px] mx-auto px-2 mt-16 transition-all duration-300",
           className
         )}
       >
-        <div className="relative bg-card backdrop-blur-[2px] border border-border/80 rounded-2xl transition-all duration-300">
+        <div className="relative bg-card border border-border/80 rounded-2xl transition-all duration-300">
           <div className="p-2">
             <div className="relative">
               <textarea
@@ -99,11 +99,9 @@ const DesktopPromptBox = ({
                 className="w-full min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/40 overflow-y-auto scrollbar-none border-y border-border/5 py-6 px-3 transition-colors duration-200"
                 style={{ caretColor: 'currentColor' }}
               />
-              <div className="absolute top-0 left-0 w-full h-12 bg-gradient-to-b from-card/95 to-transparent pointer-events-none z-[1]" />
-              <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-card/95 to-transparent pointer-events-none z-[1]" />
             </div>
 
-            <div className="flex justify-between items-center mt-2">
+            <div className="flex justify-between items-center">
               <div className="w-[300px]">
                 <CreditCounter credits={credits} bonusCredits={bonusCredits} />
               </div>
@@ -112,7 +110,7 @@ const DesktopPromptBox = ({
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-8 w-8 p-0 rounded-xl hover:bg-accent/10"
+                    className="h-8 w-8 p-0 rounded-xl hover:bg-background/10"
                     onClick={onClear}
                   >
                     <X className="h-4 w-4 text-foreground/70" />
@@ -121,7 +119,7 @@ const DesktopPromptBox = ({
                 <Button
                   size="sm"
                   variant="outline"
-                  className="h-8 rounded-xl bg-background/50 hover:bg-accent/10 transition-all duration-200"
+                  className="h-8 rounded-xl bg-card hover:bg-background/10 transition-all duration-200"
                   onClick={handleImprovePrompt}
                   disabled={!prompt?.length || isImproving || !hasEnoughCreditsForImprovement}
                 >
