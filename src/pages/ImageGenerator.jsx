@@ -104,7 +104,6 @@ const ImageGenerator = () => {
     updateCredits,
     setGeneratingImages,
     modelConfigs,
-    imageCount,
     negativePrompt
   });
 

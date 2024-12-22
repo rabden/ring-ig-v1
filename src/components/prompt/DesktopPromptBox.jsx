@@ -47,12 +47,6 @@ const DesktopPromptBox = ({
     return () => observer.disconnect();
   }, [onVisibilityChange]);
 
-  const handlePromptChange = (e) => {
-    if (typeof onChange === 'function') {
-      onChange({ target: { value: e.target.value } });
-    }
-  };
-
   const handleImprovePrompt = async () => {
     if (!userId) {
       toast.error('Please sign in to improve prompts');
@@ -99,7 +93,7 @@ const DesktopPromptBox = ({
               <textarea
                 ref={textareaRef}
                 value={prompt}
-                onChange={handlePromptChange}
+                onChange={onChange}
                 onKeyDown={onKeyDown}
                 placeholder="A 4D HDR immersive 3D image..."
                 className="w-full min-h-[180px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/40 overflow-y-auto scrollbar-none border-y border-border/5 py-6 px-3 transition-colors duration-200"
