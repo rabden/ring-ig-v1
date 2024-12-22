@@ -8,20 +8,14 @@ const TruncatablePrompt = ({ prompt, className }) => {
   return (
     <div className={cn("relative", className)}>
       <p 
+        onClick={() => shouldTruncate && setIsExpanded(!isExpanded)}
         className={cn(
           "text-sm text-muted-foreground",
-          !isExpanded && shouldTruncate && "line-clamp-3"
+          !isExpanded && shouldTruncate && "line-clamp-3",
+          shouldTruncate && "cursor-pointer hover:text-muted-foreground/80"
         )}
       >
         {prompt}
-        {shouldTruncate && (
-          <span
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="text-primary hover:underline cursor-pointer ml-1"
-          >
-            {isExpanded ? "...less" : "...more"}
-          </span>
-        )}
       </p>
     </div>
   );
