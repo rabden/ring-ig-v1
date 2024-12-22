@@ -48,20 +48,20 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
           variant="ghost" 
           size="sm" 
           className={cn(
-            "h-8 rounded-xl bg-background/50 hover:bg-accent/10",
+            "h-8 rounded-xl bg-background/50 hover:bg-accent",
             "transition-all duration-200",
             showCheckmark && "text-primary"
           )}
         >
           {showCheckmark ? (
             <div className={cn(
-              "p-1 rounded-lg bg-primary/10 backdrop-blur-[1px] mr-2",
+              "p-1 rounded-lg  mr-2",
               completedImages.size > 0 && "animate-in zoom-in duration-300"
             )}>
               <Check className="w-4 h-4 text-primary/90" />
             </div>
           ) : (
-            <div className="p-1 rounded-lg bg-primary/10 backdrop-blur-[1px] mr-2">
+            <div className="p-1 rounded-lg  mr-2">
               <Loader className="w-4 h-4 animate-spin text-primary/90" />
             </div>
           )}
@@ -72,7 +72,7 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent 
         align="end" 
-        className="w-[300px] p-2 border-border/80 bg-card/95 backdrop-blur-[2px] shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
+        className="w-[300px] p-2 border-border/80 bg-card"
       >
         {generatingImages.map((img) => (
           <DropdownMenuItem 
@@ -86,7 +86,7 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
           >
             <div className="flex items-center gap-3 w-full">
               <div className="flex items-center gap-2">
-                <div className="p-1 rounded-lg bg-primary/10 backdrop-blur-[1px]">
+                <div className="p-1 rounded-lg ">
                   <Loader className="w-3.5 h-3.5 animate-spin text-primary/90" />
                 </div>
                 <span className="text-sm font-medium text-primary/90">Generating...</span>

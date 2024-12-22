@@ -41,26 +41,26 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="focus:outline-none max-w-[400px] mx-auto">
-        <DrawerHeader className="border-b border-border/5 px-6 py-4">
+      <DrawerContent className="focus:outline-none max-w-[350px] mx-auto">
+        <DrawerHeader className="border-b border-border/5 p-4">
           <DrawerTitle className="flex items-center gap-3 text-base font-medium text-foreground/90">
             {pendingCount > 0 ? (
               <div className="flex items-center gap-3">
-                <div className="p-1 rounded-lg bg-primary/10 backdrop-blur-[1px]">
+                <div className="p-1 rounded-lg ">
                   <Loader className="h-4 w-4 animate-spin text-primary/90" />
                 </div>
                 <span>Generating {pendingCount} image{pendingCount > 1 ? 's' : ''}...</span>
               </div>
             ) : allCompleted ? (
               <div className="flex items-center gap-3">
-                <div className="p-1 rounded-lg bg-primary/10 backdrop-blur-[1px]">
+                <div className="p-1 rounded-lg ">
                   <Check className="h-4 w-4 text-primary/90" />
                 </div>
                 <span>Complete</span>
               </div>
             ) : (
               <div className="flex items-center gap-3">
-                <div className="p-1 rounded-lg bg-primary/10 backdrop-blur-[1px]">
+                <div className="p-1 rounded-lg ">
                   <Loader className="h-4 w-4 animate-spin text-primary/90" />
                 </div>
                 <span>Processing...</span>
@@ -112,11 +112,11 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
                 <div className="flex items-center gap-2 text-xs text-muted-foreground/50 group-hover:text-muted-foreground/60 transition-colors duration-200">
                   <span>{modelConfigs?.[image.model]?.name || image.model}</span>
                   {image.status === 'completed' ? (
-                    <div className="ml-auto p-1 rounded-lg bg-primary/10 backdrop-blur-[1px]">
+                    <div className="ml-auto p-1 rounded-lg ">
                       <Check className="h-3.5 w-3.5 text-primary/90" />
                     </div>
                   ) : (
-                    <div className="ml-auto p-1 rounded-lg bg-primary/10 backdrop-blur-[1px]">
+                    <div className="ml-auto p-1 rounded-lg ">
                       <Loader className="h-3.5 w-3.5 animate-spin text-primary/90" />
                     </div>
                   )}
