@@ -10,7 +10,7 @@ export const modelConfig = {
     image: "https://i.ibb.co.com/3C2N2LJ/1734417062623.jpg",
     example: "make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c",
     steps: 4,
-    use_guidance: true,
+    use_guidance: false,
     defaultguidance: 7.5,
     use_negative_prompt: true,
     default_negative_prompt: "ugly, bad anatomy, blurry, pixelated, poor quality, watermark, signature, text"
@@ -26,7 +26,7 @@ export const modelConfig = {
     image: "https://i.ibb.co.com/51P0fS0/out-0.webp",
     example: "make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c",
     steps: 4,
-    use_guidance: true,
+    use_guidance: false,
     defaultguidance: 7.5,
     use_negative_prompt: false
   },
@@ -41,8 +41,8 @@ export const modelConfig = {
     image: "https://i.ibb.co.com/XDLVk6m/R8-sd3-5-L-00001.webp",
     example: "make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c",
     steps: 40,
-    use_guidance: true,
-    defaultguidance: 8,
+    use_guidance: false,
+    defaultguidance: 4.5,
     use_negative_prompt: true,
     default_negative_prompt: "ugly, bad anatomy, blurry, pixelated, poor quality, watermark, signature, text"
   },
