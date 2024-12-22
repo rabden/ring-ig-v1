@@ -232,6 +232,8 @@ const ImageGeneratorContent = ({
                 proMode={proMode}
                 nsfwEnabled={nsfwEnabled}
                 setNsfwEnabled={setNsfwEnabled}
+                negativePrompt={imageGeneratorProps.negativePrompt}
+                setNegativePrompt={imageGeneratorProps.setNegativePrompt}
               />
             </div>
           </div>

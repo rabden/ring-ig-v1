@@ -18,7 +18,8 @@ export const useImageGeneration = ({
   updateCredits,
   setGeneratingImages,
   modelConfigs,
-  imageCount = 1
+  imageCount = 1,
+  negativePrompt
 }) => {
   const generateImage = async (isPrivate = false, finalPrompt = null) => {
     if (!session || !prompt || !modelConfigs) {
@@ -102,7 +103,9 @@ export const useImageGeneration = ({
             height: finalHeight,
             ...(modelConfig.steps && { num_inference_steps: parseInt(modelConfig.steps) }),
             ...(modelConfig.use_guidance && { guidance_scale: modelConfig.defaultguidance }),
-            ...(modelConfig.use_negative_prompt && { negative_prompt: finalNegativePrompt || modelConfig.default_negative_prompt })
+            ...(modelConfig.use_negative_prompt && modelConfig.default_negative_prompt && { 
+              negative_prompt: negativePrompt || modelConfig.default_negative_prompt 
+            })
           };
 
           const response = await fetch(modelConfig?.apiUrl, {
