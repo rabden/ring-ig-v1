@@ -49,6 +49,7 @@ const ImageGenerator = () => {
   } = useImageGeneratorState();
 
   const [showPrivate, setShowPrivate] = useState(false);
+  const [negativePrompt, setNegativePrompt] = useState("");
 
   // Query for remix image if remixId is present
   const { data: remixImage, isLoading: isRemixLoading } = useQuery({
@@ -103,7 +104,7 @@ const ImageGenerator = () => {
     updateCredits,
     setGeneratingImages,
     modelConfigs,
-    imageCount
+    negativePrompt
   });
 
   const handleGenerateImage = async () => {

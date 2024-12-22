@@ -13,6 +13,7 @@ import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 import { toast } from 'sonner';
 import CreditCounter from '@/components/ui/credit-counter';
 import { useLocation } from 'react-router-dom';
+import { Textarea } from "@/components/ui/textarea";
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -37,7 +38,8 @@ const ImageGeneratorSettings = ({
   isPrivate,
   setIsPrivate,
   hidePromptOnDesktop = false,
-  updateCredits
+  updateCredits,
+  negativePrompt, setNegativePrompt
 }) => {
   const location = useLocation();
   const isGenerateTab = location.hash === '#imagegenerate';
@@ -147,6 +149,17 @@ const ImageGeneratorSettings = ({
           </TabsList>
         </Tabs>
       </SettingSection>
+
+      {modelConfigs[model]?.use_negative_prompt && (
+        <SettingSection label="Negative Prompt" tooltip="Specify what you don't want to see in the generated image">
+          <Textarea
+            placeholder={modelConfigs[model]?.default_negative_prompt || "Enter negative prompt..."}
+            className="resize-none"
+            value={negativePrompt}
+            onChange={(e) => setNegativePrompt(e.target.value)}
+          />
+        </SettingSection>
+      )}
 
       <SettingSection label="Aspect Ratio" tooltip="Slide left for portrait, center for square, right for landscape">
         <AspectRatioChooser 

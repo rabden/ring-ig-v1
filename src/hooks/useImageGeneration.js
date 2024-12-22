@@ -100,7 +100,9 @@ export const useImageGeneration = ({
             seed: actualSeed,
             width: finalWidth,
             height: finalHeight,
-            ...(modelConfig.steps && { num_inference_steps: parseInt(modelConfig.steps) })
+            ...(modelConfig.steps && { num_inference_steps: parseInt(modelConfig.steps) }),
+            ...(modelConfig.use_guidance && { guidance_scale: modelConfig.defaultguidance }),
+            ...(modelConfig.use_negative_prompt && { negative_prompt: finalNegativePrompt || modelConfig.default_negative_prompt })
           };
 
           const response = await fetch(modelConfig?.apiUrl, {
