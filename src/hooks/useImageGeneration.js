@@ -39,7 +39,7 @@ export const useImageGeneration = ({
       return;
     }
 
-    const creditCost = { "HD": 1, "HD+": 2, "4K": 3 }[quality] * imageCount;
+    const creditCost = { "HD": 1, "HD+": 2 }[quality] * imageCount;
     const totalCredits = session.credits + (session.bonusCredits || 0);
     if (totalCredits < creditCost) {
       toast.error('Insufficient credits');
@@ -99,7 +99,8 @@ export const useImageGeneration = ({
           const parameters = {
             seed: actualSeed,
             width: finalWidth,
-            height: finalHeight
+            height: finalHeight,
+            ...(modelConfig.steps && { num_inference_steps: parseInt(modelConfig.steps) })
           };
 
           const response = await fetch(modelConfig?.apiUrl, {

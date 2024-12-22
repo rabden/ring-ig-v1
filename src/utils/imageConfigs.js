@@ -18,8 +18,7 @@ export const aspectRatios = {
 
 export const qualityOptions = {
   "HD": 1024,
-  "HD+": 1536,
-  "4K": 2048
+  "HD+": 1536
 }
 
 export const modelConfigs = {
