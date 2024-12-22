@@ -80,7 +80,7 @@ const PromptInput = ({
             "w-full resize-none bg-transparent text-base focus:outline-none",
             "placeholder:text-muted-foreground/40 overflow-y-auto scrollbar-none",
             "py-6 px-1",
-            "min-h-[450px] md:min-h-[250px]",
+            "min-h-[450px] md:min-h-[350px]",
             "transition-colors duration-200"
           )}
           style={{ 
