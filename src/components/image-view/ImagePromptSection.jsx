@@ -6,13 +6,14 @@ import { cn } from "@/lib/utils";
 
 const ImagePromptSection = ({ 
   prompt, 
+  negative_prompt,
   copyIcon, 
   shareIcon, 
   onCopyPrompt, 
   onShare 
 }) => {
   return (
-    <div className={cn("flex flex-col space-y-2")}>
+    <div className={cn("flex flex-col space-y-4")}>
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">Prompt</h3>
@@ -51,15 +52,25 @@ const ImagePromptSection = ({
             </Button>
           </div>
         </div>
-        <div className={cn(
-          "rounded-md",
-        )}>
+        <div className={cn("rounded-md")}>
           <TruncatablePrompt 
             prompt={prompt} 
             className="text-sm text-foreground/90 leading-relaxed"
           />
         </div>
       </div>
+
+      {negative_prompt && (
+        <div className="space-y-2">
+          <h3 className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">Negative Prompt</h3>
+          <div className={cn("rounded-md")}>
+            <TruncatablePrompt 
+              prompt={negative_prompt} 
+              className="text-sm text-foreground/90 leading-relaxed"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

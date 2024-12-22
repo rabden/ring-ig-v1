@@ -229,6 +229,7 @@ const FullScreenImageView = ({
 
                   <ImagePromptSection 
                     prompt={image.user_prompt || image.prompt}
+                    negative_prompt={image.negative_prompt}
                     copyIcon={copyIcon}
                     shareIcon={shareIcon}
                     onCopyPrompt={handleCopyPrompt}

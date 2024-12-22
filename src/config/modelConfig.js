@@ -120,7 +120,7 @@ export const modelConfig = {
     example: "Make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c",
     steps: 25,
     use_guidance: true,
-    defaultguidance: 7.5,
+    defaultguidance: 3,
     use_negative_prompt: true,
     default_negative_prompt: "ugly, bad anatomy, blurry, pixelated, poor quality, watermark, signature, text"
   },
