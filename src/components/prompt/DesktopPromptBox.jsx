@@ -102,7 +102,7 @@ const DesktopPromptBox = ({
                 onChange={handlePromptChange}
                 onKeyDown={onKeyDown}
                 placeholder="A 4D HDR immersive 3D image..."
-                className="w-full resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/40 overflow-y-auto scrollbar-none border-y border-border/5 py-6 px-3 transition-colors duration-200"
+                className="w-full min-h-[350px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/40 overflow-y-auto scrollbar-none border-y border-border/5 py-6 px-3 transition-colors duration-200"
                 style={{ caretColor: 'currentColor' }}
               />
             </div>
