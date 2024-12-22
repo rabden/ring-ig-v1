@@ -7,15 +7,19 @@ import {
 } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Button } from "@/components/ui/button"
-import { Copy, Share2, Check } from "lucide-react"
+import { Copy, Share2, Check, ChevronDown, ChevronUp } from "lucide-react"
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { format } from 'date-fns'
 import { cn } from "@/lib/utils"
+
+const MAX_LENGTH = 150;
 
 const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
   const { data: modelConfigs } = useModelConfigs();
   const [copyIcon, setCopyIcon] = useState('copy');
   const [shareIcon, setShareIcon] = useState('share');
+  const [isPromptExpanded, setIsPromptExpanded] = useState(false);
+  const [isNegativePromptExpanded, setIsNegativePromptExpanded] = useState(false);
   
   if (!image) return null;
 
@@ -39,6 +43,17 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
     setShareIcon('check');
     setTimeout(() => setShareIcon('share'), 1500);
   };
+
+  const shouldTruncatePrompt = image.prompt.length > MAX_LENGTH;
+  const shouldTruncateNegativePrompt = image.negative_prompt?.length > MAX_LENGTH;
+
+  const displayedPrompt = shouldTruncatePrompt && !isPromptExpanded
+    ? `${image.prompt.slice(0, MAX_LENGTH)}...`
+    : image.prompt;
+
+  const displayedNegativePrompt = shouldTruncateNegativePrompt && !isNegativePromptExpanded
+    ? `${image.negative_prompt.slice(0, MAX_LENGTH)}...`
+    : image.negative_prompt;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -97,9 +112,52 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
                 "transition-colors duration-200",
                 "group"
               )}>
-                <p className="text-sm text-foreground/90 leading-relaxed">{image.prompt}</p>
+                <p className="text-sm text-foreground/90 leading-relaxed p-3">{displayedPrompt}</p>
+                {shouldTruncatePrompt && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full flex items-center justify-center py-1 text-xs text-muted-foreground/70"
+                    onClick={() => setIsPromptExpanded(!isPromptExpanded)}
+                  >
+                    {isPromptExpanded ? (
+                      <><ChevronUp className="h-4 w-4 mr-1" /> Show Less</>
+                    ) : (
+                      <><ChevronDown className="h-4 w-4 mr-1" /> Show More</>
+                    )}
+                  </Button>
+                )}
               </div>
             </div>
+
+            {image?.negative_prompt && (
+              <div className="space-y-2">
+                <h3 className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">Negative Prompt</h3>
+                <div className={cn(
+                  "rounded-md",
+                  "bg-muted/5 hover:bg-muted/10",
+                  "border border-border/5",
+                  "transition-colors duration-200",
+                  "group"
+                )}>
+                  <p className="text-sm text-foreground/90 leading-relaxed p-3">{displayedNegativePrompt}</p>
+                  {shouldTruncateNegativePrompt && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full flex items-center justify-center py-1 text-xs text-muted-foreground/70"
+                      onClick={() => setIsNegativePromptExpanded(!isNegativePromptExpanded)}
+                    >
+                      {isNegativePromptExpanded ? (
+                        <><ChevronUp className="h-4 w-4 mr-1" /> Show Less</>
+                      ) : (
+                        <><ChevronDown className="h-4 w-4 mr-1" /> Show More</>
+                      )}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-2">
               {detailItems.map((item, index) => (

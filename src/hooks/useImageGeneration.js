@@ -143,11 +143,10 @@ export const useImageGeneration = ({
             
           if (uploadError) throw uploadError;
 
-          const { data: insertData, error: insertError } = await supabase
+          const { data: imageData, error: imageError } = await supabase
             .from('user_images')
-            .insert([{
+            .insert({
               user_id: session.user.id,
-              storage_path: filePath,
               prompt: modifiedPrompt,
               seed: actualSeed,
               width: finalWidth,
@@ -155,14 +154,16 @@ export const useImageGeneration = ({
               model,
               quality,
               aspect_ratio: finalAspectRatio,
-              is_private: isPrivate
-            }])
+              image_url: filePath,
+              is_private: isPrivate,
+              ...(modelConfig.use_negative_prompt && negativePrompt && { negative_prompt: negativePrompt })
+            })
             .select()
             .single();
 
-          if (insertError) {
-            console.error('Error inserting image record:', insertError);
-            throw insertError;
+          if (imageError) {
+            console.error('Failed to save image:', imageError);
+            throw imageError;
           }
 
           setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
