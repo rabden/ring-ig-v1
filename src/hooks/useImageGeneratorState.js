@@ -12,11 +12,8 @@ export const useImageGeneratorState = () => {
     if (savedState) {
       try {
         const parsedState = JSON.parse(savedState);
-        // Only restore specific fields that should persist
-        // Filter out completed generations from generatingImages
-        const activeGenerations = (parsedState.generatingImages || []).filter(
-          img => img.status === 'pending' || img.status === 'processing'
-        );
+        // Keep all generation states, not just pending/processing
+        const generatingImages = parsedState.generatingImages || [];
 
         // Validate model and quality compatibility
         let initialModel = parsedState.model || 'flux';
@@ -44,7 +41,7 @@ export const useImageGeneratorState = () => {
           detailsDialogOpen: false,
           fullScreenViewOpen: false,
           fullScreenImageIndex: 0,
-          generatingImages: activeGenerations,
+          generatingImages,
           activeView: 'myImages',
           nsfwEnabled: parsedState.nsfwEnabled ?? false,
           style: null,
@@ -88,9 +85,7 @@ export const useImageGeneratorState = () => {
   // Save relevant state to localStorage whenever it changes
   useEffect(() => {
     const stateToSave = {
-      generatingImages: state.generatingImages.filter(img => 
-        img.status === 'pending' || img.status === 'processing'
-      ),
+      generatingImages: state.generatingImages,
       nsfwEnabled: state.nsfwEnabled,
       model: state.model,
       quality: state.quality

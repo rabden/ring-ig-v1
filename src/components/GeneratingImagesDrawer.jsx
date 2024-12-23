@@ -133,16 +133,14 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [], onC
                         <Copy className="h-3.5 w-3.5" />
                       </Button>
                     )}
-                    {image.status !== 'completed' && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-red-500/70 hover:text-red-500"
-                        onClick={(e) => handleCancel(e, image.id)}
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </Button>
-                    )}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-red-500/70 hover:text-red-500"
+                      onClick={(e) => handleCancel(e, image.id)}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
                     {image.width && image.height && (
                       <Badge 
                         variant={image.status === 'completed' ? "secondary" : "outline"} 

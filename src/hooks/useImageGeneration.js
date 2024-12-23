@@ -44,19 +44,6 @@ export const useImageGeneration = ({
     // Update UI state and localStorage
     setGeneratingImages(prev => {
       const newState = prev.filter(img => img.id !== generationId);
-      try {
-        const savedState = localStorage.getItem(STORAGE_KEY);
-        if (savedState) {
-          const parsedState = JSON.parse(savedState);
-          const updatedState = {
-            ...parsedState,
-            generatingImages: parsedState.generatingImages?.filter(img => img.id !== generationId) || []
-          };
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedState));
-        }
-      } catch (error) {
-        console.error('Error updating localStorage:', error);
-      }
       return newState;
     });
 

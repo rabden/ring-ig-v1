@@ -139,16 +139,14 @@ const GeneratingImagesDropdown = ({ generatingImages = [], onCancel }) => {
                     <Copy className="h-3.5 w-3.5" />
                   </Button>
                 )}
-                {img.status !== 'completed' && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-red-500/70 hover:text-red-500"
-                    onClick={(e) => handleCancel(e, img.id)}
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </Button>
-                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-red-500/70 hover:text-red-500"
+                  onClick={(e) => handleCancel(e, img.id)}
+                >
+                  <X className="h-3.5 w-3.5" />
+                </Button>
                 <Badge 
                   variant="secondary" 
                   className={cn(
