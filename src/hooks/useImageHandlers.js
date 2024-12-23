@@ -4,6 +4,7 @@ import { useProUser } from '@/hooks/useProUser'
 import { toast } from 'sonner'
 import { handleImageDiscard } from '@/utils/discardUtils'
 import { useNavigate } from 'react-router-dom'
+import { qualityOptions } from '@/utils/imageConfigs'
 
 export const useImageHandlers = ({
   generateImage,
@@ -16,6 +17,7 @@ export const useImageHandlers = ({
   setWidth,
   setHeight,
   setQuality,
+  quality,
   setAspectRatio,
   setUseAspectRatio,
   aspectRatios = [],
@@ -39,10 +41,14 @@ export const useImageHandlers = ({
   }
 
   const handleModelChange = (newModel) => {
-    if (newModel === 'turbo' && (setQuality('HD+') || setQuality('4K'))) {
-      setQuality('HD');
+    const modelConfig = modelConfigs?.[newModel];
+    if (modelConfig?.qualityLimits) {
+      // If current quality is not in the allowed qualities for this model, set to HD
+      if (!modelConfig.qualityLimits.includes(quality)) {
+        setQuality('HD');
+      }
     }
-    setModel(newModel)
+    setModel(newModel);
   }
 
   const handlePromptKeyDown = async (e) => {
@@ -63,7 +69,19 @@ export const useImageHandlers = ({
     setWidth(image.width);
     setHeight(image.height);
     setModel(image.model);
-    setQuality(image.quality);
+    
+    // Check if the quality is valid for the model before setting it
+    const modelConfig = modelConfigs?.[image.model];
+    if (modelConfig?.qualityLimits) {
+      if (modelConfig.qualityLimits.includes(image.quality)) {
+        setQuality(image.quality);
+      } else {
+        setQuality('HD'); // Default to HD if quality not supported
+      }
+    } else {
+      setQuality(image.quality);
+    }
+
     if (image.aspect_ratio) {
       setAspectRatio(image.aspect_ratio);
       setUseAspectRatio(true);
