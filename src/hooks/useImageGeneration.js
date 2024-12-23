@@ -25,116 +25,74 @@ export const useImageGeneration = ({
   imageCount = 1,
   negativePrompt
 }) => {
-  // Queue to store pending generations
-  const generationQueue = useRef([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const processingTimeoutRef = useRef(null);
+  const generationQueue = useRef([]);
 
-  // Handle cancellation of a generation
-  const handleCancel = useCallback(async (generationId) => {
-    // Find the generation in the queue
-    const queueIndex = generationQueue.current.findIndex(gen => gen.generationId === generationId);
-    const generation = queueIndex !== -1 ? generationQueue.current[queueIndex] : null;
-
-    // Remove from queue if found
-    if (queueIndex !== -1) {
-      generationQueue.current.splice(queueIndex, 1);
-    }
-
-    // Update UI state
-    setGeneratingImages(prev => {
-      const newState = prev.filter(img => img.id !== generationId);
-      return newState;
-    });
-
-    // Refund credits if necessary (only for pending or processing)
-    const shouldRefund = generation?.shouldRefundCredits && generation?.status !== 'completed';
-    if (shouldRefund) {
-      try {
-        await updateCredits({ quality, imageCount: 1, isRefund: true });
-        toast.success('Credits refunded');
-      } catch (error) {
-        console.error('Error refunding credits:', error);
-        toast.error('Failed to refund credits');
-      }
-    }
-
-    // If this was the processing generation, start processing the next one
-    if (queueIndex === 0) {
+  // Simplified cancel handler
+  const handleCancel = useCallback((generationId) => {
+    setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
+    generationQueue.current = generationQueue.current.filter(gen => gen.generationId !== generationId);
+    
+    if (isProcessing) {
       setIsProcessing(false);
-      if (generationQueue.current.length > 0) {
-        processQueue();
-      }
+      processQueue();
     }
-  }, [quality, updateCredits, setGeneratingImages]);
+  }, [isProcessing]);
 
-  // Cleanup on unmount
+  // Cleanup
   useEffect(() => {
     return () => {
       if (processingTimeoutRef.current) {
         clearTimeout(processingTimeoutRef.current);
       }
-      // Refund credits for any pending generations
-      if (generationQueue.current.length > 0) {
-        generationQueue.current.forEach(async (generation) => {
-          if (generation.shouldRefundCredits) {
-            await updateCredits({ quality, imageCount: 1, isRefund: true });
-          }
-        });
-      }
     };
-  }, [quality, updateCredits]);
+  }, []);
 
-  // Check for existing processing images on mount and when generatingImages changes
+  // Restore state on mount
   useEffect(() => {
-    // Restore queue state from UI state
+    if (!modelConfigs) return;
+
     setGeneratingImages(prev => {
-      const activeImages = prev.filter(img => img.status === 'pending' || img.status === 'processing');
-      
-      // Rebuild queue from active images
-      generationQueue.current = activeImages.map(img => ({
+      const pendingImages = prev.filter(img => 
+        img.status === 'pending' || img.status === 'processing'
+      );
+
+      generationQueue.current = pendingImages.map(img => ({
         generationId: img.id,
         finalWidth: img.width,
         finalHeight: img.height,
         modifiedPrompt: img.prompt,
         actualSeed: img.seed || Math.floor(Math.random() * 1000000),
         isPrivate: img.is_private,
-        modelConfig: modelConfigs?.[img.model],
-        finalAspectRatio: img.aspect_ratio,
-        shouldRefundCredits: true
+        modelConfig: modelConfigs[img.model],
+        finalAspectRatio: img.aspect_ratio
       }));
 
-      return activeImages;
+      return pendingImages;
     });
 
-    // Start processing if there are items in queue
     if (!isProcessing && generationQueue.current.length > 0) {
       processQueue();
     }
   }, [modelConfigs]);
 
-  // Process the queue one item at a time
+  // Simplified queue processing
   const processQueue = useCallback(async () => {
     if (isProcessing || generationQueue.current.length === 0) return;
 
-    setIsProcessing(true);
     const currentGeneration = generationQueue.current[0];
+    if (!currentGeneration) return;
 
-    // Set a timeout to prevent stuck processing state
+    setIsProcessing(true);
+
+    // Set timeout
     processingTimeoutRef.current = setTimeout(() => {
       if (isProcessing) {
-        setIsProcessing(false);
-        setGeneratingImages(prev => prev.map(img => 
-          img.id === currentGeneration.generationId 
-            ? { ...img, status: 'failed', error: 'Generation timed out' } 
-            : img
-        ));
-        if (currentGeneration.shouldRefundCredits) {
-          updateCredits({ quality, imageCount: 1, isRefund: true });
-        }
+        handleCancel(currentGeneration.generationId);
         toast.error('Generation timed out');
       }
-    }, 300000); // 5 minutes timeout
+    }, 300000);
 
     try {
       const {
@@ -145,19 +103,20 @@ export const useImageGeneration = ({
         actualSeed,
         isPrivate,
         modelConfig,
-        finalAspectRatio,
-        shouldRefundCredits
+        finalAspectRatio
       } = currentGeneration;
 
-      // Update UI to show processing status
+      // Update status to processing
       setGeneratingImages(prev => prev.map(img => 
         img.id === generationId ? { ...img, status: 'processing' } : img
       ));
 
-      const makeRequest = async (needNewKey = false) => {
+      // Make the API request
+      const makeRequest = async () => {
         try {
           initRetryCount(generationId);
 
+          // Get API key
           const { data: apiKeyData, error: apiKeyError } = await supabase
             .from('huggingface_api_keys')
             .select('api_key')
@@ -165,48 +124,18 @@ export const useImageGeneration = ({
             .order('last_used_at', { ascending: true })
             .limit(1)
             .single();
-          
-          if (apiKeyError) {
-            setGeneratingImages(prev => prev.map(img => 
-              img.id === generationId 
-                ? { ...img, status: 'failed', error: `Failed to get API key: ${apiKeyError.message}` } 
-                : img
-            ));
-            toast.error('Failed to get API key');
-            if (shouldRefundCredits) {
-              await updateCredits({ quality, imageCount: 1, isRefund: true });
-            }
-            throw new Error(`Failed to get API key: ${apiKeyError.message}`);
-          }
-          if (!apiKeyData) {
-            setGeneratingImages(prev => prev.map(img => 
-              img.id === generationId 
-                ? { ...img, status: 'failed', error: 'No active API key available' } 
-                : img
-            ));
-            toast.error('No active API key available');
-            if (shouldRefundCredits) {
-              await updateCredits({ quality, imageCount: 1, isRefund: true });
-            }
-            throw new Error('No active API key available');
+
+          if (apiKeyError || !apiKeyData) {
+            throw new Error(apiKeyError?.message || 'No active API key available');
           }
 
+          // Update key usage timestamp
           await supabase
             .from('huggingface_api_keys')
             .update({ last_used_at: new Date().toISOString() })
             .eq('api_key', apiKeyData.api_key);
 
-          const parameters = {
-            seed: actualSeed,
-            width: finalWidth,
-            height: finalHeight,
-            ...(modelConfig.steps && { num_inference_steps: parseInt(modelConfig.steps) }),
-            ...(modelConfig.use_guidance && { guidance_scale: modelConfig.defaultguidance }),
-            ...(modelConfig.use_negative_prompt && modelConfig.default_negative_prompt && { 
-              negative_prompt: negativePrompt || modelConfig.default_negative_prompt 
-            })
-          };
-
+          // Make the generation request
           const response = await fetch(modelConfig?.apiUrl, {
             headers: {
               Authorization: `Bearer ${apiKeyData.api_key}`,
@@ -216,12 +145,21 @@ export const useImageGeneration = ({
             method: "POST",
             body: JSON.stringify({
               inputs: modifiedPrompt,
-              parameters
+              parameters: {
+                seed: actualSeed,
+                width: finalWidth,
+                height: finalHeight,
+                ...(modelConfig.steps && { num_inference_steps: parseInt(modelConfig.steps) }),
+                ...(modelConfig.use_guidance && { guidance_scale: modelConfig.defaultguidance }),
+                ...(modelConfig.use_negative_prompt && modelConfig.default_negative_prompt && { 
+                  negative_prompt: negativePrompt || modelConfig.default_negative_prompt 
+                })
+              }
             }),
           });
 
+          // Handle response with retries
           const imageBlob = await handleApiResponse(response, generationId, async () => {
-            // Update status to show we're retrying
             setGeneratingImages(prev => prev.map(img => 
               img.id === generationId 
                 ? { 
@@ -233,34 +171,15 @@ export const useImageGeneration = ({
                 : img
             ));
             
-            // Add a small delay to show the retry status
             await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            return makeRequest(response.status === 429);
+            return makeRequest();
           });
-          
-          if (!imageBlob) {
-            return;
-          }
 
           if (!imageBlob || imageBlob.size === 0) {
-            setGeneratingImages(prev => prev.map(img => 
-              img.id === generationId 
-                ? { 
-                    ...img, 
-                    status: 'failed', 
-                    error: 'Generated image is invalid',
-                    retryCount: getRetryCount(generationId)
-                  } 
-                : img
-            ));
-            toast.error('Generated image is invalid');
-            if (shouldRefundCredits) {
-              await updateCredits({ quality, imageCount: 1, isRefund: true });
-            }
-            throw new Error('Generated image is empty or invalid');
+            throw new Error('Generated image is invalid');
           }
 
+          // Upload the image
           const timestamp = Date.now();
           const filePath = `${session.user.id}/${timestamp}.png`;
           
@@ -268,20 +187,10 @@ export const useImageGeneration = ({
             .from('user-images')
             .upload(filePath, imageBlob);
             
-          if (uploadError) {
-            setGeneratingImages(prev => prev.map(img => 
-              img.id === generationId 
-                ? { ...img, status: 'failed', error: `Failed to upload image: ${uploadError.message}` } 
-                : img
-            ));
-            toast.error('Failed to upload image');
-            if (shouldRefundCredits) {
-              await updateCredits({ quality, imageCount: 1, isRefund: true });
-            }
-            throw uploadError;
-          }
+          if (uploadError) throw uploadError;
 
-          const { data: insertData, error: insertError } = await supabase
+          // Save to database
+          const { error: insertError } = await supabase
             .from('user_images')
             .insert([{
               user_id: session.user.id,
@@ -298,15 +207,9 @@ export const useImageGeneration = ({
             .select()
             .single();
 
-          if (insertError) {
-            console.error('Error inserting image record:', insertError);
-            if (shouldRefundCredits) {
-              await updateCredits({ quality, imageCount: 1, isRefund: true });
-            }
-            throw insertError;
-          }
+          if (insertError) throw insertError;
 
-          // Update UI to show completion with image data
+          // Update UI state
           setGeneratingImages(prev => prev.map(img => 
             img.id === generationId ? { 
               ...img, 
@@ -325,7 +228,6 @@ export const useImageGeneration = ({
           toast.success(`Image generated successfully! (${isPrivate ? 'Private' : 'Public'})`);
 
         } catch (error) {
-          console.error('Error generating image:', error);
           const retryableStatuses = [500, 503, 504, 429];
           const isRetryableError = error.status && retryableStatuses.includes(error.status) && getRetryCount(generationId) < MAX_RETRIES;
           
@@ -336,16 +238,15 @@ export const useImageGeneration = ({
                     ...img, 
                     status: 'failed', 
                     error: error.message,
-                    retryCount: getRetryCount(generationId),
-                    retryReason: error.status === 429 ? 'Rate limit reached' : 'Server error'
+                    retryCount: getRetryCount(generationId)
                   } 
                 : img
             ));
-            toast.error('Failed to generate image');
-            if (shouldRefundCredits) {
-              await updateCredits({ quality, imageCount: 1, isRefund: true });
-            }
+            // Only refund for non-retryable errors
+            await updateCredits({ quality, imageCount: 1, isRefund: true });
+            throw error;
           }
+          return makeRequest();
         }
       };
 
@@ -358,23 +259,18 @@ export const useImageGeneration = ({
           ? { ...img, status: 'failed', error: error.message } 
           : img
       ));
-      if (currentGeneration.shouldRefundCredits) {
-        await updateCredits({ quality, imageCount: 1, isRefund: true });
-      }
     } finally {
-      if (processingTimeoutRef.current) {
-        clearTimeout(processingTimeoutRef.current);
-      }
+      clearTimeout(processingTimeoutRef.current);
       generationQueue.current.shift();
       setIsProcessing(false);
       
-      // Process next item if any
       if (generationQueue.current.length > 0) {
         processQueue();
       }
     }
-  }, [isProcessing, session, model, quality, setGeneratingImages, negativePrompt, updateCredits]);
+  }, [isProcessing, session, model, quality, setGeneratingImages, negativePrompt, updateCredits, handleCancel]);
 
+  // Add new generations to queue
   const generateImage = async (isPrivate = false, finalPrompt = null) => {
     if (!session || !prompt || !modelConfigs) {
       !session && toast.error('Please sign in to generate images');
@@ -383,76 +279,66 @@ export const useImageGeneration = ({
       return;
     }
 
-    // Validate model exists
     const modelConfig = modelConfigs[model];
     if (!modelConfig) {
       toast.error('Invalid model selected');
       return;
     }
 
-    // Deduct credits upfront for all images
     try {
       const result = await updateCredits({ quality, imageCount });
       if (result === -1) {
         toast.error('Insufficient credits');
         return;
       }
+
+      for (let i = 0; i < imageCount; i++) {
+        const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed + i;
+        const generationId = Date.now().toString() + i;
+        const modifiedPrompt = await getModifiedPrompt(finalPrompt || prompt, model, modelConfigs);
+        const maxDimension = qualityOptions[quality];
+        const { width: finalWidth, height: finalHeight, aspectRatio: finalAspectRatio } = calculateDimensions(
+          useAspectRatio, 
+          aspectRatio || '1:1',
+          width, 
+          height, 
+          maxDimension
+        );
+
+        // Add to UI state
+        setGeneratingImages(prev => [...prev, { 
+          id: generationId, 
+          width: finalWidth, 
+          height: finalHeight,
+          prompt: modifiedPrompt,
+          model,
+          is_private: isPrivate,
+          status: 'pending',
+          aspect_ratio: finalAspectRatio || '1:1',
+          created_at: new Date().toISOString()
+        }]);
+
+        // Add to queue
+        generationQueue.current.push({
+          generationId,
+          finalWidth,
+          finalHeight,
+          modifiedPrompt,
+          actualSeed,
+          isPrivate,
+          modelConfig,
+          finalAspectRatio: finalAspectRatio || '1:1'
+        });
+      }
+
+      if (!isProcessing) {
+        processQueue();
+      }
     } catch (error) {
-      console.error('Error updating credits:', error);
-      toast.error('Failed to process credits');
-      return;
-    }
-
-    // Add all requested images to the queue
-    for (let i = 0; i < imageCount; i++) {
-      const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed + i;
-      const generationId = Date.now().toString() + i;
-      
-      const modifiedPrompt = await getModifiedPrompt(finalPrompt || prompt, model, modelConfigs);
-      const maxDimension = qualityOptions[quality];
-      const { width: finalWidth, height: finalHeight, aspectRatio: finalAspectRatio } = calculateDimensions(
-        useAspectRatio, 
-        aspectRatio || '1:1',
-        width, 
-        height, 
-        maxDimension
-      );
-
-      // Add to UI with pending status
-      setGeneratingImages(prev => [...prev, { 
-        id: generationId, 
-        width: finalWidth, 
-        height: finalHeight,
-        prompt: modifiedPrompt,
-        model,
-        is_private: isPrivate,
-        status: 'pending',
-        aspect_ratio: finalAspectRatio || '1:1',
-        created_at: new Date().toISOString()
-      }]);
-
-      // Add to queue with refund flag
-      generationQueue.current.push({
-        generationId,
-        finalWidth,
-        finalHeight,
-        modifiedPrompt,
-        actualSeed,
-        isPrivate,
-        modelConfig,
-        finalAspectRatio: finalAspectRatio || '1:1',
-        shouldRefundCredits: true
-      });
-    }
-
-    // Start processing if not already processing
-    if (!isProcessing) {
-      processQueue();
+      console.error('Error starting generation:', error);
+      toast.error('Failed to start generation');
     }
   };
 
-  return {
-    generateImage,
-    handleCancel
-  };
+  return { generateImage, handleCancel };
 };
