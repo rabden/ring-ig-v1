@@ -15,19 +15,19 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/compon
 import CreditCounter from '@/components/ui/credit-counter';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useNsfwState } from '@/hooks/useNsfwState';
 
 const ProfileMenu = ({ 
   user, 
   credits, 
   bonusCredits, 
-  isMobile,
-  nsfwEnabled,
-  setNsfwEnabled 
+  isMobile
 }) => {
   const { logout } = useSupabaseAuth();
   const [showImageDialog, setShowImageDialog] = useState(false);
   const { data: isPro } = useProUser(user?.id);
   const queryClient = useQueryClient();
+  const [nsfwEnabled, setNsfwEnabled] = useNsfwState();
 
   useRealtimeProfile(user?.id);
 
