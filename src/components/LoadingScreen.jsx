@@ -31,7 +31,7 @@ const LoadingScreen = () => {
           "transition-all duration-300"
         )}>
           <img 
-            src="/logo.jpg" 
+            src="/logo.png" 
             alt="Ring IG Logo" 
             className="w-full h-full object-cover"
           />
