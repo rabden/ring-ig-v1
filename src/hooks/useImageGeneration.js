@@ -30,34 +30,37 @@ export const useImageGeneration = ({
 
   // Simplified cancel handler
   const handleCancel = useCallback((imageId) => {
-    setGeneratingImages((prevImages) => {
-      const image = prevImages.find((img) => img.id === imageId);
-      if (!image) return prevImages;
+    // Get current state
+    const currentImages = JSON.parse(localStorage.getItem('generatingImages') || '[]');
+    const image = currentImages.find((img) => img.id === imageId);
+    if (!image) return;
 
-      // If the image is processing or pending, refund the credits
-      if (image.status === 'processing' || image.status === 'pending') {
-        updateCredits({ quality: image.quality, imageCount: 1, isRefund: true });
+    // If the image is processing or pending, refund the credits
+    if (image.status === 'processing' || image.status === 'pending') {
+      updateCredits({ quality: image.quality, imageCount: 1, isRefund: true });
+    }
+
+    // Remove the image from the state
+    const updatedImages = currentImages.filter((img) => img.id !== imageId);
+    setGeneratingImages(updatedImages);
+    localStorage.setItem('generatingImages', JSON.stringify(updatedImages));
+    
+    // If we just cancelled the processing image, start processing the next one
+    const wasProcessing = image.status === 'processing';
+    if (wasProcessing) {
+      setIsProcessing(false);
+      const nextPending = updatedImages.find((img) => img.status === 'pending');
+      if (nextPending) {
+        // Update the next pending image to processing
+        const withNextProcessing = updatedImages.map(img =>
+          img.id === nextPending.id ? { ...img, status: 'processing' } : img
+        );
+        setGeneratingImages(withNextProcessing);
+        localStorage.setItem('generatingImages', JSON.stringify(withNextProcessing));
+        processQueue();
       }
-
-      // Remove the image from the state
-      const updatedImages = prevImages.filter((img) => img.id !== imageId);
-      
-      // Save the updated state to localStorage
-      localStorage.setItem('generatingImages', JSON.stringify(updatedImages));
-      
-      // If we just cancelled the processing image, start processing the next one
-      const wasProcessing = image.status === 'processing';
-      if (wasProcessing) {
-        setIsProcessing(false);
-        const nextPending = updatedImages.find((img) => img.status === 'pending');
-        if (nextPending) {
-          processQueue();
-        }
-      }
-
-      return updatedImages;
-    });
-  }, [setGeneratingImages, updateCredits, quality]);
+    }
+  }, [setGeneratingImages, updateCredits, processQueue]);
 
   // Cleanup
   useEffect(() => {
@@ -215,6 +218,9 @@ export const useImageGeneration = ({
 
         if (insertError) throw insertError;
 
+        // Get the latest state before updating
+        const currentImages = JSON.parse(localStorage.getItem('generatingImages') || '[]');
+
         // Update the status to completed and save the result
         const completedImages = currentImages.map(img =>
           img.id === pendingGeneration.id
@@ -231,12 +237,26 @@ export const useImageGeneration = ({
 
         toast.success(`Image generated successfully! (${pendingGeneration.isPrivate ? 'Private' : 'Public'})`);
 
-        // Clear timeout and process next
+        // Clear timeout
         clearTimeout(processingTimeoutRef.current);
         setIsProcessing(false);
-        processQueue();
+
+        // Find next pending image
+        const nextPending = completedImages.find(img => img.status === 'pending');
+        if (nextPending) {
+          // Update the next pending image to processing
+          const withNextProcessing = completedImages.map(img =>
+            img.id === nextPending.id ? { ...img, status: 'processing' } : img
+          );
+          setGeneratingImages(withNextProcessing);
+          localStorage.setItem('generatingImages', JSON.stringify(withNextProcessing));
+          processQueue();
+        }
       } catch (error) {
         console.error('Generation failed:', error);
+
+        // Get the latest state before updating
+        const currentImages = JSON.parse(localStorage.getItem('generatingImages') || '[]');
 
         // Update the status to failed
         const failedImages = currentImages.map(img =>
@@ -252,10 +272,21 @@ export const useImageGeneration = ({
         setGeneratingImages(failedImages);
         localStorage.setItem('generatingImages', JSON.stringify(failedImages));
 
-        // Clear timeout and process next
+        // Clear timeout
         clearTimeout(processingTimeoutRef.current);
         setIsProcessing(false);
-        processQueue();
+
+        // Find next pending image
+        const nextPending = failedImages.find(img => img.status === 'pending');
+        if (nextPending) {
+          // Update the next pending image to processing
+          const withNextProcessing = failedImages.map(img =>
+            img.id === nextPending.id ? { ...img, status: 'processing' } : img
+          );
+          setGeneratingImages(withNextProcessing);
+          localStorage.setItem('generatingImages', JSON.stringify(withNextProcessing));
+          processQueue();
+        }
       }
     };
 

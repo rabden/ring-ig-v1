@@ -145,7 +145,7 @@ const GeneratingImagesDrawer = ({
                     >
                       <X className="h-3.5 w-3.5" />
                     </Button>
-                    {image.width && image.height && (
+                    {image.width && image.height && !isNaN(image.width) && !isNaN(image.height) && (
                       <Badge 
                         variant={image.status === 'completed' ? "secondary" : "outline"} 
                         className={cn(

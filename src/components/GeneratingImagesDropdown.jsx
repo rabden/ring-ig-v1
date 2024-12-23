@@ -148,19 +148,21 @@ const GeneratingImagesDropdown = ({
                 >
                   <X className="h-3.5 w-3.5" />
                 </Button>
-                <Badge 
-                  variant="secondary" 
-                  className={cn(
-                    "transition-colors duration-200",
-                    img.status === 'completed' 
-                      ? "bg-muted/20 hover:bg-muted/30 text-foreground/70"
-                      : img.status === 'failed'
-                      ? "bg-red-500/10 hover:bg-red-500/20 text-red-500/90"
-                      : "bg-muted/10 hover:bg-muted/20 text-muted-foreground/70"
-                  )}
-                >
-                  {img.width}x{img.height}
-                </Badge>
+                {img.width && img.height && !isNaN(img.width) && !isNaN(img.height) && (
+                  <Badge 
+                    variant="secondary" 
+                    className={cn(
+                      "transition-colors duration-200",
+                      img.status === 'completed' 
+                        ? "bg-muted/20 hover:bg-muted/30 text-foreground/70"
+                        : img.status === 'failed'
+                        ? "bg-red-500/10 hover:bg-red-500/20 text-red-500/90"
+                        : "bg-muted/10 hover:bg-muted/20 text-muted-foreground/70"
+                    )}
+                  >
+                    {img.width}x{img.height}
+                  </Badge>
+                )}
               </div>
             </div>
             {img.prompt && (
