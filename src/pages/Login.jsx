@@ -120,7 +120,7 @@ const Login = () => {
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
-        className="w-full md:w-2/5 flex items-center justify-center p-8 md:p-12 relative"
+        className="w-full md:w-3/5 flex items-center justify-center p-8 md:p-12 relative"
       >
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background/0 to-background/20" />
         <div className="w-full max-w-[360px] space-y-8 relative">
@@ -130,10 +130,10 @@ const Login = () => {
             transition={{ duration: 0.3, delay: 0.4 }}
             className="space-y-4 text-center"
           >
-            <h1 className="text-3xl md:text-4xl font-medium tracking-tight bg-gradient-to-r from-primary via-primary/80 to-foreground bg-clip-text text-transparent">
+            <h1 className="text-3xl md:text-3xl font-medium tracking-tight bg-gradient-to-r from-primary via-primary/80 to-foreground bg-clip-text text-transparent">
               Welcome to Ring
             </h1>
-            <p className="text-base md:text-xl text-foreground/70 min-h-[3rem] font-normal">
+            <p className="text-base md:text-lg text-foreground/70 min-h-[2rem] font-normal">
               <TypewriterWrapper />
             </p>
           </motion.div>

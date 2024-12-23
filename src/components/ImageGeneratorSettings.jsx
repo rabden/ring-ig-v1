@@ -1,14 +1,13 @@
 import React from 'react';
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import AspectRatioChooser from './AspectRatioChooser';
 import SettingSection from './settings/SettingSection';
 import ModelChooser from './settings/ModelChooser';
 import ImageCountChooser from './settings/ImageCountChooser';
+import QualityChooser from './settings/QualityChooser';
 import PromptInput from './prompt/PromptInput';
-import { qualityOptions } from '@/utils/imageConfigs';
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 import { toast } from 'sonner';
 import CreditCounter from '@/components/ui/credit-counter';
@@ -140,15 +139,11 @@ const ImageGeneratorSettings = ({
         setCount={setImageCount}
       />
 
-      <SettingSection label="Quality" tooltip="Higher quality settings produce more detailed images but require more credits.">
-        <Tabs value={quality} onValueChange={setQuality}>
-          <TabsList className="grid" style={{ gridTemplateColumns: `repeat(${getAvailableQualities().length}, 1fr)` }}>
-            {getAvailableQualities().map((q) => (
-              <TabsTrigger key={q} value={q}>{q}</TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-      </SettingSection>
+      <QualityChooser
+        quality={quality}
+        setQuality={setQuality}
+        availableQualities={getAvailableQualities()}
+      />
 
       {modelConfigs[model]?.use_negative_prompt && (
         <SettingSection label="Negative Prompt" tooltip="Specify what you don't want to see in the generated image">
@@ -161,13 +156,11 @@ const ImageGeneratorSettings = ({
         </SettingSection>
       )}
 
-      <SettingSection label="Aspect Ratio" tooltip="Slide left for portrait, center for square, right for landscape">
-        <AspectRatioChooser 
-          aspectRatio={aspectRatio} 
-          setAspectRatio={setAspectRatio}
-          proMode={proMode} 
-        />
-      </SettingSection>
+      <AspectRatioChooser 
+        aspectRatio={aspectRatio} 
+        setAspectRatio={setAspectRatio}
+        proMode={proMode} 
+      />
 
       <SettingSection label="Seed" tooltip="A seed is a number that initializes the random generation process. Using the same seed with the same settings will produce the same image.">
         <div className="flex items-center space-x-2">

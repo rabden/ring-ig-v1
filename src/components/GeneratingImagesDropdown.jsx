@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Loader, Check } from "lucide-react"
+import { Loader, Check, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
@@ -9,37 +9,22 @@ import { cn } from "@/lib/utils"
 const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
   const { data: modelConfigs } = useModelConfigs();
   const [showDropdown, setShowDropdown] = useState(false);
-  const [completedImages, setCompletedImages] = useState(new Set());
-  const [prevLength, setPrevLength] = useState(generatingImages.length);
-  
-  // Handle showing checkmark when an image completes
-  useEffect(() => {
-    if (generatingImages.length < prevLength) {
-      // Show checkmark for 1.5s when an image completes
-      setCompletedImages(new Set(['temp'])); // Use a temp value since we don't track specific images
-      setTimeout(() => {
-        setCompletedImages(new Set());
-      }, 1500);
-    }
-    setPrevLength(generatingImages.length);
-  }, [generatingImages.length]);
 
-  // Handle 4s delay before hiding dropdown
+  // Show dropdown whenever there are any images (generating or completed)
   useEffect(() => {
     if (generatingImages.length > 0) {
       setShowDropdown(true);
     } else {
-      // Wait 4s before hiding
-      const timer = setTimeout(() => {
-        setShowDropdown(false);
-      }, 4000);
-      return () => clearTimeout(timer);
+      setShowDropdown(false);
     }
   }, [generatingImages.length]);
 
   if (!showDropdown) return null;
-  
-  const showCheckmark = completedImages.size > 0 || (generatingImages.length === 0 && showDropdown);
+
+  const processingCount = generatingImages.filter(img => img.status === 'processing').length;
+  const pendingCount = generatingImages.filter(img => img.status === 'pending').length;
+  const completedCount = generatingImages.filter(img => img.status === 'completed').length;
+  const isAllCompleted = generatingImages.length > 0 && generatingImages.every(img => img.status === 'completed');
 
   return (
     <DropdownMenu>
@@ -50,23 +35,25 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
           className={cn(
             "h-8 rounded-xl bg-background/50 hover:bg-accent",
             "transition-all duration-200",
-            showCheckmark && "text-primary"
+            isAllCompleted && "text-primary"
           )}
         >
-          {showCheckmark ? (
+          {isAllCompleted ? (
             <div className={cn(
-              "p-1 rounded-lg  mr-2",
-              completedImages.size > 0 && "animate-in zoom-in duration-300"
+              "p-1 rounded-lg mr-2",
+              "animate-in zoom-in duration-300"
             )}>
               <Check className="w-4 h-4 text-primary/90" />
             </div>
           ) : (
-            <div className="p-1 rounded-lg  mr-2">
+            <div className="p-1 rounded-lg mr-2">
               <Loader className="w-4 h-4 animate-spin text-primary/90" />
             </div>
           )}
           <span className="text-sm">
-            {generatingImages.length > 0 ? `Generating-${generatingImages.length}` : 'Complete'}
+            {processingCount > 0 ? `Generating-${processingCount}` : 
+             pendingCount > 0 ? `Queued-${pendingCount}` : 
+             completedCount > 0 ? `Generated-${completedCount}` : 'Complete'}
           </span>
         </Button>
       </DropdownMenuTrigger>
@@ -87,9 +74,18 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
             <div className="flex items-center gap-3 w-full">
               <div className="flex items-center gap-2">
                 <div className="p-1 rounded-lg ">
-                  <Loader className="w-3.5 h-3.5 animate-spin text-primary/90" />
+                  {img.status === 'processing' ? (
+                    <Loader className="w-3.5 h-3.5 animate-spin text-primary/90" />
+                  ) : img.status === 'pending' ? (
+                    <Clock className="w-3.5 h-3.5 text-muted-foreground/70" />
+                  ) : (
+                    <Check className="w-3.5 h-3.5 text-primary/90" />
+                  )}
                 </div>
-                <span className="text-sm font-medium text-primary/90">Generating...</span>
+                <span className="text-sm font-medium text-primary/90">
+                  {img.status === 'processing' ? 'Generating...' : 
+                   img.status === 'pending' ? 'Queued' : 'Complete'}
+                </span>
               </div>
               <Badge 
                 variant="secondary" 
