@@ -133,7 +133,7 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [], onC
                         <Copy className="h-3.5 w-3.5" />
                       </Button>
                     )}
-                    {(image.status === 'processing' || image.status === 'pending') && (
+                    {image.status !== 'completed' && (
                       <Button
                         variant="ghost"
                         size="icon"

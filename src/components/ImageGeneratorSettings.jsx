@@ -58,11 +58,6 @@ const ImageGeneratorSettings = ({
         setQuality('HD');
       }
     }
-    // Check if the model supports NSFW content
-    if (!modelConfig?.allowNSFW && nsfwEnabled) {
-      toast.warning('NSFW content is not supported by this model. Switching to Safe mode.');
-      setNsfwEnabled(false);
-    }
     setModel(newModel);
   };
 
@@ -86,12 +81,8 @@ const ImageGeneratorSettings = ({
       if (modelConfig?.qualityLimits && !modelConfig.qualityLimits.includes(quality)) {
         setQuality('HD');
       }
-      // Check NSFW compatibility
-      if (!modelConfig?.allowNSFW && nsfwEnabled) {
-        setNsfwEnabled(false);
-      }
     }
-  }, [modelConfigs, model, quality, nsfwEnabled]);
+  }, [modelConfigs, model, quality]);
 
   const handleClearPrompt = () => {
     setPrompt('');

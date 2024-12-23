@@ -50,7 +50,7 @@ export const useImageGeneration = ({
           const parsedState = JSON.parse(savedState);
           const updatedState = {
             ...parsedState,
-            generatingImages: parsedState.generatingImages.filter(img => img.id !== generationId)
+            generatingImages: parsedState.generatingImages?.filter(img => img.id !== generationId) || []
           };
           localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedState));
         }
@@ -68,6 +68,14 @@ export const useImageGeneration = ({
       } catch (error) {
         console.error('Error refunding credits:', error);
         toast.error('Failed to refund credits');
+      }
+    }
+
+    // If this was the processing generation, start processing the next one
+    if (queueIndex === 0) {
+      setIsProcessing(false);
+      if (generationQueue.current.length > 0) {
+        processQueue();
       }
     }
   }, [quality, updateCredits, setGeneratingImages]);
@@ -158,6 +166,7 @@ export const useImageGeneration = ({
         actualSeed,
         isPrivate,
         modelConfig,
+        finalAspectRatio,
         shouldRefundCredits
       } = currentGeneration;
 
@@ -304,7 +313,7 @@ export const useImageGeneration = ({
               height: finalHeight,
               model,
               quality,
-              aspect_ratio: currentGeneration.finalAspectRatio,
+              aspect_ratio: finalAspectRatio || '1:1',
               is_private: isPrivate
             }])
             .select()
@@ -329,7 +338,7 @@ export const useImageGeneration = ({
               height: finalHeight,
               model,
               quality,
-              aspect_ratio: currentGeneration.finalAspectRatio,
+              aspect_ratio: finalAspectRatio || '1:1',
               is_private: isPrivate
             } : img
           ));
@@ -408,13 +417,9 @@ export const useImageGeneration = ({
     }
 
     // Check for existing generations
-    const hasActiveGenerations = generationQueue.current.length > 0 || 
-      setGeneratingImages(prev => prev.some(img => 
-        img.status === 'pending' || img.status === 'processing'
-      ));
-
+    const hasActiveGenerations = generationQueue.current.length > 0;
     if (hasActiveGenerations) {
-      toast.error('Please wait for current generations to complete');
+      toast.error('Please wait for current generations to complete or cancel them');
       return;
     }
 
@@ -440,7 +445,7 @@ export const useImageGeneration = ({
       const maxDimension = qualityOptions[quality];
       const { width: finalWidth, height: finalHeight, aspectRatio: finalAspectRatio } = calculateDimensions(
         useAspectRatio, 
-        aspectRatio, 
+        aspectRatio || '1:1',
         width, 
         height, 
         maxDimension
@@ -455,6 +460,7 @@ export const useImageGeneration = ({
         model,
         is_private: isPrivate,
         status: 'pending',
+        aspect_ratio: finalAspectRatio || '1:1',
         created_at: new Date().toISOString()
       }]);
 
@@ -467,7 +473,7 @@ export const useImageGeneration = ({
         actualSeed,
         isPrivate,
         modelConfig,
-        finalAspectRatio,
+        finalAspectRatio: finalAspectRatio || '1:1',
         shouldRefundCredits: true
       });
     }

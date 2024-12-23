@@ -109,10 +109,6 @@ export const useImageGeneratorState = () => {
       if (modelConfig?.qualityLimits && !modelConfig.qualityLimits.includes(state.quality)) {
         setState(prev => ({ ...prev, quality: 'HD' }));
       }
-      // Check NSFW compatibility
-      if (!modelConfig?.allowNSFW && state.nsfwEnabled) {
-        setState(prev => ({ ...prev, nsfwEnabled: false }));
-      }
     }
   }, [modelConfigs]);
 

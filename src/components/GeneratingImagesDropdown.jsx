@@ -139,7 +139,7 @@ const GeneratingImagesDropdown = ({ generatingImages = [], onCancel }) => {
                     <Copy className="h-3.5 w-3.5" />
                   </Button>
                 )}
-                {(img.status === 'processing' || img.status === 'pending') && (
+                {img.status !== 'completed' && (
                   <Button
                     variant="ghost"
                     size="icon"
