@@ -28,50 +28,7 @@ export const useImageGeneration = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const processingTimeoutRef = useRef(null);
 
-  // Simplified cancel handler
-  const handleCancel = useCallback((imageId) => {
-    // Get current state
-    const currentImages = JSON.parse(localStorage.getItem('generatingImages') || '[]');
-    const image = currentImages.find((img) => img.id === imageId);
-    if (!image) return;
-
-    // If the image is processing or pending, refund the credits
-    if (image.status === 'processing' || image.status === 'pending') {
-      updateCredits({ quality: image.quality, imageCount: 1, isRefund: true });
-    }
-
-    // Remove the image from the state
-    const updatedImages = currentImages.filter((img) => img.id !== imageId);
-    setGeneratingImages(updatedImages);
-    localStorage.setItem('generatingImages', JSON.stringify(updatedImages));
-    
-    // If we just cancelled the processing image, start processing the next one
-    const wasProcessing = image.status === 'processing';
-    if (wasProcessing) {
-      setIsProcessing(false);
-      const nextPending = updatedImages.find((img) => img.status === 'pending');
-      if (nextPending) {
-        // Update the next pending image to processing
-        const withNextProcessing = updatedImages.map(img =>
-          img.id === nextPending.id ? { ...img, status: 'processing' } : img
-        );
-        setGeneratingImages(withNextProcessing);
-        localStorage.setItem('generatingImages', JSON.stringify(withNextProcessing));
-        processQueue();
-      }
-    }
-  }, [setGeneratingImages, updateCredits, processQueue]);
-
-  // Cleanup
-  useEffect(() => {
-    return () => {
-      if (processingTimeoutRef.current) {
-        clearTimeout(processingTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  // Simplified queue processing
+  // Define processQueue first without dependencies
   const processQueue = useCallback(async () => {
     if (isProcessing) return;
 
@@ -112,8 +69,26 @@ export const useImageGeneration = ({
     // Set timeout for generation
     processingTimeoutRef.current = setTimeout(() => {
       if (isProcessing) {
-        handleCancel(pendingGeneration.id);
-        toast.error('Generation timed out');
+        const currentImages = JSON.parse(localStorage.getItem('generatingImages') || '[]');
+        const image = currentImages.find(img => img.id === pendingGeneration.id);
+        if (image && image.status === 'processing') {
+          // Update the image status to failed
+          const updatedImages = currentImages.map(img =>
+            img.id === pendingGeneration.id
+              ? { ...img, status: 'failed', error: 'Generation timed out' }
+              : img
+          );
+          setGeneratingImages(updatedImages);
+          localStorage.setItem('generatingImages', JSON.stringify(updatedImages));
+          setIsProcessing(false);
+          toast.error('Generation timed out');
+          
+          // Start processing the next image
+          const nextPending = updatedImages.find(img => img.status === 'pending');
+          if (nextPending) {
+            processQueue();
+          }
+        }
       }
     }, 300000); // 5 minutes timeout
 
@@ -291,7 +266,50 @@ export const useImageGeneration = ({
     };
 
     await makeRequest(0);
-  }, [isProcessing, setGeneratingImages, session, modelConfigs, handleCancel]);
+  }, [isProcessing, setGeneratingImages, session, modelConfigs]);
+
+  // Then define handleCancel with processQueue available in scope
+  const handleCancel = useCallback((imageId) => {
+    // Get current state
+    const currentImages = JSON.parse(localStorage.getItem('generatingImages') || '[]');
+    const image = currentImages.find((img) => img.id === imageId);
+    if (!image) return;
+
+    // If the image is processing or pending, refund the credits
+    if (image.status === 'processing' || image.status === 'pending') {
+      updateCredits({ quality: image.quality, imageCount: 1, isRefund: true });
+    }
+
+    // Remove the image from the state
+    const updatedImages = currentImages.filter((img) => img.id !== imageId);
+    setGeneratingImages(updatedImages);
+    localStorage.setItem('generatingImages', JSON.stringify(updatedImages));
+    
+    // If we just cancelled the processing image, start processing the next one
+    const wasProcessing = image.status === 'processing';
+    if (wasProcessing) {
+      setIsProcessing(false);
+      const nextPending = updatedImages.find((img) => img.status === 'pending');
+      if (nextPending) {
+        processQueue();
+      }
+    }
+  }, [setGeneratingImages, updateCredits, processQueue]);
+
+  // Update processQueue's dependencies to include handleCancel
+  useEffect(() => {
+    // Re-create processQueue when handleCancel changes
+    processQueue.current = processQueue;
+  }, [processQueue, handleCancel]);
+
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      if (processingTimeoutRef.current) {
+        clearTimeout(processingTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Add new generations to queue
   const generateImage = async (isPrivate = false, finalPrompt = null) => {
