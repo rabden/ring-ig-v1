@@ -41,8 +41,7 @@ export const useImageGeneration = ({
         modifiedPrompt,
         actualSeed,
         isPrivate,
-        modelConfig,
-        shouldRefundCredits
+        modelConfig
       } = currentGeneration;
 
       // Update UI to show processing status
@@ -65,17 +64,11 @@ export const useImageGeneration = ({
           if (apiKeyError) {
             setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
             toast.error('Failed to get API key');
-            if (shouldRefundCredits) {
-              await updateCredits({ quality, imageCount: 1, isRefund: true });
-            }
             throw new Error(`Failed to get API key: ${apiKeyError.message}`);
           }
           if (!apiKeyData) {
             setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
             toast.error('No active API key available');
-            if (shouldRefundCredits) {
-              await updateCredits({ quality, imageCount: 1, isRefund: true });
-            }
             throw new Error('No active API key available');
           }
 
@@ -112,18 +105,12 @@ export const useImageGeneration = ({
           if (!imageBlob) {
             setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
             toast.error('Failed to generate image');
-            if (shouldRefundCredits) {
-              await updateCredits({ quality, imageCount: 1, isRefund: true });
-            }
             return;
           }
 
           if (!imageBlob || imageBlob.size === 0) {
             setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
             toast.error('Generated image is invalid');
-            if (shouldRefundCredits) {
-              await updateCredits({ quality, imageCount: 1, isRefund: true });
-            }
             throw new Error('Generated image is empty or invalid');
           }
 
@@ -135,9 +122,6 @@ export const useImageGeneration = ({
             .upload(filePath, imageBlob);
             
           if (uploadError) {
-            if (shouldRefundCredits) {
-              await updateCredits({ quality, imageCount: 1, isRefund: true });
-            }
             throw uploadError;
           }
 
@@ -160,9 +144,6 @@ export const useImageGeneration = ({
 
           if (insertError) {
             console.error('Error inserting image record:', insertError);
-            if (shouldRefundCredits) {
-              await updateCredits({ quality, imageCount: 1, isRefund: true });
-            }
             throw insertError;
           }
 
@@ -177,9 +158,6 @@ export const useImageGeneration = ({
           console.error('Error generating image:', error);
           toast.error('Failed to generate image');
           setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-          if (shouldRefundCredits) {
-            await updateCredits({ quality, imageCount: 1, isRefund: true });
-          }
         }
       };
 
@@ -187,9 +165,6 @@ export const useImageGeneration = ({
 
     } catch (error) {
       console.error('Error in generation:', error);
-      if (currentGeneration.shouldRefundCredits) {
-        await updateCredits({ quality, imageCount: 1, isRefund: true });
-      }
     } finally {
       // Remove the processed item from queue
       generationQueue.current.shift();
@@ -249,29 +224,28 @@ export const useImageGeneration = ({
         maxDimension
       );
 
-      // Add to UI with pending status
-      setGeneratingImages(prev => [...prev, { 
-        id: generationId, 
-        width: finalWidth, 
-        height: finalHeight,
-        prompt: modifiedPrompt,
-        model,
-        is_private: isPrivate,
-        status: 'pending'
-      }]);
-
-      // Add to queue with refund flag
+      // Add to queue
       generationQueue.current.push({
         generationId,
         finalWidth,
         finalHeight,
+        finalAspectRatio,
         modifiedPrompt,
         actualSeed,
         isPrivate,
-        modelConfig,
-        finalAspectRatio,
-        shouldRefundCredits: true // Flag to indicate this generation should refund credits on failure
+        modelConfig
       });
+
+      // Add to UI state
+      setGeneratingImages(prev => [...prev, {
+        id: generationId,
+        prompt: modifiedPrompt,
+        seed: actualSeed,
+        width: finalWidth,
+        height: finalHeight,
+        status: 'pending',
+        isPrivate
+      }]);
     }
 
     // Start processing if not already processing
@@ -280,5 +254,8 @@ export const useImageGeneration = ({
     }
   };
 
-  return { generateImage };
+  return {
+    generateImage,
+    isProcessing
+  };
 };

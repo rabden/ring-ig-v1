@@ -17,7 +17,7 @@ export const useUserCredits = (userId) => {
     return data;
   };
 
-  const updateCredits = async ({ quality, imageCount = 1, isRefund = false }) => {
+  const updateCredits = async ({ quality, imageCount = 1 }) => {
     let creditCost;
     
     if (typeof quality === 'string') {
@@ -42,27 +42,20 @@ export const useUserCredits = (userId) => {
 
     if (!profile) throw new Error('Profile not found');
 
-    // For deduction, check if user has enough credits
-    if (!isRefund) {
-      const totalCredits = profile.credit_count + profile.bonus_credits;
-      if (totalCredits < creditCost) return -1;
-    }
+    // Check if user has enough credits
+    const totalCredits = profile.credit_count + profile.bonus_credits;
+    if (totalCredits < creditCost) return -1;
 
     let newCreditCount = profile.credit_count;
     let newBonusCredits = profile.bonus_credits;
 
-    if (isRefund) {
-      // For refund, add back to regular credits first
-      newCreditCount += creditCost;
+    // For deduction, use regular credits first, then bonus credits
+    if (profile.credit_count >= creditCost) {
+      newCreditCount -= creditCost;
     } else {
-      // For deduction, use regular credits first, then bonus credits
-      if (profile.credit_count >= creditCost) {
-        newCreditCount -= creditCost;
-      } else {
-        const remainingCost = creditCost - profile.credit_count;
-        newCreditCount = 0;
-        newBonusCredits -= remainingCost;
-      }
+      const remainingCost = creditCost - profile.credit_count;
+      newCreditCount = 0;
+      newBonusCredits -= remainingCost;
     }
 
     const { error } = await supabase
