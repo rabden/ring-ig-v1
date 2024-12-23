@@ -2,7 +2,7 @@ import { supabase } from '@/integrations/supabase/supabase';
 import { toast } from 'sonner';
 import { qualityOptions } from '@/utils/imageConfigs';
 import { calculateDimensions, getModifiedPrompt } from '@/utils/imageUtils';
-import { handleApiResponse } from '@/utils/retryUtils';
+import { handleApiResponse, initRetryCount } from '@/utils/retryUtils';
 
 export const useImageGeneration = ({
   session,
@@ -73,6 +73,8 @@ export const useImageGeneration = ({
 
       const makeRequest = async (needNewKey = false) => {
         try {
+          initRetryCount(generationId);
+
           const { data: apiKeyData, error: apiKeyError } = await supabase
             .from('huggingface_api_keys')
             .select('api_key')
@@ -121,7 +123,7 @@ export const useImageGeneration = ({
             }),
           });
 
-          const imageBlob = await handleApiResponse(response, 0, () => makeRequest(response.status === 429));
+          const imageBlob = await handleApiResponse(response, generationId, () => makeRequest(response.status === 429));
           if (!imageBlob) {
             setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
             toast.error('Failed to generate image');

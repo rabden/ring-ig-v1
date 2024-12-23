@@ -1,5 +1,26 @@
 export const MAX_RETRIES = 5;
 
+// Add a Map to track retries per request
+const retryCountMap = new Map();
+
+export const initRetryCount = (requestId) => {
+  retryCountMap.set(requestId, 0);
+};
+
+export const incrementRetryCount = (requestId) => {
+  const currentCount = retryCountMap.get(requestId) || 0;
+  retryCountMap.set(requestId, currentCount + 1);
+  return currentCount + 1;
+};
+
+export const getRetryCount = (requestId) => {
+  return retryCountMap.get(requestId) || 0;
+};
+
+export const clearRetryCount = (requestId) => {
+  retryCountMap.delete(requestId);
+};
+
 export const getRetryInterval = (statusCode) => {
   switch (statusCode) {
     case 504: return 30000;  // 30 seconds for timeouts (increased from 10s)
@@ -10,12 +31,13 @@ export const getRetryInterval = (statusCode) => {
   }
 };
 
-export const shouldRetry = (statusCode, retryCount) => {
+export const shouldRetry = (statusCode, requestId) => {
+  const retryCount = getRetryCount(requestId);
   const retryableStatuses = [500, 503, 504, 429];
   return retryableStatuses.includes(statusCode) && retryCount < MAX_RETRIES;
 };
 
-export const handleApiResponse = async (response, retryCount = 0, retryFn) => {
+export const handleApiResponse = async (response, requestId, retryFn) => {
   if (!response.ok) {
     let errorMessage;
     try {
@@ -26,9 +48,10 @@ export const handleApiResponse = async (response, retryCount = 0, retryFn) => {
       errorMessage = response.statusText;
     }
 
-    if (shouldRetry(response.status, retryCount)) {
+    if (shouldRetry(response.status, requestId)) {
+      const retryCount = incrementRetryCount(requestId);
       const retryInterval = getRetryInterval(response.status);
-      console.log(`Retrying image generation in ${retryInterval / 1000} seconds. Attempt ${retryCount + 1} of ${MAX_RETRIES}`);
+      console.log(`Retrying image generation in ${retryInterval / 1000} seconds. Attempt ${retryCount} of ${MAX_RETRIES}`);
       
       // For rate limit errors (429), get a new API key before retrying
       if (response.status === 429) {
@@ -42,8 +65,12 @@ export const handleApiResponse = async (response, retryCount = 0, retryFn) => {
         .then(() => retryFn());
     }
 
+    // Clean up retry count when we're done retrying
+    clearRetryCount(requestId);
     throw new Error(`API error: ${errorMessage}`);
   }
 
+  // Clean up retry count on success
+  clearRetryCount(requestId);
   return await response.blob();
 };

@@ -89,7 +89,7 @@ const DesktopPromptBox = ({
       <div 
         ref={boxRef}
         className={cn(
-          "hidden md:block w-full max-w-[850px] mx-auto px-2 mt-16 transition-all duration-300",
+          "hidden md:block w-full max-w-[850px] mx-auto px-2 mt-19 transition-all duration-300",
           className
         )}
       >
@@ -102,7 +102,7 @@ const DesktopPromptBox = ({
                 onChange={handlePromptChange}
                 onKeyDown={onKeyDown}
                 placeholder="A 4D HDR immersive 3D image..."
-                className="w-full min-h-[350px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/40 overflow-y-auto scrollbar-none border-y border-border/5 py-6 px-3 transition-colors duration-200"
+                className="w-full min-h-[250px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/40 overflow-y-auto scrollbar-none border-y border-border/5 py-6 px-3 transition-colors duration-200"
                 style={{ caretColor: 'currentColor' }}
               />
             </div>
@@ -159,10 +159,10 @@ const DesktopPromptBox = ({
         )}
       >
         <div className="max-w-[900px] mx-auto px-10 py-2">
-          <div className="relative bg-card/95 backdrop-blur-[2px] border border-border/80 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
+          <div className="relative bg-card backdrop-blur-[2px] border border-border/80 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
             <div className="flex items-center gap-4 p-1.5">
               <div 
-                className="flex-1 px-4 text-muted-foreground/60 truncate cursor-pointer transition-colors duration-200 hover:text-muted-foreground/80"
+                className="flex-1 px-4 text-muted-foreground/90 truncate cursor-pointer transition-colors duration-200 hover:text-muted-foreground/80"
                 onClick={() => {
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                   setTimeout(() => {
