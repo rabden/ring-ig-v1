@@ -122,7 +122,7 @@ const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) =
 
   // Default model for each mode
   const defaultModel = useMemo(() => {
-    return nsfwEnabled ? 'nsfwMaster' : 'turbo';
+    return nsfwEnabled ? 'nsfwMaster' : 'flux';
   }, [nsfwEnabled]);
 
   // Handle model selection
