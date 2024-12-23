@@ -40,11 +40,11 @@ const SingleImageView = () => {
     return (
       <div className={cn(
         "min-h-screen p-4",
-        "bg-background/95 backdrop-blur-[2px]",
+        "bg-background backdrop-blur-[2px]",
         "transition-all duration-300"
       )}>
         <Skeleton className={cn(
-          "w-full h-[60vh] rounded-xl",
+          "w-full h-[60vh]",
           "bg-muted/5",
           "animate-pulse"
         )} />
@@ -56,12 +56,12 @@ const SingleImageView = () => {
     return (
       <div className={cn(
         "min-h-screen p-4",
-        "bg-background/95 backdrop-blur-[2px]",
+        "bg-background backdrop-blur-[2px]",
         "transition-all duration-300"
       )}>
         <div className={cn(
           "flex items-center justify-center",
-          "h-[60vh] rounded-xl",
+          "h-[60vh]",
           "bg-muted/5 border border-border/80",
           "text-sm text-muted-foreground/70"
         )}>

@@ -126,7 +126,7 @@ const FullScreenImageView = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className={cn(
         "max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0",
-        "bg-background/95 backdrop-blur-[2px]",
+        "bg-background backdrop-blur-[2px]",
         "data-[state=open]:duration-0 [&>button]:hidden"
       )}>
         <div className="absolute left-4 top-4 z-50">
@@ -136,7 +136,7 @@ const FullScreenImageView = ({
             onClick={onClose}
             className={cn(
               "h-8 w-8 p-0 rounded-lg",
-              "bg-background/80 backdrop-blur-[2px]",
+              "bg-background/70 backdrop-blur-[2px]",
               "hover:bg-background/90",
               "transition-all duration-200"
             )}
@@ -146,7 +146,7 @@ const FullScreenImageView = ({
         </div>
         
         <div className="flex h-full">
-          <div className="flex-1 relative flex items-center justify-center bg-background/95 backdrop-blur-[2px]">
+          <div className="flex-1 relative flex items-center justify-center bg-background backdrop-blur-[2px]">
             <img
               src={supabase.storage.from('user-images').getPublicUrl(image.storage_path).data.publicUrl}
               alt={image.prompt}

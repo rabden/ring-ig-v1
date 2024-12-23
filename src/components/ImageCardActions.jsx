@@ -55,7 +55,7 @@ const ImageCardActions = ({
   };
 
   return (
-    <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+    <div className="flex items-center gap-1 px-1" onClick={e => e.stopPropagation()}>
       {session && (
         <div className="flex items-center gap-2">
           <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
@@ -85,7 +85,7 @@ const ImageCardActions = ({
           align="end"
           className={cn(
             "w-52 p-2 m-2",
-            "border-border/80 bg-card/95",
+            "border-border/80 bg-card",
             "animate-in fade-in-0 zoom-in-95 duration-200"
           )}
         >
