@@ -25,6 +25,14 @@ const GeneratingImagesDropdown = ({ generatingImages = [], onCancel }) => {
     toast.success('Prompt copied to clipboard');
   };
 
+  const handleCancel = (e, id) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onCancel) {
+      onCancel(id);
+    }
+  };
+
   if (!showDropdown) return null;
 
   const processingCount = generatingImages.filter(img => img.status === 'processing').length;
@@ -136,10 +144,7 @@ const GeneratingImagesDropdown = ({ generatingImages = [], onCancel }) => {
                     variant="ghost"
                     size="icon"
                     className="h-7 w-7 text-red-500/70 hover:text-red-500"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onCancel?.(img.id);
-                    }}
+                    onClick={(e) => handleCancel(e, img.id)}
                   >
                     <X className="h-3.5 w-3.5" />
                   </Button>

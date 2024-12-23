@@ -28,6 +28,14 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [], onC
     toast.success('Prompt copied to clipboard');
   };
 
+  const handleCancel = (e, id) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onCancel) {
+      onCancel(id);
+    }
+  };
+
   if (!showDrawer) return null;
 
   const processingCount = generatingImages.filter(img => img.status === 'processing').length;
@@ -117,7 +125,10 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [], onC
                         variant="ghost"
                         size="icon"
                         className="h-7 w-7 text-muted-foreground/70 hover:text-muted-foreground"
-                        onClick={() => handleCopy(image.prompt)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCopy(image.prompt);
+                        }}
                       >
                         <Copy className="h-3.5 w-3.5" />
                       </Button>
@@ -127,7 +138,7 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [], onC
                         variant="ghost"
                         size="icon"
                         className="h-7 w-7 text-red-500/70 hover:text-red-500"
-                        onClick={() => onCancel?.(image.id)}
+                        onClick={(e) => handleCancel(e, image.id)}
                       >
                         <X className="h-3.5 w-3.5" />
                       </Button>

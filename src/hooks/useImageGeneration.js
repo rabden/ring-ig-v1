@@ -6,6 +6,7 @@ import { handleApiResponse, initRetryCount, getRetryCount } from '@/utils/retryU
 import { useState, useRef, useCallback, useEffect } from 'react';
 
 const MAX_RETRIES = 5;
+const STORAGE_KEY = 'imageGeneratorState';
 
 export const useImageGeneration = ({
   session,
@@ -40,8 +41,24 @@ export const useImageGeneration = ({
       generationQueue.current.splice(queueIndex, 1);
     }
 
-    // Update UI state to remove the generation
-    setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
+    // Update UI state and localStorage
+    setGeneratingImages(prev => {
+      const newState = prev.filter(img => img.id !== generationId);
+      try {
+        const savedState = localStorage.getItem(STORAGE_KEY);
+        if (savedState) {
+          const parsedState = JSON.parse(savedState);
+          const updatedState = {
+            ...parsedState,
+            generatingImages: parsedState.generatingImages.filter(img => img.id !== generationId)
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedState));
+        }
+      } catch (error) {
+        console.error('Error updating localStorage:', error);
+      }
+      return newState;
+    });
 
     // Refund credits if necessary
     if (generation?.shouldRefundCredits) {
@@ -288,8 +305,7 @@ export const useImageGeneration = ({
               model,
               quality,
               aspect_ratio: currentGeneration.finalAspectRatio,
-              is_private: isPrivate,
-              status: 'completed'
+              is_private: isPrivate
             }])
             .select()
             .single();
