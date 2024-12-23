@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import CreditCounter from '@/components/ui/credit-counter';
 import { useLocation } from 'react-router-dom';
 import { Textarea } from "@/components/ui/textarea";
+import { qualityOptions } from '@/utils/imageConfigs';
 
 const ImageGeneratorSettings = ({
   prompt, setPrompt,
@@ -50,16 +51,22 @@ const ImageGeneratorSettings = ({
   const hasEnoughCreditsForImprovement = totalCredits >= 1;
 
   const handleModelChange = (newModel) => {
-    if (newModel === 'turbo' && (quality === 'HD+' || quality === '4K')) {
-      setQuality('HD');
+    const modelConfig = modelConfigs?.[newModel];
+    if (modelConfig?.qualityLimits) {
+      // If current quality is not in the allowed qualities for this model, set to HD
+      if (!modelConfig.qualityLimits.includes(quality)) {
+        setQuality('HD');
+      }
     }
     setModel(newModel);
   };
 
   const getAvailableQualities = () => {
-    const modelConfig = modelConfigs[model];
+    const modelConfig = modelConfigs?.[model];
+    if (!modelConfig) return ['HD']; // Default to HD only if no model config
+    
     // If qualityLimits not specified, allow all qualities
-    if (!modelConfig?.qualityLimits) {
+    if (!modelConfig.qualityLimits) {
       return Object.keys(qualityOptions);
     }
     
