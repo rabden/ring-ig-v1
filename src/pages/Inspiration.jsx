@@ -3,7 +3,6 @@ import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { useUserCredits } from '@/hooks/useUserCredits';
 import { useFollows } from '@/hooks/useFollows';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
-import { useImageGeneratorState } from '@/hooks/useImageGeneratorState';
 import ImageGallery from '@/components/ImageGallery';
 import DesktopHeader from '@/components/header/DesktopHeader';
 import MobileHeader from '@/components/header/MobileHeader';
@@ -24,7 +23,7 @@ const Inspiration = () => {
   const [fullScreenViewOpen, setFullScreenViewOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState({});
-  const { nsfwEnabled, setNsfwEnabled } = useImageGeneratorState();
+  const [nsfwEnabled, setNsfwEnabled] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
   const [showTop, setShowTop] = useState(false);
   const { credits, bonusCredits } = useUserCredits(session?.user?.id);

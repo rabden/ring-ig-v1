@@ -8,7 +8,6 @@ import NoResults from './NoResults';
 import { useGalleryImages } from '@/hooks/useGalleryImages';
 import { cn } from '@/lib/utils';
 import { format, isToday, isYesterday, isThisWeek, isThisMonth, parseISO, subWeeks, isAfter } from 'date-fns';
-import GeneratingImagesDrawer from './GeneratingImagesDrawer';
 
 const getBreakpointColumns = () => ({
   default: 4,
@@ -81,17 +80,13 @@ const ImageGallery = ({
   style,
   showFollowing,
   showTop,
-  following,
-  setGeneratingImages,
-  onCancel
+  following
 }) => {
   const { userLikes, toggleLike } = useLikes(userId);
   const isMobile = window.innerWidth <= 768;
   const breakpointColumnsObj = getBreakpointColumns();
   const location = useLocation();
   const activeView = location.pathname === '/inspiration' ? 'inspiration' : 'myImages';
-  
-  const handleSetGeneratingImages = setGeneratingImages || (() => {});
   
   const { 
     images, 
@@ -246,11 +241,6 @@ const ImageGallery = ({
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       )}
-      <GeneratingImagesDrawer
-        generatingImages={generatingImages}
-        setGeneratingImages={handleSetGeneratingImages}
-        onCancel={onCancel}
-      />
     </div>
   );
 };

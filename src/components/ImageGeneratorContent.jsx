@@ -36,7 +36,6 @@ const ImageGeneratorContent = ({
   handleDiscard,
   handleRemix,
   handleViewDetails,
-  handleCancel,
   selectedImage,
   detailsDialogOpen,
   setDetailsDialogOpen,
@@ -193,7 +192,6 @@ const ImageGeneratorContent = ({
                   onDiscard={handleDiscard}
                   onRemix={handleRemix}
                   onViewDetails={handleViewDetails}
-                  onCancel={handleCancel}
                   generatingImages={generatingImages}
                   nsfwEnabled={nsfwEnabled}
                   modelConfigs={imageGeneratorProps.modelConfigs}
