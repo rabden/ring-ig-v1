@@ -86,15 +86,6 @@ export const useImageGeneration = ({
 
   // Check for existing processing images on mount and when generatingImages changes
   useEffect(() => {
-    // Validate model and quality compatibility
-    if (modelConfigs && model && quality) {
-      const modelConfig = modelConfigs[model];
-      if (modelConfig?.qualityLimits && !modelConfig.qualityLimits.includes(quality)) {
-        setGeneratingImages(prev => prev.filter(img => img.status === 'pending' || img.status === 'processing'));
-        return;
-      }
-    }
-
     // Restore queue state from UI state
     setGeneratingImages(prev => {
       const activeImages = prev.filter(img => img.status === 'pending' || img.status === 'processing');
@@ -119,7 +110,7 @@ export const useImageGeneration = ({
     if (!isProcessing && generationQueue.current.length > 0) {
       processQueue();
     }
-  }, [modelConfigs, model, quality]);
+  }, [modelConfigs]);
 
   // Process the queue one item at a time
   const processQueue = useCallback(async () => {
@@ -391,15 +382,10 @@ export const useImageGeneration = ({
       return;
     }
 
-    // Validate model and quality compatibility
+    // Validate model exists
     const modelConfig = modelConfigs[model];
     if (!modelConfig) {
       toast.error('Invalid model selected');
-      return;
-    }
-
-    if (modelConfig?.qualityLimits && !modelConfig.qualityLimits.includes(quality)) {
-      toast.error(`Quality ${quality} not supported for model ${model}`);
       return;
     }
 
