@@ -89,7 +89,7 @@ const DesktopPromptBox = ({
       <div 
         ref={boxRef}
         className={cn(
-          "hidden md:block w-full max-w-[850px] mx-auto px-2 mt-19 transition-all duration-300",
+          "hidden md:block w-full max-w-[850px] mx-auto px-2 mt-18 transition-all duration-300",
           className
         )}
       >
@@ -158,7 +158,7 @@ const DesktopPromptBox = ({
           isFixed ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
         )}
       >
-        <div className="max-w-[900px] mx-auto px-10 py-2">
+        <div className="max-w-[850px] mx-auto px-10 py-2">
           <div className="relative bg-card backdrop-blur-[2px] border border-border/80 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300">
             <div className="flex items-center gap-4 p-1.5">
               <div 
