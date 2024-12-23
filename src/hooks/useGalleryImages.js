@@ -1,5 +1,6 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/supabase';
+import { useEffect } from 'react';
 
 const ITEMS_PER_PAGE = 20;
 const NSFW_MODELS = ['nsfwMaster', 'animeNsfw'];
@@ -16,6 +17,8 @@ export const useGalleryImages = ({
   showTop = false,
   following = []
 }) => {
+  const queryClient = useQueryClient();
+
   const {
     data,
     fetchNextPage,
@@ -150,6 +153,38 @@ export const useGalleryImages = ({
     getNextPageParam: (lastPage) => lastPage?.nextPage,
     initialPageParam: { page: 0 }
   });
+
+  // Set up real-time subscription
+  useEffect(() => {
+    if (!userId) return;
+
+    // Create channel for real-time updates
+    const channel = supabase
+      .channel('gallery-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'user_images',
+          filter: activeView === 'myImages' 
+            ? `user_id=eq.${userId}` 
+            : `user_id=neq.${userId}`
+        },
+        () => {
+          // Invalidate the query to trigger a refetch
+          queryClient.invalidateQueries({
+            queryKey: ['galleryImages', userId, activeView]
+          });
+        }
+      )
+      .subscribe();
+
+    // Cleanup subscription on unmount
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, activeView, queryClient]);
 
   const images = data?.pages?.flatMap(page => page.data) || [];
 

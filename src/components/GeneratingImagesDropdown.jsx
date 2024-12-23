@@ -51,7 +51,7 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
             </div>
           )}
           <span className="text-sm">
-            {processingCount > 0 ? `Generating-${processingCount}` : 
+            {processingCount > 0 ? 'Generating' : 
              pendingCount > 0 ? `Queued-${pendingCount}` : 
              completedCount > 0 ? `Generated-${completedCount}` : 'Complete'}
           </span>
