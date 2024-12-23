@@ -41,14 +41,15 @@ export const useImageGeneration = ({
       generationQueue.current.splice(queueIndex, 1);
     }
 
-    // Update UI state and localStorage
+    // Update UI state
     setGeneratingImages(prev => {
       const newState = prev.filter(img => img.id !== generationId);
       return newState;
     });
 
-    // Refund credits if necessary
-    if (generation?.shouldRefundCredits) {
+    // Refund credits if necessary (only for pending or processing)
+    const shouldRefund = generation?.shouldRefundCredits && generation?.status !== 'completed';
+    if (shouldRefund) {
       try {
         await updateCredits({ quality, imageCount: 1, isRefund: true });
         toast.success('Credits refunded');
@@ -386,13 +387,6 @@ export const useImageGeneration = ({
     const modelConfig = modelConfigs[model];
     if (!modelConfig) {
       toast.error('Invalid model selected');
-      return;
-    }
-
-    // Check for existing generations
-    const hasActiveGenerations = generationQueue.current.length > 0;
-    if (hasActiveGenerations) {
-      toast.error('Please wait for current generations to complete or cancel them');
       return;
     }
 
