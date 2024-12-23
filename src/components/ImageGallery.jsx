@@ -91,6 +91,8 @@ const ImageGallery = ({
   const location = useLocation();
   const activeView = location.pathname === '/inspiration' ? 'inspiration' : 'myImages';
   
+  const handleSetGeneratingImages = setGeneratingImages || (() => {});
+  
   const { 
     images, 
     isLoading,
@@ -246,7 +248,7 @@ const ImageGallery = ({
       )}
       <GeneratingImagesDrawer
         generatingImages={generatingImages}
-        setGeneratingImages={setGeneratingImages}
+        setGeneratingImages={handleSetGeneratingImages}
         onCancel={onCancel}
       />
     </div>

@@ -7,7 +7,10 @@ import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { cn } from "@/lib/utils"
 import { toast } from 'sonner'
 
-const GeneratingImagesDropdown = ({ generatingImages = [], onCancel }) => {
+const GeneratingImagesDropdown = ({ 
+  generatingImages = [], 
+  onCancel = () => {} 
+}) => {
   const { data: modelConfigs } = useModelConfigs();
   const [showDropdown, setShowDropdown] = useState(false);
 

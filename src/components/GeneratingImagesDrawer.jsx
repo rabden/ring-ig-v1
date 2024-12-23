@@ -9,7 +9,13 @@ import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { Button } from "@/components/ui/button"
 import { toast } from 'sonner'
 
-const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [], onCancel }) => {
+const GeneratingImagesDrawer = ({ 
+  open, 
+  onOpenChange = () => {}, 
+  generatingImages = [], 
+  setGeneratingImages = () => {}, 
+  onCancel = () => {} 
+}) => {
   const { data: modelConfigs } = useModelConfigs();
   const [showDrawer, setShowDrawer] = useState(false);
 
