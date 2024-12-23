@@ -21,6 +21,7 @@ const ImageGenerator = () => {
   const { session } = useSupabaseAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState('images');
+  const [negativePrompt, setNegativePrompt] = useState("");
 
   const {
     isImproving,
@@ -185,65 +186,56 @@ const ImageGenerator = () => {
 
   return (
     <ImageGeneratorContent
-      session={session}
+      user={session?.user}
       credits={credits}
       bonusCredits={bonusCredits}
+      isPro={isPro}
+      isGenerating={isGenerating}
+      setIsGenerating={setIsGenerating}
       activeTab={activeTab}
       setActiveTab={setActiveTab}
-      generatingImages={generatingImages}
-      nsfwEnabled={nsfwEnabled}
-      setNsfwEnabled={setNsfwEnabled}
-      showPrivate={showPrivate}
-      setShowPrivate={setShowPrivate}
-      activeFilters={activeFilters}
-      onFilterChange={(type, value) => setActiveFilters(prev => ({ ...prev, [type]: value }))}
-      onRemoveFilter={(type) => {
-        const newFilters = { ...activeFilters };
-        delete newFilters[type];
-        setActiveFilters(newFilters);
-      }}
-      onSearch={setSearchQuery}
-      isHeaderVisible={isHeaderVisible}
-      handleImageClick={handleImageClick}
-      handleDownload={handleDownload}
-      handleDiscard={handleDiscard}
-      handleRemix={handleRemix}
-      handleViewDetails={handleViewDetails}
+      prompt={prompt}
+      setPrompt={setPrompt}
+      negativePrompt={negativePrompt}
+      setNegativePrompt={setNegativePrompt}
+      seed={seed}
+      setSeed={setSeed}
+      randomizeSeed={randomizeSeed}
+      setRandomizeSeed={setRandomizeSeed}
+      width={width}
+      setWidth={setWidth}
+      height={height}
+      setHeight={setHeight}
+      model={model}
+      setModel={setModel}
+      aspectRatio={aspectRatio}
+      setAspectRatio={setAspectRatio}
+      useAspectRatio={useAspectRatio}
+      setUseAspectRatio={setUseAspectRatio}
+      quality={quality}
+      setQuality={setQuality}
       selectedImage={selectedImage}
+      setSelectedImage={setSelectedImage}
       detailsDialogOpen={detailsDialogOpen}
       setDetailsDialogOpen={setDetailsDialogOpen}
       fullScreenViewOpen={fullScreenViewOpen}
       setFullScreenViewOpen={setFullScreenViewOpen}
-      proMode={isPro}
-      imageGeneratorProps={{
-        prompt,
-        setPrompt,
-        handlePromptKeyDown,
-        generateImage: handleGenerateImage,
-        model,
-        setModel: handleModelChange,
-        seed,
-        setSeed,
-        randomizeSeed,
-        setRandomizeSeed,
-        quality,
-        setQuality,
-        useAspectRatio,
-        setUseAspectRatio,
-        aspectRatio,
-        setAspectRatio,
-        width,
-        setWidth,
-        height,
-        setHeight,
-        imageCount,
-        setImageCount,
-        isPrivate,
-        setIsPrivate,
-        nsfwEnabled,
-        setNsfwEnabled,
-        modelConfigs
-      }}
+      fullScreenImageIndex={fullScreenImageIndex}
+      setFullScreenImageIndex={setFullScreenImageIndex}
+      generatingImages={generatingImages}
+      setGeneratingImages={setGeneratingImages}
+      activeView={activeView}
+      setActiveView={setActiveView}
+      nsfwEnabled={nsfwEnabled}
+      setNsfwEnabled={setNsfwEnabled}
+      imageCount={imageCount}
+      setImageCount={setImageCount}
+      remixImage={remixImage}
+      isRemixLoading={isRemixLoading}
+      isImproving={isImproving}
+      improveCurrentPrompt={improveCurrentPrompt}
+      modelConfigs={modelConfigs}
+      updateCredits={updateCredits}
     />
   );
 };
