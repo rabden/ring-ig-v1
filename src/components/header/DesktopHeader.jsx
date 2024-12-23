@@ -16,6 +16,8 @@ const DesktopHeader = ({
   onSearch,
   showPrivate,
   onTogglePrivate,
+  nsfwEnabled,
+  setNsfwEnabled,
   showFollowing,
   showTop,
   onFollowingChange,
@@ -39,6 +41,8 @@ const DesktopHeader = ({
                 user={user} 
                 credits={credits} 
                 bonusCredits={bonusCredits}
+                nsfwEnabled={nsfwEnabled}
+                setNsfwEnabled={setNsfwEnabled}
               />
             </div>
             <div className="h-8">

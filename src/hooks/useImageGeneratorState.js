@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useModelConfigs } from './useModelConfigs';
 
 const STORAGE_KEY = 'imageGeneratorState';
-const NSFW_STORAGE_KEY = 'nsfwEnabled';
 
 export const useImageGeneratorState = () => {
   const { data: modelConfigs } = useModelConfigs();
@@ -10,9 +9,34 @@ export const useImageGeneratorState = () => {
   // Load initial state from localStorage or use default values
   const getInitialState = () => {
     const savedState = localStorage.getItem(STORAGE_KEY);
-    const savedNsfwState = localStorage.getItem(NSFW_STORAGE_KEY);
-    
-    const defaultState = {
+    if (savedState) {
+      const parsedState = JSON.parse(savedState);
+      // Only restore specific fields that should persist
+      return {
+        prompt: '',
+        seed: 0,
+        randomizeSeed: true,
+        width: 1024,
+        height: 1024,
+        model: 'flux',
+        activeTab: 'images',
+        aspectRatio: '1:1',
+        useAspectRatio: true,
+        quality: 'HD',
+        modelSidebarOpen: false,
+        selectedImage: null,
+        detailsDialogOpen: false,
+        fullScreenViewOpen: false,
+        fullScreenImageIndex: 0,
+        generatingImages: parsedState.generatingImages || [],
+        activeView: 'myImages',
+        nsfwEnabled: parsedState.nsfwEnabled ?? false,
+        style: null,
+        imageCount: 1,
+        isPrivate: false
+      };
+    }
+    return {
       prompt: '',
       seed: 0,
       randomizeSeed: true,
@@ -30,21 +54,11 @@ export const useImageGeneratorState = () => {
       fullScreenImageIndex: 0,
       generatingImages: [],
       activeView: 'myImages',
-      nsfwEnabled: savedNsfwState ? JSON.parse(savedNsfwState) : false,
+      nsfwEnabled: false,
       style: null,
       imageCount: 1,
       isPrivate: false
     };
-
-    if (savedState) {
-      const parsedState = JSON.parse(savedState);
-      return {
-        ...defaultState,
-        generatingImages: parsedState.generatingImages || []
-      };
-    }
-
-    return defaultState;
   };
 
   const [state, setState] = useState(getInitialState);
@@ -52,15 +66,11 @@ export const useImageGeneratorState = () => {
   // Save relevant state to localStorage whenever it changes
   useEffect(() => {
     const stateToSave = {
-      generatingImages: state.generatingImages
+      generatingImages: state.generatingImages,
+      nsfwEnabled: state.nsfwEnabled
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
-  }, [state.generatingImages]);
-
-  // Save NSFW state separately
-  useEffect(() => {
-    localStorage.setItem(NSFW_STORAGE_KEY, JSON.stringify(state.nsfwEnabled));
-  }, [state.nsfwEnabled]);
+  }, [state.generatingImages, state.nsfwEnabled]);
 
   const setGeneratingImages = (value) => {
     setState(prev => {

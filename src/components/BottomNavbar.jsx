@@ -15,7 +15,9 @@ const BottomNavbar = ({
   session, 
   credits, 
   bonusCredits, 
-  generatingImages = []
+  generatingImages = [],
+  nsfwEnabled,
+  setNsfwEnabled
 }) => {
   const { unreadCount } = useNotifications();
   const { data: isPro } = useProUser(session?.user?.id);
@@ -81,6 +83,8 @@ const BottomNavbar = ({
                   credits={credits} 
                   bonusCredits={bonusCredits} 
                   isMobile={true}
+                  nsfwEnabled={nsfwEnabled}
+                  setNsfwEnabled={setNsfwEnabled}
                 />
               </div>
             ) : (

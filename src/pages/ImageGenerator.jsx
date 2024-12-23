@@ -21,7 +21,6 @@ const ImageGenerator = () => {
   const { session } = useSupabaseAuth();
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState('images');
-  const [negativePrompt, setNegativePrompt] = useState("");
 
   const {
     isImproving,
@@ -32,7 +31,7 @@ const ImageGenerator = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
   const isHeaderVisible = useScrollDirection();
-  const { credits = 0, bonusCredits = 0, updateCredits, isLoading: isCreditsLoading } = useUserCredits(session?.user?.id);
+  const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id);
   const { data: isPro } = useProUser(session?.user?.id);
   const { data: modelConfigs } = useModelConfigs();
   const queryClient = useQueryClient();
@@ -48,6 +47,9 @@ const ImageGenerator = () => {
     activeView, setActiveView, nsfwEnabled, setNsfwEnabled,
     imageCount, setImageCount
   } = useImageGeneratorState();
+
+  const [showPrivate, setShowPrivate] = useState(false);
+  const [negativePrompt, setNegativePrompt] = useState("");
 
   // Query for remix image if remixId is present
   const { data: remixImage, isLoading: isRemixLoading } = useQuery({
@@ -180,62 +182,71 @@ const ImageGenerator = () => {
     }
   }, [window.location.hash]);
 
-  if (isRemixLoading || isCreditsLoading) {
-    return <div>Loading...</div>;
+  if (isRemixLoading) {
+    return <div>Loading remix...</div>;
   }
 
   return (
     <ImageGeneratorContent
-      user={session?.user}
+      session={session}
       credits={credits}
       bonusCredits={bonusCredits}
-      isPro={isPro}
-      isGenerating={isGenerating}
-      setIsGenerating={setIsGenerating}
       activeTab={activeTab}
       setActiveTab={setActiveTab}
-      prompt={prompt}
-      setPrompt={setPrompt}
-      negativePrompt={negativePrompt}
-      setNegativePrompt={setNegativePrompt}
-      seed={seed}
-      setSeed={setSeed}
-      randomizeSeed={randomizeSeed}
-      setRandomizeSeed={setRandomizeSeed}
-      width={width}
-      setWidth={setWidth}
-      height={height}
-      setHeight={setHeight}
-      model={model}
-      setModel={setModel}
-      aspectRatio={aspectRatio}
-      setAspectRatio={setAspectRatio}
-      useAspectRatio={useAspectRatio}
-      setUseAspectRatio={setUseAspectRatio}
-      quality={quality}
-      setQuality={setQuality}
+      generatingImages={generatingImages}
+      nsfwEnabled={nsfwEnabled}
+      setNsfwEnabled={setNsfwEnabled}
+      showPrivate={showPrivate}
+      setShowPrivate={setShowPrivate}
+      activeFilters={activeFilters}
+      onFilterChange={(type, value) => setActiveFilters(prev => ({ ...prev, [type]: value }))}
+      onRemoveFilter={(type) => {
+        const newFilters = { ...activeFilters };
+        delete newFilters[type];
+        setActiveFilters(newFilters);
+      }}
+      onSearch={setSearchQuery}
+      isHeaderVisible={isHeaderVisible}
+      handleImageClick={handleImageClick}
+      handleDownload={handleDownload}
+      handleDiscard={handleDiscard}
+      handleRemix={handleRemix}
+      handleViewDetails={handleViewDetails}
       selectedImage={selectedImage}
-      setSelectedImage={setSelectedImage}
       detailsDialogOpen={detailsDialogOpen}
       setDetailsDialogOpen={setDetailsDialogOpen}
       fullScreenViewOpen={fullScreenViewOpen}
       setFullScreenViewOpen={setFullScreenViewOpen}
-      fullScreenImageIndex={fullScreenImageIndex}
-      setFullScreenImageIndex={setFullScreenImageIndex}
-      generatingImages={generatingImages}
-      setGeneratingImages={setGeneratingImages}
-      activeView={activeView}
-      setActiveView={setActiveView}
-      nsfwEnabled={nsfwEnabled}
-      setNsfwEnabled={setNsfwEnabled}
-      imageCount={imageCount}
-      setImageCount={setImageCount}
-      remixImage={remixImage}
-      isRemixLoading={isRemixLoading}
-      isImproving={isImproving}
-      improveCurrentPrompt={improveCurrentPrompt}
-      modelConfigs={modelConfigs}
-      updateCredits={updateCredits || (() => {})}
+      proMode={isPro}
+      imageGeneratorProps={{
+        prompt,
+        setPrompt,
+        handlePromptKeyDown,
+        generateImage: handleGenerateImage,
+        model,
+        setModel: handleModelChange,
+        seed,
+        setSeed,
+        randomizeSeed,
+        setRandomizeSeed,
+        quality,
+        setQuality,
+        useAspectRatio,
+        setUseAspectRatio,
+        aspectRatio,
+        setAspectRatio,
+        width,
+        setWidth,
+        height,
+        setHeight,
+        imageCount,
+        setImageCount,
+        isPrivate,
+        setIsPrivate,
+        nsfwEnabled,
+        setNsfwEnabled,
+        modelConfigs
+      }}
     />
   );
 };
