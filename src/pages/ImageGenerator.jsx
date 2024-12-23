@@ -32,7 +32,7 @@ const ImageGenerator = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
   const isHeaderVisible = useScrollDirection();
-  const { credits, bonusCredits, updateCredits } = useUserCredits(session?.user?.id);
+  const { credits = 0, bonusCredits = 0, updateCredits, isLoading: isCreditsLoading } = useUserCredits(session?.user?.id);
   const { data: isPro } = useProUser(session?.user?.id);
   const { data: modelConfigs } = useModelConfigs();
   const queryClient = useQueryClient();
@@ -180,8 +180,8 @@ const ImageGenerator = () => {
     }
   }, [window.location.hash]);
 
-  if (isRemixLoading) {
-    return <div>Loading remix...</div>;
+  if (isRemixLoading || isCreditsLoading) {
+    return <div>Loading...</div>;
   }
 
   return (
@@ -235,7 +235,7 @@ const ImageGenerator = () => {
       isImproving={isImproving}
       improveCurrentPrompt={improveCurrentPrompt}
       modelConfigs={modelConfigs}
-      updateCredits={updateCredits}
+      updateCredits={updateCredits || (() => {})}
     />
   );
 };
