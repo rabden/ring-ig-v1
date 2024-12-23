@@ -28,12 +28,10 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [], onC
     toast.success('Prompt copied to clipboard');
   };
 
-  const handleCancel = (e, id) => {
+  const handleCancel = (e, imageId) => {
     e.preventDefault();
     e.stopPropagation();
-    if (onCancel) {
-      onCancel(id);
-    }
+    onCancel(imageId);
   };
 
   if (!showDrawer) return null;

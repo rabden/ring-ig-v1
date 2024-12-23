@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useModelConfigs } from './useModelConfigs';
 
 const STORAGE_KEY = 'imageGeneratorState';
@@ -12,41 +12,9 @@ export const useImageGeneratorState = () => {
     if (savedState) {
       try {
         const parsedState = JSON.parse(savedState);
-        // Keep all generation states, not just pending/processing
-        const generatingImages = parsedState.generatingImages || [];
-
-        // Validate model and quality compatibility
-        let initialModel = parsedState.model || 'flux';
-        let initialQuality = parsedState.quality || 'HD';
-        if (modelConfigs) {
-          const modelConfig = modelConfigs[initialModel];
-          if (modelConfig?.qualityLimits && !modelConfig.qualityLimits.includes(initialQuality)) {
-            initialQuality = 'HD';
-          }
-        }
-        
         return {
-          prompt: '',
-          seed: 0,
-          randomizeSeed: true,
-          width: 1024,
-          height: 1024,
-          model: initialModel,
-          activeTab: 'images',
-          aspectRatio: '1:1',
-          useAspectRatio: true,
-          quality: initialQuality,
-          modelSidebarOpen: false,
-          selectedImage: null,
-          detailsDialogOpen: false,
-          fullScreenViewOpen: false,
-          fullScreenImageIndex: 0,
-          generatingImages,
-          activeView: 'myImages',
-          nsfwEnabled: parsedState.nsfwEnabled ?? false,
-          style: null,
-          imageCount: 1,
-          isPrivate: false
+          ...parsedState,
+          generatingImages: JSON.parse(localStorage.getItem('generatingImages') || '[]')
         };
       } catch (error) {
         console.error('Error parsing saved state:', error);
@@ -82,20 +50,30 @@ export const useImageGeneratorState = () => {
 
   const [state, setState] = useState(getInitialState);
 
-  // Save relevant state to localStorage whenever it changes
-  useEffect(() => {
-    const stateToSave = {
-      generatingImages: state.generatingImages,
-      nsfwEnabled: state.nsfwEnabled,
-      model: state.model,
-      quality: state.quality
-    };
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
-    } catch (error) {
-      console.error('Error saving state to localStorage:', error);
+  const setGeneratingImages = useCallback((images) => {
+    if (typeof images === 'function') {
+      setState(prev => ({
+        ...prev,
+        generatingImages: images(prev.generatingImages)
+      }));
+    } else {
+      setState(prev => ({
+        ...prev,
+        generatingImages: images
+      }));
     }
-  }, [state.generatingImages, state.nsfwEnabled, state.model, state.quality]);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      ...state,
+      generatingImages: undefined // Don't save generating images in the main state
+    }));
+  }, [state]);
+
+  useEffect(() => {
+    localStorage.setItem('generatingImages', JSON.stringify(state.generatingImages));
+  }, [state.generatingImages]);
 
   // Validate model and quality compatibility whenever modelConfigs changes
   useEffect(() => {
@@ -106,21 +84,6 @@ export const useImageGeneratorState = () => {
       }
     }
   }, [modelConfigs]);
-
-  const setGeneratingImages = (value) => {
-    setState(prev => {
-      const newGeneratingImages = Array.isArray(value) 
-        ? value 
-        : typeof value === 'function' 
-          ? value(prev.generatingImages) 
-          : [];
-      
-      return {
-        ...prev,
-        generatingImages: newGeneratingImages
-      };
-    });
-  };
 
   // Create setters for each state property
   const setters = {

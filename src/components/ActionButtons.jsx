@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import GeneratingImagesDropdown from './GeneratingImagesDropdown'
 import { cn } from "@/lib/utils"
 
-const ActionButtons = ({ generatingImages }) => {
+const ActionButtons = ({ generatingImages, onCancel }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isInspiration = location.pathname === '/inspiration';
@@ -36,7 +36,7 @@ const ActionButtons = ({ generatingImages }) => {
       >
         Inspiration
       </Button>
-      <GeneratingImagesDropdown generatingImages={generatingImages} />
+      <GeneratingImagesDropdown generatingImages={generatingImages} onCancel={onCancel} />
     </div>
   )
 }

@@ -25,12 +25,10 @@ const GeneratingImagesDropdown = ({ generatingImages = [], onCancel }) => {
     toast.success('Prompt copied to clipboard');
   };
 
-  const handleCancel = (e, id) => {
+  const handleCancel = (e, imageId) => {
     e.preventDefault();
     e.stopPropagation();
-    if (onCancel) {
-      onCancel(id);
-    }
+    onCancel(imageId);
   };
 
   if (!showDropdown) return null;
