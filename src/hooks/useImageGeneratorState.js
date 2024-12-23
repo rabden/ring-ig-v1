@@ -1,46 +1,16 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { useModelConfigs } from './useModelConfigs';
-
-const STORAGE_KEY = 'imageGeneratorState';
 
 export const useImageGeneratorState = () => {
   const { data: modelConfigs } = useModelConfigs();
   
-  // Load initial state from localStorage or use default values
-  const getInitialState = () => {
-    const savedState = localStorage.getItem(STORAGE_KEY);
-    if (savedState) {
-      try {
-        const parsedState = JSON.parse(savedState);
-        // Get generating images from separate storage
-        const generatingImages = JSON.parse(localStorage.getItem('generatingImages') || '[]');
-        
-        // Clean up any stale processing states on load
-        const cleanedImages = generatingImages.map(img => ({
-          ...img,
-          // Reset processing status to pending if it was left in processing state
-          status: img.status === 'processing' ? 'pending' : img.status
-        }));
-
-        return {
-          ...parsedState,
-          generatingImages: cleanedImages
-        };
-      } catch (error) {
-        console.error('Error parsing saved state:', error);
-        return getDefaultState();
-      }
-    }
-    return getDefaultState();
-  };
-
-  const getDefaultState = () => ({
+  const [state, setState] = useState({
     prompt: '',
     seed: 0,
     randomizeSeed: true,
     width: 1024,
     height: 1024,
-    model: 'flux',
+    model: 'turbo',
     activeTab: 'images',
     aspectRatio: '1:1',
     useAspectRatio: true,
@@ -58,43 +28,12 @@ export const useImageGeneratorState = () => {
     isPrivate: false
   });
 
-  const [state, setState] = useState(getInitialState);
-
-  // Handle generating images state updates
-  const setGeneratingImages = useCallback((updater) => {
-    setState(prev => {
-      const newImages = typeof updater === 'function' 
-        ? updater(prev.generatingImages)
-        : updater;
-
-      // Save to separate storage
-      localStorage.setItem('generatingImages', JSON.stringify(newImages));
-
-      return {
-        ...prev,
-        generatingImages: newImages
-      };
-    });
-  }, []);
-
-  // Save state changes to localStorage
-  useEffect(() => {
-    const stateToSave = {
-      ...state,
-      generatingImages: undefined // Don't save generating images in main state
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
-  }, [state]);
-
-  // Validate model and quality compatibility
-  useEffect(() => {
-    if (modelConfigs && state.model) {
-      const modelConfig = modelConfigs[state.model];
-      if (modelConfig?.qualityLimits && !modelConfig.qualityLimits.includes(state.quality)) {
-        setState(prev => ({ ...prev, quality: 'HD' }));
-      }
-    }
-  }, [modelConfigs]);
+  const setGeneratingImages = (value) => {
+    setState(prev => ({
+      ...prev,
+      generatingImages: Array.isArray(value) ? value : typeof value === 'function' ? value(prev.generatingImages) : []
+    }));
+  };
 
   // Create setters for each state property
   const setters = {
@@ -121,23 +60,8 @@ export const useImageGeneratorState = () => {
     setIsPrivate: (value) => setState(prev => ({ ...prev, isPrivate: value }))
   };
 
-  // Helper functions for queue management
-  const getQueueState = useCallback(() => {
-    const images = state.generatingImages;
-    return {
-      hasProcessing: images.some(img => img.status === 'processing'),
-      pendingCount: images.filter(img => img.status === 'pending').length,
-      processingCount: images.filter(img => img.status === 'processing').length,
-      completedCount: images.filter(img => img.status === 'completed').length,
-      failedCount: images.filter(img => img.status === 'failed').length,
-      nextPending: images.find(img => img.status === 'pending'),
-      isAllCompleted: images.length > 0 && images.every(img => img.status === 'completed')
-    };
-  }, [state.generatingImages]);
-
   return {
     ...state,
-    ...setters,
-    queueState: getQueueState()
+    ...setters
   };
 };

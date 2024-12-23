@@ -1,19 +1,4 @@
 export const modelConfig = {
-  flux: {
-    name: "Flux.1 Schnell",
-    category: "General",
-    apiUrl: "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell",
-    qualityLimits: null,
-    isPremium: false,
-    promptSuffix: null,
-    tagline: "Balanced speed and quality",
-    image: "https://i.ibb.co.com/51P0fS0/out-0.webp",
-    example: "make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c",
-    steps: 4,
-    use_guidance: false,
-    defaultguidance: 7.5,
-    use_negative_prompt: false
-  },
   turbo: {
     name: "SD-3.5Large-turbo",
     category: "General",
@@ -29,6 +14,21 @@ export const modelConfig = {
     defaultguidance: 7.5,
     use_negative_prompt: false,
     default_negative_prompt: "ugly, bad anatomy, blurry, pixelated, poor quality, watermark, signature, text"
+  },
+  flux: {
+    name: "Flux.1 Schnell",
+    category: "General",
+    apiUrl: "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell",
+    qualityLimits: null,
+    isPremium: false,
+    promptSuffix: null,
+    tagline: "Balanced speed and quality",
+    image: "https://i.ibb.co.com/51P0fS0/out-0.webp",
+    example: "make high quality flawless prompt, use quality and style tags like: high quality, studio lighting, professional portrait, Anime style or 3D style, make it not too long not too short, provide fine details like environment, lighting, colors, visual elements, if included charachters then styling, clothings, appearance, activity e.t.c",
+    steps: 4,
+    use_guidance: false,
+    defaultguidance: 7.5,
+    use_negative_prompt: false
   },
   sd35l: {
     name: "SD-3.5Large",

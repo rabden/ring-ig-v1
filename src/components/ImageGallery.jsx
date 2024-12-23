@@ -8,7 +8,6 @@ import NoResults from './NoResults';
 import { useGalleryImages } from '@/hooks/useGalleryImages';
 import { cn } from '@/lib/utils';
 import { format, isToday, isYesterday, isThisWeek, isThisMonth, parseISO, subWeeks, isAfter } from 'date-fns';
-import GeneratingImagesDrawer from './GeneratingImagesDrawer';
 
 const getBreakpointColumns = () => ({
   default: 4,
@@ -81,17 +80,13 @@ const ImageGallery = ({
   style,
   showFollowing,
   showTop,
-  following,
-  setGeneratingImages,
-  onCancel
+  following
 }) => {
   const { userLikes, toggleLike } = useLikes(userId);
   const isMobile = window.innerWidth <= 768;
   const breakpointColumnsObj = getBreakpointColumns();
   const location = useLocation();
   const activeView = location.pathname === '/inspiration' ? 'inspiration' : 'myImages';
-  
-  const handleSetGeneratingImages = setGeneratingImages || (() => {});
   
   const { 
     images, 
@@ -159,7 +154,7 @@ const ImageGallery = ({
       .filter(([_, images]) => images.length > 0);
 
     return (
-      <div className={cn("w-full h-full md:px-0 pt-12 space-y-8", className)}>
+      <div className={cn("w-full h-full md:px-0 pt-12 space-y-12", className)}>
         {nonEmptyGroups.map(([groupName, groupImages], groupIndex) => (
           <div key={groupName}>
             <DateHeader>
@@ -173,8 +168,8 @@ const ImageGallery = ({
             </DateHeader>
             <Masonry
               breakpointCols={breakpointColumnsObj}
-              className="flex w-auto md:px-2 -mx-2"
-              columnClassName="bg-clip-padding px-2 space-y-4"
+              className="flex w-auto md:px-2 -mx-1 md:mx-0"
+              columnClassName="bg-clip-padding px-1 md:px-2 space-y-6"
             >
               {groupImages.map((image, index) => (
                 <div
@@ -210,13 +205,13 @@ const ImageGallery = ({
     );
   }
 
-  // Regular masonry grid for other views (inspiration)
+  // Regular masonry grid for other views
   return (
     <div className={cn("w-full h-full md:px-0 md:pt-0 pt-0", className)}>
       <Masonry
         breakpointCols={breakpointColumnsObj}
-        className="flex w-auto md:px-2 -mx-2"
-        columnClassName="bg-clip-padding px-2 [&>*]:mb-4"
+        className="flex w-auto md:px-2 -mx-1 md:mx-0"
+        columnClassName="bg-clip-padding px-1 md:px-2"
       >
         {images.map((image, index) => (
           <div
@@ -246,11 +241,6 @@ const ImageGallery = ({
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
       )}
-      <GeneratingImagesDrawer
-        generatingImages={generatingImages}
-        setGeneratingImages={handleSetGeneratingImages}
-        onCancel={onCancel}
-      />
     </div>
   );
 };
