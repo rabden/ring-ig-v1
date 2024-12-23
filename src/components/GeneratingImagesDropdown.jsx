@@ -148,7 +148,7 @@ const GeneratingImagesDropdown = ({
                 >
                   <X className="h-3.5 w-3.5" />
                 </Button>
-                {img.width && img.height && !isNaN(img.width) && !isNaN(img.height) && (
+                {img.width && img.height && !isNaN(img.width) && !isNaN(img.height) && img.width > 0 && img.height > 0 && (
                   <Badge 
                     variant="secondary" 
                     className={cn(
