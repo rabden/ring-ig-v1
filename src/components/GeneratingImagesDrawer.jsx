@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Check, Loader, Clock, XCircle } from "lucide-react"
+import { Check, Loader, Clock, XCircle, Copy, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { format, isValid } from 'date-fns';
 import { Badge } from "@/components/ui/badge"
 import { useModelConfigs } from '@/hooks/useModelConfigs'
+import { Button } from "@/components/ui/button"
+import { toast } from 'sonner'
 
-const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) => {
+const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [], onCancel }) => {
   const { data: modelConfigs } = useModelConfigs();
   const [showDrawer, setShowDrawer] = useState(false);
 
@@ -20,6 +22,11 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
       onOpenChange(false);
     }
   }, [generatingImages.length, onOpenChange]);
+
+  const handleCopy = (prompt) => {
+    navigator.clipboard.writeText(prompt);
+    toast.success('Prompt copied to clipboard');
+  };
 
   if (!showDrawer) return null;
 
@@ -104,23 +111,45 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
                      image.status === 'failed' ? 'Failed' :
                      'Queued'}
                   </span>
-                  {image.width && image.height && (
-                    <Badge 
-                      variant={image.status === 'completed' ? "secondary" : "outline"} 
-                      className={cn(
-                        "ml-auto transition-colors duration-200",
-                        image.status === 'completed' 
-                          ? "bg-muted/20 hover:bg-muted/30 text-foreground/70" 
-                          : image.status === 'processing'
-                          ? "border-primary/20 bg-primary/10 text-primary/90"
-                          : image.status === 'failed'
-                          ? "border-red-500/20 bg-red-500/10 text-red-500/90"
-                          : "border-muted-foreground/20 bg-muted/10 text-muted-foreground/70"
-                      )}
-                    >
-                      {image.width}x{image.height}
-                    </Badge>
-                  )}
+                  <div className="flex items-center gap-1 ml-auto">
+                    {image.prompt && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-muted-foreground/70 hover:text-muted-foreground"
+                        onClick={() => handleCopy(image.prompt)}
+                      >
+                        <Copy className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                    {(image.status === 'processing' || image.status === 'pending') && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-red-500/70 hover:text-red-500"
+                        onClick={() => onCancel?.(image.id)}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </Button>
+                    )}
+                    {image.width && image.height && (
+                      <Badge 
+                        variant={image.status === 'completed' ? "secondary" : "outline"} 
+                        className={cn(
+                          "transition-colors duration-200",
+                          image.status === 'completed' 
+                            ? "bg-muted/20 hover:bg-muted/30 text-foreground/70" 
+                            : image.status === 'processing'
+                            ? "border-primary/20 bg-primary/10 text-primary/90"
+                            : image.status === 'failed'
+                            ? "border-red-500/20 bg-red-500/10 text-red-500/90"
+                            : "border-muted-foreground/20 bg-muted/10 text-muted-foreground/70"
+                        )}
+                      >
+                        {image.width}x{image.height}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
                 {image.prompt && (
                   <span className="text-sm text-muted-foreground/60 line-clamp-2 group-hover:text-muted-foreground/70 transition-colors duration-200">

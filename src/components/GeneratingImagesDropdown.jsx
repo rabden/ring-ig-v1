@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { Loader, Check, Clock, XCircle } from "lucide-react"
+import { Loader, Check, Clock, XCircle, Copy, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
 import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { cn } from "@/lib/utils"
+import { toast } from 'sonner'
 
-const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
+const GeneratingImagesDropdown = ({ generatingImages = [], onCancel }) => {
   const { data: modelConfigs } = useModelConfigs();
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -18,6 +19,11 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
       setShowDropdown(false);
     }
   }, [generatingImages.length]);
+
+  const handleCopy = (prompt) => {
+    navigator.clipboard.writeText(prompt);
+    toast.success('Prompt copied to clipboard');
+  };
 
   if (!showDropdown) return null;
 
@@ -111,19 +117,47 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
                    'Complete'}
                 </span>
               </div>
-              <Badge 
-                variant="secondary" 
-                className={cn(
-                  "ml-auto transition-colors duration-200",
-                  img.status === 'completed' 
-                    ? "bg-muted/20 hover:bg-muted/30 text-foreground/70"
-                    : img.status === 'failed'
-                    ? "bg-red-500/10 hover:bg-red-500/20 text-red-500/90"
-                    : "bg-muted/10 hover:bg-muted/20 text-muted-foreground/70"
+              <div className="flex items-center gap-1 ml-auto">
+                {img.prompt && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-muted-foreground/70 hover:text-muted-foreground"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCopy(img.prompt);
+                    }}
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                  </Button>
                 )}
-              >
-                {img.width}x{img.height}
-              </Badge>
+                {(img.status === 'processing' || img.status === 'pending') && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-red-500/70 hover:text-red-500"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onCancel?.(img.id);
+                    }}
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+                <Badge 
+                  variant="secondary" 
+                  className={cn(
+                    "transition-colors duration-200",
+                    img.status === 'completed' 
+                      ? "bg-muted/20 hover:bg-muted/30 text-foreground/70"
+                      : img.status === 'failed'
+                      ? "bg-red-500/10 hover:bg-red-500/20 text-red-500/90"
+                      : "bg-muted/10 hover:bg-muted/20 text-muted-foreground/70"
+                  )}
+                >
+                  {img.width}x{img.height}
+                </Badge>
+              </div>
             </div>
             {img.prompt && (
               <span className="text-xs text-muted-foreground/60 truncate w-full group-hover:text-muted-foreground/70 transition-colors duration-200">

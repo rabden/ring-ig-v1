@@ -90,7 +90,7 @@ const ImageGenerator = () => {
     }
   }, [remixImage]);
 
-  const { generateImage } = useImageGeneration({
+  const { generateImage, handleCancel } = useImageGeneration({
     session,
     prompt,
     seed,
@@ -212,6 +212,7 @@ const ImageGenerator = () => {
       handleDiscard={handleDiscard}
       handleRemix={handleRemix}
       handleViewDetails={handleViewDetails}
+      handleCancel={handleCancel}
       selectedImage={selectedImage}
       detailsDialogOpen={detailsDialogOpen}
       setDetailsDialogOpen={setDetailsDialogOpen}

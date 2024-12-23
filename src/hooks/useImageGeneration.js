@@ -27,6 +27,32 @@ export const useImageGeneration = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const processingTimeoutRef = useRef(null);
 
+  // Handle cancellation of a generation
+  const handleCancel = useCallback(async (generationId) => {
+    // Find the generation in the queue
+    const queueIndex = generationQueue.current.findIndex(gen => gen.generationId === generationId);
+    const generation = queueIndex !== -1 ? generationQueue.current[queueIndex] : null;
+
+    // Remove from queue if found
+    if (queueIndex !== -1) {
+      generationQueue.current.splice(queueIndex, 1);
+    }
+
+    // Update UI state to remove the generation
+    setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
+
+    // Refund credits if necessary
+    if (generation?.shouldRefundCredits) {
+      try {
+        await updateCredits({ quality, imageCount: 1, isRefund: true });
+        toast.success('Credits refunded');
+      } catch (error) {
+        console.error('Error refunding credits:', error);
+        toast.error('Failed to refund credits');
+      }
+    }
+  }, [quality, updateCredits, setGeneratingImages]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -434,5 +460,8 @@ export const useImageGeneration = ({
     }
   };
 
-  return { generateImage };
+  return {
+    generateImage,
+    handleCancel
+  };
 };
