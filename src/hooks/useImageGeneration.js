@@ -284,6 +284,10 @@ export const useImageGeneration = ({
         return;
       }
 
+      // Get current state to check if anything is processing
+      const currentImages = JSON.parse(localStorage.getItem('generatingImages') || '[]');
+      const hasProcessing = currentImages.some(img => img.status === 'processing');
+
       for (let i = 0; i < imageCount; i++) {
         const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed + i;
         const generationId = Date.now().toString() + i;
@@ -297,7 +301,7 @@ export const useImageGeneration = ({
           maxDimension
         );
 
-        // Add to UI state
+        // Add to UI state with correct initial status
         setGeneratingImages(prev => [...prev, { 
           id: generationId, 
           width: finalWidth, 
@@ -307,14 +311,16 @@ export const useImageGeneration = ({
           quality,
           seed: actualSeed,
           isPrivate,
-          status: 'pending',
+          status: hasProcessing || i > 0 ? 'pending' : 'processing', // First image starts processing if nothing else is
           aspectRatio: finalAspectRatio || '1:1',
           created_at: new Date().toISOString()
         }]);
-      }
 
-      if (!isProcessing) {
-        processQueue();
+        // If this is the first image and nothing is processing, start it immediately
+        if (i === 0 && !hasProcessing) {
+          setIsProcessing(true);
+          processQueue();
+        }
       }
     } catch (error) {
       console.error('Error starting generation:', error);
