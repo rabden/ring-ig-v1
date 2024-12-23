@@ -2,8 +2,10 @@ import { supabase } from '@/integrations/supabase/supabase';
 import { toast } from 'sonner';
 import { qualityOptions } from '@/utils/imageConfigs';
 import { calculateDimensions, getModifiedPrompt } from '@/utils/imageUtils';
-import { handleApiResponse, initRetryCount } from '@/utils/retryUtils';
+import { handleApiResponse, initRetryCount, getRetryCount } from '@/utils/retryUtils';
 import { useState, useRef, useCallback, useEffect } from 'react';
+
+const MAX_RETRIES = 5;
 
 export const useImageGeneration = ({
   session,
