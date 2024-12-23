@@ -10,67 +10,111 @@ export const useImageGeneratorState = () => {
   const getInitialState = () => {
     const savedState = localStorage.getItem(STORAGE_KEY);
     if (savedState) {
-      const parsedState = JSON.parse(savedState);
-      // Only restore specific fields that should persist
-      return {
-        prompt: '',
-        seed: 0,
-        randomizeSeed: true,
-        width: 1024,
-        height: 1024,
-        model: 'flux',
-        activeTab: 'images',
-        aspectRatio: '1:1',
-        useAspectRatio: true,
-        quality: 'HD',
-        modelSidebarOpen: false,
-        selectedImage: null,
-        detailsDialogOpen: false,
-        fullScreenViewOpen: false,
-        fullScreenImageIndex: 0,
-        generatingImages: parsedState.generatingImages || [],
-        activeView: 'myImages',
-        nsfwEnabled: parsedState.nsfwEnabled ?? false,
-        style: null,
-        imageCount: 1,
-        isPrivate: false
-      };
+      try {
+        const parsedState = JSON.parse(savedState);
+        // Only restore specific fields that should persist
+        // Filter out completed generations from generatingImages
+        const activeGenerations = (parsedState.generatingImages || []).filter(
+          img => img.status === 'pending' || img.status === 'processing'
+        );
+
+        // Validate model and quality compatibility
+        let initialModel = parsedState.model || 'flux';
+        let initialQuality = parsedState.quality || 'HD';
+        if (modelConfigs) {
+          const modelConfig = modelConfigs[initialModel];
+          if (modelConfig?.qualityLimits && !modelConfig.qualityLimits.includes(initialQuality)) {
+            initialQuality = 'HD';
+          }
+        }
+        
+        return {
+          prompt: '',
+          seed: 0,
+          randomizeSeed: true,
+          width: 1024,
+          height: 1024,
+          model: initialModel,
+          activeTab: 'images',
+          aspectRatio: '1:1',
+          useAspectRatio: true,
+          quality: initialQuality,
+          modelSidebarOpen: false,
+          selectedImage: null,
+          detailsDialogOpen: false,
+          fullScreenViewOpen: false,
+          fullScreenImageIndex: 0,
+          generatingImages: activeGenerations,
+          activeView: 'myImages',
+          nsfwEnabled: parsedState.nsfwEnabled ?? false,
+          style: null,
+          imageCount: 1,
+          isPrivate: false
+        };
+      } catch (error) {
+        console.error('Error parsing saved state:', error);
+        return getDefaultState();
+      }
     }
-    return {
-      prompt: '',
-      seed: 0,
-      randomizeSeed: true,
-      width: 1024,
-      height: 1024,
-      model: 'flux',
-      activeTab: 'images',
-      aspectRatio: '1:1',
-      useAspectRatio: true,
-      quality: 'HD',
-      modelSidebarOpen: false,
-      selectedImage: null,
-      detailsDialogOpen: false,
-      fullScreenViewOpen: false,
-      fullScreenImageIndex: 0,
-      generatingImages: [],
-      activeView: 'myImages',
-      nsfwEnabled: false,
-      style: null,
-      imageCount: 1,
-      isPrivate: false
-    };
+    return getDefaultState();
   };
+
+  const getDefaultState = () => ({
+    prompt: '',
+    seed: 0,
+    randomizeSeed: true,
+    width: 1024,
+    height: 1024,
+    model: 'flux',
+    activeTab: 'images',
+    aspectRatio: '1:1',
+    useAspectRatio: true,
+    quality: 'HD',
+    modelSidebarOpen: false,
+    selectedImage: null,
+    detailsDialogOpen: false,
+    fullScreenViewOpen: false,
+    fullScreenImageIndex: 0,
+    generatingImages: [],
+    activeView: 'myImages',
+    nsfwEnabled: false,
+    style: null,
+    imageCount: 1,
+    isPrivate: false
+  });
 
   const [state, setState] = useState(getInitialState);
 
   // Save relevant state to localStorage whenever it changes
   useEffect(() => {
     const stateToSave = {
-      generatingImages: state.generatingImages,
-      nsfwEnabled: state.nsfwEnabled
+      generatingImages: state.generatingImages.filter(img => 
+        img.status === 'pending' || img.status === 'processing'
+      ),
+      nsfwEnabled: state.nsfwEnabled,
+      model: state.model,
+      quality: state.quality
     };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
-  }, [state.generatingImages, state.nsfwEnabled]);
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+    } catch (error) {
+      console.error('Error saving state to localStorage:', error);
+    }
+  }, [state.generatingImages, state.nsfwEnabled, state.model, state.quality]);
+
+  // Validate model and quality compatibility whenever modelConfigs changes
+  useEffect(() => {
+    if (modelConfigs && state.model) {
+      const modelConfig = modelConfigs[state.model];
+      if (modelConfig?.qualityLimits && !modelConfig.qualityLimits.includes(state.quality)) {
+        setState(prev => ({ ...prev, quality: 'HD' }));
+      }
+      // Check NSFW compatibility
+      if (!modelConfig?.allowNSFW && state.nsfwEnabled) {
+        setState(prev => ({ ...prev, nsfwEnabled: false }));
+      }
+    }
+  }, [modelConfigs]);
 
   const setGeneratingImages = (value) => {
     setState(prev => {

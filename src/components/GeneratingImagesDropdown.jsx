@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Loader, Check, Clock } from "lucide-react"
+import { Loader, Check, Clock, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
@@ -24,7 +24,9 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
   const processingCount = generatingImages.filter(img => img.status === 'processing').length;
   const pendingCount = generatingImages.filter(img => img.status === 'pending').length;
   const completedCount = generatingImages.filter(img => img.status === 'completed').length;
+  const failedCount = generatingImages.filter(img => img.status === 'failed').length;
   const isAllCompleted = generatingImages.length > 0 && generatingImages.every(img => img.status === 'completed');
+  const hasRetrying = generatingImages.some(img => img.status === 'processing' && img.retryCount > 0);
 
   return (
     <DropdownMenu>
@@ -35,7 +37,8 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
           className={cn(
             "h-8 rounded-xl bg-background/50 hover:bg-accent",
             "transition-all duration-200",
-            isAllCompleted && "text-primary"
+            isAllCompleted && "text-primary",
+            failedCount > 0 && "text-red-500"
           )}
         >
           {isAllCompleted ? (
@@ -45,15 +48,23 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
             )}>
               <Check className="w-4 h-4 text-primary/90" />
             </div>
+          ) : failedCount > 0 ? (
+            <div className="p-1 rounded-lg mr-2">
+              <XCircle className="w-4 h-4 text-red-500/90" />
+            </div>
           ) : (
             <div className="p-1 rounded-lg mr-2">
               <Loader className="w-4 h-4 animate-spin text-primary/90" />
             </div>
           )}
           <span className="text-sm">
-            {processingCount > 0 ? 'Generating' : 
+            {processingCount > 0 ? (
+              hasRetrying ? 'Retrying...' : 'Generating'
+            ) : 
              pendingCount > 0 ? `Queued-${pendingCount}` : 
-             completedCount > 0 ? `Generated-${completedCount}` : 'Complete'}
+             completedCount > 0 ? `Generated-${completedCount}` : 
+             failedCount > 0 ? `Failed-${failedCount}` :
+             'Complete'}
           </span>
         </Button>
       </DropdownMenuTrigger>
@@ -78,20 +89,37 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
                     <Loader className="w-3.5 h-3.5 animate-spin text-primary/90" />
                   ) : img.status === 'pending' ? (
                     <Clock className="w-3.5 h-3.5 text-muted-foreground/70" />
+                  ) : img.status === 'failed' ? (
+                    <XCircle className="w-3.5 h-3.5 text-red-500/90" />
                   ) : (
                     <Check className="w-3.5 h-3.5 text-primary/90" />
                   )}
                 </div>
-                <span className="text-sm font-medium text-primary/90">
-                  {img.status === 'processing' ? 'Generating...' : 
-                   img.status === 'pending' ? 'Queued' : 'Complete'}
+                <span className={cn(
+                  "text-sm font-medium",
+                  img.status === 'completed' ? "text-primary/90" :
+                  img.status === 'failed' ? "text-red-500/90" :
+                  "text-muted-foreground/90"
+                )}>
+                  {img.status === 'processing' ? (
+                    img.retryCount 
+                      ? `Retrying (${img.retryCount}/5)` 
+                      : 'Generating...'
+                  ) : 
+                   img.status === 'pending' ? 'Queued' :
+                   img.status === 'failed' ? 'Failed' :
+                   'Complete'}
                 </span>
               </div>
               <Badge 
                 variant="secondary" 
                 className={cn(
-                  "ml-auto bg-muted/20 hover:bg-muted/30 text-foreground/70",
-                  "transition-colors duration-200"
+                  "ml-auto transition-colors duration-200",
+                  img.status === 'completed' 
+                    ? "bg-muted/20 hover:bg-muted/30 text-foreground/70"
+                    : img.status === 'failed'
+                    ? "bg-red-500/10 hover:bg-red-500/20 text-red-500/90"
+                    : "bg-muted/10 hover:bg-muted/20 text-muted-foreground/70"
                 )}
               >
                 {img.width}x{img.height}
@@ -100,6 +128,16 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
             {img.prompt && (
               <span className="text-xs text-muted-foreground/60 truncate w-full group-hover:text-muted-foreground/70 transition-colors duration-200">
                 {img.prompt.length > 50 ? `${img.prompt.substring(0, 50)}...` : img.prompt}
+              </span>
+            )}
+            {img.error && (
+              <span className="text-xs text-red-500/80 truncate w-full">
+                {img.error}
+              </span>
+            )}
+            {img.retryReason && img.status === 'processing' && (
+              <span className="text-xs text-amber-500/80 truncate w-full">
+                {img.retryReason}
               </span>
             )}
             <div className="flex gap-2 text-xs text-muted-foreground/50 group-hover:text-muted-foreground/60 transition-colors duration-200">

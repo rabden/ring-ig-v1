@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -58,6 +58,11 @@ const ImageGeneratorSettings = ({
         setQuality('HD');
       }
     }
+    // Check if the model supports NSFW content
+    if (!modelConfig?.allowNSFW && nsfwEnabled) {
+      toast.warning('NSFW content is not supported by this model. Switching to Safe mode.');
+      setNsfwEnabled(false);
+    }
     setModel(newModel);
   };
 
@@ -73,6 +78,20 @@ const ImageGeneratorSettings = ({
     // If specified, only allow those qualities
     return modelConfig.qualityLimits;
   };
+
+  // Validate model/quality compatibility on mount and when dependencies change
+  useEffect(() => {
+    if (modelConfigs && model) {
+      const modelConfig = modelConfigs[model];
+      if (modelConfig?.qualityLimits && !modelConfig.qualityLimits.includes(quality)) {
+        setQuality('HD');
+      }
+      // Check NSFW compatibility
+      if (!modelConfig?.allowNSFW && nsfwEnabled) {
+        setNsfwEnabled(false);
+      }
+    }
+  }, [modelConfigs, model, quality, nsfwEnabled]);
 
   const handleClearPrompt = () => {
     setPrompt('');
@@ -109,7 +128,7 @@ const ImageGeneratorSettings = ({
   };
 
   return (
-    <div className="space-y-8 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
+    <div className="space-y-6 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
 
       {isGenerateTab && (
         <div className="flex justify-center w-full">
@@ -141,15 +160,21 @@ const ImageGeneratorSettings = ({
         modelConfigs={modelConfigs}
       />
 
-      <ImageCountChooser
-        count={imageCount}
-        setCount={setImageCount}
+      <AspectRatioChooser 
+        aspectRatio={aspectRatio} 
+        setAspectRatio={setAspectRatio}
+        proMode={proMode} 
       />
 
       <QualityChooser
         quality={quality}
         setQuality={setQuality}
         availableQualities={getAvailableQualities()}
+      />
+
+      <ImageCountChooser
+        count={imageCount}
+        setCount={setImageCount}
       />
 
       {modelConfigs[model]?.use_negative_prompt && (
@@ -162,12 +187,6 @@ const ImageGeneratorSettings = ({
           />
         </SettingSection>
       )}
-
-      <AspectRatioChooser 
-        aspectRatio={aspectRatio} 
-        setAspectRatio={setAspectRatio}
-        proMode={proMode} 
-      />
 
       <SettingSection label="Seed" tooltip="A seed is a number that initializes the random generation process. Using the same seed with the same settings will produce the same image.">
         <div className="flex items-center space-x-2">

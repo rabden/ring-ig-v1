@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Check, Loader, Clock } from "lucide-react"
+import { Check, Loader, Clock, XCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { format, isValid } from 'date-fns';
 import { Badge } from "@/components/ui/badge"
@@ -26,6 +26,7 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
   const processingCount = generatingImages.filter(img => img.status === 'processing').length;
   const pendingCount = generatingImages.filter(img => img.status === 'pending').length;
   const completedCount = generatingImages.filter(img => img.status === 'completed').length;
+  const failedCount = generatingImages.filter(img => img.status === 'failed').length;
   const isAllCompleted = generatingImages.length > 0 && generatingImages.every(img => img.status === 'completed');
 
   return (
@@ -77,6 +78,8 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
                     ? "bg-muted/5 hover:bg-muted/10" 
                     : image.status === 'processing'
                     ? "bg-primary/5 hover:bg-primary/10"
+                    : image.status === 'failed'
+                    ? "bg-red-500/5 hover:bg-red-500/10"
                     : "bg-muted/10 hover:bg-muted/20",
                   "group"
                 )}
@@ -88,10 +91,18 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
                       ? "text-foreground/70" 
                       : image.status === 'processing'
                       ? "text-primary/90"
+                      : image.status === 'failed'
+                      ? "text-red-500/90"
                       : "text-muted-foreground"
                   )}>
                     {image.status === 'completed' ? 'Complete' : 
-                     image.status === 'processing' ? 'Generating...' : 'Queued'}
+                     image.status === 'processing' ? (
+                       image.retryCount 
+                         ? `Retrying (${image.retryCount}/5)...` 
+                         : 'Generating...'
+                     ) : 
+                     image.status === 'failed' ? 'Failed' :
+                     'Queued'}
                   </span>
                   {image.width && image.height && (
                     <Badge 
@@ -102,6 +113,8 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
                           ? "bg-muted/20 hover:bg-muted/30 text-foreground/70" 
                           : image.status === 'processing'
                           ? "border-primary/20 bg-primary/10 text-primary/90"
+                          : image.status === 'failed'
+                          ? "border-red-500/20 bg-red-500/10 text-red-500/90"
                           : "border-muted-foreground/20 bg-muted/10 text-muted-foreground/70"
                       )}
                     >
@@ -114,6 +127,16 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
                     {image.prompt}
                   </span>
                 )}
+                {image.error && (
+                  <span className="text-sm text-red-500/80 line-clamp-2">
+                    {image.error}
+                  </span>
+                )}
+                {image.retryReason && image.status === 'processing' && (
+                  <span className="text-sm text-amber-500/80">
+                    {image.retryReason}
+                  </span>
+                )}
                 <div className="flex items-center gap-2 text-xs text-muted-foreground/50 group-hover:text-muted-foreground/60 transition-colors duration-200">
                   <span>{modelConfigs?.[image.model]?.name || image.model}</span>
                   {image.status === 'completed' ? (
@@ -123,6 +146,10 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
                   ) : image.status === 'processing' ? (
                     <div className="ml-auto p-1 rounded-lg ">
                       <Loader className="h-3.5 w-3.5 animate-spin text-primary/90" />
+                    </div>
+                  ) : image.status === 'failed' ? (
+                    <div className="ml-auto p-1 rounded-lg ">
+                      <XCircle className="h-3.5 w-3.5 text-red-500/90" />
                     </div>
                   ) : (
                     <div className="ml-auto p-1 rounded-lg ">

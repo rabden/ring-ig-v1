@@ -3,7 +3,7 @@ import { toast } from 'sonner';
 import { qualityOptions } from '@/utils/imageConfigs';
 import { calculateDimensions, getModifiedPrompt } from '@/utils/imageUtils';
 import { handleApiResponse, initRetryCount } from '@/utils/retryUtils';
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
 export const useImageGeneration = ({
   session,
@@ -25,6 +25,61 @@ export const useImageGeneration = ({
   // Queue to store pending generations
   const generationQueue = useRef([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const processingTimeoutRef = useRef(null);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (processingTimeoutRef.current) {
+        clearTimeout(processingTimeoutRef.current);
+      }
+      // Refund credits for any pending generations
+      if (generationQueue.current.length > 0) {
+        generationQueue.current.forEach(async (generation) => {
+          if (generation.shouldRefundCredits) {
+            await updateCredits({ quality, imageCount: 1, isRefund: true });
+          }
+        });
+      }
+    };
+  }, [quality, updateCredits]);
+
+  // Check for existing processing images on mount and when generatingImages changes
+  useEffect(() => {
+    // Validate model and quality compatibility
+    if (modelConfigs && model && quality) {
+      const modelConfig = modelConfigs[model];
+      if (modelConfig?.qualityLimits && !modelConfig.qualityLimits.includes(quality)) {
+        setGeneratingImages(prev => prev.filter(img => img.status === 'pending' || img.status === 'processing'));
+        return;
+      }
+    }
+
+    // Restore queue state from UI state
+    setGeneratingImages(prev => {
+      const activeImages = prev.filter(img => img.status === 'pending' || img.status === 'processing');
+      
+      // Rebuild queue from active images
+      generationQueue.current = activeImages.map(img => ({
+        generationId: img.id,
+        finalWidth: img.width,
+        finalHeight: img.height,
+        modifiedPrompt: img.prompt,
+        actualSeed: img.seed || Math.floor(Math.random() * 1000000),
+        isPrivate: img.is_private,
+        modelConfig: modelConfigs?.[img.model],
+        finalAspectRatio: img.aspect_ratio,
+        shouldRefundCredits: true
+      }));
+
+      return activeImages;
+    });
+
+    // Start processing if there are items in queue
+    if (!isProcessing && generationQueue.current.length > 0) {
+      processQueue();
+    }
+  }, [modelConfigs, model, quality]);
 
   // Process the queue one item at a time
   const processQueue = useCallback(async () => {
@@ -32,6 +87,22 @@ export const useImageGeneration = ({
 
     setIsProcessing(true);
     const currentGeneration = generationQueue.current[0];
+
+    // Set a timeout to prevent stuck processing state
+    processingTimeoutRef.current = setTimeout(() => {
+      if (isProcessing) {
+        setIsProcessing(false);
+        setGeneratingImages(prev => prev.map(img => 
+          img.id === currentGeneration.generationId 
+            ? { ...img, status: 'failed', error: 'Generation timed out' } 
+            : img
+        ));
+        if (currentGeneration.shouldRefundCredits) {
+          updateCredits({ quality, imageCount: 1, isRefund: true });
+        }
+        toast.error('Generation timed out');
+      }
+    }, 300000); // 5 minutes timeout
 
     try {
       const {
@@ -63,7 +134,11 @@ export const useImageGeneration = ({
             .single();
           
           if (apiKeyError) {
-            setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
+            setGeneratingImages(prev => prev.map(img => 
+              img.id === generationId 
+                ? { ...img, status: 'failed', error: `Failed to get API key: ${apiKeyError.message}` } 
+                : img
+            ));
             toast.error('Failed to get API key');
             if (shouldRefundCredits) {
               await updateCredits({ quality, imageCount: 1, isRefund: true });
@@ -71,7 +146,11 @@ export const useImageGeneration = ({
             throw new Error(`Failed to get API key: ${apiKeyError.message}`);
           }
           if (!apiKeyData) {
-            setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
+            setGeneratingImages(prev => prev.map(img => 
+              img.id === generationId 
+                ? { ...img, status: 'failed', error: 'No active API key available' } 
+                : img
+            ));
             toast.error('No active API key available');
             if (shouldRefundCredits) {
               await updateCredits({ quality, imageCount: 1, isRefund: true });
@@ -108,18 +187,40 @@ export const useImageGeneration = ({
             }),
           });
 
-          const imageBlob = await handleApiResponse(response, generationId, () => makeRequest(response.status === 429));
+          const imageBlob = await handleApiResponse(response, generationId, async () => {
+            // Update status to show we're retrying
+            setGeneratingImages(prev => prev.map(img => 
+              img.id === generationId 
+                ? { 
+                    ...img, 
+                    status: 'processing',
+                    retryCount: getRetryCount(generationId),
+                    retryReason: response.status === 429 ? 'Rate limit reached' : 'Server error'
+                  } 
+                : img
+            ));
+            
+            // Add a small delay to show the retry status
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            return makeRequest(response.status === 429);
+          });
+          
           if (!imageBlob) {
-            setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-            toast.error('Failed to generate image');
-            if (shouldRefundCredits) {
-              await updateCredits({ quality, imageCount: 1, isRefund: true });
-            }
             return;
           }
 
           if (!imageBlob || imageBlob.size === 0) {
-            setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
+            setGeneratingImages(prev => prev.map(img => 
+              img.id === generationId 
+                ? { 
+                    ...img, 
+                    status: 'failed', 
+                    error: 'Generated image is invalid',
+                    retryCount: getRetryCount(generationId)
+                  } 
+                : img
+            ));
             toast.error('Generated image is invalid');
             if (shouldRefundCredits) {
               await updateCredits({ quality, imageCount: 1, isRefund: true });
@@ -135,6 +236,12 @@ export const useImageGeneration = ({
             .upload(filePath, imageBlob);
             
           if (uploadError) {
+            setGeneratingImages(prev => prev.map(img => 
+              img.id === generationId 
+                ? { ...img, status: 'failed', error: `Failed to upload image: ${uploadError.message}` } 
+                : img
+            ));
+            toast.error('Failed to upload image');
             if (shouldRefundCredits) {
               await updateCredits({ quality, imageCount: 1, isRefund: true });
             }
@@ -153,7 +260,8 @@ export const useImageGeneration = ({
               model,
               quality,
               aspect_ratio: currentGeneration.finalAspectRatio,
-              is_private: isPrivate
+              is_private: isPrivate,
+              status: 'completed'
             }])
             .select()
             .single();
@@ -166,19 +274,45 @@ export const useImageGeneration = ({
             throw insertError;
           }
 
-          // Update UI to show completion
+          // Update UI to show completion with image data
           setGeneratingImages(prev => prev.map(img => 
-            img.id === generationId ? { ...img, status: 'completed' } : img
+            img.id === generationId ? { 
+              ...img, 
+              status: 'completed',
+              storage_path: filePath,
+              seed: actualSeed,
+              width: finalWidth,
+              height: finalHeight,
+              model,
+              quality,
+              aspect_ratio: currentGeneration.finalAspectRatio,
+              is_private: isPrivate
+            } : img
           ));
 
           toast.success(`Image generated successfully! (${isPrivate ? 'Private' : 'Public'})`);
 
         } catch (error) {
           console.error('Error generating image:', error);
-          toast.error('Failed to generate image');
-          setGeneratingImages(prev => prev.filter(img => img.id !== generationId));
-          if (shouldRefundCredits) {
-            await updateCredits({ quality, imageCount: 1, isRefund: true });
+          const retryableStatuses = [500, 503, 504, 429];
+          const isRetryableError = error.status && retryableStatuses.includes(error.status) && getRetryCount(generationId) < MAX_RETRIES;
+          
+          if (!isRetryableError) {
+            setGeneratingImages(prev => prev.map(img => 
+              img.id === generationId 
+                ? { 
+                    ...img, 
+                    status: 'failed', 
+                    error: error.message,
+                    retryCount: getRetryCount(generationId),
+                    retryReason: error.status === 429 ? 'Rate limit reached' : 'Server error'
+                  } 
+                : img
+            ));
+            toast.error('Failed to generate image');
+            if (shouldRefundCredits) {
+              await updateCredits({ quality, imageCount: 1, isRefund: true });
+            }
           }
         }
       };
@@ -187,11 +321,18 @@ export const useImageGeneration = ({
 
     } catch (error) {
       console.error('Error in generation:', error);
+      setGeneratingImages(prev => prev.map(img => 
+        img.id === currentGeneration.generationId 
+          ? { ...img, status: 'failed', error: error.message } 
+          : img
+      ));
       if (currentGeneration.shouldRefundCredits) {
         await updateCredits({ quality, imageCount: 1, isRefund: true });
       }
     } finally {
-      // Remove the processed item from queue
+      if (processingTimeoutRef.current) {
+        clearTimeout(processingTimeoutRef.current);
+      }
       generationQueue.current.shift();
       setIsProcessing(false);
       
@@ -210,6 +351,7 @@ export const useImageGeneration = ({
       return;
     }
 
+    // Validate model and quality compatibility
     const modelConfig = modelConfigs[model];
     if (!modelConfig) {
       toast.error('Invalid model selected');
@@ -218,6 +360,17 @@ export const useImageGeneration = ({
 
     if (modelConfig?.qualityLimits && !modelConfig.qualityLimits.includes(quality)) {
       toast.error(`Quality ${quality} not supported for model ${model}`);
+      return;
+    }
+
+    // Check for existing generations
+    const hasActiveGenerations = generationQueue.current.length > 0 || 
+      setGeneratingImages(prev => prev.some(img => 
+        img.status === 'pending' || img.status === 'processing'
+      ));
+
+    if (hasActiveGenerations) {
+      toast.error('Please wait for current generations to complete');
       return;
     }
 
@@ -257,7 +410,8 @@ export const useImageGeneration = ({
         prompt: modifiedPrompt,
         model,
         is_private: isPrivate,
-        status: 'pending'
+        status: 'pending',
+        created_at: new Date().toISOString()
       }]);
 
       // Add to queue with refund flag
@@ -270,7 +424,7 @@ export const useImageGeneration = ({
         isPrivate,
         modelConfig,
         finalAspectRatio,
-        shouldRefundCredits: true // Flag to indicate this generation should refund credits on failure
+        shouldRefundCredits: true
       });
     }
 
