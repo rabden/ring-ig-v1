@@ -17,7 +17,7 @@ const CreditCounter = ({ credits, bonusCredits, className }) => {
           )}
         </span>
       </div>
-      <Progress value={creditsProgress} className="h-2 bg-destructive" />
+      <Progress value={creditsProgress} className="h-2 bg-destructive/25" />
     </div>
   );
 };

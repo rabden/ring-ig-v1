@@ -55,7 +55,7 @@ const AspectRatioVisualizer = ({ ratio = "1:1", isPremium }) => {
         </div>
 
         <div className={cn(
-          "relative flex items-center gap-2 px-4 py-2 rounded-xl",
+          "relative flex items-center gap-2 px-2 py-2 rounded-xl",
         )}>
           <span className="group-hover:text-primary transition-colors duration-200">
             {ratio}

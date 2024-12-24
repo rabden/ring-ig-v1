@@ -184,7 +184,7 @@ const ImageGeneratorContent = ({
                 />
               )}
 
-              <div className="md:mt-24">
+              <div className="md:mt-16">
                 <ImageGallery
                   userId={session?.user?.id}
                   onImageClick={handleImageClick}

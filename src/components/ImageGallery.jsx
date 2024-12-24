@@ -169,7 +169,7 @@ const ImageGallery = ({
             <Masonry
               breakpointCols={breakpointColumnsObj}
               className="flex w-auto md:px-2 -mx-2"
-              columnClassName="bg-clip-padding px-1 space-y-4"
+              columnClassName="bg-clip-padding px-2 space-y-4"
             >
               {groupImages.map((image, index) => (
                 <div
@@ -211,7 +211,7 @@ const ImageGallery = ({
       <Masonry
         breakpointCols={breakpointColumnsObj}
         className="flex w-auto md:px-2 -mx-2"
-        columnClassName="bg-clip-padding px-1 [&>*]:mb-4"
+        columnClassName="bg-clip-padding px-2 [&>*]:mb-4"
       >
         {images.map((image, index) => (
           <div

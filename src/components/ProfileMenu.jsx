@@ -177,7 +177,7 @@ const ProfileMenu = ({
                   nsfwEnabled ? (
                     "bg-destructive/5 hover:bg-destructive/10 text-destructive/90 hover:text-destructive"
                   ) : (
-                    "bg-background/20 hover:bg-background/50 text-primary/90 hover:text-primary"
+                    "bg-card hover:bg-background/50 text-primary/90 hover:text-primary"
                   )
                 )}
               >
