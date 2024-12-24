@@ -36,11 +36,14 @@ export const useImageGeneration = ({
     try {
       const {
         generationId,
+        model,
+        quality,
         finalWidth,
         finalHeight,
         modifiedPrompt,
         actualSeed,
         isPrivate,
+        negativePrompt,
         modelConfig
       } = currentGeneration;
 
@@ -83,8 +86,8 @@ export const useImageGeneration = ({
             height: finalHeight,
             ...(modelConfig.steps && { num_inference_steps: parseInt(modelConfig.steps) }),
             ...(modelConfig.use_guidance && { guidance_scale: modelConfig.defaultguidance }),
-            ...(modelConfig.use_negative_prompt && modelConfig.default_negative_prompt && { 
-              negative_prompt: negativePrompt || modelConfig.default_negative_prompt 
+            ...(modelConfig.use_negative_prompt && negativePrompt && { 
+              negative_prompt: negativePrompt 
             })
           };
 
@@ -175,7 +178,7 @@ export const useImageGeneration = ({
         processQueue();
       }
     }
-  }, [isProcessing, session, model, quality, setGeneratingImages, negativePrompt, updateCredits]);
+  }, [isProcessing, session, setGeneratingImages, updateCredits]);
 
   const generateImage = async (isPrivate = false, finalPrompt = null) => {
     if (!session || !prompt || !modelConfigs) {
@@ -185,20 +188,34 @@ export const useImageGeneration = ({
       return;
     }
 
-    const modelConfig = modelConfigs[model];
-    if (!modelConfig) {
+    // Capture ALL states at generation time
+    const generationStates = {
+      model,
+      quality,
+      useAspectRatio,
+      aspectRatio,
+      width,
+      height,
+      negativePrompt,
+      modelConfig: modelConfigs[model], // Store the specific config for this generation
+      maxDimension: qualityOptions[quality]
+    };
+
+    // Validate model and quality
+    if (!generationStates.modelConfig) {
       toast.error('Invalid model selected');
       return;
     }
 
-    if (modelConfig?.qualityLimits && !modelConfig.qualityLimits.includes(quality)) {
+    if (generationStates.modelConfig?.qualityLimits && 
+        !generationStates.modelConfig.qualityLimits.includes(generationStates.quality)) {
       toast.error(`Quality ${quality} not supported for model ${model}`);
       return;
     }
 
     // Deduct credits upfront for all images
     try {
-      const result = await updateCredits({ quality, imageCount });
+      const result = await updateCredits({ quality: generationStates.quality, imageCount });
       if (result === -1) {
         toast.error('Insufficient credits');
         return;
@@ -209,34 +226,40 @@ export const useImageGeneration = ({
       return;
     }
 
-    // Add all requested images to the queue
+    // Calculate dimensions once for all images in this batch
+    const { width: finalWidth, height: finalHeight, aspectRatio: finalAspectRatio } = calculateDimensions(
+      generationStates.useAspectRatio,
+      generationStates.aspectRatio,
+      generationStates.width,
+      generationStates.height,
+      generationStates.maxDimension
+    );
+
+    // Add all requested images to the queue with captured states
     for (let i = 0; i < imageCount; i++) {
       const actualSeed = randomizeSeed ? Math.floor(Math.random() * 1000000) : seed + i;
       const generationId = Date.now().toString() + i;
       
-      const modifiedPrompt = await getModifiedPrompt(finalPrompt || prompt, model, modelConfigs);
-      const maxDimension = qualityOptions[quality];
-      const { width: finalWidth, height: finalHeight, aspectRatio: finalAspectRatio } = calculateDimensions(
-        useAspectRatio, 
-        aspectRatio, 
-        width, 
-        height, 
-        maxDimension
-      );
+      const modifiedPrompt = await getModifiedPrompt(finalPrompt || prompt, generationStates.model, modelConfigs);
 
-      // Add to queue
-      generationQueue.current.push({
+      // Store complete generation parameters
+      const queueItem = {
         generationId,
+        model: generationStates.model,
+        quality: generationStates.quality,
         finalWidth,
         finalHeight,
         finalAspectRatio,
         modifiedPrompt,
         actualSeed,
         isPrivate,
-        modelConfig
-      });
+        negativePrompt: generationStates.negativePrompt,
+        modelConfig: generationStates.modelConfig // Keep for API URL and specific settings
+      };
 
-      // Add to UI state
+      generationQueue.current.push(queueItem);
+
+      // Update UI state
       setGeneratingImages(prev => [...prev, {
         id: generationId,
         prompt: modifiedPrompt,
@@ -244,7 +267,9 @@ export const useImageGeneration = ({
         width: finalWidth,
         height: finalHeight,
         status: 'pending',
-        isPrivate
+        isPrivate,
+        model: generationStates.model,
+        quality: generationStates.quality
       }]);
     }
 
