@@ -45,11 +45,12 @@ const ImageGenerator = () => {
     detailsDialogOpen, setDetailsDialogOpen, fullScreenViewOpen, setFullScreenViewOpen,
     fullScreenImageIndex, setFullScreenImageIndex, generatingImages, setGeneratingImages,
     activeView, setActiveView, nsfwEnabled, setNsfwEnabled,
-    imageCount, setImageCount
+    imageCount, setImageCount,
+    generationMode, setGenerationMode,
+    negativePrompt, setNegativePrompt
   } = useImageGeneratorState();
 
   const [showPrivate, setShowPrivate] = useState(false);
-  const [negativePrompt, setNegativePrompt] = useState("");
 
   // Query for remix image if remixId is present
   const { data: remixImage, isLoading: isRemixLoading } = useQuery({
@@ -105,7 +106,8 @@ const ImageGenerator = () => {
     setGeneratingImages,
     modelConfigs,
     imageCount,
-    negativePrompt
+    negativePrompt,
+    generationMode
   });
 
   const handleGenerateImage = async () => {
@@ -245,7 +247,11 @@ const ImageGenerator = () => {
         setIsPrivate,
         nsfwEnabled,
         setNsfwEnabled,
-        modelConfigs
+        modelConfigs,
+        generationMode,
+        setGenerationMode,
+        negativePrompt,
+        setNegativePrompt
       }}
     />
   );

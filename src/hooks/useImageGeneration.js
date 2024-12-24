@@ -20,7 +20,8 @@ export const useImageGeneration = ({
   setGeneratingImages,
   modelConfigs,
   imageCount = 1,
-  negativePrompt
+  negativePrompt,
+  generationMode = 'fast'
 }) => {
   // Queue to store pending generations
   const generationQueue = useRef([]);
@@ -44,7 +45,8 @@ export const useImageGeneration = ({
         actualSeed,
         isPrivate,
         negativePrompt,
-        modelConfig
+        modelConfig,
+        generationMode
       } = currentGeneration;
 
       // Update UI to show processing status
@@ -84,7 +86,7 @@ export const useImageGeneration = ({
             seed: actualSeed,
             width: finalWidth,
             height: finalHeight,
-            ...(modelConfig.steps && { num_inference_steps: parseInt(modelConfig.steps) }),
+            num_inference_steps: generationMode === 'fast' ? modelConfig.fastSteps : modelConfig.qualitySteps,
             ...(modelConfig.use_guidance && { guidance_scale: modelConfig.defaultguidance }),
             ...(modelConfig.use_negative_prompt && negativePrompt && { 
               negative_prompt: negativePrompt 
@@ -128,26 +130,29 @@ export const useImageGeneration = ({
             throw uploadError;
           }
 
-          const { data: insertData, error: insertError } = await supabase
+          const { data: imageData, error: imageError } = await supabase
             .from('user_images')
-            .insert([{
-              user_id: session.user.id,
-              storage_path: filePath,
-              prompt: modifiedPrompt,
-              seed: actualSeed,
-              width: finalWidth,
-              height: finalHeight,
-              model,
-              quality,
-              aspect_ratio: currentGeneration.finalAspectRatio,
-              is_private: isPrivate
-            }])
+            .insert([
+              {
+                user_id: session.user.id,
+                prompt: modifiedPrompt,
+                seed: actualSeed,
+                width: finalWidth,
+                height: finalHeight,
+                model,
+                quality,
+                aspect_ratio: useAspectRatio ? aspectRatio : null,
+                storage_path: filePath,
+                is_private: isPrivate,
+                generation_mode: generationMode
+              }
+            ])
             .select()
             .single();
 
-          if (insertError) {
-            console.error('Error inserting image record:', insertError);
-            throw insertError;
+          if (imageError) {
+            console.error('Error inserting image record:', imageError);
+            throw imageError;
           }
 
           // Update UI to show completion
@@ -198,7 +203,8 @@ export const useImageGeneration = ({
       height,
       negativePrompt,
       modelConfig: modelConfigs[model], // Store the specific config for this generation
-      maxDimension: qualityOptions[quality]
+      maxDimension: qualityOptions[quality],
+      generationMode // Capture generation mode at queue time
     };
 
     // Validate model and quality
@@ -254,7 +260,8 @@ export const useImageGeneration = ({
         actualSeed,
         isPrivate,
         negativePrompt: generationStates.negativePrompt,
-        modelConfig: generationStates.modelConfig // Keep for API URL and specific settings
+        modelConfig: generationStates.modelConfig, // Keep for API URL and specific settings
+        generationMode: generationStates.generationMode // Add generation mode to queue item
       };
 
       generationQueue.current.push(queueItem);
@@ -269,7 +276,8 @@ export const useImageGeneration = ({
         status: 'pending',
         isPrivate,
         model: generationStates.model,
-        quality: generationStates.quality
+        quality: generationStates.quality,
+        generation_mode: generationStates.generationMode
       }]);
     }
 

@@ -7,6 +7,8 @@ import SettingSection from './settings/SettingSection';
 import ModelChooser from './settings/ModelChooser';
 import ImageCountChooser from './settings/ImageCountChooser';
 import QualityChooser from './settings/QualityChooser';
+import GenerationModeChooser from './settings/GenerationModeChooser';
+import { Separator } from "@/components/ui/separator";
 import PromptInput from './prompt/PromptInput';
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 import { toast } from 'sonner';
@@ -39,7 +41,9 @@ const ImageGeneratorSettings = ({
   setIsPrivate,
   hidePromptOnDesktop = false,
   updateCredits,
-  negativePrompt, setNegativePrompt
+  negativePrompt, setNegativePrompt,
+  generationMode = 'fast',
+  setGenerationMode
 }) => {
   const location = useLocation();
   const isGenerateTab = location.hash === '#imagegenerate';
@@ -110,7 +114,6 @@ const ImageGeneratorSettings = ({
 
   return (
     <div className="space-y-6 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
-
       {isGenerateTab && (
         <div className="flex justify-center w-full">
           <CreditCounter credits={credits} bonusCredits={bonusCredits} />
@@ -130,6 +133,8 @@ const ImageGeneratorSettings = ({
           userId={session?.user?.id}
           credits={credits}
           bonusCredits={bonusCredits}
+          generationMode={generationMode}
+          setGenerationMode={setGenerationMode}
         />
       </div>
 
@@ -141,16 +146,16 @@ const ImageGeneratorSettings = ({
         modelConfigs={modelConfigs}
       />
 
-      <AspectRatioChooser 
-        aspectRatio={aspectRatio} 
-        setAspectRatio={setAspectRatio}
-        proMode={proMode} 
-      />
-
       <QualityChooser
         quality={quality}
         setQuality={setQuality}
         availableQualities={getAvailableQualities()}
+      />
+
+      <AspectRatioChooser 
+        aspectRatio={aspectRatio} 
+        setAspectRatio={setAspectRatio}
+        proMode={proMode} 
       />
 
       <ImageCountChooser

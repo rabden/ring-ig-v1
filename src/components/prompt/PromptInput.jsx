@@ -4,6 +4,7 @@ import { X, ArrowRight, Sparkles, Loader } from "lucide-react";
 import { toast } from "sonner";
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 import { cn } from "@/lib/utils";
+import GenerationModeChooser from '@/components/settings/GenerationModeChooser';
 
 const PromptInput = ({ 
   prompt = '',
@@ -16,7 +17,9 @@ const PromptInput = ({
   isImproving,
   credits,
   bonusCredits,
-  userId
+  userId,
+  generationMode,
+  setGenerationMode
 }) => {
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCreditsForImprovement = totalCredits >= 1;
@@ -89,40 +92,46 @@ const PromptInput = ({
         />
       </div>
       
-      <div className="flex justify-end items-center mt-4 gap-2">
-        {prompt?.length > 0 && (
+      <div className="flex justify-between items-center mt-4">
+        <GenerationModeChooser 
+          generationMode={generationMode} 
+          setGenerationMode={setGenerationMode} 
+        />
+        <div className="flex items-center gap-2">
+          {prompt?.length > 0 && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 w-7 p-0 rounded-xl hover:bg-accent/10"
+              onClick={onClear}
+            >
+              <X className="h-3.5 w-3.5 text-foreground/70" />
+            </Button>
+          )}
           <Button
             size="sm"
-            variant="ghost"
-            className="h-8 w-8 p-0 rounded-xl hover:bg-accent/10"
-            onClick={onClear}
+            variant="outline"
+            className="h-7 rounded-xl bg-background/50 hover:bg-accent/10 transition-all duration-200"
+            onClick={handleImprovePrompt}
+            disabled={!prompt?.length || isImproving || !hasEnoughCreditsForImprovement}
           >
-            <X className="h-4 w-4 text-foreground/70" />
+            {isImproving ? (
+              <Loader className="h-3.5 w-3.5 mr-1.5 animate-spin text-foreground/70" />
+            ) : (
+              <Sparkles className="h-3.5 w-3.5 mr-1.5 text-foreground/70" />
+            )}
+            <span className="text-xs">Improve</span>
           </Button>
-        )}
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-8 rounded-xl bg-background/50 hover:bg-accent/10 transition-all duration-200"
-          onClick={handleImprovePrompt}
-          disabled={!prompt?.length || isImproving || !hasEnoughCreditsForImprovement}
-        >
-          {isImproving ? (
-            <Loader className="h-4 w-4 mr-2 animate-spin text-foreground/70" />
-          ) : (
-            <Sparkles className="h-4 w-4 mr-2 text-foreground/70" />
-          )}
-          <span className="text-sm">Improve</span>
-        </Button>
-        <Button
-          size="sm"
-          className="h-8 rounded-xl bg-primary/90 hover:bg-primary/80 transition-all duration-200"
-          onClick={handleSubmit}
-          disabled={!prompt?.length || !hasEnoughCredits || !userId}
-        >
-          <span className="text-sm">Create</span>
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
+          <Button
+            size="sm"
+            className="h-7 rounded-xl bg-primary/90 hover:bg-primary/80 transition-all duration-200"
+            onClick={handleSubmit}
+            disabled={!prompt?.length || !hasEnoughCredits || !userId}
+          >
+            <span className="text-xs">Create</span>
+            <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+          </Button>
+        </div>
       </div>
     </div>
   );
