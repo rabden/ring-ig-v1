@@ -17,14 +17,9 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
       setShowDrawer(true);
     } else {
       setShowDrawer(false);
-    }
-  }, [generatingImages.length]);
-
-  useEffect(() => {
-    if (!showDrawer) {
       onOpenChange(false);
     }
-  }, [showDrawer, onOpenChange]);
+  }, [generatingImages.length, onOpenChange]);
 
   if (!showDrawer) return null;
 
@@ -76,59 +71,64 @@ const GeneratingImagesDrawer = ({ open, onOpenChange, generatingImages = [] }) =
               <div
                 key={image.id}
                 className={cn(
-                  "flex flex-col items-start gap-2 p-3 rounded-lg",
-                  "transition-all duration-200",
-                  "hover:bg-accent/10 focus:bg-accent/10",
+                  "flex flex-col gap-3 p-4 rounded-xl transition-all duration-300",
+                  "border border-border/80 backdrop-blur-[2px]",
+                  image.status === 'completed' 
+                    ? "bg-muted/5 hover:bg-muted/10" 
+                    : image.status === 'processing'
+                    ? "bg-primary/5 hover:bg-primary/10"
+                    : "bg-muted/10 hover:bg-muted/20",
                   "group"
                 )}
               >
                 <div className="flex items-center gap-3 w-full">
-                  <div className="flex items-center gap-2">
-                    <div className="p-1 rounded-lg ">
-                      {image.status === 'processing' ? (
-                        <Loader className="w-3.5 h-3.5 animate-spin text-primary/90" />
-                      ) : image.status === 'pending' ? (
-                        <Clock className="w-3.5 h-3.5 text-muted-foreground/70" />
-                      ) : (
-                        <Check className="w-3.5 h-3.5 text-primary/90" />
+                  <span className={cn(
+                    "font-medium text-sm transition-colors duration-200",
+                    image.status === 'completed' 
+                      ? "text-foreground/70" 
+                      : image.status === 'processing'
+                      ? "text-primary/90"
+                      : "text-muted-foreground"
+                  )}>
+                    {image.status === 'completed' ? 'Complete' : 
+                     image.status === 'processing' ? 'Generating...' : 'Queued'}
+                  </span>
+                  {image.width && image.height && (
+                    <Badge 
+                      variant={image.status === 'completed' ? "secondary" : "outline"} 
+                      className={cn(
+                        "ml-auto transition-colors duration-200",
+                        image.status === 'completed' 
+                          ? "bg-muted/20 hover:bg-muted/30 text-foreground/70" 
+                          : image.status === 'processing'
+                          ? "border-primary/20 bg-primary/10 text-primary/90"
+                          : "border-muted-foreground/20 bg-muted/10 text-muted-foreground/70"
                       )}
-                    </div>
-                    <span className="text-sm font-medium text-primary/90">
-                      {image.status === 'processing' ? 'Generating...' : 
-                       image.status === 'pending' ? 'Queued' : 'Complete'}
-                    </span>
-                  </div>
-                  <Badge 
-                    variant="secondary" 
-                    className={cn(
-                      "ml-auto bg-muted/20 hover:bg-muted/30 text-foreground/70",
-                      "transition-colors duration-200"
-                    )}
-                  >
-                    {image.width}x{image.height}
-                  </Badge>
+                    >
+                      {image.width}x{image.height}
+                    </Badge>
+                  )}
                 </div>
                 {image.prompt && (
-                  <span className="text-xs text-muted-foreground/60 truncate w-full group-hover:text-muted-foreground/70 transition-colors duration-200">
-                    {image.prompt.length > 50 ? `${image.prompt.substring(0, 50)}...` : image.prompt}
+                  <span className="text-sm text-muted-foreground/60 line-clamp-2 group-hover:text-muted-foreground/70 transition-colors duration-200">
+                    {image.prompt}
                   </span>
                 )}
-                <div className="flex gap-2 text-xs text-muted-foreground/50 group-hover:text-muted-foreground/60 transition-colors duration-200">
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
-                      <p className="text-xs text-muted-foreground/70">
-                        {modelConfigs?.[image.model]?.name || image.model}
-                      </p>
-                      <span className="text-xs text-muted-foreground/50">•</span>
-                      <p className="text-xs text-muted-foreground/70">
-                        {image.quality}
-                      </p>
-                      <span className="text-xs text-muted-foreground/50">•</span>
-                      <p className="text-xs text-muted-foreground/70 capitalize">
-                        {image.generation_mode || 'fast'}
-                      </p>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground/50 group-hover:text-muted-foreground/60 transition-colors duration-200">
+                  <span>{modelConfigs?.[image.model]?.name || image.model}</span>
+                  {image.status === 'completed' ? (
+                    <div className="ml-auto p-1 rounded-lg ">
+                      <Check className="h-3.5 w-3.5 text-primary/90" />
                     </div>
-                  </div>
+                  ) : image.status === 'processing' ? (
+                    <div className="ml-auto p-1 rounded-lg ">
+                      <Loader className="h-3.5 w-3.5 animate-spin text-primary/90" />
+                    </div>
+                  ) : (
+                    <div className="ml-auto p-1 rounded-lg ">
+                      <Clock className="h-3.5 w-3.5 text-muted-foreground/70" />
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

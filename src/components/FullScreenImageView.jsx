@@ -101,7 +101,6 @@ const FullScreenImageView = ({
 
   const detailItems = image ? [
     { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
-    { label: "Generation Mode", value: image.generation_mode || 'fast' },
     { label: "Seed", value: image.seed },
     { label: "Size", value: `${image.width}x${image.height}` },
     { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },

@@ -12,17 +12,11 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
 
   // Show dropdown whenever there are any images (generating or completed)
   useEffect(() => {
-    let mounted = true;
-    if (mounted) {
-      if (generatingImages.length > 0) {
-        setShowDropdown(true);
-      } else {
-        setShowDropdown(false);
-      }
+    if (generatingImages.length > 0) {
+      setShowDropdown(true);
+    } else {
+      setShowDropdown(false);
     }
-    return () => {
-      mounted = false;
-    };
   }, [generatingImages.length]);
 
   if (!showDropdown) return null;
@@ -109,21 +103,7 @@ const GeneratingImagesDropdown = ({ generatingImages = [] }) => {
               </span>
             )}
             <div className="flex gap-2 text-xs text-muted-foreground/50 group-hover:text-muted-foreground/60 transition-colors duration-200">
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <p className="text-xs text-muted-foreground/70">
-                    {modelConfigs?.[img.model]?.name || img.model}
-                  </p>
-                  <span className="text-xs text-muted-foreground/50">•</span>
-                  <p className="text-xs text-muted-foreground/70">
-                    {img.quality}
-                  </p>
-                  <span className="text-xs text-muted-foreground/50">•</span>
-                  <p className="text-xs text-muted-foreground/70 capitalize">
-                    {img.generation_mode || 'fast'}
-                  </p>
-                </div>
-              </div>
+              <span>{modelConfigs?.[img.model]?.name || img.model}</span>
             </div>
           </DropdownMenuItem>
         ))}

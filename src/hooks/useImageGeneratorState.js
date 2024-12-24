@@ -25,8 +25,7 @@ export const useImageGeneratorState = () => {
     nsfwEnabled: false,
     style: null,
     imageCount: 1,
-    isPrivate: false,
-    generationMode: 'fast'
+    isPrivate: false
   });
 
   const setGeneratingImages = (value) => {
@@ -58,8 +57,7 @@ export const useImageGeneratorState = () => {
     setNsfwEnabled: (value) => setState(prev => ({ ...prev, nsfwEnabled: value })),
     setStyle: (value) => setState(prev => ({ ...prev, style: value })),
     setImageCount: (value) => setState(prev => ({ ...prev, imageCount: value })),
-    setIsPrivate: (value) => setState(prev => ({ ...prev, isPrivate: value })),
-    setGenerationMode: (value) => setState(prev => ({ ...prev, generationMode: value }))
+    setIsPrivate: (value) => setState(prev => ({ ...prev, isPrivate: value }))
   };
 
   return {

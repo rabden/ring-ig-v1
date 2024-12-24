@@ -181,8 +181,6 @@ const ImageGeneratorContent = ({
                   onVisibilityChange={setIsPromptVisible}
                   activeModel={imageGeneratorProps.model}
                   modelConfigs={imageGeneratorProps.modelConfigs}
-                  generationMode={imageGeneratorProps.generationMode}
-                  setGenerationMode={imageGeneratorProps.setGenerationMode}
                 />
               )}
 
@@ -236,8 +234,6 @@ const ImageGeneratorContent = ({
                 setNsfwEnabled={setNsfwEnabled}
                 negativePrompt={imageGeneratorProps.negativePrompt}
                 setNegativePrompt={imageGeneratorProps.setNegativePrompt}
-                generationMode={imageGeneratorProps.generationMode}
-                setGenerationMode={imageGeneratorProps.setGenerationMode}
               />
             </div>
           </div>

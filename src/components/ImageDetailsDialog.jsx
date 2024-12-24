@@ -12,8 +12,6 @@ import { useModelConfigs } from '@/hooks/useModelConfigs'
 import { format } from 'date-fns'
 import { cn } from "@/lib/utils"
 import TruncatablePrompt from './TruncatablePrompt'
-import ImageDetailsSection from './image-view/ImageDetailsSection'
-import ImagePromptSection from './image-view/ImagePromptSection'
 
 const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
   const { data: modelConfigs } = useModelConfigs();
@@ -24,11 +22,10 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
 
   const detailItems = [
     { label: "Model", value: modelConfigs?.[image.model]?.name || image.model },
-    { label: "Generation Mode", value: image.generation_mode || 'fast' },
-    { label: "Quality", value: image.quality },
-    { label: "Size", value: `${image.width}x${image.height}` },
-    { label: "Aspect Ratio", value: image.aspect_ratio || "1:1" },
     { label: "Seed", value: image.seed },
+    { label: "Size", value: `${image.width}x${image.height}` },
+    { label: "Aspect Ratio", value: image.aspect_ratio },
+    { label: "Quality", value: image.quality },
     { label: "Created", value: format(new Date(image.created_at), 'MMM d, yyyy h:mm a') }
   ];
 
@@ -56,16 +53,93 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
         </DialogHeader>
         <ScrollArea className="mt-3 max-h-[calc(80vh-80px)]">
           <div className="space-y-4 px-1">
-            <ImagePromptSection 
-              prompt={image.prompt}
-              negative_prompt={image.negative_prompt}
-              copyIcon={copyIcon}
-              shareIcon={shareIcon}
-              onCopyPrompt={handleCopyPrompt}
-              onShare={handleShare}
-            />
+            <div className="space-y-2">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">Prompt</h3>
+                <div className="flex gap-1.5">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className={cn(
+                      "h-6 w-6 p-0 rounded-md",
+                      "bg-muted/5 ",
+                      "transition-all duration-200"
+                    )}
+                    onClick={handleCopyPrompt}
+                  >
+                    {copyIcon === 'copy' ? (
+                      <Copy className="h-3.5 w-3.5 text-foreground/70" />
+                    ) : (
+                      <Check className="h-3.5 w-3.5 text-primary/90 animate-in zoom-in duration-300" />
+                    )}
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className={cn(
+                      "h-6 w-6 p-0 rounded-md",
+                      "bg-muted/5 ",
+                      "transition-all duration-200"
+                    )}
+                    onClick={handleShare}
+                  >
+                    {shareIcon === 'share' ? (
+                      <Share2 className="h-3.5 w-3.5 text-foreground/70" />
+                    ) : (
+                      <Check className="h-3.5 w-3.5 text-primary/90 animate-in zoom-in duration-300" />
+                    )}
+                  </Button>
+                </div>
+              </div>
+              <div className={cn(
+                "rounded-md",
+                "bg-muted/5 ",
+                "border border-border/5",
+                "transition-colors duration-200",
+                "group",
+                "p-3"
+              )}>
+                <TruncatablePrompt prompt={image.prompt} />
+              </div>
+            </div>
 
-            <ImageDetailsSection detailItems={detailItems} />
+            {image?.negative_prompt && (
+              <div className="space-y-2">
+                <h3 className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">Negative Prompt</h3>
+                <div className={cn(
+                  "rounded-md",
+                  "bg-muted/5 ",
+                  "border border-border/5",
+                  "transition-colors duration-200",
+                  "group",
+                  "p-3"
+                )}>
+                  <TruncatablePrompt prompt={image.negative_prompt} />
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-2">
+              {detailItems.map((item, index) => (
+                <div 
+                  key={index} 
+                  className={cn(
+                    "space-y-1 p-2 rounded-md",
+                    "bg-muted/5 ",
+                    "border border-border/5",
+                    "transition-colors duration-200",
+                    "group"
+                  )}
+                >
+                  <p className="text-xs text-muted-foreground/60 uppercase tracking-wider group-hover:text-muted-foreground/70 transition-colors duration-200">
+                    {item.label}
+                  </p>
+                  <p className="text-sm font-medium text-foreground/90">
+                    {item.value}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </ScrollArea>
       </DialogContent>

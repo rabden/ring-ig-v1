@@ -126,7 +126,6 @@ const MobileImageView = ({
 
   const detailItems = [
     { label: 'Model', value: modelConfigs?.[image.model]?.name || image.model },
-    { label: 'Generation Mode', value: image.generation_mode || 'fast' },
     { label: 'Size', value: `${image.width}x${image.height}` },
     { label: 'Quality', value: image.quality },
     { label: 'Seed', value: image.seed },

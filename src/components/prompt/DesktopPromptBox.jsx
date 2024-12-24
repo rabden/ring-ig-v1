@@ -5,7 +5,6 @@ import CreditCounter from '@/components/ui/credit-counter';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
-import GenerationModeChooser from '@/components/settings/GenerationModeChooser';
 
 const DesktopPromptBox = ({ 
   prompt,
@@ -20,9 +19,7 @@ const DesktopPromptBox = ({
   userId,
   onVisibilityChange,
   activeModel,
-  modelConfigs,
-  generationMode,
-  setGenerationMode
+  modelConfigs
 }) => {
   const [isFixed, setIsFixed] = useState(false);
   const boxRef = useRef(null);
@@ -111,13 +108,8 @@ const DesktopPromptBox = ({
             </div>
 
             <div className="flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                <div className="w-[300px]">
-                  <CreditCounter credits={credits} bonusCredits={bonusCredits} />
-                </div>
-                <div>
-                  <GenerationModeChooser generationMode={generationMode} setGenerationMode={setGenerationMode} />
-                </div>
+              <div className="w-[300px]">
+                <CreditCounter credits={credits} bonusCredits={bonusCredits} />
               </div>
               <div className="flex items-center gap-2">
                 {prompt?.length > 0 && (
