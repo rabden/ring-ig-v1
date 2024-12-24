@@ -57,7 +57,7 @@ const PublicProfile = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*, is_pro, avatar_url, display_name, email')
+        .select('*, is_pro')
         .eq('id', userId)
         .single();
       
@@ -145,14 +145,9 @@ const PublicProfile = () => {
         >
           <div className="flex-shrink-0">
             <ProfileAvatar 
-              user={{
-                id: userId,
-                email: profile?.email,
-                avatar_url: profile?.avatar_url,
-                display_name: profile?.display_name
-              }}
-              isPro={profile?.is_pro}
-              size="lg"
+              user={{ user_metadata: { avatar_url: profile.avatar_url } }} 
+              size="lg" 
+              isPro={profile.is_pro}
             />
           </div>
           

@@ -25,7 +25,7 @@ const ProfileAvatar = ({
     <div className="relative group">
       <div className={`rounded-full ${isPro ? 'p-[2px] bg-gradient-to-tr from-yellow-300/80 via-amber-400/80 to-yellow-500/80' : ''}`}>
         <Avatar className={`${sizeClasses[size]} ${isPro ? 'border border-background rounded-full' : ''}`}>
-          <AvatarImage src={user.avatar_url} alt={user.email} />
+          <AvatarImage src={user.user_metadata?.avatar_url} alt={user.email} />
           <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
         </Avatar>
       </div>
