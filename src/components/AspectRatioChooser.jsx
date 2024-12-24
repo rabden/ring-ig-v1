@@ -123,12 +123,12 @@ const AspectRatioChooser = ({ aspectRatio = "1:1", setAspectRatio, proMode }) =>
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       <AspectRatioVisualizer 
         ratio={aspectRatio} 
         isPremium={!proMode && premiumRatios.includes(aspectRatio)} 
       />
-      <div className="px-2">
+      <div>
         <Slider
           value={[getCurrentRatioIndex()]}
           onValueChange={handleSliderChange}
