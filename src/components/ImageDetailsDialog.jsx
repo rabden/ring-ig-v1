@@ -62,7 +62,7 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
                     size="icon" 
                     className={cn(
                       "h-6 w-6 p-0 rounded-md",
-                      "bg-muted/5 ",
+                      " ",
                       "transition-all duration-200"
                     )}
                     onClick={handleCopyPrompt}
@@ -78,7 +78,7 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
                     size="icon" 
                     className={cn(
                       "h-6 w-6 p-0 rounded-md",
-                      "bg-muted/5 ",
+                      " ",
                       "transition-all duration-200"
                     )}
                     onClick={handleShare}
@@ -93,8 +93,6 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
               </div>
               <div className={cn(
                 "rounded-md",
-                "bg-muted/5 ",
-                "border border-border/5",
                 "transition-colors duration-200",
                 "group",
                 "p-3"
@@ -108,7 +106,6 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
                 <h3 className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">Negative Prompt</h3>
                 <div className={cn(
                   "rounded-md",
-                  "bg-muted/5 ",
                   "border border-border/5",
                   "transition-colors duration-200",
                   "group",
@@ -125,7 +122,6 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
                   key={index} 
                   className={cn(
                     "space-y-1 p-2 rounded-md",
-                    "bg-muted/5 ",
                     "border border-border/5",
                     "transition-colors duration-200",
                     "group"

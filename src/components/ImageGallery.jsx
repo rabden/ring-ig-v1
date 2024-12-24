@@ -14,7 +14,7 @@ const getBreakpointColumns = () => ({
   1600: 4,
   1000: 4,
   900: 3,
-  700: 3,
+  700: 2,
   500: 2
 });
 
@@ -132,8 +132,8 @@ const ImageGallery = ({
       <div className={cn("w-full h-full md:px-0 md:pt-0 pt-12", className)}>
         <Masonry
           breakpointCols={breakpointColumnsObj}
-          className="flex w-auto md:px-2 -mx-1 md:mx-0"
-          columnClassName="bg-clip-padding px-1 md:px-2"
+          className="flex w-auto md:px-2 -mx-0.5 md:mx-0"
+          columnClassName="bg-clip-padding px-0.5 md:px-2"
         >
           {Array.from({ length: 8 }).map((_, index) => (
             <SkeletonImageCard key={`loading-${index}`} width={512} height={512} />
@@ -210,8 +210,8 @@ const ImageGallery = ({
     <div className={cn("w-full h-full md:px-0 md:pt-0 pt-0", className)}>
       <Masonry
         breakpointCols={breakpointColumnsObj}
-        className="flex w-auto md:px-2 -mx-2"
-        columnClassName="bg-clip-padding px-2 [&>*]:mb-4"
+        className="flex w-auto md:px-2 -mx-0.5 md:-mx-2"
+        columnClassName="bg-clip-padding px-0.5 md:px-2 [&>*]:mb-1 md:[&>*]:mb-4"
       >
         {images.map((image, index) => (
           <div
