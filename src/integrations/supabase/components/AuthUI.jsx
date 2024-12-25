@@ -35,12 +35,12 @@ export const AuthUI = ({ buttonText }) => {
   };
 
   return (
-    <div className="w-full space-y-3">
+    <div className="w-full space-y-3 flex flex-col items-center">
       <Button
         className={cn(
-          "w-full h-10 md:h-12",
-          "rounded-xl text-sm md:text-base",
-          "bg-white hover:bg-zinc-50 text-black",
+          "w-auto h-8 md:h-10",
+          "rounded-full text-sm md:text-base",
+          "bg-primary hover:bg-zinc-50 text-black", 
           "border border-border/80",
           "shadow-[0_8px_30px_rgb(0,0,0,0.06)]",
           "backdrop-blur-[2px]",

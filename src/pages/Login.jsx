@@ -6,6 +6,7 @@ import LoadingScreen from '@/components/LoadingScreen';
 import { Typewriter } from 'react-simple-typewriter';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { MeshGradient } from '@/components/ui/mesh-gradient';
 
 const texts = [
   "Create stunning AI art with a single prompt",
@@ -29,7 +30,7 @@ const images = [
   "https://i.ibb.co.com/nkxPsYG/images-2.jpg"
 ];
 
-const DISPLAY_DURATION = 10000;
+const DISPLAY_DURATION = 6000;
 
 const TypewriterWrapper = () => {
   return (
@@ -73,17 +74,13 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-background/95 backdrop-blur-sm relative overflow-hidden">
-      {/* Background gradients */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(var(--primary-rgb),0.15),transparent_50%)] animate-mesh pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(var(--primary-rgb),0.15),transparent_50%)] animate-mesh pointer-events-none" />
-
+    <div className="min-h-screen flex flex-col md:flex-row bg-background backdrop-blur-sm relative overflow-hidden">
       {/* Left side with background image */}
       <motion.div 
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="w-full md:w-3/5 md:min-h-screen relative overflow-hidden"
+        className="w-full md:w-3/5 relative overflow-hidden"
       >
         <div className="relative w-full pb-[100%] md:pb-0 md:h-full">
           <div className="absolute inset-0">
@@ -120,19 +117,37 @@ const Login = () => {
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
-        className="w-full md:w-3/5 flex items-center justify-center p-8 md:p-12 relative"
+        className="w-full md:w-3/5 flex items-center justify-center p-2 relative"
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-background/0 to-background/20" />
-        <div className="w-full max-w-[360px] space-y-8 relative">
+        <MeshGradient 
+          intensity="medium" 
+          speed="slow" 
+          size={400}
+          className="z-0"
+          className2="bg-background/5 backdrop-blur-[1px]"
+        />
+        <div className="w-full space-y-4 relative z-10">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.4 }}
-            className="space-y-4 text-center"
+            className="space-y-2 text-center"
           >
-            <h1 className="text-3xl md:text-3xl font-medium tracking-tight bg-gradient-to-r from-primary via-primary/80 to-foreground bg-clip-text text-transparent">
-              Welcome to Ring
-            </h1>
+            <div className="flex items-center justify-center gap-2">
+              <h1 className="text-3xl md:text-3xl font-medium tracking-tight">
+                Welcome to
+              </h1>
+              <div className="flex items-center">
+                <img 
+                  src="/logo.png" 
+                  alt="Ring Logo" 
+                  className="w-8 h-8 object-contain"
+                />
+                <span className="text-3xl md:text-3xl font-medium tracking-tight">
+                  ing
+                </span>
+              </div>
+            </div>
             <p className="text-base md:text-lg text-foreground/70 min-h-[2rem] font-normal">
               <TypewriterWrapper />
             </p>

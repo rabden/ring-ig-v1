@@ -104,15 +104,19 @@ const MobileImageView = ({
     }
   };
 
+  const handleLike = () => {
+    setIsAnimating(true);
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 800);
+  };
+
   const handleDoubleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!userLikes?.includes(image.id)) {
-      setIsAnimating(true);
+      handleLike();
       toggleLike(image.id);
-      setTimeout(() => {
-        setIsAnimating(false);
-      }, 800);
     }
   };
 
@@ -172,7 +176,9 @@ const MobileImageView = ({
                 onDoubleClick={handleDoubleClick}
                 loading="eager"
               />
-              <HeartAnimation isAnimating={isAnimating} />
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <HeartAnimation isAnimating={isAnimating} />
+              </div>
             </div>
           )}
 
@@ -186,6 +192,7 @@ const MobileImageView = ({
                   userLikes={userLikes}
                   toggleLike={toggleLike}
                   likeCount={likeCount}
+                  onLike={handleLike}
                 />
                 
                 <div className="flex gap-1.5">

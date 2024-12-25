@@ -96,7 +96,10 @@ const ImageCardActions = ({
     <div className="flex items-center gap-1 px-1" onClick={e => e.stopPropagation()}>
       {session && (
         <div className="flex items-center gap-2">
-          <LikeButton isLiked={isLiked} onToggle={() => onToggleLike(image.id)} />
+          <LikeButton 
+            isLiked={isLiked} 
+            onToggle={() => onToggleLike(image.id)}
+          />
           <span className={cn(
             "text-xs text-muted-foreground/60 group-hover:text-muted-foreground/80",
             "transition-colors duration-200"

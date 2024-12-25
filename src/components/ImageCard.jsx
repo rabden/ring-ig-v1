@@ -13,6 +13,7 @@ import ImageCardMedia from './image-card/ImageCardMedia';
 import ImageCardBadges from './image-card/ImageCardBadges';
 import { useNavigate } from 'react-router-dom';
 import { cn } from "@/lib/utils";
+import HeartAnimation from './animations/HeartAnimation';
 
 const ImageCard = ({ 
   image, 
@@ -52,15 +53,19 @@ const ImageCard = ({
     await downloadImage(imageUrl, image.prompt);
   };
 
+  const handleLike = () => {
+    setIsAnimating(true);
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 800);
+  };
+
   const handleDoubleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isLiked) {
-      setIsAnimating(true);
+      handleLike();
       onToggleLike(image.id);
-      setTimeout(() => {
-        setIsAnimating(false);
-      }, 800);
     }
   };
 
@@ -86,6 +91,7 @@ const ImageCard = ({
         <Card className={cn(
           "overflow-hidden rounded-2xl bg-card/95",
           "transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]",
+          "relative"
         )}>
           <CardContent className="p-0 relative">
             <ImageStatusIndicators 
@@ -96,12 +102,14 @@ const ImageCard = ({
               image={image}
               onImageClick={handleImageClick}
               onDoubleClick={handleDoubleClick}
-              isAnimating={isAnimating}
             />
             <ImageCardBadges
               modelName={modelName}
               isNsfw={isNsfw}
             />
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <HeartAnimation isAnimating={isAnimating} />
+            </div>
           </CardContent>
         </Card>
         <div className="mt-0.5 flex items-center justify-between gap-1">
@@ -117,7 +125,10 @@ const ImageCard = ({
             isMobile={isMobile}
             isLiked={isLiked}
             likeCount={likeCount}
-            onToggleLike={onToggleLike}
+            onToggleLike={(id) => {
+              if (!isLiked) handleLike();
+              onToggleLike(id);
+            }}
             onViewDetails={() => setDetailsDialogOpen(true)}
             onDownload={handleDownload}
             onDiscard={handleDiscard}

@@ -108,15 +108,19 @@ const FullScreenImageView = ({
     { label: "Created", value: format(new Date(image.created_at), 'MMM d, yyyy h:mm a') }
   ] : [];
 
+  const handleLike = () => {
+    setIsAnimating(true);
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 800);
+  };
+
   const handleDoubleClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (!userLikes?.includes(image?.id)) {
-      setIsAnimating(true);
+      handleLike();
       toggleLike(image?.id);
-      setTimeout(() => {
-        setIsAnimating(false);
-      }, 800);
     }
   };
 
@@ -127,7 +131,8 @@ const FullScreenImageView = ({
       <DialogContent className={cn(
         "max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0",
         "bg-background backdrop-blur-[2px]",
-        "data-[state=open]:duration-0 [&>button]:hidden"
+        "data-[state=open]:duration-0 [&>button]:hidden",
+        "rounded-none border-none"
       )}>
         <div className="absolute left-4 top-4 z-50">
           <Button 
@@ -135,9 +140,9 @@ const FullScreenImageView = ({
             size="icon"
             onClick={onClose}
             className={cn(
-              "h-8 w-8 p-0 rounded-lg",
-              "bg-background/70 backdrop-blur-[2px]",
-              "hover:bg-background/90",
+              "h-8 w-8 p-0 rounded-xl",
+              "bg-card/80 backdrop-blur-[2px]",
+              "hover:bg-card/90",
               "transition-all duration-200"
             )}
           >
@@ -152,18 +157,20 @@ const FullScreenImageView = ({
               alt={image.prompt}
               className={cn(
                 "max-w-full max-h-[calc(100vh-2rem)]",
-                "object-contain rounded-lg",
+                "object-contain",
                 "transition-all duration-300"
               )}
               onDoubleClick={handleDoubleClick}
             />
-            <HeartAnimation isAnimating={isAnimating} />
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <HeartAnimation isAnimating={isAnimating} />
+            </div>
           </div>
 
           <div className="w-[350px] p-3">
             <div className={cn(
               "h-[calc(100vh-24px)] rounded-lg",
-              "border border-border/80 bg-card/95",
+              "border border-border bg-card",
               "backdrop-blur-[2px]",
               "shadow-[0_8px_30px_rgb(0,0,0,0.06)]"
             )}>
@@ -178,6 +185,7 @@ const FullScreenImageView = ({
                         userLikes={userLikes}
                         toggleLike={toggleLike}
                         likeCount={likeCount}
+                        onLike={handleLike}
                       />
 
                       <div className="flex gap-1.5">

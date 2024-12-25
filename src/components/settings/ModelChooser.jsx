@@ -72,7 +72,7 @@ const ModelGridCard = ({ modelKey, config, isActive, onClick, disabled, proMode 
 
     {/* Active indicator */}
     {isActive && (
-      <div className="absolute top-2 right-2 h-6 w-6 rounded-md bg-background text-primary-foreground flex items-center justify-center">
+      <div className="absolute top-2 right-2 h-6 w-6 rounded-md bg-background text-white flex items-center justify-center">
         <Check className="h-3.5 w-3.5" />
       </div>
     )}
@@ -85,7 +85,7 @@ const ModelGrid = ({ filteredModels, model, setModel, proMode, className }) => (
     "scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent hover:scrollbar-thumb-border/50",
     className
   )}>
-    <div className="grid grid-cols-2 gap-2">
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 rounded-3xl">
       {filteredModels.map(([key, config]) => (
         <ModelGridCard
           key={key}
@@ -174,14 +174,14 @@ const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) =
             side="left"
             align="start"
             sideOffset={16}
-            className="w-[400px] p-2 max-h-[90vh] border-border/80 bg-card overflow-hidden"
+            className="w-[600px] p-1 px-0 max-h-[90vh] border-border/80 bg-secondary rounded-3xl overflow-hidden my-8"
           >
             <ModelGrid 
               filteredModels={filteredModels}
               model={model}
               setModel={handleModelSelection}
               proMode={proMode}
-              className="max-h-[calc(90vh-1.5rem)]"
+              className="max-h-[calc(90vh-1.5rem)] overflow-y-auto scrollbar-none rounded-3xl"
             />
           </PopoverContent>
         </Popover>

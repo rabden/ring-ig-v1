@@ -14,8 +14,8 @@ const AspectRatioVisualizer = ({ ratio = "1:1", isPremium }) => {
         className={cn(
           "relative overflow-hidden",
           "border-2 border-border/80",
-          "bg-accent/10 hover:bg-accent/20",
-          "rounded-2xl",
+          "bg-accent/10",
+          "rounded-lg",
           "flex items-center justify-center",
           "transition-all duration-200 ease-in-out",
           isPremium && "ring-2 ring-primary/40 border-primary/40"
@@ -38,7 +38,7 @@ const AspectRatioVisualizer = ({ ratio = "1:1", isPremium }) => {
         {/* Center lines */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-full h-[2px] bg-border/40" />
-          <div className="absolute h-full w-[2px] bg-border/60" />
+          <div className="absolute h-full w-[2px] bg-border/40" />
         </div>
 
         {/* Helper lines */}
@@ -75,23 +75,21 @@ const CustomSlider = ({ value, onChange, min, max }) => {
   const updateSliderProgress = (value) => {
     if (!sliderRef.current || !progressRef.current) return;
     
-    // Calculate the percentage for both left and right sides
+    // Calculate the percentage from center
     const range = max - min;
-    const center = -min;
-    const absValue = value + center;
-    const percentage = (absValue / range) * 100;
+    const center = (max + min) / 2;
     
-    // Update the progress bar width and position
     const progress = progressRef.current;
-    if (value < 0) {
+    if (value < center) {
       // Left side of center
-      const width = 50 - percentage;
+      const percentage = ((value - min) / (center - min)) * 50;
       progress.style.left = `${percentage}%`;
       progress.style.right = '50%';
     } else {
       // Right side of center
+      const percentage = ((value - center) / (max - center)) * 50;
       progress.style.left = '50%';
-      progress.style.right = `${100 - percentage}%`;
+      progress.style.right = `${50 - percentage}%`;
     }
   };
 
@@ -111,6 +109,7 @@ const CustomSlider = ({ value, onChange, min, max }) => {
         <div 
           ref={progressRef}
           className="absolute h-full bg-primary rounded-full transition-all duration-150"
+          style={{ left: '50%', right: '50%' }}
         />
       </div>
       <input
@@ -203,8 +202,6 @@ const AspectRatioChooser = ({ aspectRatio = "1:1", setAspectRatio, proMode }) =>
         isPremium={!proMode && premiumRatios.includes(aspectRatio)} 
       />
       <div className="relative">
-        {/* Center marker */}
-        <div className="absolute left-1/2 top-1/2 w-0.5 h-4 -translate-x-1/2 -translate-y-1/2 bg-primary/40 z-10" />
         <CustomSlider
           value={getCurrentRatioIndex()}
           onChange={handleSliderChange}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Skeleton } from "@/components/ui/skeleton";
 import { getOptimizedImageUrl } from '@/utils/imageOptimization';
 import HeartAnimation from '../animations/HeartAnimation';
+import { cn } from "@/lib/utils";
 
 const ImageCardMedia = ({ 
   image, 
@@ -30,16 +31,23 @@ const ImageCardMedia = ({
       <img 
         src={optimizedImageUrl}
         alt={image.prompt} 
-        className={`absolute inset-0 w-full h-full object-cover cursor-pointer transition-opacity duration-300 ${
-          isLoading ? 'opacity-0' : 'opacity-100'
-        }`}
+        className={cn(
+          "absolute inset-0 w-full h-full object-cover cursor-pointer",
+          "transition-opacity duration-300",
+          isLoading ? "opacity-0" : "opacity-100"
+        )}
         onClick={onImageClick}
         onDoubleClick={onDoubleClick}
         onLoad={handleImageLoad}
         loading="lazy"
         decoding="async"
       />
-      <HeartAnimation isAnimating={isAnimating} />
+      <div className={cn(
+        "absolute inset-0 flex items-center justify-center",
+        "pointer-events-none"
+      )}>
+        <HeartAnimation isAnimating={isAnimating} />
+      </div>
     </div>
   );
 };
