@@ -184,7 +184,7 @@ const ImageGeneratorContent = ({
                 />
               )}
 
-              <div className="md:mt-16">
+              <div className="md:mt-16 -mx-2 md:mx-0">
                 <ImageGallery
                   userId={session?.user?.id}
                   onImageClick={handleImageClick}
@@ -201,6 +201,7 @@ const ImageGeneratorContent = ({
                   showFollowing={showFollowing}
                   showTop={showTop}
                   following={following}
+                  className="px-1"
                 />
               </div>
             </>

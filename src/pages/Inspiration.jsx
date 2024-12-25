@@ -25,7 +25,8 @@ const Inspiration = () => {
   const [activeFilters, setActiveFilters] = useState({});
   const [nsfwEnabled, setNsfwEnabled] = useState(false);
   const [showFollowing, setShowFollowing] = useState(false);
-  const [showTop, setShowTop] = useState(false);
+  const [showTop, setShowTop] = useState(true);
+  const [showLatest, setShowLatest] = useState(false);
   const { credits, bonusCredits } = useUserCredits(session?.user?.id);
   const { following } = useFollows(session?.user?.id);
   const isHeaderVisible = useScrollDirection();
@@ -43,6 +44,15 @@ const Inspiration = () => {
         setActiveTab('images');
     }
   }, [location.hash]);
+
+  // Set showTop to true when navigating to inspiration
+  useEffect(() => {
+    if (location.pathname === '/inspiration') {
+      setShowTop(true);
+      setShowFollowing(false);
+      setShowLatest(false);
+    }
+  }, [location.pathname]);
 
   const handleImageClick = (image) => {
     setSelectedImage(image);
@@ -90,8 +100,10 @@ const Inspiration = () => {
         }}
         showFollowing={showFollowing}
         showTop={showTop}
+        showLatest={showLatest}
         onFollowingChange={setShowFollowing}
         onTopChange={setShowTop}
+        onLatestChange={setShowLatest}
       />
 
       {/* Mobile Header */}
@@ -109,12 +121,14 @@ const Inspiration = () => {
         onToggleNsfw={() => setNsfwEnabled(!nsfwEnabled)}
         showFollowing={showFollowing}
         showTop={showTop}
+        showLatest={showLatest}
         onFollowingChange={setShowFollowing}
         onTopChange={setShowTop}
+        onLatestChange={setShowLatest}
       />
 
       {/* Main Content */}
-      <main className="pt-16 md:pt-20 px-2 md:px-6 pb-20 md:pb-6">
+      <main className="pt-16 md:pt-20 px-1 md:px-6 pb-20 md:pb-6">
         <ImageGallery
           userId={session?.user?.id}
           onImageClick={handleImageClick}
@@ -127,7 +141,9 @@ const Inspiration = () => {
           showPrivate={false}
           showFollowing={showFollowing}
           showTop={showTop}
+          showLatest={showLatest}
           following={following}
+          className="px-0"
         />
       </main>
 

@@ -3,6 +3,8 @@ import { Image, Plus, Sparkles, User } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useProUser } from '@/hooks/useProUser';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/supabase';
 import GeneratingImagesDrawer from './GeneratingImagesDrawer';
 import MobileNavButton from './navbar/MobileNavButton';
 import NotificationBell from './notifications/NotificationBell';
@@ -26,6 +28,22 @@ const BottomNavbar = ({
   const [prevLength, setPrevLength] = useState(generatingImages.length);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { data: profile } = useQuery({
+    queryKey: ['profile', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+      
+      if (error) return null;
+      return data;
+    },
+    enabled: !!session?.user?.id
+  });
 
   // Handle showing checkmark when an image completes
   useEffect(() => {
@@ -85,6 +103,7 @@ const BottomNavbar = ({
                   isMobile={true}
                   nsfwEnabled={nsfwEnabled}
                   setNsfwEnabled={setNsfwEnabled}
+                  profile={profile}
                 />
               </div>
             ) : (

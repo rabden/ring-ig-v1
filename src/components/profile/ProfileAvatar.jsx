@@ -4,6 +4,7 @@ import { Camera } from 'lucide-react';
 
 const ProfileAvatar = ({ 
   user, 
+  avatarUrl,
   isPro, 
   size = 'md', 
   onEditClick,
@@ -21,12 +22,15 @@ const ProfileAvatar = ({
     lg: 'h-8 w-8'
   };
 
+  // Use avatarUrl from profile if available, otherwise fall back to user metadata
+  const finalAvatarUrl = avatarUrl || user?.user_metadata?.avatar_url;
+
   return (
     <div className="relative group">
       <div className={`rounded-full ${isPro ? 'p-[2px] bg-gradient-to-tr from-yellow-300/80 via-amber-400/80 to-yellow-500/80' : ''}`}>
         <Avatar className={`${sizeClasses[size]} ${isPro ? 'border border-background rounded-full' : ''}`}>
-          <AvatarImage src={user.user_metadata?.avatar_url} alt={user.email} />
-          <AvatarFallback>{user.email?.charAt(0).toUpperCase()}</AvatarFallback>
+          <AvatarImage src={finalAvatarUrl} alt={user?.email} />
+          <AvatarFallback>{user?.email?.charAt(0).toUpperCase()}</AvatarFallback>
         </Avatar>
       </div>
       {showEditOnHover && onEditClick && (

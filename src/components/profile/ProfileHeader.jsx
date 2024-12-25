@@ -12,13 +12,15 @@ const ProfileHeader = ({
   setDisplayName, 
   onUpdate, 
   onAvatarEdit,
-  onAvatarUpload
+  onAvatarUpload,
+  profile
 }) => {
   return (
     <div className="flex flex-col items-center space-y-2 sm:space-y-3">
       <div className="relative cursor-pointer" onClick={onAvatarEdit}>
         <ProfileAvatar 
           user={user} 
+          avatarUrl={profile?.avatar_url}
           isPro={isPro} 
           size="lg" 
           onEditClick={null}

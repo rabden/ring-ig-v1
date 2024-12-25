@@ -154,7 +154,7 @@ const ImageGallery = ({
       .filter(([_, images]) => images.length > 0);
 
     return (
-      <div className={cn("w-full h-full md:px-0 pt-12 space-y-8", className)}>
+      <div className={cn("w-full h-full md:px-0 pt-12 space-y-8 px-0.5", className)}>
         {nonEmptyGroups.map(([groupName, groupImages], groupIndex) => (
           <div key={groupName}>
             <DateHeader>
@@ -168,8 +168,8 @@ const ImageGallery = ({
             </DateHeader>
             <Masonry
               breakpointCols={breakpointColumnsObj}
-              className="flex w-auto md:px-2 -mx-2"
-              columnClassName="bg-clip-padding px-2 space-y-4"
+              className="flex w-auto md:px-2 -mx-0.5 md:-mx-2"
+              columnClassName="bg-clip-padding px-0.5 md:px-2 space-y-1 md:space-y-4"
             >
               {groupImages.map((image, index) => (
                 <div
@@ -207,11 +207,11 @@ const ImageGallery = ({
 
   // Regular masonry grid for other views (inspiration)
   return (
-    <div className={cn("w-full h-full md:px-0 md:pt-0 pt-0", className)}>
+    <div className={cn("w-full h-full md:px-0 md:pt-0 pt-0 px-0.5", className)}>
       <Masonry
         breakpointCols={breakpointColumnsObj}
-        className="flex w-auto md:px-2 -mx-2"
-        columnClassName="bg-clip-padding px-2 [&>*]:mb-4"
+        className="flex w-auto md:px-2 -mx-0.5 md:-mx-2"
+        columnClassName="bg-clip-padding px-0.5 md:px-2 [&>*]:mb-1 md:[&>*]:mb-4"
       >
         {images.map((image, index) => (
           <div

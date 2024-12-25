@@ -125,18 +125,18 @@ const PublicProfile = () => {
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="container mx-auto px-4 py-4 sm:py-8"
+      className="container mx-auto px-0.5 md:px-4 py-4 sm:py-8"
     >
       <Button 
         variant="ghost" 
-        className="mb-4 hover:bg-accent group"
+        className="mb-4 hover:bg-accent group mx-2 md:mx-0"
         onClick={() => navigate(-1)}
       >
         <ChevronLeft className="h-4 w-4 mr-2 group-hover:text-primary transition-colors duration-300" />
         <span className="group-hover:text-primary transition-colors duration-300">Back</span>
       </Button>
 
-      <Card className="p-4 sm:p-6 mb-6 relative overflow-hidden group">
+      <Card className="p-4 sm:p-6 mb-6 relative overflow-hidden group mx-2 md:mx-0">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -146,6 +146,7 @@ const PublicProfile = () => {
           <div className="flex-shrink-0">
             <ProfileAvatar 
               user={{ user_metadata: { avatar_url: profile.avatar_url } }} 
+              avatarUrl={profile.avatar_url}
               size="lg" 
               isPro={profile.is_pro}
             />
@@ -183,6 +184,7 @@ const PublicProfile = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
+        className="md:mx-0"
       >
         <ImageGallery 
           userId={currentUserId}

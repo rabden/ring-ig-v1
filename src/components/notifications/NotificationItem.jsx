@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { X, ExternalLink } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useNotifications } from '@/contexts/NotificationContext';
@@ -6,16 +6,25 @@ import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { format } from 'date-fns';
+import { useInView } from '@/hooks/useInView';
 
 const NotificationItem = ({ notification }) => {
   const { markAsRead, deleteNotification, hideGlobalNotification } = useNotifications();
+  const { ref, isInView, hasBeenViewed } = useInView(0.9);
 
-  const handleClick = (e) => {
-    e.preventDefault();
-    if (!notification.is_read) {
+  useEffect(() => {
+    console.log('Notification effect:', {
+      id: notification.id,
+      isInView,
+      hasBeenViewed,
+      is_read: notification.is_read
+    });
+
+    if (isInView && !notification.is_read) {
+      console.log('Marking notification as read:', notification.id);
       markAsRead(notification.id);
     }
-  };
+  }, [isInView, notification.is_read, notification.id, markAsRead]);
 
   const handleHideOrDelete = async (e) => {
     e.preventDefault();
@@ -40,11 +49,11 @@ const NotificationItem = ({ notification }) => {
 
   return (
     <div
+      ref={ref}
       className={cn(
         "group relative flex items-start gap-4 p-4 transition-all duration-200 hover:bg-accent/5",
         !notification.is_read && "bg-muted/10"
       )}
-      onClick={handleClick}
     >
       {images.length > 0 && (
         <div className="flex-shrink-0 block w-24">

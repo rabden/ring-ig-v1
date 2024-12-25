@@ -67,6 +67,22 @@ const UserProfile = () => {
   const [tempDisplayName, setTempDisplayName] = useState('');
   const { data: isPro } = useProUser(session?.user?.id);
 
+  const { data: profile } = useQuery({
+    queryKey: ['profile', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+      
+      if (error) return null;
+      return data;
+    },
+    enabled: !!session?.user?.id
+  });
+
   React.useEffect(() => {
     if (session?.user) {
       const name = session.user?.user_metadata?.display_name || session.user?.email?.split('@')[0] || '';
@@ -207,7 +223,7 @@ const UserProfile = () => {
                 <div className="relative">
                   <Avatar className="h-16 w-16 ring-2 ring-border ring-offset-2 ring-offset-background transition-all duration-300 group-hover:ring-primary">
                     <AvatarImage
-                      src={session.user.user_metadata?.avatar_url}
+                      src={profile?.avatar_url || session.user.user_metadata?.avatar_url}
                       alt={displayName}
                     />
                     <AvatarFallback>{displayName[0]?.toUpperCase()}</AvatarFallback>

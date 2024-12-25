@@ -21,11 +21,12 @@ const ImageOwnerHeader = ({ owner, image, isOwner, userLikes, toggleLike, likeCo
         onClick={handleProfileClick}
       >
         <ProfileAvatar 
-          user={{ user_metadata: { avatar_url: owner?.avatar_url } }} 
+          user={{ email: owner?.email }}
+          avatarUrl={owner?.avatar_url}
           size="sm"
           isPro={isPro}
         />
-        <span className="text-sm font-medium text-foreground/90">{owner?.display_name}</span>
+        <span className="text-xs font-medium text-foreground/90">{owner?.display_name}</span>
       </div>
       <div className="flex items-center gap-2.5">
         {!isOwner && (

@@ -31,6 +31,22 @@ const ProfileMenu = ({
 
   useRealtimeProfile(user?.id);
 
+  const { data: profile } = useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) return null;
+      return data;
+    },
+    enabled: !!user?.id
+  });
+
   const { data: followCounts = { followers: 0, following: 0 } } = useQuery({
     queryKey: ['followCounts', user?.id],
     queryFn: async () => {
@@ -101,6 +117,7 @@ const ProfileMenu = ({
           >
             <ProfileAvatar 
               user={user} 
+              avatarUrl={profile?.avatar_url}
               isPro={isPro}
               size={isMobile ? "sm" : "sm"} 
               showEditOnHover={false}
@@ -133,6 +150,7 @@ const ProfileMenu = ({
             >
               <ProfileAvatar 
                 user={user} 
+                avatarUrl={profile?.avatar_url}
                 isPro={isPro} 
                 size="sm" 
                 showEditOnHover={true}

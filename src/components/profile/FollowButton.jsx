@@ -1,25 +1,35 @@
-import React from 'react';
-import { Button } from "@/components/ui/button";
-import { UserPlus, UserMinus } from "lucide-react";
+import React, { useState } from 'react';
+import { Badge } from "@/components/ui/badge";
 import { useFollows } from '@/hooks/useFollows';
+import { cn } from "@/lib/utils";
 
 const FollowButton = ({ userId, className }) => {
   const { isFollowing, toggleFollow } = useFollows(userId);
+  const [tempState, setTempState] = useState(null);
+
+  const handleClick = () => {
+    toggleFollow();
+    setTempState(!isFollowing);
+    setTimeout(() => {
+      setTempState(null);
+    }, 5000);
+  };
+
+  // Use temporary state if available, otherwise use database state
+  const showAsFollowing = tempState ?? isFollowing;
 
   return (
-    <Button
-      variant="ghost"
-      size="sm"
-      className={className}
-      onClick={() => toggleFollow()}
-    >
-      {isFollowing ? (
-        <UserMinus className="h-4 w-4 mr-2" />
-      ) : (
-        <UserPlus className="h-4 w-4 mr-2" />
+    <Badge
+      variant={showAsFollowing ? "outline" : "default"}
+      className={cn(
+        "cursor-pointer transition-all duration-200",
+        showAsFollowing && "bg-destructive/10 hover:bg-destructive/20 text-destructive",
+        className
       )}
-      {isFollowing ? 'Unfollow' : 'Follow'}
-    </Button>
+      onClick={handleClick}
+    >
+      {showAsFollowing ? 'Unfollow' : 'Follow'}
+    </Badge>
   );
 };
 

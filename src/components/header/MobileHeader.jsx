@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import SearchBar from '../search/SearchBar';
 import PrivateFilterButton from '../filters/PrivateFilterButton';
@@ -22,6 +22,7 @@ const MobileHeader = ({
   const location = useLocation();
   const isInspiration = location.pathname === '/inspiration';
   const isMyImages = location.pathname === '/' && (!location.hash || location.hash === '#myimages');
+  const [isSearchActive, setIsSearchActive] = useState(false);
 
   return (
     <div 
@@ -35,21 +36,32 @@ const MobileHeader = ({
       )}
     >
       <div className="flex items-center gap-1.5 px-2 h-10">
-        {isMyImages && (
-          <PrivateFilterButton
-            showPrivate={showPrivate}
-            onToggle={onTogglePrivate}
-          />
+        {!isSearchActive && (
+          <>
+            {isMyImages && (
+              <PrivateFilterButton
+                showPrivate={showPrivate}
+                onToggle={onTogglePrivate}
+              />
+            )}
+            {isInspiration && (
+              <InspirationFilterButtons
+                showFollowing={showFollowing}
+                showTop={showTop}
+                onFollowingChange={onFollowingChange}
+                onTopChange={onTopChange}
+              />
+            )}
+          </>
         )}
-        {isInspiration && (
-          <InspirationFilterButtons
-            showFollowing={showFollowing}
-            showTop={showTop}
-            onFollowingChange={onFollowingChange}
-            onTopChange={onTopChange}
-          />
-        )}
-        <SearchBar onSearch={onSearch} />
+        <SearchBar 
+          onSearch={onSearch} 
+          onSearchOpenChange={setIsSearchActive}
+          className={cn(
+            "transition-all duration-200",
+            isSearchActive ? "px-2" : "ml-auto"
+          )}
+        />
       </div>
       {/* Fade-out gradient */}
       <div className="h-1.5 bg-gradient-to-b from-background/50 to-transparent pointer-events-none" />

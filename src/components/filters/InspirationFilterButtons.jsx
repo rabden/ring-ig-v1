@@ -27,6 +27,14 @@ const InspirationFilterButtons = ({
     }
   };
 
+  const handleLatestClick = () => {
+    onFollowingChange(false);
+    onTopChange(false);
+  };
+
+  // Latest is active when neither Following nor Top is active
+  const isLatestActive = !showFollowing && !showTop;
+
   return (
     <div className={cn("flex gap-1.5", className)}>
       <Button
@@ -56,6 +64,20 @@ const InspirationFilterButtons = ({
         )}
       >
         Top
+      </Button>
+      <Button
+        variant={isLatestActive ? "default" : "ghost"}
+        size="sm"
+        onClick={handleLatestClick}
+        className={cn(
+          "h-7 text-xs px-3 rounded-lg",
+          isLatestActive 
+            ? "bg-primary/90 hover:bg-primary/80 text-primary-foreground shadow-sm" 
+            : "bg-muted/5 hover:bg-muted/10",
+          "transition-all duration-200"
+        )}
+      >
+        Latest
       </Button>
     </div>
   );

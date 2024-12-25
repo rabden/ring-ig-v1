@@ -1,5 +1,4 @@
-import React, { useEffect } from 'react'
-import { Slider } from "@/components/ui/slider"
+import React, { useEffect, useRef } from 'react'
 import { Lock } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -69,6 +68,81 @@ const AspectRatioVisualizer = ({ ratio = "1:1", isPremium }) => {
   )
 }
 
+const CustomSlider = ({ value, onChange, min, max }) => {
+  const sliderRef = useRef(null);
+  const progressRef = useRef(null);
+
+  const updateSliderProgress = (value) => {
+    if (!sliderRef.current || !progressRef.current) return;
+    
+    // Calculate the percentage for both left and right sides
+    const range = max - min;
+    const center = -min;
+    const absValue = value + center;
+    const percentage = (absValue / range) * 100;
+    
+    // Update the progress bar width and position
+    const progress = progressRef.current;
+    if (value < 0) {
+      // Left side of center
+      const width = 50 - percentage;
+      progress.style.left = `${percentage}%`;
+      progress.style.right = '50%';
+    } else {
+      // Right side of center
+      progress.style.left = '50%';
+      progress.style.right = `${100 - percentage}%`;
+    }
+  };
+
+  useEffect(() => {
+    updateSliderProgress(value);
+  }, [value]);
+
+  const handleChange = (e) => {
+    const newValue = parseFloat(e.target.value);
+    onChange(newValue);
+    updateSliderProgress(newValue);
+  };
+
+  return (
+    <div className="relative w-full h-8 flex items-center">
+      <div className="absolute w-full h-2 bg-muted rounded-full">
+        <div 
+          ref={progressRef}
+          className="absolute h-full bg-primary rounded-full transition-all duration-150"
+        />
+      </div>
+      <input
+        ref={sliderRef}
+        type="range"
+        min={min}
+        max={max}
+        value={value}
+        onChange={handleChange}
+        className={cn(
+          "absolute w-full h-2",
+          "appearance-none bg-transparent cursor-pointer",
+          // Thumb styles
+          "[&::-webkit-slider-thumb]:appearance-none",
+          "[&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4",
+          "[&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary",
+          "[&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-background",
+          "[&::-webkit-slider-thumb]:shadow-sm [&::-webkit-slider-thumb]:transition-all",
+          "[&::-webkit-slider-thumb]:hover:bg-primary/90",
+          // Firefox thumb styles
+          "[&::-moz-range-thumb]:appearance-none",
+          "[&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4",
+          "[&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-primary",
+          "[&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-background",
+          "[&::-moz-range-thumb]:shadow-sm [&::-moz-range-thumb]:transition-all",
+          "[&::-moz-range-thumb]:hover:bg-primary/90"
+        )}
+      />
+    </div>
+  );
+};
+
 const AspectRatioChooser = ({ aspectRatio = "1:1", setAspectRatio, proMode }) => {
   const premiumRatios = ['9:21', '21:9', '3:2', '2:3', '4:5', '5:4', '10:16', '16:10'];
   
@@ -86,39 +160,39 @@ const AspectRatioChooser = ({ aspectRatio = "1:1", setAspectRatio, proMode }) =>
 
   const handleSliderChange = (value) => {
     const centerIndex = ratios.indexOf("1:1");
-    const sliderValue = value[0];
     
-    if (Math.abs(sliderValue - 50) < 1) {
+    if (Math.abs(value) < 1) {
       setAspectRatio("1:1");
       return;
     }
     
     let index;
-    if (sliderValue < 50) {
+    if (value < 0) {
       const beforeCenterSteps = centerIndex;
-      const normalizedValue = (sliderValue / 50) * beforeCenterSteps;
+      const normalizedValue = ((value + 50) / 50) * beforeCenterSteps;
       index = Math.round(normalizedValue);
     } else {
       const afterCenterSteps = ratios.length - 1 - centerIndex;
-      const normalizedValue = ((sliderValue - 50) / 50) * afterCenterSteps;
+      const normalizedValue = (value / 50) * afterCenterSteps;
       index = centerIndex + Math.round(normalizedValue);
     }
     
-    setAspectRatio(ratios[index] || "1:1");
+    setAspectRatio(ratios[Math.max(0, Math.min(ratios.length - 1, index))] || "1:1");
   }
 
   const getCurrentRatioIndex = () => {
     const centerIndex = ratios.indexOf("1:1");
     const currentIndex = ratios.indexOf(aspectRatio);
     
-    if (currentIndex === centerIndex || !ratios.includes(aspectRatio)) return 50;
+    if (currentIndex === centerIndex || !ratios.includes(aspectRatio)) return 0;
     
     if (currentIndex < centerIndex) {
-      return (currentIndex / centerIndex) * 50;
+      const percentage = currentIndex / centerIndex;
+      return -50 * (1 - percentage);
     } else {
       const stepsAfterCenter = currentIndex - centerIndex;
       const totalStepsAfterCenter = ratios.length - 1 - centerIndex;
-      return 50 + ((stepsAfterCenter / totalStepsAfterCenter) * 50);
+      return (stepsAfterCenter / totalStepsAfterCenter) * 50;
     }
   }
 
@@ -128,13 +202,14 @@ const AspectRatioChooser = ({ aspectRatio = "1:1", setAspectRatio, proMode }) =>
         ratio={aspectRatio} 
         isPremium={!proMode && premiumRatios.includes(aspectRatio)} 
       />
-      <div>
-        <Slider
-          value={[getCurrentRatioIndex()]}
-          onValueChange={handleSliderChange}
-          max={100}
-          step={1}
-          className="w-full"
+      <div className="relative">
+        {/* Center marker */}
+        <div className="absolute left-1/2 top-1/2 w-0.5 h-4 -translate-x-1/2 -translate-y-1/2 bg-primary/40 z-10" />
+        <CustomSlider
+          value={getCurrentRatioIndex()}
+          onChange={handleSliderChange}
+          min={-50}
+          max={50}
         />
       </div>
     </div>
