@@ -11,13 +11,13 @@
   "orientation": "any",
   "icons": [
     {
-      "src": "/android-chrome-192x192.png",
+      "src": "https://ring.lovable.app/logo.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/android-chrome-512x512.png",
+      "src": "https://ring.lovable.app/logo.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -29,33 +29,33 @@
       "short_name": "Create",
       "description": "Start generating a new AI image",
       "url": "/generate",
-      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "https://ring.lovable.app/logo.png", "sizes": "192x192" }]
     },
     {
       "name": "My Gallery",
       "short_name": "Gallery",
       "description": "View your generated images",
       "url": "/gallery",
-      "icons": [{ "src": "/android-chrome-192x192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "https://ring.lovable.app/logo.png", "sizes": "192x192" }]
     }
   ],
   "screenshots": [
     {
-      "src": "/screenshot-1.png",
+      "src": "https://ring.lovable.app/sc-1.png",
       "sizes": "1080x1920",
       "type": "image/png",
       "platform": "narrow",
       "label": "Ring IG Generator Interface"
     },
     {
-      "src": "/screenshot-2.png",
+      "src": "https://ring.lovable.app/sc-2.png",
       "sizes": "1920x1080",
       "type": "image/png",
       "platform": "wide",
       "label": "Ring IG Gallery View"
     }
   ],
-  "categories": ["art", "creativity", "productivity", "photo"],
+  "categories": ["art", "creativity", "productivity", "photo", "ai", "image", "generator", "artwork", "artistic", "ai-art", "ai-image", "ai-artwork", "ai-artistic", "ai-image-generator", "ai-image-artwork", "ai-image-artistic", "ai-image-generator", "ai-image-artwork", "ai-image-artistic", "ai-image-generator", "ai-image-artwork", "ai-image-artistic", "Midjourney", "Dall-E", "Flux", "Stable Diffusion"],
   "prefer_related_applications": false,
   "related_applications": [],
   "handle_links": "preferred",
