@@ -71,9 +71,9 @@ export const MeshGradient = ({
   };
 
   const speedMap = {
-    slow: 12,
-    medium: 8,
-    fast: 5
+    slow: 4,
+    medium: 2.7,
+    fast: 1.7
   };
 
   const opacity = opacityMap[intensity] || opacityMap.subtle;
