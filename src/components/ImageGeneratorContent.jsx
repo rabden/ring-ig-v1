@@ -222,7 +222,7 @@ const ImageGeneratorContent = ({
             )}
           >
             
-            <div className="min-h-[calc(100vh-56px)] md:h-full overflow-y-auto md:scrollbar-none px-4 md:px-6 py-4 md:py-8">
+            <div className="min-h-[calc(100vh-56px)] md:h-full overflow-y-auto md:scrollbar-none px-4 md:px-6 py-4 md:py-4">
               <ImageGeneratorSettings 
                 {...imageGeneratorProps} 
                 hidePromptOnDesktop={!isMobile && !isGenerateTab}
