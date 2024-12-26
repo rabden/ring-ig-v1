@@ -9,7 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useRealtimeProfile } from '@/hooks/useRealtimeProfile';
 import { handleAvatarUpload } from '@/utils/profileUtils';
 import { useQueryClient } from '@tanstack/react-query';
-import { LogOut, ChevronRight } from 'lucide-react';
+import { LogOut, ChevronRight, Repeat } from 'lucide-react';
 import ProfileAvatar from './profile/ProfileAvatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import CreditCounter from '@/components/ui/credit-counter';

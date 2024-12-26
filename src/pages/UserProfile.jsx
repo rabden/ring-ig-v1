@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/supabase';
 import { useProUser } from '@/hooks/useProUser';
 import { toast } from "sonner";
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, LogOut, Pencil, Camera, Calendar, Star, CreditCard, Image, Lock, ChevronRight } from 'lucide-react';
+import { ArrowLeft, LogOut, Pencil, Repeat, Calendar, Star, CreditCard, Image, Lock, ChevronRight } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import LoadingScreen from '@/components/LoadingScreen';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -29,6 +29,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import ProfileAvatar from '@/components/profile/ProfileAvatar';
 
 const SettingsCard = ({ title, children, icon: Icon, isPro, rightHeader }) => (
   <motion.div
@@ -299,6 +300,22 @@ const UserProfile = () => {
     }
   };
 
+  const { data: profile } = useQuery({
+    queryKey: ['profile', session?.user?.id],
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+      
+      if (error) return null;
+      return data;
+    },
+    enabled: !!session?.user?.id
+  });
+
   if (loading || isStatsLoading) {
     return (
       <div className="container max-w-6xl mx-auto py-8 px-4">
@@ -338,15 +355,16 @@ const UserProfile = () => {
             icon={Star}
             rightHeader={
               <div className="relative">
-                <Avatar className="h-12 w-12 rounded-full ring-2 ring-border ring-offset-2 ring-offset-background">
-                  <AvatarImage
-                    src={session.user.user_metadata?.avatar_url}
-                    alt={displayName}
-                  />
-                  <AvatarFallback>{displayName[0]?.toUpperCase()}</AvatarFallback>
-                </Avatar>
+                <ProfileAvatar 
+                  user={session.user} 
+                  avatarUrl={profile?.avatar_url}
+                  isPro={isPro}
+                  size="md"
+                  showEditOnHover={false}
+                  className="ring-2 ring-border ring-offset-2 ring-offset-background"
+                />
                 <label className="absolute -bottom-1 -right-1 p-1.5 rounded-full bg-primary text-primary-foreground cursor-pointer hover:bg-primary/90 transition-colors">
-                  <Camera className="w-3.5 h-3.5" />
+                  <Repeat className="w-3.5 h-3.5" />
                   <input
                     type="file"
                     className="hidden"

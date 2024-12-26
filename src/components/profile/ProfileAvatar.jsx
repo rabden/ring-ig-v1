@@ -1,6 +1,6 @@
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera } from 'lucide-react';
+import { Repeat } from 'lucide-react';
 
 const ProfileAvatar = ({ 
   user, 
@@ -11,12 +11,14 @@ const ProfileAvatar = ({
   showEditOnHover = true 
 }) => {
   const sizeClasses = {
+    xs: 'h-5 w-5',
     sm: 'h-7 w-7',
-    md: 'h-20 w-20',
+    md: 'h-12 w-12',
     lg: 'h-24 w-24'
   };
 
-  const cameraSizeClasses = {
+  const iconSizeClasses = {
+    xs: 'h-3 w-3',
     sm: 'h-4 w-4',
     md: 'h-6 w-6',
     lg: 'h-8 w-8'
@@ -38,7 +40,7 @@ const ProfileAvatar = ({
           onClick={onEditClick}
           className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
         >
-          <Camera className={`${cameraSizeClasses[size]} text-white`} />
+          <Repeat className={`${iconSizeClasses[size]} text-white`} />
         </button>
       )}
     </div>
