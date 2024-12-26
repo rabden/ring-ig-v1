@@ -167,7 +167,7 @@ const FullScreenImageView = ({
             </div>
           </div>
 
-          <div className="w-[350px] p-3">
+          <div className="w-[380px] p-3">
             <div className={cn(
               "h-[calc(100vh-24px)] rounded-lg",
               "border border-border bg-card",
