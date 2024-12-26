@@ -3,7 +3,7 @@ import { X, ExternalLink } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useNotifications } from '@/contexts/NotificationContext';
 import { cn } from '@/lib/utils';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { format } from 'date-fns';
 import { useInView } from '@/hooks/useInView';
@@ -11,6 +11,7 @@ import { useInView } from '@/hooks/useInView';
 const NotificationItem = ({ notification }) => {
   const { markAsRead, deleteNotification, hideGlobalNotification } = useNotifications();
   const { ref, isInView, hasBeenViewed } = useInView(0.9);
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log('Notification effect:', {
@@ -37,6 +38,13 @@ const NotificationItem = ({ notification }) => {
     }
   };
 
+  const handleClick = (e) => {
+    if (notification.link) {
+      e.preventDefault();
+      navigate(notification.link);
+    }
+  };
+
   // Parse image URLs and ensure they are valid
   const images = notification.image_url 
     ? notification.image_url.split(',')
@@ -50,9 +58,11 @@ const NotificationItem = ({ notification }) => {
   return (
     <div
       ref={ref}
+      onClick={handleClick}
       className={cn(
         "group relative flex items-start gap-4 p-4 transition-all duration-200 hover:bg-accent/5",
-        !notification.is_read && "bg-muted/10"
+        !notification.is_read && "bg-muted/10",
+        notification.link && "cursor-pointer"
       )}
     >
       {images.length > 0 && (
@@ -102,15 +112,13 @@ const NotificationItem = ({ notification }) => {
         {links.length > 0 && (
           <div className="mt-2.5 flex flex-wrap gap-2">
             {links.map((link, index) => (
-              <Link
+              <div
                 key={index}
-                to={link}
                 className="inline-flex items-center gap-1.5 text-xs font-medium text-primary/80 hover:text-primary transition-colors duration-200"
-                onClick={(e) => e.stopPropagation()}
               >
                 {linkNames[index] || `View details`}
                 <ExternalLink className="h-3 w-3" />
-              </Link>
+              </div>
             ))}
           </div>
         )}

@@ -100,7 +100,8 @@ export const useLikes = (userId) => {
                 title: 'New Like',
                 message: `${userProfile?.display_name || 'Someone'} liked your image`,
                 image_url: supabase.storage.from('user-images').getPublicUrl(imageData.storage_path).data.publicUrl,
-                link: `/image/${imageId}`
+                link: `/profile/${userId}`,
+                link_names: 'View Profile'
               }]);
             
             if (notificationError) throw notificationError;
