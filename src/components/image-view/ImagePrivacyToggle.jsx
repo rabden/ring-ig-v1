@@ -47,7 +47,7 @@ const ImagePrivacyToggle = ({ image, isOwner }) => {
       {isAnimating && (
         <div className="absolute -top-1.5 -left-1.5 flex items-center justify-center bg-card rounded-lg">
           <video
-            src={showAsPrivate ? '/private-lock.webm' : '/private-unlock.webm'}
+            src={showAsPrivate ? 'https://res.cloudinary.com/drhx7imeb/video/upload/v1735205358/Animation_-_1735139717633_rxfctn.webm' : 'https://res.cloudinary.com/drhx7imeb/video/upload/v1735206538/Animation_-_1735206487478_il1vfw.webm'}
             autoPlay
             muted
             className="h-10 w-10"
