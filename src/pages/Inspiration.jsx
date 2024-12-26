@@ -33,26 +33,39 @@ const Inspiration = () => {
   const [activeTab, setActiveTab] = useState('images');
   const { isPro } = useProUser();
 
-  // Sync activeTab with URL hash
+  // Sync activeTab with URL hash and update filters based on hash
   useEffect(() => {
     const hash = location.hash.replace('#', '');
     switch (hash) {
       case 'notifications':
         setActiveTab('notifications');
         break;
+      case 'following':
+        setShowFollowing(true);
+        setShowTop(false);
+        setShowLatest(false);
+        break;
+      case 'top':
+        setShowFollowing(false);
+        setShowTop(true);
+        setShowLatest(false);
+        break;
+      case 'latest':
+        setShowFollowing(false);
+        setShowTop(false);
+        setShowLatest(true);
+        break;
       default:
         setActiveTab('images');
+        // If no hash, default to top
+        if (!hash) {
+          setShowFollowing(false);
+          setShowTop(true);
+          setShowLatest(false);
+          navigate('/inspiration#top', { replace: true });
+        }
     }
   }, [location.hash]);
-
-  // Set showTop to true when navigating to inspiration
-  useEffect(() => {
-    if (location.pathname === '/inspiration') {
-      setShowTop(true);
-      setShowFollowing(false);
-      setShowLatest(false);
-    }
-  }, [location.pathname]);
 
   const handleImageClick = (image) => {
     setSelectedImage(image);

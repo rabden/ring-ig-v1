@@ -1,49 +1,34 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { cn } from '@/lib/utils';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-const InspirationFilterButtons = ({ 
-  showFollowing,
-  showTop,
-  onFollowingChange,
-  onTopChange,
-  className
-}) => {
+const InspirationFilterButtons = ({ className }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const currentHash = location.hash.replace('#', '');
+
   const handleFollowingClick = () => {
-    if (showFollowing) {
-      onFollowingChange(false);
-    } else {
-      onFollowingChange(true);
-      onTopChange(false);
-    }
+    navigate('/inspiration#following');
   };
 
   const handleTopClick = () => {
-    if (showTop) {
-      onTopChange(false);
-    } else {
-      onTopChange(true);
-      onFollowingChange(false);
-    }
+    navigate('/inspiration#top');
   };
 
   const handleLatestClick = () => {
-    onFollowingChange(false);
-    onTopChange(false);
+    navigate('/inspiration#latest');
   };
-
-  // Latest is active when neither Following nor Top is active
-  const isLatestActive = !showFollowing && !showTop;
 
   return (
     <div className={cn("flex gap-1.5", className)}>
       <Button
-        variant={showFollowing ? "default" : "ghost"}
+        variant={currentHash === 'following' ? "default" : "ghost"}
         size="sm"
         onClick={handleFollowingClick}
         className={cn(
           "h-7 text-xs px-3 rounded-lg",
-          showFollowing 
+          currentHash === 'following'
             ? "bg-primary/90 hover:bg-primary/80 text-primary-foreground shadow-sm" 
             : "bg-muted/5 hover:bg-muted/10",
           "transition-all duration-200"
@@ -52,12 +37,12 @@ const InspirationFilterButtons = ({
         Following
       </Button>
       <Button
-        variant={showTop ? "default" : "ghost"}
+        variant={currentHash === 'top' ? "default" : "ghost"}
         size="sm"
         onClick={handleTopClick}
         className={cn(
           "h-7 text-xs px-3 rounded-lg",
-          showTop 
+          currentHash === 'top'
             ? "bg-primary/90 hover:bg-primary/80 text-primary-foreground shadow-sm" 
             : "bg-muted/5 hover:bg-muted/10",
           "transition-all duration-200"
@@ -66,12 +51,12 @@ const InspirationFilterButtons = ({
         Top
       </Button>
       <Button
-        variant={isLatestActive ? "default" : "ghost"}
+        variant={currentHash === 'latest' ? "default" : "ghost"}
         size="sm"
         onClick={handleLatestClick}
         className={cn(
           "h-7 text-xs px-3 rounded-lg",
-          isLatestActive 
+          currentHash === 'latest'
             ? "bg-primary/90 hover:bg-primary/80 text-primary-foreground shadow-sm" 
             : "bg-muted/5 hover:bg-muted/10",
           "transition-all duration-200"

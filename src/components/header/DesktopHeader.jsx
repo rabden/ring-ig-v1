@@ -66,16 +66,7 @@ const DesktopHeader = ({
             )}
             {isInspiration && (
               <InspirationFilterButtons
-                showFollowing={showFollowing}
-                showTop={showTop}
-                onFollowingChange={onFollowingChange}
-                onTopChange={onTopChange}
-                buttonClassName={cn(
-                  "h-8 rounded-lg px-3",
-                  "bg-transparent hover:bg-muted/10",
-                  "text-foreground/70 hover:text-foreground",
-                  "transition-colors duration-200"
-                )}
+                className="flex-1"
               />
             )}
             <SearchBar onSearch={onSearch} />

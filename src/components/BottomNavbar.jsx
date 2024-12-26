@@ -59,7 +59,12 @@ const BottomNavbar = ({
 
   const handleNavigation = (route, tab) => {
     setActiveTab(tab);
-    navigate(route);
+    // If navigating to inspiration without a hash, default to #top
+    if (route === '/inspiration' && !location.hash) {
+      navigate('/inspiration#top');
+    } else {
+      navigate(route);
+    }
   };
 
   return (
@@ -74,7 +79,7 @@ const BottomNavbar = ({
           <MobileNavButton
             icon={Sparkles}
             isActive={location.pathname === '/inspiration'}
-            onClick={() => handleNavigation('/inspiration', 'images')}
+            onClick={() => handleNavigation('/inspiration#top', 'images')}
           />
           <div className={cn(
             "relative flex items-center justify-center",

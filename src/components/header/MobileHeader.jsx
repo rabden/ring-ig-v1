@@ -46,10 +46,7 @@ const MobileHeader = ({
             )}
             {isInspiration && (
               <InspirationFilterButtons
-                showFollowing={showFollowing}
-                showTop={showTop}
-                onFollowingChange={onFollowingChange}
-                onTopChange={onTopChange}
+                className="flex-1"
               />
             )}
           </>
