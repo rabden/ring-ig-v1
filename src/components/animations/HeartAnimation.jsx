@@ -10,10 +10,10 @@ const HeartAnimation = ({ isAnimating }) => {
       "pointer-events-none z-10"
     )}>
       <video
-        src="/heartanim.webm"
+        src="https://res.cloudinary.com/drhx7imeb/video/upload/v1735205358/Animation_-_1735137420225_kgdxup.webm"
         autoPlay
         muted
-        className="w-[200px] h-[200px]"
+        className="w-[150px] h-[150px]"
         onEnded={(e) => {
           e.target.currentTime = 0;
           e.target.pause();

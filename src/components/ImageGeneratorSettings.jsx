@@ -2,11 +2,10 @@ import React from 'react';
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import AspectRatioChooser from './AspectRatioChooser';
+import DimensionChooser from './DimensionChooser';
 import SettingSection from './settings/SettingSection';
 import ModelChooser from './settings/ModelChooser';
 import ImageCountChooser from './settings/ImageCountChooser';
-import QualityChooser from './settings/QualityChooser';
 import PromptInput from './prompt/PromptInput';
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 import { toast } from 'sonner';
@@ -59,19 +58,6 @@ const ImageGeneratorSettings = ({
       }
     }
     setModel(newModel);
-  };
-
-  const getAvailableQualities = () => {
-    const modelConfig = modelConfigs?.[model];
-    if (!modelConfig) return ['HD']; // Default to HD only if no model config
-    
-    // If qualityLimits not specified, allow all qualities
-    if (!modelConfig.qualityLimits) {
-      return Object.keys(qualityOptions);
-    }
-    
-    // If specified, only allow those qualities
-    return modelConfig.qualityLimits;
   };
 
   const handleClearPrompt = () => {
@@ -141,17 +127,15 @@ const ImageGeneratorSettings = ({
         modelConfigs={modelConfigs}
       />
 
-      <AspectRatioChooser 
-        aspectRatio={aspectRatio} 
-        setAspectRatio={setAspectRatio}
-        proMode={proMode} 
-      />
-
-      <QualityChooser
-        quality={quality}
-        setQuality={setQuality}
-        availableQualities={getAvailableQualities()}
-      />
+      <SettingSection label="Dimensions" tooltip="Choose the aspect ratio and quality for your generated image">
+        <DimensionChooser 
+          aspectRatio={aspectRatio} 
+          setAspectRatio={setAspectRatio}
+          quality={quality}
+          setQuality={setQuality}
+          proMode={proMode} 
+        />
+      </SettingSection>
 
       <ImageCountChooser
         count={imageCount}

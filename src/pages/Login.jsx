@@ -80,9 +80,9 @@ const Login = () => {
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="w-full md:w-3/5 relative overflow-hidden"
+        className="w-full h-[50vh] md:h-auto md:w-3/5 relative overflow-hidden"
       >
-        <div className="relative w-full pb-[100%] md:pb-0 md:h-full">
+        <div className="relative w-full h-full">
           <div className="absolute inset-0">
             <AnimatePresence mode="wait">
               <motion.div
@@ -117,7 +117,7 @@ const Login = () => {
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
-        className="w-full md:w-3/5 flex items-center justify-center p-2 relative"
+        className="w-full h-[50vh] md:h-auto md:w-3/5 flex items-center justify-center p-2 relative"
       >
         <MeshGradient 
           intensity="medium" 
