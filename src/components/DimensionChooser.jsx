@@ -66,7 +66,7 @@ const DimensionVisualizer = ({ ratio = "1:1", isPremium, quality, onQualityToggl
                   "border-transparent bg-primary text-primary-foreground",
                   !isQualityLocked && "hover:bg-primary/90",
                   "shadow-sm",
-                  "flex items-center gap-0.2 px-1 py-0.2"
+                  "flex items-center gap-0.2 px-2 py-0.5"
                 )}
               >
                 {quality}
