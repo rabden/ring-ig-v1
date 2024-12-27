@@ -23,20 +23,21 @@ const PromptInput = ({
   onSubmit,
   hasEnoughCredits = true,
   onClear,
-  onImprove,
-  isImproving,
   credits,
   bonusCredits,
-  userId
+  userId,
+  activeModel,
+  modelConfigs
 }) => {
   const [currentTipIndex, setCurrentTipIndex] = useState(0);
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCreditsForImprovement = totalCredits >= 1;
+  const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTipIndex((prev) => (prev + 1) % PROMPT_TIPS.length);
-    }, 10000); // Change every 10 seconds
+    }, 10000);
 
     return () => clearInterval(interval);
   }, []);
@@ -53,7 +54,25 @@ const PromptInput = ({
     }
 
     try {
-      await onImprove();
+      let accumulatedPrompt = "";
+      let isFirstChunk = true;
+      await improveCurrentPrompt(
+        prompt,
+        activeModel,
+        modelConfigs,
+        (chunk, isStreaming) => {
+          if (isStreaming) {
+            if (isFirstChunk) {
+              onChange({ target: { value: "" } });
+              isFirstChunk = false;
+            }
+            accumulatedPrompt += chunk;
+            onChange({ target: { value: accumulatedPrompt } });
+          } else {
+            onChange({ target: { value: chunk } });
+          }
+        }
+      );
     } catch (error) {
       console.error('Error improving prompt:', error);
       toast.error('Failed to improve prompt');
@@ -77,7 +96,7 @@ const PromptInput = ({
     }
 
     try {
-      onClear(); // Clear prompt immediately when generation starts
+      onClear();
       await onSubmit();
     } catch (error) {
       console.error('Error generating:', error);
@@ -97,15 +116,16 @@ const PromptInput = ({
           onKeyDown={onKeyDown}
           placeholder={PROMPT_TIPS[currentTipIndex]}
           className={cn(
-            "w-full resize-none bg-transparent text-base focus:outline-none",
+            "w-full min-h-[450px] md:min-h-[350px] resize-none bg-transparent text-base focus:outline-none",
             "placeholder:text-muted-foreground/40 overflow-y-auto scrollbar-none",
-            "py-6 px-1",
-            "min-h-[450px] md:min-h-[350px]",
-            "transition-colors duration-200"
+            "border-y border-border/5 py-6 px-3",
+            "transition-colors duration-200",
+            isImproving && "opacity-50"
           )}
           style={{ 
             caretColor: 'currentColor',
           }}
+          disabled={isImproving}
         />
       </div>
       
@@ -116,6 +136,7 @@ const PromptInput = ({
             variant="ghost"
             className="h-8 w-8 p-0 rounded-xl hover:bg-accent/10"
             onClick={onClear}
+            disabled={isImproving}
           >
             <X className="h-4 w-4 text-foreground/70" />
           </Button>
@@ -138,7 +159,7 @@ const PromptInput = ({
           size="sm"
           className="h-8 rounded-xl bg-primary/90 hover:bg-primary/80 transition-all duration-200"
           onClick={handleSubmit}
-          disabled={!prompt?.length || !hasEnoughCredits || !userId}
+          disabled={!prompt?.length || !hasEnoughCredits || !userId || isImproving}
         >
           <span className="text-sm">Create</span>
           <ArrowRight className="ml-2 h-4 w-4" />

@@ -85,9 +85,26 @@ const DesktopPromptBox = ({
     }
 
     try {
-      await improveCurrentPrompt(prompt, activeModel, modelConfigs, (improvedPrompt) => {
-        onChange({ target: { value: improvedPrompt } });
-      });
+      let accumulatedPrompt = "";
+      let isFirstChunk = true;
+      await improveCurrentPrompt(
+        prompt, 
+        activeModel, 
+        modelConfigs, 
+        (chunk, isStreaming) => {
+          if (isStreaming) {
+            // Clear the prompt just before the first chunk arrives
+            if (isFirstChunk) {
+              onChange({ target: { value: "" } });
+              isFirstChunk = false;
+            }
+            accumulatedPrompt += chunk;
+            onChange({ target: { value: accumulatedPrompt } });
+          } else {
+            onChange({ target: { value: chunk } });
+          }
+        }
+      );
     } catch (error) {
       console.error('Error improving prompt:', error);
       toast.error('Failed to improve prompt');
@@ -122,8 +139,15 @@ const DesktopPromptBox = ({
                 onChange={handlePromptChange}
                 onKeyDown={onKeyDown}
                 placeholder={PROMPT_TIPS[currentTipIndex]}
-                className="w-full min-h-[250px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/40 overflow-y-auto scrollbar-none border-y border-border/5 py-6 px-3 transition-colors duration-200"
+                className={cn(
+                  "w-full min-h-[250px] resize-none bg-transparent text-base focus:outline-none",
+                  "placeholder:text-muted-foreground/40 overflow-y-auto scrollbar-none",
+                  "border-y border-border/5 py-6 px-3",
+                  "transition-colors duration-200",
+                  isImproving && "opacity-50"
+                )}
                 style={{ caretColor: 'currentColor' }}
+                disabled={isImproving}
               />
             </div>
 
@@ -138,6 +162,7 @@ const DesktopPromptBox = ({
                     variant="ghost"
                     className="h-8 w-8 p-0 rounded-xl hover:bg-background/10"
                     onClick={onClear}
+                    disabled={isImproving}
                   >
                     <X className="h-4 w-4 text-foreground/70" />
                   </Button>
@@ -160,7 +185,7 @@ const DesktopPromptBox = ({
                   size="sm"
                   className="h-8 rounded-xl bg-primary/90 hover:bg-primary/80 transition-all duration-200"
                   onClick={handleSubmit}
-                  disabled={!prompt?.length || !hasEnoughCredits}
+                  disabled={!prompt?.length || !hasEnoughCredits || isImproving}
                 >
                   <span className="text-sm">Create</span>
                   <ArrowRight className="ml-2 h-4 w-4" />

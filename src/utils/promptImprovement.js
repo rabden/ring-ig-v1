@@ -1,7 +1,7 @@
 import { HfInference } from "@huggingface/inference";
 import { supabase } from '@/integrations/supabase/supabase';
 
-export const improvePrompt = async (originalPrompt, activeModel, modelConfigs) => {
+export const improvePrompt = async (originalPrompt, activeModel, modelConfigs, onChunk) => {
   try {
     const { data: apiKeyData, error: apiKeyError } = await supabase
       .from('huggingface_api_keys')
@@ -28,8 +28,10 @@ export const improvePrompt = async (originalPrompt, activeModel, modelConfigs) =
     
     const modelExample = modelConfigs?.[activeModel]?.example || "a photo of a cat, high quality, detailed";
     
-    const response = await client.chatCompletion({
-      model: "01-ai/Yi-1.5-34B-Chat",
+    let improvedPrompt = "";
+    
+    const stream = await client.chatCompletionStream({
+      model: "Qwen/Qwen2.5-Coder-32B-Instruct",
       messages: [
         {
           role: "system",
@@ -44,9 +46,19 @@ export const improvePrompt = async (originalPrompt, activeModel, modelConfigs) =
       temperature: 0.7
     });
 
-    return response.choices[0].message.content.trim();
+    for await (const chunk of stream) {
+      if (chunk.choices && chunk.choices.length > 0) {
+        const newContent = chunk.choices[0].delta.content;
+        if (newContent) {
+          improvedPrompt += newContent;
+          onChunk(newContent);
+        }
+      }
+    }
+
+    return improvedPrompt.trim();
   } catch (error) {
     console.error('Error improving prompt:', error);
     throw error;
   }
-};
+}
