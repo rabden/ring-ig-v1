@@ -17,7 +17,7 @@ const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, dis
   <div
     className={cn(
       "flex items-center gap-3 transition-all duration-200",
-      isActive ? "bg-muted/5 shadow-[0_0_0_1px_rgba(var(--primary),.15)]" : "border border-border/80 hover:bg-muted/5 hover:border-border/20 p-3 rounded-lg",
+      isActive ? "bg-muted/5 shadow-[0_0_0_1px_rgba(var(--primary),.15)]" : "border border-border/80 hover:bg-muted/5 hover:border-border/20 p-3 rounded-xl",
       "bg-background",
       disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-[0.98]"
     )}
@@ -47,7 +47,7 @@ const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, dis
 const ModelGridCard = ({ modelKey, config, isActive, onClick, disabled, proMode }) => (
   <div
     className={cn(
-      "group relative aspect-square rounded-lg overflow-hidden transition-all duration-200",
+      "group relative aspect-square rounded-xl overflow-hidden transition-all duration-200",
       "border border-border/80 bg-card",
       isActive ? "ring-2 ring-primary/20 border-primary/30" : "hover:border-border/20",
       disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
@@ -85,7 +85,7 @@ const ModelGrid = ({ filteredModels, model, setModel, proMode, className }) => (
     "scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent hover:scrollbar-thumb-border/50",
     className
   )}>
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 rounded-3xl">
+    <div className="grid grid-cols-2 gap-2 rounded-3xl">
       {filteredModels.map(([key, config]) => (
         <ModelGridCard
           key={key}
@@ -122,7 +122,7 @@ const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) =
 
   // Default model for each mode
   const defaultModel = useMemo(() => {
-    return nsfwEnabled ? 'nsfwMaster' : 'flux';
+    return nsfwEnabled ? 'nsfwMaster' : 'fluxDev';
   }, [nsfwEnabled]);
 
   // Handle model selection
