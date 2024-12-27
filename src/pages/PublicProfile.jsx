@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/supabase';
 import ImageGallery from '@/components/ImageGallery';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, Image, Heart } from 'lucide-react';
+import { ChevronLeft, Image, Heart, ArrowLeft } from 'lucide-react';
 import ProfileAvatar from '@/components/profile/ProfileAvatar';
 import FollowButton from '@/components/profile/FollowButton';
 import FollowStats from '@/components/profile/FollowStats';
@@ -70,20 +70,31 @@ const PublicProfile = () => {
   const { data: stats, isLoading: isStatsLoading } = useQuery({
     queryKey: ['userStats', userId],
     queryFn: async () => {
-      const { count: totalImages } = await supabase
-        .from('user_images')
-        .select('*', { count: 'exact' })
-        .eq('user_id', userId)
-        .eq('is_private', false);
-
-      const { count: totalLikes } = await supabase
-        .from('user_image_likes')
-        .select('*', { count: 'exact' })
-        .eq('created_by', userId);
+      const [imagesResult, likesResult, followersResult, followingResult] = await Promise.all([
+        supabase
+          .from('user_images')
+          .select('*', { count: 'exact' })
+          .eq('user_id', userId)
+          .eq('is_private', false),
+        supabase
+          .from('user_image_likes')
+          .select('*', { count: 'exact' })
+          .eq('created_by', userId),
+        supabase
+          .from('user_follows')
+          .select('*', { count: 'exact' })
+          .eq('following_id', userId),
+        supabase
+          .from('user_follows')
+          .select('*', { count: 'exact' })
+          .eq('follower_id', userId)
+      ]);
 
       return {
-        totalImages: totalImages || 0,
-        totalLikes: totalLikes || 0
+        totalImages: imagesResult.count || 0,
+        totalLikes: likesResult.count || 0,
+        followers: followersResult.count || 0,
+        following: followingResult.count || 0
       };
     },
     enabled: !!userId
@@ -122,78 +133,109 @@ const PublicProfile = () => {
   }
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="container mx-auto px-0.5 md:px-4 py-4 sm:py-8"
-    >
-      <Button 
-        variant="ghost" 
-        className="mb-4 hover:bg-accent group mx-2 md:mx-0"
-        onClick={() => navigate(-1)}
+    <div className="min-h-screen bg-background text-foreground">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="container  mx-auto py-6 px-1 space-y-4"
       >
-        <ChevronLeft className="h-4 w-4 mr-2 group-hover:text-primary transition-colors duration-300" />
-        <span className="group-hover:text-primary transition-colors duration-300">Back</span>
-      </Button>
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-6">
+          <Button 
+            variant="ghost" 
+            className="group flex items-center gap-2 hover:gap-3 transition-all duration-300"
+            onClick={() => navigate(-1)}
+          >
+            <ArrowLeft className="h-5 w-5 text-primary transition-colors" />
+            <span className="text-2xl font-medium bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
+              Profile
+            </span>
+          </Button>
+        </div>
 
-      <Card className="p-4 sm:p-6 mb-6 relative overflow-hidden group mx-2 md:mx-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row items-center gap-4 relative"
-        >
-          <div className="flex-shrink-0">
-            <ProfileAvatar 
-              user={{ user_metadata: { avatar_url: profile.avatar_url } }} 
-              avatarUrl={profile.avatar_url}
-              size="lg" 
-              isPro={profile.is_pro}
+        <div className="grid grid-cols-1 gap-4">
+          {/* Profile Card */}
+          <Card className="rounded-2xl border border-border bg-card text-card-foreground relative overflow-hidden">
+            <div className="p-4 md:p-6 relative">
+              <div className="flex flex-col sm:grid sm:grid-cols-2 gap-6">
+                {/* Profile Details */}
+                <div className="flex flex-col sm:flex-row items-center gap-6">
+                  <div className="flex-shrink-0">
+                    <ProfileAvatar 
+                      user={{ user_metadata: { avatar_url: profile.avatar_url } }} 
+                      avatarUrl={profile.avatar_url}
+                      size="lg" 
+                      isPro={profile.is_pro}
+                      className="w-24 h-24 sm:w-28 sm:h-28 ring-2 ring-border ring-offset-2 ring-offset-background"
+                    />
+                  </div>
+                  
+                  <div className="flex-1 text-center sm:text-left space-y-2">
+                    <div className="space-y-1">
+                      <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                        {profile.display_name}
+                      </h1>
+                      <p className="text-xs text-muted-foreground/70">
+                        Joined {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-US', {
+                          month: 'long',
+                          year: 'numeric'
+                        }) : ''}
+                      </p>
+                    </div>
+                    
+                    {currentUserId && currentUserId !== userId && (
+                      <div className="pt-2 sm:max-w-[200px]">
+                        <FollowButton userId={userId} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Stats Section */}
+                <div className="flex items-center">
+                  <div className={cn(
+                    "w-full grid grid-cols-4 gap-2 p-3 rounded-xl",
+                    "bg-muted/5 hover:bg-muted/10",
+                    "transition-colors duration-200"
+                  )}>
+                    <div className="text-center">
+                      <span className="block text-base sm:text-lg font-medium text-foreground">{stats.totalImages}</span>
+                      <span className="text-xs text-muted-foreground/80">Images</span>
+                    </div>
+                    <div className="text-center">
+                      <span className="block text-base sm:text-lg font-medium text-foreground">{stats.totalLikes}</span>
+                      <span className="text-xs text-muted-foreground/80">Likes</span>
+                    </div>
+                    <div className="text-center">
+                      <span className="block text-base sm:text-lg font-medium text-foreground">{stats.followers}</span>
+                      <span className="text-xs text-muted-foreground/80">Followers</span>
+                    </div>
+                    <div className="text-center">
+                      <span className="block text-base sm:text-lg font-medium text-foreground">{stats.following}</span>
+                      <span className="text-xs text-muted-foreground/80">Following</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Gallery Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <ImageGallery 
+              userId={currentUserId}
+              profileUserId={userId}
+              activeView="myImages"
+              nsfwEnabled={false}
+              showPrivate={false}
+              onImageClick={handleImageClick}
             />
-          </div>
-          
-          <div className="flex-1 text-center sm:text-left space-y-3">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                {profile.display_name}
-              </h1>
-            </motion.div>
-            
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="flex flex-wrap justify-center sm:justify-start gap-4 items-center"
-            >
-              <StatItem icon={Image} value={stats.totalImages} label="Images" />
-              <StatItem icon={Heart} value={stats.totalLikes} label="Likes" />
-              <FollowStats userId={userId} />
-              {currentUserId && currentUserId !== userId && (
-                <FollowButton userId={userId} />
-              )}
-            </motion.div>
-          </div>
-        </motion.div>
-      </Card>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="md:mx-0"
-      >
-        <ImageGallery 
-          userId={currentUserId}
-          profileUserId={userId}
-          activeView="myImages"
-          nsfwEnabled={false}
-          showPrivate={false}
-          onImageClick={handleImageClick}
-        />
+          </motion.div>
+        </div>
       </motion.div>
 
       <AnimatePresence>
@@ -209,7 +251,7 @@ const PublicProfile = () => {
           />
         )}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 };
 

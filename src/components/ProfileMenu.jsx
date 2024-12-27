@@ -52,7 +52,7 @@ const ProfileMenu = ({
     queryFn: async () => {
       if (!user?.id) return { followers: 0, following: 0 };
       
-      const [followersResult, followingResult] = await Promise.all([
+      const [followersResult, followingResult, imagesResult] = await Promise.all([
         supabase
           .from('user_follows')
           .select('*', { count: 'exact' })
@@ -60,12 +60,17 @@ const ProfileMenu = ({
         supabase
           .from('user_follows')
           .select('*', { count: 'exact' })
-          .eq('follower_id', user.id)
+          .eq('follower_id', user.id),
+        supabase
+          .from('user_images')
+          .select('*', { count: 'exact' })
+          .eq('user_id', user.id)
       ]);
       
       return {
         followers: followersResult.count || 0,
-        following: followingResult.count || 0
+        following: followingResult.count || 0,
+        totalImages: imagesResult.count || 0
       };
     },
     enabled: !!user?.id
@@ -167,7 +172,7 @@ const ProfileMenu = ({
             <CreditCounter credits={credits} bonusCredits={bonusCredits} />
 
             <div className={cn(
-              "grid grid-cols-3 gap-2 p-3 rounded-xl",
+              "grid grid-cols-4 gap-2 p-3 rounded-xl",
               "transition-colors duration-200"
             )}>
               <div className="text-center">
@@ -181,6 +186,10 @@ const ProfileMenu = ({
               <div className="text-center">
                 <span className="block text-sm font-medium text-foreground">{totalLikes}</span>
                 <span className="text-xs text-muted-foreground/80">Likes</span>
+              </div>
+              <div className="text-center">
+                <span className="block text-sm font-medium text-foreground">{followCounts.totalImages || 0}</span>
+                <span className="text-xs text-muted-foreground/80">Images</span>
               </div>
             </div>
 

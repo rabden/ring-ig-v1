@@ -1,22 +1,40 @@
 import React from 'react';
-import { useFollowCounts } from '@/hooks/useFollowCounts';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/supabase';
+import { cn } from '@/lib/utils';
 
-const FollowStats = ({ userId }) => {
-  const { followersCount, followingCount, isLoading } = useFollowCounts(userId);
+const FollowStats = ({ userId, className }) => {
+  const { data: stats = { followers: 0, following: 0 } } = useQuery({
+    queryKey: ['followStats', userId],
+    queryFn: async () => {
+      const [followersResult, followingResult] = await Promise.all([
+        supabase
+          .from('user_follows')
+          .select('*', { count: 'exact' })
+          .eq('following_id', userId),
+        supabase
+          .from('user_follows')
+          .select('*', { count: 'exact' })
+          .eq('follower_id', userId)
+      ]);
 
-  if (isLoading) {
-    return <div>Loading stats...</div>;
-  }
+      return {
+        followers: followersResult.count || 0,
+        following: followingResult.count || 0
+      };
+    },
+    enabled: !!userId
+  });
 
   return (
-    <div className="flex gap-4 justify-center md:justify-start">
+    <div className={cn("grid grid-cols-2", className)}>
       <div className="text-center">
-        <p className="text-2xl font-bold">{followersCount}</p>
-        <p className="text-sm text-muted-foreground">Followers</p>
+        <span className="block text-sm font-medium text-foreground">{stats.followers}</span>
+        <span className="text-xs text-muted-foreground/80">Followers</span>
       </div>
       <div className="text-center">
-        <p className="text-2xl font-bold">{followingCount}</p>
-        <p className="text-sm text-muted-foreground">Following</p>
+        <span className="block text-sm font-medium text-foreground">{stats.following}</span>
+        <span className="text-xs text-muted-foreground/80">Following</span>
       </div>
     </div>
   );

@@ -31,13 +31,18 @@ import {
 } from "@/components/ui/carousel";
 import ProfileAvatar from '@/components/profile/ProfileAvatar';
 
-const SettingsCard = ({ title, children, icon: Icon, isPro, rightHeader }) => (
+const SettingsCard = ({ title, children, icon: Icon, isPro, rightHeader, topLeftText }) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    className="rounded-2xl border border-border/80 bg-card text-card-foreground relative overflow-hidden"
+    className="rounded-2xl border border-border bg-card text-card-foreground relative overflow-hidden"
   >
-    <div className="p-6 relative">
+    <div className="p-4 md:p-6 relative">
+      {topLeftText && (
+        <span className="absolute top-3 md:top-4 left-4 md:left-6 text-xs text-muted-foreground/70">
+          {topLeftText}
+        </span>
+      )}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Icon className="h-5 w-5 text-primary" />
@@ -46,7 +51,7 @@ const SettingsCard = ({ title, children, icon: Icon, isPro, rightHeader }) => (
         {rightHeader}
       </div>
     </div>
-    <div className="p-6 pt-0 relative">
+    <div className="p-4 md:p-6 pt-0 relative">
       {children}
     </div>
   </motion.div>
@@ -353,6 +358,10 @@ const UserProfile = () => {
           <SettingsCard 
             title="Basic Information" 
             icon={Star}
+            topLeftText={profile?.created_at ? `Joined ${new Date(profile.created_at).toLocaleDateString('en-US', {
+              month: 'long',
+              year: 'numeric'
+            })}` : ''}
             rightHeader={
               <div className="relative">
                 <ProfileAvatar 

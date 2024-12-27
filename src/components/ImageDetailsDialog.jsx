@@ -45,10 +45,10 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={cn(
         "sm:max-w-[500px] max-h-[80vh] overflow-hidden",
-        "border-border/80 bg-card/95",
-        "p-4 rounded-xl"
+        "border-border/80 bg-card",
+        "p-4 md:p-6 rounded-lg"
       )}>
-        <DialogHeader className="px-3">
+        <DialogHeader className="px-2">
           <DialogTitle className="text-md font-medium text-muted-foreground/70 uppercase tracking-wider">Image Details</DialogTitle>
         </DialogHeader>
         <ScrollArea className="mt-3 max-h-[calc(80vh-80px)]">
@@ -61,8 +61,8 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
                     variant="ghost" 
                     size="icon" 
                     className={cn(
-                      "h-6 w-6 p-0 rounded-md",
-                      "bg-muted/5 ",
+                      "h-8 w-8 p-0 rounded-md",
+                      "bg-card hover:bg-secondary ",
                       "transition-all duration-200"
                     )}
                     onClick={handleCopyPrompt}
@@ -77,8 +77,8 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
                     variant="ghost" 
                     size="icon" 
                     className={cn(
-                      "h-6 w-6 p-0 rounded-md",
-                      "bg-muted/5 ",
+                      "h-8 w-8 p-0 rounded-md",
+                      "bg-card hover:bg-secondary ",
                       "transition-all duration-200"
                     )}
                     onClick={handleShare}
@@ -93,11 +93,10 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
               </div>
               <div className={cn(
                 "rounded-md",
-                "bg-muted/5 ",
+                "bg-card",
                 "border border-border/5",
                 "transition-colors duration-200",
                 "group",
-                "p-3"
               )}>
                 <TruncatablePrompt prompt={image.prompt} />
               </div>
@@ -108,11 +107,9 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
                 <h3 className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wider">Negative Prompt</h3>
                 <div className={cn(
                   "rounded-md",
-                  "bg-muted/5 ",
-                  "border border-border/5",
+                  "bg-card",
                   "transition-colors duration-200",
                   "group",
-                  "p-3"
                 )}>
                   <TruncatablePrompt prompt={image.negative_prompt} />
                 </div>
@@ -125,7 +122,7 @@ const ImageDetailsDialog = ({ open, onOpenChange, image }) => {
                   key={index} 
                   className={cn(
                     "space-y-1 p-2 rounded-md",
-                    "bg-muted/5 ",
+                    "bg-card",
                     "border border-border/5",
                     "transition-colors duration-200",
                     "group"
