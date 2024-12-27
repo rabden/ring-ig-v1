@@ -114,7 +114,7 @@ export const modelConfig = {
     apiUrl: "https://api-inference.huggingface.co/models/imagepipeline/Logo",
     qualityLimits: null,
     isPremium: false,
-    promptSuffix: ", wablogo, logo, Minimalist",
+    promptSuffix: null,
     tagline: "Make your brand Identity 2",
     image: "https://i.ibb.co.com/H4cRCjY/458ae986-877f-4928-997e-e80349b4fc13.jpg",
     example: "Start with 'Logo' Then describe the logo to appear in the image",
