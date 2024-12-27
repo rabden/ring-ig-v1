@@ -5,6 +5,7 @@ import SettingSection from './SettingSection';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { MeshGradient } from "@/components/ui/mesh-gradient";
 import {
   Drawer,
   DrawerContent,
@@ -16,13 +17,21 @@ import {
 const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, disabled, proMode }) => (
   <div
     className={cn(
-      "flex items-center gap-3 transition-all duration-200",
-      isActive ? "bg-muted/5 shadow-[0_0_0_1px_rgba(var(--primary),.15)]" : "border border-border/80 hover:bg-muted/5 hover:border-border/20 p-3 rounded-xl",
+      "flex items-center p-2 border border-border/60 rounded-xl gap-3 transition-all duration-200 relative overflow-hidden",
+      isActive ? "bg-card shadow-[0_0_0_1px_rgba(var(--primary),.15)]" : "border border-border/80 hover:bg-muted/5 hover:border-border/20 p-3 rounded-xl",
       "bg-background",
       disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-[0.98]"
     )}
     onClick={disabled ? undefined : onClick}
   >
+    {isActive && (
+      <MeshGradient 
+        className="absolute inset-0"
+        intensity="medium"
+        speed="fast"
+        size={500}
+      />
+    )}
     <div className="relative h-10 w-10 rounded-md overflow-hidden bg-background flex-shrink-0 ring-1 ring-border/5">
       <img
         src={config.image}
@@ -30,7 +39,7 @@ const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, dis
         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
       />
     </div>
-    <div className="flex-1 min-w-0">
+    <div className="flex-1 min-w-0 relative">
       <div className="flex items-center gap-2">
         <span className="font-medium text-sm text-foreground/90">{config.name}</span>
         {config.isPremium && !proMode && <Lock className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground/70" />}
@@ -39,7 +48,7 @@ const ModelCard = ({ modelKey, config, isActive, showRadio = false, onClick, dis
         {config.tagline || (config.category === "NSFW" ? "NSFW Generation" : "Image Generation")}
       </p>
     </div>
-    <ChevronRight className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground/50" />
+    <ChevronRight className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground/50 relative" />
   </div>
 );
 

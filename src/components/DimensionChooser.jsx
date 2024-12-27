@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Lock, ChevronUp, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
+import { MeshGradient } from "@/components/ui/mesh-gradient"
 
 const useMediaQuery = (query) => {
   const [matches, setMatches] = useState(false);
@@ -79,8 +80,6 @@ const DimensionVisualizer = ({ ratio = "1:1", isPremium, quality, onQualityToggl
             <div 
               className={cn(
                 "relative overflow-hidden",
-                "border-2 border-border/80",
-                "bg-accent/10",
                 "rounded-lg",
                 "flex items-center justify-center",
                 "transition-all duration-200 ease-in-out",
@@ -92,6 +91,14 @@ const DimensionVisualizer = ({ ratio = "1:1", isPremium, quality, onQualityToggl
                 height: `${finalHeight}px`,
               }}
             >
+              {/* Mesh Gradient */}
+              <MeshGradient 
+                className="absolute inset-0"
+                intensity="medium"
+                speed="fast"
+                size={Math.max(finalWidth, finalHeight)}
+              />
+
               {/* Grid lines */}
               <div className="absolute inset-0 grid grid-cols-3 grid-rows-3">
                 {[...Array(9)].map((_, i) => (
