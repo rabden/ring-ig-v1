@@ -6,6 +6,17 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 
+const PROMPT_TIPS = [
+  "Tips: Try Remix an Image you like",
+  "Tips: Use FLux.1 Dev model for precise results",
+  "Tips: Use different models for different results",
+  "Tips: Try click the HD badge to improve quality to HD+",
+  "Tips: Use the 'Improve' button to enhance your prompt",
+  "Tips: Play with the slider to change the aspect ratio",
+  "Tips: Explore Inspiration page for more ideas",
+  "Tips: Use Stable Diffusion 3.5 large for more vibrant results",
+];
+
 const DesktopPromptBox = ({ 
   prompt,
   onChange,
@@ -22,11 +33,20 @@ const DesktopPromptBox = ({
   modelConfigs
 }) => {
   const [isFixed, setIsFixed] = useState(false);
+  const [currentTipIndex, setCurrentTipIndex] = useState(0);
   const boxRef = useRef(null);
   const textareaRef = useRef(null);
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCreditsForImprovement = totalCredits >= 1;
   const { isImproving, improveCurrentPrompt } = usePromptImprovement(userId);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTipIndex((prev) => (prev + 1) % PROMPT_TIPS.length);
+    }, 10000); // Change every 10 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Handle scroll visibility
   useEffect(() => {
@@ -101,7 +121,7 @@ const DesktopPromptBox = ({
                 value={prompt}
                 onChange={handlePromptChange}
                 onKeyDown={onKeyDown}
-                placeholder="A 4D HDR immersive 3D image..."
+                placeholder={PROMPT_TIPS[currentTipIndex]}
                 className="w-full min-h-[250px] resize-none bg-transparent text-base focus:outline-none placeholder:text-muted-foreground/40 overflow-y-auto scrollbar-none border-y border-border/5 py-6 px-3 transition-colors duration-200"
                 style={{ caretColor: 'currentColor' }}
               />
@@ -172,7 +192,7 @@ const DesktopPromptBox = ({
                   }, 500);
                 }}
               >
-                {prompt || "A 4D HDR immersive 3D image..."}
+                {prompt || PROMPT_TIPS[currentTipIndex]}
               </div>
               <Button
                 size="sm"

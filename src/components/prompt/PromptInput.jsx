@@ -1,9 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { X, ArrowRight, Sparkles, Loader } from "lucide-react";
 import { toast } from "sonner";
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
 import { cn } from "@/lib/utils";
+
+const PROMPT_TIPS = [
+  "Tips: Try Remix an Image you like",
+  "Tips: Use FLux.1 Dev model for precise results",
+  "Tips: Use different models for different results",
+  "Tips: Try click the HD badge to improve quality to HD+",
+  "Tips: Use the 'Improve' button to enhance your prompt",
+  "Tips: Play with the slider to change the aspect ratio",
+  "Tips: Explore Inspiration page for more ideas",
+  "Tips: Use Stable Diffusion 3.5 large for more vibrant results",
+];
 
 const PromptInput = ({ 
   prompt = '',
@@ -18,8 +29,17 @@ const PromptInput = ({
   bonusCredits,
   userId
 }) => {
+  const [currentTipIndex, setCurrentTipIndex] = useState(0);
   const totalCredits = (credits || 0) + (bonusCredits || 0);
   const hasEnoughCreditsForImprovement = totalCredits >= 1;
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTipIndex((prev) => (prev + 1) % PROMPT_TIPS.length);
+    }, 10000); // Change every 10 seconds
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleImprovePrompt = async () => {
     if (!userId) {
@@ -75,7 +95,7 @@ const PromptInput = ({
           value={prompt}
           onChange={onChange}
           onKeyDown={onKeyDown}
-          placeholder="A 4D HDR immersive 3D image..."
+          placeholder={PROMPT_TIPS[currentTipIndex]}
           className={cn(
             "w-full resize-none bg-transparent text-base focus:outline-none",
             "placeholder:text-muted-foreground/40 overflow-y-auto scrollbar-none",
