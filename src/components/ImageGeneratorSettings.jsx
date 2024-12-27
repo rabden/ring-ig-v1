@@ -134,6 +134,7 @@ const ImageGeneratorSettings = ({
           quality={quality}
           setQuality={setQuality}
           proMode={proMode} 
+          qualityLimits={modelConfigs?.[model]?.qualityLimits}
         />
       </SettingSection>
 

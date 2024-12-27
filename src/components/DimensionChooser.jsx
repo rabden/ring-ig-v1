@@ -19,7 +19,7 @@ const useMediaQuery = (query) => {
   return matches;
 }
 
-const DimensionVisualizer = ({ ratio = "1:1", isPremium, quality, onQualityToggle }) => {
+const DimensionVisualizer = ({ ratio = "1:1", isPremium, quality, onQualityToggle, qualityLimits }) => {
   const [width, height] = (ratio || "1:1").split(':').map(Number)
   const isMobile = useMediaQuery('(max-width: 768px)')
   const baseHeight = isMobile ? 300 : 250 // Responsive base height
@@ -42,6 +42,8 @@ const DimensionVisualizer = ({ ratio = "1:1", isPremium, quality, onQualityToggl
     finalWidth = baseHeight * (width / height)
   }
   
+  const isQualityLocked = qualityLimits?.length === 1 && qualityLimits[0] === "HD";
+  
   return (
     <div className="flex flex-col items-center space-y-2">
       <div className="relative w-full h-auto aspect-square">
@@ -49,22 +51,28 @@ const DimensionVisualizer = ({ ratio = "1:1", isPremium, quality, onQualityToggl
           <div className="relative">
             {/* Quality Badge */}
             <span 
-              role="button"
-              tabIndex={0}
-              onClick={onQualityToggle}
-              onKeyDown={(e) => e.key === 'Enter' && onQualityToggle()}
-              className="absolute left-1/2 top-0 -translate-x-1/2 translate-y-1/2 cursor-pointer z-10"
+              role={isQualityLocked ? undefined : "button"}
+              tabIndex={isQualityLocked ? undefined : 0}
+              onClick={isQualityLocked ? undefined : onQualityToggle}
+              onKeyDown={isQualityLocked ? undefined : (e) => e.key === 'Enter' && onQualityToggle()}
+              className={cn(
+                "absolute left-1/2 top-0 -translate-x-1/2 translate-y-1/2 z-10",
+                !isQualityLocked && "cursor-pointer"
+              )}
             >
               <span 
                 className={cn(
                   "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold",
                   "border-transparent bg-primary text-primary-foreground",
-                  "hover:bg-primary/90 shadow-sm",
+                  !isQualityLocked && "hover:bg-primary/90",
+                  "shadow-sm",
                   "flex items-center gap-0.2 px-1 py-0.2"
                 )}
               >
                 {quality}
-                {quality === "HD" ? <ChevronUp className="h-2.5 w-2.5" /> : <ChevronDown className="h-2.5 w-2.5" />}
+                {!isQualityLocked && (
+                  quality === "HD" ? <ChevronUp className="h-2.5 w-2.5" /> : <ChevronDown className="h-2.5 w-2.5" />
+                )}
               </span>
             </span>
 
@@ -213,7 +221,8 @@ const DimensionChooser = ({
   setAspectRatio, 
   quality = "HD",
   setQuality,
-  proMode 
+  proMode,
+  qualityLimits = null
 }) => {
   const premiumRatios = ['9:21', '21:9', '3:2', '2:3', '4:5', '5:4', '10:16', '16:10'];
   
@@ -240,7 +249,18 @@ const DimensionChooser = ({
     }
   }, [aspectRatio, proMode, setAspectRatio]);
 
+  // Force HD quality when quality is limited
+  useEffect(() => {
+    if (qualityLimits?.length === 1 && qualityLimits[0] === "HD" && quality !== "HD") {
+      setQuality("HD");
+    }
+  }, [qualityLimits, quality, setQuality]);
+
   const handleQualityToggle = () => {
+    // Don't allow toggle if quality is limited to HD
+    if (qualityLimits?.length === 1 && qualityLimits[0] === "HD") {
+      return;
+    }
     setQuality(quality === "HD" ? "HD+" : "HD");
   };
 
@@ -293,6 +313,7 @@ const DimensionChooser = ({
         isPremium={!proMode && premiumRatios.includes(aspectRatio)}
         quality={quality}
         onQualityToggle={handleQualityToggle}
+        qualityLimits={qualityLimits}
       />
       <div className="relative">
         <CustomSlider
