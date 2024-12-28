@@ -180,9 +180,9 @@ const Login = () => {
       </motion.div>
 
       {isInIframe && (
-        <div className="fixed bottom-4 right-4 bg-red-500/10 border border-red-500/20 backdrop-blur-sm rounded-lg p-3 z-50">
+        <div className="fixed top-4 right-4 bg-red-500/20 border border-red-500/60 backdrop-blur-sm rounded-xl p-3 z-50">
           <p className="text-red-500 text-sm font-medium">
-            Please Open Preview in new Tab To Be able to Sign-in
+            Please Open Preview in new Tab To Be able to Continue
           </p>
         </div>
       )}
