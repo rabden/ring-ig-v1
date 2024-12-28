@@ -25,6 +25,7 @@ const BottomNavbar = ({
   const { data: isPro } = useProUser(session?.user?.id);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [showCheckmark, setShowCheckmark] = useState(false);
+  const [isAllCompleted, setIsAllCompleted] = useState(false);
   const [prevLength, setPrevLength] = useState(generatingImages.length);
   const navigate = useNavigate();
   const location = useLocation();
@@ -45,8 +46,11 @@ const BottomNavbar = ({
     enabled: !!session?.user?.id
   });
 
-  // Handle showing checkmark when an image completes
+  // Handle showing checkmark and completion state
   useEffect(() => {
+    const allCompleted = generatingImages.length > 0 && generatingImages.every(img => img.status === 'completed');
+    setIsAllCompleted(allCompleted);
+
     if (generatingImages.length < prevLength && prevLength > 0) {
       setShowCheckmark(true);
       const timer = setTimeout(() => {
@@ -55,7 +59,7 @@ const BottomNavbar = ({
       return () => clearTimeout(timer);
     }
     setPrevLength(generatingImages.length);
-  }, [generatingImages.length, prevLength]);
+  }, [generatingImages, prevLength]);
 
   const handleNavigation = (route, tab) => {
     setActiveTab(tab);
@@ -89,8 +93,8 @@ const BottomNavbar = ({
               isActive={location.hash === '#imagegenerate'}
               onClick={() => handleNavigation('/#imagegenerate', 'input')}
               onLongPress={() => setDrawerOpen(true)}
-              badge={generatingImages.length}
-              showCheckmark={showCheckmark}
+              badge={!isAllCompleted ? generatingImages.length : undefined}
+              showCheckmark={isAllCompleted}
             />
           </div>
           <MobileNavButton
