@@ -88,30 +88,113 @@ const ModelGridCard = ({ modelKey, config, isActive, onClick, disabled, proMode 
   </div>
 );
 
-const ModelGrid = ({ filteredModels, model, setModel, proMode, className }) => (
-  <ScrollArea className={cn(
-    "h-full overflow-y-auto px-1",
-    "scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent hover:scrollbar-thumb-border/50",
-    className
-  )}>
-    <div className="grid grid-cols-2 gap-2 rounded-3xl">
-      {filteredModels.map(([key, config]) => (
-        <ModelGridCard
-          key={key}
-          modelKey={key}
-          config={config}
-          isActive={model === key}
-          proMode={proMode}
-          onClick={() => setModel(key)}
-          disabled={config.isPremium && !proMode}
-        />
-      ))}
-    </div>
-  </ScrollArea>
+const GroupSelector = ({ groups, activeGroup, onGroupChange }) => (
+  <div className="flex gap-1 px-2 py-1 mb-1 overflow-x-auto  scrollbar-thin scrollbar-thumb-border/50 scrollbar-track-transparent">
+    <Button
+      size="sm"
+      variant={activeGroup === "all" ? "default" : "outline"}
+      className="h-7 px-2 text-xs rounded-full flex-shrink-0"
+      onClick={() => onGroupChange("all")}
+    >
+      All
+    </Button>
+    {groups.map((group) => (
+      <Button
+        key={group}
+        size="sm"
+        variant={activeGroup === group ? "default" : "outline"}
+        className="h-7 px-2 text-xs rounded-full flex-shrink-0"
+        onClick={() => onGroupChange(group)}
+      >
+        {group}
+      </Button>
+    ))}
+  </div>
 );
+
+const ModelGrid = ({ filteredModels, model, setModel, proMode, className, onClose }) => {
+  const scrollAreaRef = React.useRef(null);
+  const activeCardRef = React.useRef(null);
+  const [activeGroup, setActiveGroup] = useState("all");
+
+  // Get unique groups from filtered models
+  const groups = useMemo(() => {
+    const groupSet = new Set(filteredModels.map(([_, config]) => config.group));
+    return Array.from(groupSet).sort();
+  }, [filteredModels]);
+
+  // Filter models by active group
+  const groupFilteredModels = useMemo(() => {
+    if (activeGroup === "all") return filteredModels;
+    return filteredModels.filter(([_, config]) => config.group === activeGroup);
+  }, [filteredModels, activeGroup]);
+
+  // Scroll to active model when grid is mounted or group changes
+  React.useEffect(() => {
+    if (activeCardRef.current && scrollAreaRef.current) {
+      const scrollArea = scrollAreaRef.current;
+      const activeCard = activeCardRef.current;
+      
+      // Get the scroll container's and active card's dimensions
+      const scrollRect = scrollArea.getBoundingClientRect();
+      const cardRect = activeCard.getBoundingClientRect();
+      
+      // Calculate the scroll position to center the active card
+      const scrollTop = cardRect.top - scrollRect.top - (scrollRect.height - cardRect.height) / 2;
+      
+      // Smooth scroll to the active card
+      scrollArea.scrollTo({
+        top: scrollTop,
+        behavior: 'smooth'
+      });
+    }
+  }, [model, activeGroup]);
+
+  const handleModelSelect = (modelKey) => {
+    setModel(modelKey);
+    onClose?.();
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      <GroupSelector 
+        groups={groups}
+        activeGroup={activeGroup}
+        onGroupChange={setActiveGroup}
+      />
+      <ScrollArea 
+        ref={scrollAreaRef}
+        className={cn(
+          "flex-1 overflow-y-auto px-1",
+          "scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent hover:scrollbar-thumb-border/50",
+          className
+        )}
+      >
+        <div className="grid grid-cols-2 gap-2 rounded-3xl pb-1">
+          {groupFilteredModels.map(([key, config]) => (
+            <div 
+              key={key}
+              ref={model === key ? activeCardRef : null}
+            >
+              <ModelGridCard
+                modelKey={key}
+                config={config}
+                isActive={model === key}
+                proMode={proMode}
+                onClick={() => handleModelSelect(key)}
+                disabled={config.isPremium && !proMode}
+              />
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
+    </div>
+  );
+};
 
 const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   
   // Filter models based on NSFW state
   const filteredModels = useMemo(() => {
@@ -167,7 +250,7 @@ const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) =
     >
       {/* Desktop: Popover */}
       <div className="hidden md:block">
-        <Popover>
+        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
           <PopoverTrigger asChild>
             <div className="w-full group">
               <ModelCard
@@ -181,16 +264,17 @@ const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) =
           </PopoverTrigger>
           <PopoverContent 
             side="left"
-            align="start"
+            align="center"
             sideOffset={16}
-            className="w-[600px] p-1 px-0 max-h-[90vh] border-border/80 bg-secondary rounded-3xl overflow-hidden my-8"
+            className="w-[600px] p-1 px-0 h-[90vh] border-border/80 bg-secondary rounded-3xl overflow-hidden my-[5vh]"
           >
             <ModelGrid 
               filteredModels={filteredModels}
               model={model}
               setModel={handleModelSelection}
               proMode={proMode}
-              className="max-h-[calc(90vh-1.5rem)] overflow-y-auto scrollbar-none rounded-3xl"
+              onClose={() => setIsPopoverOpen(false)}
+              className="h-full rounded-3xl"
             />
           </PopoverContent>
         </Popover>
@@ -221,7 +305,8 @@ const ModelChooser = ({ model, setModel, proMode, nsfwEnabled, modelConfigs }) =
                 model={model}
                 setModel={handleModelSelection}
                 proMode={proMode}
-                className="max-h-[80vh]"
+                onClose={() => setIsDrawerOpen(false)}
+                className="max-h-[70vh]"
               />
             </div>
           </DrawerContent>

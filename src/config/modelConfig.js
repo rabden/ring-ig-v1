@@ -2,6 +2,7 @@ export const modelConfig = {
   flux: {
     name: "Flux.1 Schnell",
     category: "General",
+    group: "Base Models",
     apiUrl: "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell",
     qualityLimits: null,
     isPremium: false,
@@ -17,6 +18,7 @@ export const modelConfig = {
   turbo: {
     name: "SD-3.5Large-turbo",
     category: "General",
+    group: "Base Models",
     apiUrl: "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large-turbo",
     qualityLimits: ["HD"],
     isPremium: false,
@@ -33,6 +35,7 @@ export const modelConfig = {
   sd35l: {
     name: "SD-3.5Large",
     category: "General",
+    group: "Base Models",
     apiUrl: "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-3.5-large",
     qualityLimits: ["HD"],
     isPremium: false,
@@ -49,6 +52,7 @@ export const modelConfig = {
   fluxDev: {
     name: "FLx.1 Dev",
     category: "General",
+    group: "Base Models",
     apiUrl: "https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-dev",
     qualityLimits: null,
     isPremium: false,
@@ -63,6 +67,7 @@ export const modelConfig = {
   ultra: {
     name: "Flux.1 Pro",
     category: "General",
+    group: "Base Models",
     apiUrl: "https://api-inference.huggingface.co/models/strangerzonehf/Flux-Ultimate-LoRA-Collection",
     qualityLimits: null,
     isPremium: true,
@@ -79,6 +84,7 @@ export const modelConfig = {
   midjourney: {
     name: "Midjourney-V6",
     category: "General",
+    group: "Style Models",
     apiUrl: "https://api-inference.huggingface.co/models/strangerzonehf/Flux-Midjourney-Mix2-LoRA",
     qualityLimits: null,
     isPremium: false,
@@ -95,6 +101,7 @@ export const modelConfig = {
   logodesign: {
     name: "Logo Design",
     category: "General",
+    group: "Design",
     apiUrl: "https://api-inference.huggingface.co/models/Shakker-Labs/FLUX.1-dev-LoRA-Logo-Design",
     qualityLimits: null,
     isPremium: false,
@@ -111,6 +118,7 @@ export const modelConfig = {
   logodesign2: {
     name: "Logo Design 2",
     category: "General",
+    group: "Design",
     apiUrl: "https://api-inference.huggingface.co/models/imagepipeline/Logo",
     qualityLimits: null,
     isPremium: false,
@@ -127,6 +135,7 @@ export const modelConfig = {
   dalle: {
     name: "Dall-E 3",
     category: "General",
+    group: "Base Models",
     apiUrl: "https://api-inference.huggingface.co/models/Nercy/flux-dalle",
     qualityLimits: null,
     isPremium: false,
@@ -143,6 +152,7 @@ export const modelConfig = {
   surreal: {
     name: "Surreal Dream",
     category: "General",
+    group: "Style Models",
     apiUrl: "https://api-inference.huggingface.co/models/markury/surrealidescent",
     qualityLimits: null,
     isPremium: false,
@@ -159,6 +169,7 @@ export const modelConfig = {
   fastReal: {
     name: "Realism",
     category: "General",
+    group: "Style Models",
     apiUrl: "https://api-inference.huggingface.co/models/prithivMLmods/Canopus-LoRA-Flux-FaceRealism",
     qualityLimits: null,
     isPremium: false,
@@ -175,6 +186,7 @@ export const modelConfig = {
   fastReal2: {
     name: "Realism 2",
     category: "General",
+    group: "Style Models",
     apiUrl: "https://api-inference.huggingface.co/models/imagepipeline/Flux_Realism_Super_Lora",
     qualityLimits: null,
     isPremium: false,
@@ -191,6 +203,7 @@ export const modelConfig = {
   darkfantasy: {
     name: "Dark Fantasy",
     category: "General",
+    group: "Style Models",
     apiUrl: "https://api-inference.huggingface.co/models/Shakker-Labs/FLUX.1-dev-LoRA-Dark-Fantasy",
     qualityLimits: null,
     isPremium: false,
@@ -207,6 +220,7 @@ export const modelConfig = {
   Illustturbo: {
     name: "Illustration turbo",
     category: "General",
+    group: "Art",
     apiUrl: "https://api-inference.huggingface.co/models/prithivMLmods/Simple-Doodle-SD3.5-Turbo",
     qualityLimits: ["HD"],
     isPremium: false,
@@ -223,6 +237,7 @@ export const modelConfig = {
   render3d: {
     name: "3D Render XL",
     category: "General",
+    group: "3D",
     apiUrl: "https://api-inference.huggingface.co/models/goofyai/3D_Render_for_Flux",
     qualityLimits: null,
     isPremium: false,
@@ -239,6 +254,7 @@ export const modelConfig = {
   anime: {
     name: "Anime XL",
     category: "General",
+    group: "Anime",
     apiUrl: "https://api-inference.huggingface.co/models/Nishitbaria/LoRa-Flux-Anime-Style",
     qualityLimits: null,
     isPremium: false,
@@ -255,6 +271,7 @@ export const modelConfig = {
   anime2xl: {
     name: "Anime XL 2",
     category: "General",
+    group: "Anime",
     apiUrl: "https://api-inference.huggingface.co/models/Nishitbaria/AnimeXL",
     qualityLimits: null,
     isPremium: false,
@@ -271,6 +288,7 @@ export const modelConfig = {
   modernanime: {
     name: "Modern Anime",
     category: "General",
+    group: "Anime",
     apiUrl: "https://api-inference.huggingface.co/models/imagepipeline/flux-Anime",
     qualityLimits: null,
     isPremium: false,
@@ -287,6 +305,7 @@ export const modelConfig = {
   ghiblianime: {
     name: "Ghibli Anime",
     category: "General",
+    group: "Anime",
     apiUrl: "https://api-inference.huggingface.co/models/Nishitbaria/ghibli-stlye-lora",
     qualityLimits: null,
     isPremium: false,
@@ -303,6 +322,7 @@ export const modelConfig = {
   dreamscape: {
     name: "Dreamscape",
     category: "General",
+    group: "Style Models",
     apiUrl: "https://api-inference.huggingface.co/models/bingbangboom/flux_dreamscape",
     qualityLimits: null,
     isPremium: false,
@@ -319,6 +339,7 @@ export const modelConfig = {
   cinestill: {
     name: "CineStill",
     category: "General",
+    group: "Style Models",
     apiUrl: "https://api-inference.huggingface.co/models/adirik/flux-cinestill",
     qualityLimits: null,
     isPremium: false,
@@ -335,6 +356,7 @@ export const modelConfig = {
   asianbeauty: {
     name: "Asian Beauty",
     category: "General",
+    group: "Style Models",
     apiUrl: "https://api-inference.huggingface.co/models/TDN-M/East-asian-beauty",
     qualityLimits: null,
     isPremium: false,
@@ -351,6 +373,7 @@ export const modelConfig = {
   pencilSketch: {
     name: "Pencil Sketch",
     category: "General",
+    group: "Art",
     apiUrl: "https://api-inference.huggingface.co/models/Datou1111/shou_xin",
     qualityLimits: null,
     isPremium: false,
@@ -367,6 +390,7 @@ export const modelConfig = {
   vertorArt: {
     name: "Vector Art",
     category: "General",
+    group: "Art",
     apiUrl: "https://api-inference.huggingface.co/models/lichorosario/flux-lora-simple-vector",
     qualityLimits: null,
     isPremium: false,
@@ -383,6 +407,7 @@ export const modelConfig = {
   undraw: {
     name: "Undraw Illustration",
     category: "General",
+    group: "Art",
     apiUrl: "https://api-inference.huggingface.co/models/AlloReview/flux-lora-undraw",
     qualityLimits: null,
     isPremium: false,
@@ -399,6 +424,7 @@ export const modelConfig = {
   graphic: {
     name: "Graphic Arts",
     category: "General",
+    group: "Art",
     apiUrl: "https://api-inference.huggingface.co/models/securemepro/ai_graphic",
     qualityLimits: null,
     isPremium: false,
@@ -415,6 +441,7 @@ export const modelConfig = {
   Isometric: {
     name: "Isometric",
     category: "General",
+    group: "3D",
     apiUrl: "https://api-inference.huggingface.co/models/strangerzonehf/Flux-Isometric-3D-LoRA",
     qualityLimits: null,
     isPremium: false,
@@ -431,6 +458,7 @@ export const modelConfig = {
   mixreality: {
     name: "Mix Reality",
     category: "General",
+    group: "Style Models",
     apiUrl: "https://api-inference.huggingface.co/models/Shakker-Labs/FLUX.1-dev-LoRA-Logo-Design",
     qualityLimits: null,
     isPremium: false,
@@ -447,6 +475,7 @@ export const modelConfig = {
   fashion: {
     name: "Fashion Photography",
     category: "General",
+    group: "Style Models",
     apiUrl: "https://api-inference.huggingface.co/models/imagepipeline/Fashion",
     qualityLimits: null,
     isPremium: false,
@@ -463,6 +492,7 @@ export const modelConfig = {
   sticker: {
     name: "Sticker",
     category: "General",
+    group: "Art",
     apiUrl: "https://api-inference.huggingface.co/models/prithivMLmods/Ton618-Only-Stickers-Flux-LoRA",
     qualityLimits: null,
     isPremium: false,
@@ -479,6 +509,7 @@ export const modelConfig = {
   handwriting: {
     name: "Handwriting",
     category: "General",
+    group: "Art",
     apiUrl: "https://api-inference.huggingface.co/models/fofr/flux-handwriting",
     qualityLimits: null,
     isPremium: false,
@@ -495,6 +526,7 @@ export const modelConfig = {
   teenoutfitGenerator: {
     name: "Teen Outfit",
     category: "General",
+    group: "Design",
     apiUrl: "https://api-inference.huggingface.co/models/prithivMLmods/Teen-Outfit",
     qualityLimits: null,
     isPremium: false,
@@ -511,6 +543,7 @@ export const modelConfig = {
   colorChaos: {
     name: "Color Chaos",
     category: "General",
+    group: "Art",
     apiUrl: "https://api-inference.huggingface.co/models/prithivMLmods/Digital-Chaos-Flux-LoRA",
     qualityLimits: null,
     isPremium: false,
@@ -527,6 +560,7 @@ export const modelConfig = {
   pixelArt: {
     name: "Pixel Art",
     category: "General",
+    group: "Art",
     apiUrl: "https://api-inference.huggingface.co/models/mindlywork/pixel_art_style_v1.0",
     qualityLimits: null,
     isPremium: false,
@@ -543,6 +577,7 @@ export const modelConfig = {
   iconkit: {
     name: "Icon Kit",
     category: "General",
+    group: "Design",
     apiUrl: "https://api-inference.huggingface.co/models/strangerzonehf/Flux-Icon-Kit-LoRA",
     qualityLimits: null,
     isPremium: false,
@@ -559,6 +594,7 @@ export const modelConfig = {
   aura: {
     name: "Aura 9999+",
     category: "General",
+    group: "Style Models",
     apiUrl: "https://api-inference.huggingface.co/models/prithivMLmods/Aura-9999",
     qualityLimits: null,
     isPremium: false,
@@ -575,6 +611,7 @@ export const modelConfig = {
   blacked: {
     name: "Minimal blacked",
     category: "General",
+    group: "Style Models",
     apiUrl: "https://api-inference.huggingface.co/models/prithivMLmods/SD3.5-Large-Minimal-Blacked-LoRA",
     qualityLimits: ["HD"],
     isPremium: false,
@@ -591,6 +628,7 @@ export const modelConfig = {
   gameassets: {
     name: "Game assets",
     category: "General",
+    group: "Design",
     apiUrl: "https://api-inference.huggingface.co/models/gokaygokay/Flux-Game-Assets-LoRA-v2",
     qualityLimits: null,
     isPremium: false,
@@ -607,6 +645,7 @@ export const modelConfig = {
   disney: {
     name: "Disney",
     category: "General",
+    group: "Style Models",
     apiUrl: "https://api-inference.huggingface.co/models/Keltezaa/all-disney-princess-xl-lora-model-from-ralph-breaks-the-internet",
     qualityLimits: ["HD"],
     isPremium: false,
@@ -623,6 +662,7 @@ export const modelConfig = {
   nsfwMaster: {
     name: "Real",
     category: "NSFW",
+    group: "NSFW",
     apiUrl: "https://api-inference.huggingface.co/models/aifeifei798/sldr_flux_nsfw_v2-studio",
     qualityLimits: null,
     isPremium: false,
@@ -639,6 +679,7 @@ export const modelConfig = {
   animeNsfw: {
     name: "Anime",
     category: "NSFW",
+    group: "NSFW",
     apiUrl: "https://api-inference.huggingface.co/models/John6666/mala-anime-mix-nsfw-pony-xl-v5-sdxl",
     qualityLimits: null,
     isPremium: false,
@@ -655,6 +696,7 @@ export const modelConfig = {
   nudephotography: {
     name: "Nude Photography",
     category: "NSFW",
+    group: "NSFW",
     apiUrl: "https://api-inference.huggingface.co/models/Keltezaa/Prof_Nude_photography_v3_flux",
     qualityLimits: null,
     isPremium: false,
