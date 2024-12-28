@@ -7,6 +7,7 @@ import { Typewriter } from 'react-simple-typewriter';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MeshGradient } from '@/components/ui/mesh-gradient';
+import logoImage from '/logo.png';
 
 const texts = [
   "Create stunning AI art with a single prompt",
@@ -81,6 +82,19 @@ const Login = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Preload logo
+  useEffect(() => {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = logoImage;
+    document.head.appendChild(link);
+
+    return () => {
+      document.head.removeChild(link);
+    };
+  }, []);
+
   if (loading) {
     return <LoadingScreen />;
   }
@@ -151,9 +165,11 @@ const Login = () => {
               </h1>
               <div className="flex items-center">
                 <img 
-                  src="/logo.png" 
+                  src={logoImage}
                   alt="Ring Logo" 
                   className="w-8 h-8 object-contain"
+                  loading="eager"
+                  fetchPriority="high"
                 />
                 <span className="text-3xl md:text-3xl font-medium tracking-tight">
                   ing
