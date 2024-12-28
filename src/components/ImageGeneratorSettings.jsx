@@ -95,10 +95,10 @@ const ImageGeneratorSettings = ({
   };
 
   return (
-    <div className="space-y-6 pb-20 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
+    <div className="space-y-4 pb-16 md:pb-0 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500">
 
       {isGenerateTab && (
-        <div className="flex justify-center w-full">
+        <div className="flex justify-center w-full mb-2">
           <CreditCounter credits={credits} bonusCredits={bonusCredits} />
         </div>
       )}

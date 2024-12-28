@@ -5,6 +5,7 @@ import CreditCounter from '@/components/ui/credit-counter';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { usePromptImprovement } from '@/hooks/usePromptImprovement';
+import { MeshGradient } from '@/components/ui/mesh-gradient';
 
 const PROMPT_TIPS = [
   "Tips: Try Remix an Image you like",
@@ -131,6 +132,14 @@ const DesktopPromptBox = ({
         )}
       >
         <div className="relative bg-card border border-border/80 rounded-2xl transition-all duration-300">
+          {isImproving && (
+            <MeshGradient 
+              className="absolute inset-0 rounded-2xl animate-faster" 
+              intensity="strong"
+              speed="fast"
+              size={1200}
+            />
+          )}
           <div className="p-2">
             <div className="relative">
               <textarea
@@ -144,7 +153,7 @@ const DesktopPromptBox = ({
                   "placeholder:text-muted-foreground/40 overflow-y-auto scrollbar-none",
                   "border-y border-border/5 py-6 px-3",
                   "transition-colors duration-200",
-                  isImproving && "opacity-50"
+                  isImproving && "opacity-80"
                 )}
                 style={{ caretColor: 'currentColor' }}
                 disabled={isImproving}

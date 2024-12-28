@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Lock, ChevronUp, ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
-import { MeshGradient } from "@/components/ui/mesh-gradient"
 
 const useMediaQuery = (query) => {
   const [matches, setMatches] = useState(false);
@@ -46,7 +45,7 @@ const DimensionVisualizer = ({ ratio = "1:1", isPremium, quality, onQualityToggl
   const isQualityLocked = qualityLimits?.length === 1 && qualityLimits[0] === "HD";
   
   return (
-    <div className="flex flex-col items-center space-y-2">
+    <div className="flex flex-col items-center space-y-1">
       <div className="relative w-full h-auto aspect-square">
         <div className="relative w-full h-full flex items-center justify-center">
           <div className="relative">
@@ -57,17 +56,16 @@ const DimensionVisualizer = ({ ratio = "1:1", isPremium, quality, onQualityToggl
               onClick={isQualityLocked ? undefined : onQualityToggle}
               onKeyDown={isQualityLocked ? undefined : (e) => e.key === 'Enter' && onQualityToggle()}
               className={cn(
-                "absolute left-1/2 top-0 -translate-x-1/2 translate-y-1/2 z-10",
+                "absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 z-10",
                 !isQualityLocked && "cursor-pointer"
               )}
             >
               <span 
                 className={cn(
-                  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold",
+                  "inline-flex items-center rounded-full text-xs font-semibold",
                   "border-transparent bg-primary text-primary-foreground",
                   !isQualityLocked && "hover:bg-primary/90",
-                  "shadow-sm",
-                  "flex items-center gap-0.2 px-2 py-0.5"
+                  "flex items-center gap-1 px-5 py-0.5"
                 )}
               >
                 {quality}
@@ -83,55 +81,45 @@ const DimensionVisualizer = ({ ratio = "1:1", isPremium, quality, onQualityToggl
                 "rounded-lg",
                 "flex items-center justify-center",
                 "transition-all duration-200 ease-in-out",
-                "mt-4",
-                isPremium && "ring-2 ring-primary/40 border-primary/40"
+                "border-2 border-border/80",
               )}
               style={{
                 width: `${finalWidth}px`,
                 height: `${finalHeight}px`,
               }}
             >
-              {/* Mesh Gradient */}
-              <MeshGradient 
-                className="absolute inset-0"
-                intensity="medium"
-                speed="fast"
-                size={Math.max(finalWidth, finalHeight)}
-              />
-
               {/* Grid lines */}
               <div className="absolute inset-0 grid grid-cols-3 grid-rows-3">
                 {[...Array(9)].map((_, i) => (
                   <div 
                     key={i} 
-                    className="border border-border/40 hover:border-border/60 transition-colors duration-200"
+                    className="border border-border/60 hover:border-border/60 transition-colors duration-200"
                   />
                 ))}
               </div>
               
               {/* Center lines */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div className="w-full h-[2px] bg-border/40" />
-                <div className="absolute h-full w-[2px] bg-border/40" />
+                <div className="w-full h-[2px] bg-border/60" />
+                <div className="absolute h-full w-[2px] bg-border/60" />
               </div>
 
               {/* Helper lines */}
               <div className="absolute inset-0">
-                <div className="absolute top-0 left-1/3 w-[2px] h-2 border-border/40" />
-                <div className="absolute top-0 right-1/3 w-[2px] h-2 border-border/40" />
-                <div className="absolute bottom-0 left-1/3 w-[2px] h-2 border-border/40" />
-                <div className="absolute bottom-0 right-1/3 w-[2px] h-2 border-border/40" />
-                <div className="absolute left-0 top-1/3 h-[2px] w-2 border-border/40" />
-                <div className="absolute left-0 bottom-1/3 h-[2px] w-2 border-border/40" />
-                <div className="absolute right-0 top-1/3 h-[2px] w-2 border-border/40" />
-                <div className="absolute right-0 bottom-1/3 h-[2px] w-2 border-border/40" />
+                <div className="absolute top-0 left-1/3 w-[2px] h-2 border-border/60" />
+                <div className="absolute top-0 right-1/3 w-[2px] h-2 border-border/60" />
+                <div className="absolute bottom-0 left-1/3 w-[2px] h-2 border-border/60" />
+                <div className="absolute bottom-0 right-1/3 w-[2px] h-2 border-border/60" />
+                <div className="absolute left-0 top-1/3 h-[2px] w-2 border-border/60" />
+                <div className="absolute left-0 bottom-1/3 h-[2px] w-2 border-border/60" />
+                <div className="absolute right-0 top-1/3 h-[2px] w-2 border-border/60" />
+                <div className="absolute right-0 bottom-1/3 h-[2px] w-2 border-border/60" />
               </div>
 
               {/* Aspect ratio text */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className={cn(
-                  "flex items-center gap-2 px-2 py-1 rounded-lg",
-                  "bg-background/50 backdrop-blur-sm"
+                  "flex items-center gap-2",
                 )}>
                   <span className="text-sm font-medium">
                     {ratio}
@@ -314,7 +302,7 @@ const DimensionChooser = ({
   }
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-0.5">
       <DimensionVisualizer 
         ratio={aspectRatio} 
         isPremium={!proMode && premiumRatios.includes(aspectRatio)}
