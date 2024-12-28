@@ -50,8 +50,20 @@ const Login = () => {
   const { session, loading } = useSupabaseAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [currentImageIndex, setCurrentImageIndex] = useState(() => Math.floor(Math.random() * images.length));
   const [isImageLoading, setIsImageLoading] = useState(true);
+  const [isInIframe, setIsInIframe] = useState(false);
+
+  useEffect(() => {
+    // Check if page is in an iframe or being rendered by puppeteer
+    try {
+      const isIframe = window.self !== window.top;
+      const isPuppeteer = navigator.userAgent.includes('puppeteer');
+      setIsInIframe(isIframe || isPuppeteer);
+    } catch (e) {
+      setIsInIframe(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (session) {
@@ -75,12 +87,19 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-background backdrop-blur-sm relative overflow-hidden">
+      <MeshGradient 
+        intensity="medium" 
+        speed="fast" 
+        size={800}
+        className="z-0"
+        className2="bg-background/5 backdrop-blur-[1px]"
+      />
       {/* Left side with background image */}
       <motion.div 
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="w-full h-[50vh] md:h-auto md:w-3/5 relative overflow-hidden"
+        className="w-full h-[50vh] md:h-auto md:w-3/5 relative overflow-hidden z-10"
       >
         <div className="relative w-full h-full">
           <div className="absolute inset-0">
@@ -117,16 +136,9 @@ const Login = () => {
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
-        className="w-full h-[50vh] md:h-auto md:w-3/5 flex items-center justify-center p-2 relative"
+        className="w-full md:h-auto md:w-3/5 flex items-center justify-center p-2 mt-10 md:mt-0 relative z-10"
       >
-        <MeshGradient 
-          intensity="medium" 
-          speed="slow" 
-          size={400}
-          className="z-0"
-          className2="bg-background/5 backdrop-blur-[1px]"
-        />
-        <div className="w-full space-y-4 relative z-10">
+        <div className="w-full space-y-4 relative">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -166,6 +178,14 @@ const Login = () => {
           </motion.div>
         </div>
       </motion.div>
+
+      {isInIframe && (
+        <div className="fixed bottom-4 right-4 bg-red-500/10 border border-red-500/20 backdrop-blur-sm rounded-lg p-3 z-50">
+          <p className="text-red-500 text-sm font-medium">
+            Please Open this Page in Another Tab To Be able to Sign-in
+          </p>
+        </div>
+      )}
     </div>
   );
 };
