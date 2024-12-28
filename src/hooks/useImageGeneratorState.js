@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useModelConfigs } from './useModelConfigs';
 
 export const useImageGeneratorState = () => {
@@ -27,6 +27,27 @@ export const useImageGeneratorState = () => {
     imageCount: 1,
     isPrivate: false
   });
+
+  // Add auto-removal of completed images
+  useEffect(() => {
+    const completedImages = state.generatingImages.filter(img => img.status === 'completed');
+    
+    if (completedImages.length > 0) {
+      const timeouts = completedImages.map(img => {
+        return setTimeout(() => {
+          setState(prev => ({
+            ...prev,
+            generatingImages: prev.generatingImages.filter(i => i.id !== img.id)
+          }));
+        }, 10000); // 10 seconds
+      });
+
+      // Cleanup timeouts
+      return () => {
+        timeouts.forEach(timeout => clearTimeout(timeout));
+      };
+    }
+  }, [state.generatingImages]);
 
   const setGeneratingImages = (value) => {
     setState(prev => ({
