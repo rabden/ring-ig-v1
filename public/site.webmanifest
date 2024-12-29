@@ -8,7 +8,7 @@
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
-  "orientation": "any",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "https://ring.lovable.app/logo.png",
@@ -28,14 +28,21 @@
       "name": "Create New Image",
       "short_name": "Create",
       "description": "Start generating a new AI image",
-      "url": "/generate",
+      "url": "/#imagegenerate",
       "icons": [{ "src": "https://ring.lovable.app/logo.png", "sizes": "192x192" }]
     },
     {
       "name": "My Gallery",
       "short_name": "Gallery",
       "description": "View your generated images",
-      "url": "/gallery",
+      "url": "/#myimages",
+      "icons": [{ "src": "https://ring.lovable.app/logo.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Inspiration",
+      "short_name": "Gallery",
+      "description": "View your generated images",
+      "url": "/inspiration#top",
       "icons": [{ "src": "https://ring.lovable.app/logo.png", "sizes": "192x192" }]
     }
   ],
