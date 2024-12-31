@@ -7,7 +7,7 @@ import { Typewriter } from 'react-simple-typewriter';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MeshGradient } from '@/components/ui/mesh-gradient';
-import logoImage from '/logo.png';
+import logoImage from 'https://ring.lovable.app/logo.png';
 
 const texts = [
   "Create stunning AI art with a single prompt",
