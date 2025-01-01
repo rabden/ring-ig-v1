@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useSupabaseAuth } from '@/integrations/supabase/auth';
 import { AuthUI } from '@/integrations/supabase/components/AuthUI';
 import LoadingScreen from '@/components/LoadingScreen';
-import { Typewriter } from 'react-simple-typewriter';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MeshGradient } from '@/components/ui/mesh-gradient';
@@ -31,19 +30,37 @@ const images = [
   "https://i.ibb.co.com/nkxPsYG/images-2.jpg"
 ];
 
-const DISPLAY_DURATION = 6000;
+const DISPLAY_DURATION = 8000;
 
-const TypewriterWrapper = () => {
+const AnimatedText = () => {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % texts.length);
+    }, 8000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <Typewriter
-      words={texts}
-      loop={true}
-      cursor={true}
-      cursorStyle="|"
-      typeSpeed={50}
-      deleteSpeed={30}
-      delaySpeed={2000}
-    />
+    <div className="relative h-[2rem] flex items-center justify-center overflow-hidden">
+      <AnimatePresence mode="wait">
+        <motion.p
+          key={index}
+          initial={{ y: 50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -50, opacity: 0 }}
+          transition={{ 
+            y: { type: "spring", stiffness: 300, damping: 30 },
+            opacity: { duration: 0.2 }
+          }}
+          className="text-base md:text-lg text-foreground/70 font-normal absolute"
+        >
+          {texts[index]}
+        </motion.p>
+      </AnimatePresence>
+    </div>
   );
 };
 
@@ -176,9 +193,7 @@ const Login = () => {
                 </span>
               </div>
             </div>
-            <p className="text-base md:text-lg text-foreground/70 min-h-[2rem] font-normal">
-              <TypewriterWrapper />
-            </p>
+            <AnimatedText />
           </motion.div>
 
           <motion.div 
