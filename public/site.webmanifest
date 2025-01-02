@@ -2,8 +2,8 @@
   "name": "Ring1",
   "short_name": "Ring1",
   "description": "Ring1 Application",
-  "start_url": ".",
-  "scope": ".",
+  "start_url": "/ring1/",
+  "scope": "/ring1/",
   "display": "standalone",
   "orientation": "any",
   "background_color": "#ffffff",
@@ -25,7 +25,8 @@
   "shortcuts": [
     {
       "name": "Home",
-      "url": "/"
+      "url": "/ring1/",
+      "description": "Go to home page"
     }
   ]
 } 
