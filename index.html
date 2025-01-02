@@ -7,6 +7,11 @@
     <link rel="manifest" href="/ring1/site.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Ring1 Application" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="Ring1" />
+    <link rel="apple-touch-icon" href="/ring1/logo.png" />
     <title>Ring1</title>
     <script type="module" crossorigin src="/ring1/assets/index-yQcfEPgK.js"></script>
     <link rel="modulepreload" crossorigin href="/ring1/assets/ui-BA32w1ww.js">
@@ -15,5 +20,19 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              console.log('ServiceWorker registration successful');
+            })
+            .catch(err => {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+      }
+    </script>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
   </body>
 </html> 
