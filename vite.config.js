@@ -5,6 +5,7 @@ import { resolve } from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => ({
+  base: '/ring1/',
   server: {
     host: "::",
     port: "8080",
@@ -24,5 +25,8 @@ export default defineConfig(({ mode }) => ({
         replacement: resolve(__dirname, "lib"),
       },
     ],
+  },
+  build: {
+    outDir: 'dist',
   },
 }));
