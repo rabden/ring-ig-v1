@@ -17,7 +17,6 @@ export const AuthUI = ({ buttonText }) => {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.href,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
